@@ -1,0 +1,24 @@
+{
+  "name": "aspire-bench",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22.14.0" },
+  "scripts": {
+    "build": "tsc",
+    "test": "npm run build && node --test tests/*.test.mjs",
+    "check": "tsc --noEmit",
+    "bench": "npm run build --silent && node dist/cli.js",
+    "validate": "npm run check && npm test && npm run bench -- validate"
+  },
+  "dependencies": {
+    "@github/copilot-sdk": "1.0.14",
+    "@microsoft/vally": "0.17.0",
+    "@microsoft/vally-cli": "0.17.0",
+    "yaml": "2.8.3"
+  },
+  "devDependencies": {
+    "@types/node": "24.10.0",
+    "typescript": "5.9.3"
+  }
+}

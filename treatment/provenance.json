@@ -1,0 +1,8 @@
+{
+  "repository": "https://github.com/microsoft/aspire-skills",
+  "commit": "8377d70a4b7174d4571b78166689f5c438c3728b",
+  "path": "skills",
+  "license": "MIT",
+  "installation": "Licensed upstream snapshot copied to each treatment's .agents/skills; all seven Aspire SKILL.md files and all reference files. Upstream skill-evaluation fixtures are excluded.",
+  "mcp": { "type": "stdio", "command": "aspire", "args": ["agent", "mcp", "--non-interactive", "--nologo"] }
+}

@@ -1,0 +1,26 @@
+{
+  "name": "aspirifridays",
+  "version": "1.0.0",
+  "description": "AspiriFridays bingo",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@microsoft/signalr": "^10.0.11",
+    "vue": "^3.5.42"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.8",
+    "vite": "^7.3.6"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}

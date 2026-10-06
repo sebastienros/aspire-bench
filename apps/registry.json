@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "applications": {
+    "bingo": {
+      "adapter": "bingo",
+      "description": "Workshop bingo: PostgreSQL, Redis, migrations, Blazor admin and Vue/Vite player",
+      "variants": {
+        "raw": { "fixture": "apps/bingo/raw", "kind": "compose" },
+        "aspire": { "fixture": "apps/bingo/aspire", "kind": "aspire", "apphost": "apphost.cs" }
+      },
+      "scenarios": ["launch-and-verify"]
+    }
+  }
+}

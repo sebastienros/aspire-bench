@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.research/
+.runs/
+bin/
+obj/
+**/node_modules/
+**/.script-state/
+**/.aspire/
+.env
+.env.*
+!**/.env.example
+*.log
+.DS_Store

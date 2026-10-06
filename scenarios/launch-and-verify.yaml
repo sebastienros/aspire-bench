@@ -1,0 +1,27 @@
+name: launch-and-verify
+version: "1"
+type: capability
+description: Launch the complete application and demonstrate working backend, frontend and dependencies.
+defaults:
+  executor: isolated-benchmark
+  runs: 1
+  timeout: 15m
+stimuli:
+  - name: launch-and-verify
+    prompt: |
+      Launch this application's complete local stack using its documented entrypoint.
+      Verify that the admin portal and player frontend are reachable, database migrations
+      and seeding have completed, and PostgreSQL and Redis are working. Demonstrate that
+      the frontend's backend API and SignalR proxy work. Leave the stack running.
+      Write benchmark-endpoints.json in the workspace root with exactly these keys:
+      {"admin":"http://localhost:PORT","frontend":"http://localhost:PORT"}.
+      Use the run-scoped configuration already provided in your environment. Do not
+      replace services with mocks, modify application source, or access anything outside
+      this workspace. Do not stop unrelated services or change global configuration.
+      The harness performs independent verification and cleanup after you finish.
+    graders:
+      - type: application-ready
+        name: objective-success
+        required: true
+scoring:
+  threshold: 1
