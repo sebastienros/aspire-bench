@@ -19,6 +19,20 @@ test("scenario uses the published Vally schema and identical scoring", async () 
   assert.equal(raw.stimuli.length, 1);
 });
 
+test("comparison deltas use the native baseline and matched successes, not cheap failures", () => {
+  const metrics = (wallTimeMs, totalTokens) =>
+    ({ wallTimeMs, tokenUsage: { totalTokens }, toolCallCount: 4, turnCount: 2 });
+  const report = pairedReport([
+    { trial: 1, variant: "raw", success: true, metrics: metrics(2000, 100) },
+    { trial: 1, variant: "aspire", success: true, metrics: metrics(1000, 80) },
+    { trial: 2, variant: "raw", success: false, metrics: metrics(500, 10) },
+    { trial: 2, variant: "aspire", success: true, metrics: metrics(1000, 80) },
+  ]);
+  assert.match(report, /aspire \| 1 \| -1\.00 \| -20\.00 \| 0\.00 \| 0\.00/);
+  assert.match(pairedReport([{ trial: 1, variant: "aspire-none", success: true }]),
+    /Baseline \*\*raw\*\* was not selected/);
+});
+
 test("paired report represents unavailable costs honestly", () => {
   const report = pairedReport([
     { trial: 1, variant: "raw", status: "error", success: false },

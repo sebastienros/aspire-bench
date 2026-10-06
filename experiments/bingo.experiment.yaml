@@ -1,0 +1,69 @@
+name: repo-comparison
+evals:
+  - ../scenarios/launch-and-verify.yaml
+execution:
+  workers: 1
+vary:
+  - /environment/files
+  - /environment/skills
+  - /environment/mcpServers
+baseline: raw
+variants:
+  raw:
+    environment:
+      files:
+        - {src: ../apps/bingo/raw, dest: .}
+      skills: []
+      mcpServers: null
+  aspire-none:
+    environment:
+      files:
+        - {src: ../apps/bingo/aspire, dest: .}
+        - {src: ../treatment/LICENSE, dest: .agents/LICENSE}
+      skills: []
+      mcpServers: null
+  aspire-mcp:
+    environment:
+      files:
+        - {src: ../apps/bingo/aspire, dest: .}
+        - {src: ../treatment/LICENSE, dest: .agents/LICENSE}
+        - {src: ../treatment/mcp.json, dest: .github/mcp.json}
+      skills: []
+      mcpServers:
+        aspire:
+          type: stdio
+          command: aspire
+          args: [agent, mcp, --non-interactive, --nologo]
+  aspire-skills:
+    environment:
+      files:
+        - {src: ../apps/bingo/aspire, dest: .}
+        - {src: ../treatment/LICENSE, dest: .agents/LICENSE}
+      skills:
+        - ../treatment/skills/aspire
+        - ../treatment/skills/aspire-deployment
+        - ../treatment/skills/aspire-init
+        - ../treatment/skills/aspire-monitoring
+        - ../treatment/skills/aspire-orchestration
+        - ../treatment/skills/aspire-project-v2-migration
+        - ../treatment/skills/aspireify
+      mcpServers: null
+  aspire:
+    environment:
+      files:
+        - {src: ../apps/bingo/aspire, dest: .}
+        - {src: ../treatment/LICENSE, dest: .agents/LICENSE}
+        - {src: ../treatment/mcp.json, dest: .github/mcp.json}
+      skills:
+        - ../treatment/skills/aspire
+        - ../treatment/skills/aspire-deployment
+        - ../treatment/skills/aspire-init
+        - ../treatment/skills/aspire-monitoring
+        - ../treatment/skills/aspire-orchestration
+        - ../treatment/skills/aspire-project-v2-migration
+        - ../treatment/skills/aspireify
+      mcpServers:
+        aspire:
+          type: stdio
+          command: aspire
+          args: [agent, mcp, --non-interactive, --nologo]

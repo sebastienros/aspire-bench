@@ -6,7 +6,7 @@ import type { Executor, ExecutorOptions, ExecutorRegistry, Stimulus, Trajectory,
 import { IsolatedClient } from "./agent.js";
 import { cleanup } from "./ownership.js";
 import { submittedEndpoints, type Proof, type Endpoints } from "./verify.js";
-import { inside, type Run } from "./workspace.js";
+import { inside, hashes, unchanged, type Run } from "./workspace.js";
 import type { TracingConfig } from "@microsoft/vally";
 import { applicationAdapter } from "./adapters.js";
 import { withFinalizer } from "./lifecycle.js";
@@ -40,7 +40,15 @@ export class BenchmarkExecutor implements Executor {
       throw new Error("Vally workspace escapes the host-owned trial root");
     }
     const copyStart = performance.now();
-    await cp(run.workDir, options.workDir, { recursive: true });
+    if (run.nativeStaging) {
+      const staged = await hashes(options.workDir);
+      if (!unchanged(run.baselineHashes, staged)
+        || Object.keys(staged).length !== Object.keys(run.baselineHashes).length) {
+        throw new Error("Native Vally staging differs from the controlled local snapshot");
+      }
+    } else {
+      await cp(run.workDir, options.workDir, { recursive: true });
+    }
     run.workDir = options.workDir;
     run.setupMs += performance.now() - copyStart;
     await writeFile(ownership, JSON.stringify(run, null, 2), { mode: 0o600 });

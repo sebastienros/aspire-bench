@@ -1,8 +1,8 @@
 import { cp, mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { parseArgs } from "node:util";
-import { stringify, parse } from "yaml";
-import { loadEvalSpec, validateEvalSpec, createGraderRegistry } from "@microsoft/vally";
+import { stringify } from "yaml";
+import { validateEvalSpec, createGraderRegistry } from "@microsoft/vally";
 import { command, interrupt, checkInterrupted } from "./process.js";
 import { prepare, registry, repoRoot, isolatedEnv, type Run } from "./workspace.js";
 import { dryAgent } from "./agent.js";
@@ -13,6 +13,7 @@ import { compare, type Trial } from "./report.js";
 import { configureRuntime, configureAspire } from "./runtime.js";
 import { applicationAdapter } from "./adapters.js";
 import { withFinalizer } from "./lifecycle.js";
+import { experiment, selectVariants } from "./experiment.js";
 
 process.once("SIGINT", interrupt);
 process.once("SIGTERM", interrupt);
@@ -22,6 +23,7 @@ const { values, positionals } = parseArgs({
   options: {
     app: { type: "string", default: "bingo" },
     scenario: { type: "string", default: "launch-and-verify" },
+    variants: { type: "string", default: "raw,aspire" },
     model: { type: "string" },
     pairs: { type: "string", default: "1" },
     timeout: { type: "string", default: "15m" },
@@ -58,21 +60,22 @@ async function preflight() {
 
 async function validate() {
   const catalog = await registry();
-  for (const application of Object.values(catalog.applications)) {
+  for (const [applicationName, application] of Object.entries(catalog.applications)) {
     applicationAdapter(application.adapter);
     for (const scenarioName of application.scenarios) {
-      const spec = await loadEvalSpec(path.join(repoRoot, `scenarios/${scenarioName}.yaml`));
-      const graders = createGraderRegistry();
-      registerGraders(graders);
-      const result = validateEvalSpec(spec, { registry: graders });
-      if (!result.valid) throw new Error(JSON.stringify(result.diagnostics));
+      for (const plan of (await experiment(applicationName, scenarioName)).plans) {
+        const graders = createGraderRegistry();
+        registerGraders(graders);
+        const result = validateEvalSpec(plan.effectiveSpec, { registry: graders });
+        if (!result.valid) throw new Error(JSON.stringify(result.diagnostics));
+      }
     }
     for (const variant of Object.values(application.variants)) {
       await readFile(path.join(repoRoot, variant.fixture, "README.md"));
       if (variant.kind === "aspire") await readFile(path.join(repoRoot, variant.fixture, variant.apphost!));
     }
   }
-  console.log("Registry, fixtures and Vally evaluation schema valid.");
+  console.log("Registry, native Vally experiment drift checks, local staging and evaluation schemas valid.");
 }
 
 async function collectFiles(directory: string, basename: string): Promise<string[]> {
@@ -111,15 +114,18 @@ async function evaluate() {
   const catalog = await registry();
   const application = catalog.applications[app];
   if (!application?.scenarios.includes(scenario)) throw new Error(`Unknown ${app}/${scenario}`);
-  const variants = Object.keys(application.variants);
-  if (variants.length !== 2) throw new Error("Initial paired runner requires exactly two variants");
+  const resolved = await experiment(app, scenario);
+  const variants = selectVariants(resolved.variantNames, values.variants);
   const versions = await preflight();
   await validate();
   const directory = path.resolve(values.output ?? path.join(repoRoot, ".runs", new Date().toISOString().replace(/[:.]/g, "-")));
   await mkdir(path.dirname(directory), { recursive: true, mode: 0o700 });
   await mkdir(directory, { recursive: false, mode: 0o700 });
+  await writeFile(path.join(directory, "experiment-plan.json"), JSON.stringify(resolved, null, 2));
+  await cp(resolved.experimentFile, path.join(directory, "experiment.yaml"));
   await writeFile(path.join(directory, "metadata.json"), JSON.stringify({
-    versions, model: values.model, timeout: values.timeout, pairs, app, scenario,
+    versions, model: values.model, timeout: values.timeout, pairs, app, scenario, variants,
+    baseline: resolved.baseline,
     startedAt: new Date().toISOString(),
     commit: (await command("git", ["rev-parse", "HEAD"], { cwd: repoRoot })).stdout.trim(),
     source: JSON.parse(await readFile(path.join(repoRoot, `apps/${app}/provenance.json`), "utf8")),
@@ -129,14 +135,20 @@ async function evaluate() {
   for (let pair = 1; pair <= pairs; pair++) {
     for (const variant of pair % 2 ? variants : [...variants].reverse()) {
       checkInterrupted();
-      const run = await prepare(app, variant);
+      const plan = resolved.plans.find(item => item.variant === variant)!;
+      const run = await prepare(app, variant, plan);
+      run.nativeStaging = true;
       const trialDir = path.join(directory, `${pair}-${variant}`);
       await mkdir(trialDir);
       await writeFile(path.join(trialDir, "workspace.json"), JSON.stringify({
         root: run.root, id: run.id, fixtureHashes: run.baselineHashes,
       }, null, 2));
-      const rawSpec = parse(await readFile(path.join(repoRoot, `scenarios/${scenario}.yaml`), "utf8"));
-      rawSpec.defaults = { ...rawSpec.defaults, model: values.model, timeout: values.timeout };
+      const rawSpec = { ...plan.effectiveSpec,
+        defaults: { ...plan.effectiveSpec.defaults, model: values.model, timeout: values.timeout },
+      };
+      await writeFile(path.join(trialDir, "plan.json"), JSON.stringify({
+        variant, configHash: plan.configHash, evalHash: plan.evalHash, effectiveSpec: plan.effectiveSpec,
+      }, null, 2));
       const specFile = path.join(trialDir, "eval.yaml");
       await writeFile(specFile, stringify(rawSpec));
       let error: string | undefined;
@@ -207,6 +219,10 @@ async function main() {
     console.log(await compare(path.resolve(positionals[1]))); return;
   }
   if (action === "eval") return evaluate();
+  if (action === "plan") {
+    console.log(JSON.stringify(await experiment(app, scenario), null, 2));
+    return;
+  }
   if (action === "cleanup") {
     if (!positionals[1]) throw new Error("cleanup requires the exact retained runtime root");
     const root = path.resolve(positionals[1]);
@@ -219,11 +235,12 @@ async function main() {
   }
   if (action === "dry-run" || action === "smoke") {
     if (action === "smoke") await preflight();
-    const application = (await registry()).applications[app];
-    if (!application) throw new Error(`Unknown application: ${app}`);
-    for (const variant of Object.keys(application.variants)) {
+    const resolved = await experiment(app, scenario);
+    const selected = selectVariants(resolved.variantNames, values.variants);
+    for (const plan of resolved.plans.filter(item => selected.includes(item.variant))) {
+      const variant = plan.variant;
       checkInterrupted();
-      const run = await prepare(app, variant);
+      const run = await prepare(app, variant, plan);
       if (action === "smoke") {
         await runSmoke(run);
       }
@@ -236,9 +253,9 @@ async function main() {
     return;
   }
   if (action !== "help") throw new Error(`Unknown command: ${action}`);
-  console.log("Commands: validate | preflight | dry-run [--model MODEL] | smoke | " +
+  console.log("Commands: validate | plan | preflight | dry-run [--model MODEL] | smoke | " +
     "eval --model MODEL --pairs 1 --allow-paid | compare OUTPUT | cleanup RUNTIME_ROOT\n" +
-    "Options: --app bingo --scenario launch-and-verify --timeout 15m --output DIR");
+    "Options: --app bingo --scenario launch-and-verify --variants raw,aspire|all --timeout 15m --output DIR");
 }
 
 try { await main(); }

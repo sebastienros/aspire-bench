@@ -16,7 +16,7 @@ aspire describe --apphost apphost.cs --format Json --non-interactive
 
 Use the allocated HTTP endpoints, not fixed ports. The username is `admin` and
 the password is provided through `Parameters__admin_password`.
-Project-local Aspire skills and the Aspire MCP server are available.
+Use only the agent skills and tools actually exposed in this session.
 
 The player proxies `/api/version-info` and `/bingohub` to the admin backend.
 The development API `/api/demo/producer` exposes square import, state updates,

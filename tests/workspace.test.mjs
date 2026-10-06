@@ -16,7 +16,7 @@ test("raw and treatment are distinct copies with isolated configuration", async 
     await assert.rejects(access(path.join(raw.workDir, "apphost.cs")));
     await assert.rejects(access(path.join(raw.workDir, ".agents")));
     await assert.rejects(access(path.join(raw.workDir, "src/BingoBoard.ServiceDefaults")));
-    await access(path.join(treatment.workDir, ".agents/skills/aspire-orchestration/references/app-commands.md"));
+    await access(path.join(treatment.workDir, "aspire-orchestration/references/app-commands.md"));
     assert.match(await readFile(path.join(treatment.workDir, "apphost.cs"), "utf8"), /#:project src\//);
     const rawConfig = sessionConfig(raw, { onPermissionRequest: () => ({ kind: "approved" }) });
     const treatmentConfig = sessionConfig(treatment, { onPermissionRequest: () => ({ kind: "approved" }) });

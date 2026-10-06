@@ -27,6 +27,7 @@ git clone https://github.com/sebastienros/aspire-bench.git ~/github/aspire-bench
 cd ~/github/aspire-bench
 npm ci --ignore-scripts
 npm run validate
+npm run bench -- plan
 npm run bench -- preflight
 npm run bench -- dry-run
 npm run bench -- smoke
@@ -39,8 +40,9 @@ Docker, or paid inference.
 `dry-run` creates fresh workspaces and starts actual Copilot SDK sessions
 **without sending a prompt**. It initializes the tool catalog, queries skills
 and MCP servers, verifies their exact identities, and saves `visibility.json`.
-Raw must expose zero skills/MCP servers; Aspire must expose exactly seven
-snapshotted skills and live Aspire MCP tools. Unexpected inherited configuration
+Each variant must expose exactly its declared skills/MCP servers; the default
+raw control exposes neither, and full Aspire exposes seven snapshotted skills
+and live Aspire MCP tools. Unexpected inherited configuration
 or missing tools fails closed. Requires Aspire, but not Docker or an inference
 token.
 
@@ -50,6 +52,52 @@ Startup may download public NuGet/npm packages and images. Smoke establishes
 infrastructure readiness, not agent quality.
 
 ## Real paired evaluation
+
+### Native local-snapshot experiment
+
+[`experiments/bingo.experiment.yaml`](experiments/bingo.experiment.yaml) is the
+comparison source of truth: native Vally `repo-comparison`, a shared eval,
+baseline `raw`, serial `execution.workers: 1`, and exactly three varying axes:
+`/environment/files`, `/environment/skills`, `/environment/mcpServers`.
+Local directories are copied through Vally's `environment.files` contract.
+There are no remote clones, new app repositories, or sibling/harness files in
+an agent workspace. Paths in variant overrides resolve relative to the
+experiment file. Vally resolves, hashes and rejects undeclared configuration
+drift before any agent starts.
+
+| Variant | Application snapshot | Aspire skills | Aspire MCP |
+|---|---|---|---|
+| `raw` | Raw | No | No |
+| `aspire-none` | Aspire | No | No |
+| `aspire-mcp` | Aspire | No | Yes |
+| `aspire-skills` | Aspire | Yes | No |
+| `aspire` | Aspire | Yes | Yes |
+
+All four Aspire cells use the **same AppHost/application snapshot**. This
+supports AppHost-only comparison and skills/MCP ablation without assuming the
+raw app supports Aspire MCP. "Skills/MCP" here means Aspire-specific additions,
+not ordinary shell/file tools. Enabling skills also exposes the runtime's skill
+loader. Configuration discovery and global skills/MCP remain disabled in all
+cells.
+
+**Default selection remains `raw,aspire`: two trials per pair, not five.**
+`--variants` selects explicit names or `all`; `--pairs` repeats that selected
+set. Each repetition reverses variant order to reduce order bias.
+
+```bash
+# No inference: inspect resolved native plan and all five effective catalogs.
+npm run bench -- plan
+npm run bench -- dry-run --variants all
+
+# Paid commands: only run intentionally with a subscription token.
+npm run bench -- eval --model gpt-6-luna --variants aspire-none,aspire-mcp --pairs 1 --allow-paid
+npm run bench -- eval --model gpt-6-luna --variants all --pairs 1 --allow-paid
+```
+
+Every selection uses the same shared prompt, model, limits and objective grader.
+Native arrays replace inherited arrays, maps deep-merge, and `null` clears
+inherited MCP maps; offline tests verify these contracts and all five native
+staging/execution cells without inference.
 
 **No paid agent evaluation occurs during setup, validation, dry-run or smoke.**
 A real evaluation requires an explicit consent flag and model:
@@ -84,7 +132,8 @@ npm run bench -- compare .runs/<timestamp>
 
 | Artifact | Meaning |
 |---|---|
-| `metadata.json` | Source/harness commits, tool versions, OS/architecture, model, timeout and experiment identity |
+| `metadata.json` | Source/harness commits, tool versions, OS/architecture, model, timeout, selected variants and baseline |
+| `experiment.yaml`, `experiment-plan.json`, `<pair>-<variant>/plan.json` | Native experiment, resolved effective specs, hashes and declared varying axes |
 | `paired.json`, `comparison.md` | Success/cost summary; unavailable failure metrics are N/A, not zero |
 | `<pair>-<variant>/visibility.json` | Actual loaded skills and agent-visible tools checked before inference |
 | `<pair>-<variant>/proof.json` | Host-side verifier checks and separate setup/grading durations |
@@ -93,17 +142,29 @@ npm run bench -- compare .runs/<timestamp>
 | `<pair>-<variant>/workspace.json` | Retained disposable runtime workspace identity/location |
 
 Vally 0.17's native `vally compare` invokes a paid prompt judge; its experiment
-runner does not yet wire custom executor/grader plugins. This small serial
-driver therefore uses native `vally eval` with plugins and a free paired metric
-report instead. Vally still owns inference, normalized metrics, trajectory
-capture and native reports.
+runner parses `grader_plugins`, `executor_plugins` and `eval_plugin` but does
+**not load them**. Running `vally experiment run` directly would lose required
+isolation/verification hooks. A thin serial adapter therefore calls the native
+`resolveExperiment` API (including merge/drift/hash validation), then passes
+each resolved spec to supported `vally eval --executor-plugin ... --grader-plugin
+... --workers 1 --max-retries 0`. Tests verify registration using Vally's actual
+plugin loaders. Plugin fields are deliberately not placed in the manifest.
+
+Vally owns local file/skill staging, inference, normalized metrics, trajectories
+and native reports. The adapter only supplies per-run owned HOME/services/auth,
+checks staged inputs before inference, retains evidence and produces a free
+comparison. It does not independently reconstruct variant specs from registry
+fixtures. Runtime-generated IDs/ports/homes are unique per trial rather than
+experimental factors; secrets remain outside manifest artifacts.
 
 Compare objective success first, then costs among successful trials. Cheap
 failures are not improvements. Tokens are SDK/Vally usage metrics, not billing
 estimates; inspect raw usage events for missing telemetry. Report sample size,
 failures, model, timeout and environment. One pair is an infrastructure check,
-not a statistically meaningful finding. The first live agent comparison is
-intentionally pending.
+not a statistically meaningful finding. The first local Luna pair was inconclusive:
+raw timed out and an already-fixed cleanup observer defect invalidated the
+Aspire verdict despite passing application checks. Those private local
+artifacts are retained unchanged, not published as a benchmark claim.
 
 ## Objective success
 
@@ -128,7 +189,8 @@ not based on agent-answer greps, health endpoints alone or a file's presence.
 ## Treatment, timing and limitations
 
 All seven upstream Aspire `SKILL.md` files and **all their references** are
-copied project-locally to treatment `.agents/skills`. Upstream skill-evaluation
+copied project-locally by native `environment.skills`, one directory per skill
+at the workspace root (Vally 0.17's supported layout). Upstream skill-evaluation
 fixtures are excluded. This is a complete licensed guidance snapshot, not
 hand-written substitutes. `aspire agent init` is the supported regeneration
 path for future snapshots; never copy personal skill/config directories.
@@ -159,9 +221,11 @@ review/redact all runtime artifacts before publishing them.
 
 NuGet/npm caches, image downloads, file-based .NET SDK caches, CPU contention
 and network variability affect startup. Versions/service tags are pinned, but
-image tags are not immutable digests. The treatment bundles AppHost,
-health/telemetry, skills and MCP; this experiment cannot attribute differences
-to one component. Future ablations can separate those factors.
+image tags are not immutable digests. The default raw/full-Aspire pair bundles
+AppHost, health/telemetry, skills and
+MCP, so it cannot attribute differences to one component. Select the named
+Aspire ablation cells to measure skills and MCP separately; AppHost versus raw
+still bundles orchestration, health and telemetry.
 
 Script-installed Aspire may select its install sidecar before `ASPIRE_HOME`.
 The harness copies only the installed executable, without that sidecar, into
@@ -192,12 +256,15 @@ point cleanup at an arbitrary directory.
 
 Add licensed, self-contained snapshots under `apps/<name>/<variant>/`, record
 source commits/adaptations/licenses in `provenance.json`, and register variants
-and scenarios, including an explicit `adapter`, in `apps/registry.json`.
+and scenarios, including an explicit `adapter` and native `experiment` path, in
+`apps/registry.json`. Add a manifest under `experiments/` declaring local staging,
+baseline, serial workers, and only intentional `vary` axes.
 Register its launch/verifier implementation in `harness/adapters.ts`; unknown
 adapters fail closed. Add one common Vally spec under
 `scenarios/`, not different objectives for control and treatment. The runner
-discovers apps/scenarios from the registry; the paired driver expects two
-variants.
+discovers apps/scenarios from the registry and resolves variant specs from the
+native manifest. Keep variant-selection defaults explicit so adding a cell
+does not silently increase evaluation spend.
 
 A new architecture needs its own smoke/verifier adapter and cleanup ownership
 contract. Do not silently grade it using Bingo endpoints/tables. Add positive

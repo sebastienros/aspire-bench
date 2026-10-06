@@ -1,4 +1,5 @@
-import { cp, mkdir, mkdtemp, readFile, readdir, realpath, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, readdir, realpath, writeFile } from "node:fs/promises";
+import { applyEnvironment, type EnvironmentConfig, type ResolvedRunPlan } from "@microsoft/vally";
 import { createHash, randomBytes } from "node:crypto";
 import { tmpdir } from "node:os";
 import { createServer } from "node:net";
@@ -8,7 +9,7 @@ import { fileURLToPath } from "node:url";
 export const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 export type Variant = { fixture: string; kind: "compose" | "aspire"; apphost?: string };
 export type Application = {
-  description: string; adapter: string; variants: Record<string, Variant>; scenarios: string[];
+  description: string; adapter: string; experiment: string; variants: Record<string, Variant>; scenarios: string[];
 };
 export type Registry = { schemaVersion: number; applications: Record<string, Application> };
 export interface Run {
@@ -24,6 +25,9 @@ export interface Run {
   baselineHashes: Record<string, string>;
   initialPids: number[];
   setupMs: number;
+  environment?: EnvironmentConfig;
+  skillNames?: string[];
+  nativeStaging?: boolean;
 }
 
 export async function registry(): Promise<Registry> {
@@ -71,13 +75,16 @@ export function unchanged(before: Record<string, string>, after: Record<string, 
   return Object.entries(before).every(([file, digest]) => after[file] === digest);
 }
 
-export async function prepare(application: string, variant: string): Promise<Run> {
+export async function prepare(application: string, variant: string, plan?: ResolvedRunPlan): Promise<Run> {
   const start = performance.now();
   const catalog = await registry();
   const config = catalog.applications[application]?.variants[variant];
   if (!config) throw new Error(`Unknown application/variant: ${application}/${variant}`);
-  const fixture = path.resolve(repoRoot, config.fixture);
-  if (!inside(repoRoot, fixture)) throw new Error("Fixture path escapes repository");
+  const { experiment, planEnvironment } = await import("./experiment.js");
+  const selected = plan ?? (await experiment(application, catalog.applications[application].scenarios[0]))
+    .plans.find(item => item.variant === variant);
+  if (!selected || selected.variant !== variant) throw new Error("Missing matching native experiment plan");
+  const environment = planEnvironment(selected);
   // macOS Unix sockets have a 104-byte limit; its default per-user temp path is
   // already too long once Aspire appends its backchannel socket directories.
   const root = await realpath(await mkdtemp(path.join(
@@ -85,10 +92,8 @@ export async function prepare(application: string, variant: string): Promise<Run
   const workDir = path.join(root, "app");
   const home = path.join(root, "home");
   const id = `aspirebench-${randomBytes(8).toString("hex")}`;
-  await cp(fixture, workDir, { recursive: true, filter: source =>
-    !["bin", "obj", "node_modules", ".aspire", ".script-state", ".env"].includes(path.basename(source))
-    && !(config.kind === "compose" && path.basename(source) === "BingoBoard.ServiceDefaults"),
-  });
+  await mkdir(workDir);
+  await applyEnvironment(environment, workDir, path.dirname(selected.evalFile));
   await mkdir(home, { recursive: true, mode: 0o700 });
   await mkdir(path.join(home, ".copilot"), { mode: 0o700 });
   const env: Record<string, string> = {
@@ -118,19 +123,10 @@ export async function prepare(application: string, variant: string): Promise<Run
   if (new Set([env.POSTGRES_PORT, env.REDIS_PORT, env.ADMIN_PORT, env.FRONTEND_PORT]).size !== 4) {
     throw new Error("Port allocation collided; retry preparation");
   }
-  if (config.kind === "aspire") {
-    await cp(path.join(repoRoot, "treatment/skills"), path.join(workDir, ".agents/skills"),
-      { recursive: true });
-    await cp(path.join(repoRoot, "treatment/LICENSE"), path.join(workDir, ".agents/LICENSE"));
-    await mkdir(path.join(workDir, ".github"), { recursive: true });
-    await writeFile(path.join(workDir, ".github/mcp.json"), JSON.stringify({
-      mcpServers: { aspire: { type: "stdio", command: "aspire",
-        args: ["agent", "mcp", "--non-interactive", "--nologo"] } },
-    }, null, 2));
-  }
   const run: Run = {
     id, root, workDir, home, variant, application, adapter: catalog.applications[application].adapter, config, env,
     baselineHashes: await hashes(workDir), initialPids: [], setupMs: performance.now() - start,
+    environment, skillNames: (environment.skills ?? []).map(src => path.basename(src)).sort(),
   };
   await writeFile(path.join(root, "ownership.json"), JSON.stringify(run, null, 2), { mode: 0o600 });
   return run;

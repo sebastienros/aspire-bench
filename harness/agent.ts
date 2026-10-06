@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import path from "node:path";
-import { readdir, writeFile } from "node:fs/promises";
+import { writeFile } from "node:fs/promises";
 import { CopilotClient, approveAll, type CopilotSession, type SessionConfig } from "@github/copilot-sdk";
 import { isolatedEnv, inside, type Run } from "./workspace.js";
 
@@ -14,22 +14,19 @@ export interface Visibility {
 }
 
 export async function skillNames(run: Run) {
-  return run.config.kind === "aspire"
-    ? (await readdir(path.join(run.workDir, ".agents/skills"), { withFileTypes: true }))
-      .filter(item => item.isDirectory()).map(item => item.name).sort()
-    : [];
+  return run.skillNames ?? [];
 }
 
 export function sessionConfig(run: Run, base: SessionConfig): SessionConfig {
-  const treatment = run.config.kind === "aspire";
+  const skillsEnabled = (run.skillNames?.length ?? 0) > 0;
   return {
     ...base,
     configDirectory: run.env.COPILOT_HOME,
     workingDirectory: run.workDir,
     enableConfigDiscovery: false,
-    enableSkills: treatment,
+    enableSkills: skillsEnabled,
     includedBuiltinSkills: [],
-    skillDirectories: treatment ? [path.join(run.workDir, ".agents/skills")] : [],
+    skillDirectories: (run.skillNames ?? []).map(name => path.join(run.workDir, name)),
     customAgents: [],
     customAgentsLocalOnly: true,
     pluginDirectories: [],
@@ -39,10 +36,10 @@ export function sessionConfig(run: Run, base: SessionConfig): SessionConfig {
     remoteSession: "off",
     availableTools: ["builtin:*", "mcp:*"],
     disabledMcpServers: ["github-mcp-server"],
-    mcpServers: treatment ? {
+    mcpServers: run.environment?.mcpServers?.aspire?.type === "stdio" ? {
       aspire: {
-        type: "local", command: "aspire",
-        args: ["agent", "mcp", "--non-interactive", "--nologo"],
+        type: "local", command: run.environment.mcpServers.aspire.command,
+        args: run.environment.mcpServers.aspire.args,
         workingDirectory: run.workDir, tools: ["*"], env: isolatedEnv(run), timeout: 120_000,
       },
     } : {},
@@ -56,22 +53,25 @@ export async function visibility(session: CopilotSession, run: Run): Promise<Vis
   assert.deepEqual(skills.map(skill => skill.name).sort(), await skillNames(run),
     "Loaded skills differ from the controlled treatment");
   for (const skill of skills) {
-    assert(skill.path && inside(path.join(run.workDir, ".agents/skills"), skill.path),
+    const skillPath = skill.path;
+    assert(skillPath && (run.skillNames ?? []).some(name =>
+      inside(path.join(run.workDir, name), skillPath)),
       `Non-project skill leaked into session: ${skill.name}`);
   }
   const servers = (await session.rpc.mcp.list()).servers.filter(server => server.status !== "disabled");
+  const expectedServers = Object.keys(run.environment?.mcpServers ?? {}).sort();
   assert.deepEqual(servers.map(server => server.name).sort(),
-    run.config.kind === "aspire" ? ["aspire"] : [], "Unexpected MCP server");
+    expectedServers, "Unexpected MCP server");
   const tools = (await session.rpc.tools.getCurrentMetadata()).tools;
   assert(tools?.length, "Runtime did not expose a tool catalog");
   const mcpTools = tools.filter(tool => tool.mcpServerName);
   assert(mcpTools.every(tool => tool.mcpServerName === "aspire"), "Unexpected MCP tool");
-  if (run.config.kind === "aspire") {
+  if (expectedServers.includes("aspire")) {
     assert(mcpTools.length > 0, "Aspire MCP tools are not agent-visible");
     assert((await session.rpc.mcp.listTools({ serverName: "aspire" })).tools.length > 0,
       "Aspire MCP server not connected");
   } else {
-    assert.equal(mcpTools.length, 0, "Raw control gained MCP tools");
+    assert.equal(mcpTools.length, 0, "No-MCP variant gained MCP tools");
   }
   return {
     skills: skills.map(skill => skill.name).sort(),
