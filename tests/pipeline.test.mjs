@@ -36,6 +36,7 @@ test("native Vally execution, grading and JSONL preserve owned workspace and met
     createExecutor: () => ({
       name: "offline-test", supportsEnvVars: true,
       async execute(stimulus, options) {
+        assert(options.sessionLog.rootDir.startsWith(run.root + path.sep));
         assert(options.workDir.startsWith(path.join(run.root, "workspaces") + path.sep));
         assert(unchanged(run.baselineHashes, await hashes(options.workDir)));
         await writeFile(path.join(options.workDir, "benchmark-endpoints.json"),
@@ -118,6 +119,44 @@ test("executor cleans owned resources even when delegate shutdown fails", async 
   }
 });
 
+test("cleanup failure retains normalized trajectory metrics and fails objective grading explicitly", async () => {
+  const run = await prepare("bingo", "raw");
+  const old = process.env.ASPIRE_BENCH_OWNERSHIP;
+  process.env.ASPIRE_BENCH_OWNERSHIP = path.join(run.root, "ownership.json");
+  const workspace = path.join(run.root, "workspaces/cleanup-failure");
+  await mkdir(workspace, { recursive: true });
+  const executor = new BenchmarkExecutor({
+    createExecutor: () => ({
+      name: "offline", supportsEnvVars: true,
+      async execute(stimulus, options) {
+        await writeFile(path.join(options.workDir, "benchmark-endpoints.json"),
+          JSON.stringify({ admin: "http://localhost:1234", frontend: "http://localhost:5678" }));
+        return fakeTrajectory(stimulus, options.workDir);
+      },
+      async shutdown() {},
+    }),
+    async verify() { return { passed: true, checks: ["objective passed"], verificationMs: 1 }; },
+    async cleanup() { throw new Error("owned resource remains"); },
+  });
+  try {
+    const trajectory = await executor.execute({ name: "test", prompt: "offline" }, { workDir: workspace });
+    assert.equal(trajectory.metrics.tokenUsage.totalTokens, 15);
+    const registry = createGraderRegistry();
+    registerGraders(registry);
+    const grade = await gradeTrajectory(trajectory, [{ type: "application-ready", required: true }], { registry });
+    assert.equal(grade.passed, false);
+    const proof = JSON.parse(await readFile(path.join(run.root, "proof.json")));
+    assert.equal(proof.objectivePassed, true);
+    assert.equal(proof.passed, false);
+    assert.match(proof.cleanupError, /owned resource remains/);
+    await assert.rejects(executor.shutdown(), /owned resource remains/);
+  } finally {
+    if (old === undefined) delete process.env.ASPIRE_BENCH_OWNERSHIP;
+    else process.env.ASPIRE_BENCH_OWNERSHIP = old;
+    await rm(run.root, { recursive: true });
+  }
+});
+
 test("finalization preserves primary errors and ownership excludes preexisting or neighboring PIDs", async () => {
   await assert.rejects(withFinalizer(
     async () => { throw new Error("primary"); },
@@ -126,10 +165,24 @@ test("finalization preserves primary errors and ownership excludes preexisting o
   assert.deepEqual(ownedCwds("/private/tmp/owned", [100], [
     "p100", "n/private/tmp/owned/app", "p101", "n/private/tmp/owned/app",
     "p102", "n/private/tmp/owned-neighbor", "p103", "n/private/tmp/owned/home",
-    "p104", "n/private/tmp/owned",
-  ].join("\n"), 103), [101, 104]);
+    "p104", "n/private/tmp/owned", "p105", "n/private/tmp/owned/app",
+  ].join("\n"), 103, 105), [101, 104]);
   assert.throws(() => applicationAdapter("unknown"), /Unsupported/);
   assert.throws(() => applicationAdapter("toString"), /Unsupported/);
+});
+
+test("process ownership excludes its own lsof observer when invoked inside a runtime workspace", async () => {
+  const run = await prepare("bingo", "raw");
+  try {
+    const module = new URL("../dist/ownership.js", import.meta.url).href;
+    const output = await command(process.execPath, ["--input-type=module", "-e", `
+      import {ownedProcesses} from ${JSON.stringify(module)};
+      console.log(JSON.stringify(await ownedProcesses(${JSON.stringify(run)})));
+    `], { cwd: run.workDir });
+    assert.deepEqual(JSON.parse(output.stdout), []);
+  } finally {
+    await rm(run.root, { recursive: true });
+  }
 });
 
 test("command timeout escalates a TERM-resistant owned child and awaits its exit", async () => {

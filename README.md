@@ -88,6 +88,7 @@ npm run bench -- compare .runs/<timestamp>
 | `paired.json`, `comparison.md` | Success/cost summary; unavailable failure metrics are N/A, not zero |
 | `<pair>-<variant>/visibility.json` | Actual loaded skills and agent-visible tools checked before inference |
 | `<pair>-<variant>/proof.json` | Host-side verifier checks and separate setup/grading durations |
+| `<pair>-<variant>/session-logs/` | Exported SDK session history, including interrupted runs when available |
 | Vally timestamped subdirectories | Native JSONL outcomes, Markdown report, SDK session logs and OTel trajectories |
 | `<pair>-<variant>/workspace.json` | Retained disposable runtime workspace identity/location |
 

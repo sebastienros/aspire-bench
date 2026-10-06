@@ -26,7 +26,7 @@ export interface CommandOptions {
 }
 
 export async function command(program: string, args: string[], options: CommandOptions = {}) {
-  return new Promise<{ stdout: string; stderr: string; code: number }>((resolve, reject) => {
+  return new Promise<{ stdout: string; stderr: string; code: number; pid?: number }>((resolve, reject) => {
     const child = spawn(program, args, {
       cwd: options.cwd, env: options.env, stdio: ["ignore", "pipe", "pipe"],
     });
@@ -54,7 +54,7 @@ export async function command(program: string, args: string[], options: CommandO
       } else if (!(options.accept ?? [0]).includes(code ?? -1)) {
         reject(new Error(`${program} ${args.join(" ")} exited ${code}\n${stderr}\n${stdout}`));
       } else {
-        resolve({ stdout, stderr, code: code ?? -1 });
+        resolve({ stdout, stderr, code: code ?? -1, pid: child.pid });
       }
     });
   });

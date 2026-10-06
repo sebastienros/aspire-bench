@@ -37,15 +37,16 @@ export async function ownedProcesses(run: Run) {
   // Agent-writable PID files are never used as cleanup authority.
   const result = await command("lsof", ["-n", "-d", "cwd", "-Fpn"], { accept: [0, 1] });
   const root = await realpath(run.root);
-  return ownedCwds(root, run.initialPids, result.stdout, process.pid);
+  return ownedCwds(root, run.initialPids, result.stdout, process.pid, result.pid);
 }
 
-export function ownedCwds(root: string, initialPids: number[], output: string, currentPid: number) {
+export function ownedCwds(root: string, initialPids: number[], output: string,
+  currentPid: number, observerPid?: number) {
   let pid = 0;
   const pids: number[] = [];
   for (const line of output.split("\n")) {
     if (line.startsWith("p")) pid = Number(line.slice(1));
-    if (line.startsWith("n") && pid !== currentPid && !initialPids.includes(pid)) {
+    if (line.startsWith("n") && pid !== currentPid && pid !== observerPid && !initialPids.includes(pid)) {
       const cwd = line.slice(1);
       if (cwd === root || inside(root, cwd)) pids.push(pid);
     }

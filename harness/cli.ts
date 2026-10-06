@@ -1,4 +1,4 @@
-import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
+import { cp, mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { parseArgs } from "node:util";
 import { stringify, parse } from "yaml";
@@ -176,6 +176,10 @@ async function evaluate() {
       }
       if ((await collectFiles(run.root, "visibility.json")).length) {
         await writeFile(path.join(trialDir, "visibility.json"), await readFile(path.join(run.root, "visibility.json")));
+      }
+      if ((await readdir(run.root)).includes("session-logs")) {
+        await cp(path.join(run.root, "session-logs"), path.join(trialDir, "session-logs"),
+          { recursive: true });
       }
       trials.push(trial);
       await writeFile(path.join(directory, "paired.json"), JSON.stringify(trials, null, 2));

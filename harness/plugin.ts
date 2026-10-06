@@ -46,6 +46,9 @@ export class BenchmarkExecutor implements Executor {
     await writeFile(ownership, JSON.stringify(run, null, 2), { mode: 0o600 });
     this.run = run;
     let client: IsolatedClient | undefined;
+    let captured: Trajectory | undefined;
+    let objectiveProof: Proof | undefined;
+    let visibilitySetupMs = 0;
     this.stopped = false;
     this.cleaned = false;
     return withFinalizer(async () => {
@@ -58,8 +61,12 @@ export class BenchmarkExecutor implements Executor {
         },
       });
       if (this.tracing) this.delegate.configureTracing?.(this.tracing);
-      const trajectory = await this.delegate.execute(stimulus, { ...options, env: run.env });
+      const trajectory = await this.delegate.execute(stimulus, { ...options, env: run.env,
+        sessionLog: options.sessionLog ?? { rootDir: path.join(run.root, "session-logs") },
+      });
+      captured = trajectory;
       const setupMs = client?.visibility?.setupMs ?? 0;
+      visibilitySetupMs = setupMs;
       trajectory.metrics.wallTimeMs = Math.max(0, trajectory.metrics.wallTimeMs - setupMs);
       trajectory.metadata.skillsLoaded = client?.visibility?.skills ?? [];
       let proof: Proof;
@@ -74,12 +81,27 @@ export class BenchmarkExecutor implements Executor {
         proof.passed = false;
         proof.error = `Agent ended with ${trajectory.endReason}`;
       }
+      objectiveProof = proof;
       proofs.set(trajectory.id, proof);
       await writeFile(path.join(run.root, "proof.json"), JSON.stringify({
         ...proof, setupMs: run.setupMs + setupMs, metrics: trajectory.metrics,
       }, null, 2), { mode: 0o600 });
       return trajectory;
-    }, () => this.finish());
+    }, async () => {
+      try {
+        await this.finish();
+      } catch (error) {
+        if (!captured || !objectiveProof) throw error;
+        const objectivePassed = objectiveProof.passed;
+        const cleanupError = error instanceof Error ? error.message : String(error);
+        objectiveProof.passed = false;
+        objectiveProof.error = `${objectiveProof.error ? `${objectiveProof.error}; ` : ""}Cleanup failed: ${cleanupError}`;
+        await writeFile(path.join(run.root, "proof.json"), JSON.stringify({
+          ...objectiveProof, objectivePassed, cleanupError,
+          setupMs: run.setupMs + visibilitySetupMs, metrics: captured.metrics,
+        }, null, 2), { mode: 0o600 });
+      }
+    });
   }
 
   private async finish() {
