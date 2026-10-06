@@ -35,9 +35,12 @@ export async function processSnapshot() {
 export async function ownedProcesses(run: Run) {
   // Only newly created processes whose kernel-reported cwd is inside our copied tree.
   // Agent-writable PID files are never used as cleanup authority.
+  // Linux lsof may fork helpers; take the candidate set before launching it.
+  const candidates = new Set(await processSnapshot());
   const result = await command("lsof", ["-n", "-d", "cwd", "-Fpn"], { accept: [0, 1] });
   const root = await realpath(run.root);
-  return ownedCwds(root, run.initialPids, result.stdout, process.pid, result.pid);
+  return ownedCwds(root, run.initialPids, result.stdout, process.pid, result.pid)
+    .filter(pid => candidates.has(pid));
 }
 
 export function ownedCwds(root: string, initialPids: number[], output: string,
