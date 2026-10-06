@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { access, readFile, rm } from "node:fs/promises";
 import path from "node:path";
 import { prepare, isolatedEnv, inside, hashes, unchanged } from "../dist/workspace.js";
-import { sessionConfig } from "../dist/agent.js";
+import { sessionConfig, clientConfig } from "../dist/agent.js";
 import { ownsContainer } from "../dist/ownership.js";
 
 test("raw and treatment are distinct copies with isolated configuration", async () => {
@@ -40,6 +40,14 @@ test("raw and treatment are distinct copies with isolated configuration", async 
     assert.equal(env.EVALUATE_USE_HOST_COPILOT_HOME, "0");
     assert.equal(env.COPILOT_HOME_SETTINGS_JSON, undefined);
     assert.equal(env.COPILOT_PROVIDER_BASE_URL, undefined);
+    const auth = clientConfig(raw, {}, { GH_TOKEN: "test-gh",
+      COPILOT_GITHUB_TOKEN: "test-copilot", GITHUB_TOKEN: "test-github" });
+    assert.equal(auth.gitHubToken, "test-copilot");
+    assert.equal(auth.useLoggedInUser, false);
+    assert.equal(auth.baseDirectory, raw.env.COPILOT_HOME);
+    assert.equal(clientConfig(raw, {}, { GH_TOKEN: "test-gh" }).gitHubToken, "test-gh");
+    assert.equal(clientConfig(raw, {}, { GITHUB_TOKEN: "test-github" }).gitHubToken, "test-github");
+    assert.equal(clientConfig(raw, {}, {}).gitHubToken, undefined);
     assert(unchanged(raw.baselineHashes, await hashes(raw.workDir)));
     assert(!unchanged({ source: "original" }, { source: "edited" }));
   } finally {

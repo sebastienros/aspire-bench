@@ -81,13 +81,20 @@ export async function visibility(session: CopilotSession, run: Run): Promise<Vis
   };
 }
 
+export function clientConfig(run: Run,
+  options: ConstructorParameters<typeof CopilotClient>[0] = {},
+  ambient: NodeJS.ProcessEnv = process.env): ConstructorParameters<typeof CopilotClient>[0] {
+  return {
+    ...options, mode: "empty", baseDirectory: run.env.COPILOT_HOME,
+    workingDirectory: run.workDir, env: isolatedEnv(run, ambient), useLoggedInUser: false,
+    gitHubToken: ambient.COPILOT_GITHUB_TOKEN || ambient.GH_TOKEN || ambient.GITHUB_TOKEN,
+  };
+}
+
 export class IsolatedClient extends CopilotClient {
   visibility?: Visibility;
   constructor(readonly run: Run, options: ConstructorParameters<typeof CopilotClient>[0] = {}) {
-    super({
-      ...options, mode: "empty", baseDirectory: run.env.COPILOT_HOME,
-      workingDirectory: run.workDir, env: isolatedEnv(run), useLoggedInUser: false,
-    });
+    super(clientConfig(run, options));
   }
 
   override async createSession(config: SessionConfig) {
