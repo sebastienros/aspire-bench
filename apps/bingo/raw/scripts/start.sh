@@ -3,9 +3,17 @@ set -euo pipefail
 # shellcheck source-path=SCRIPTDIR
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/common.sh"
 
-if [[ $# -ne 0 ]]; then
-    echo "Usage: bash start.sh (set CONTAINER_RUNTIME=podman or docker)" >&2
+MODE="${1:-}"
+if [[ $# -gt 1 ]] || [[ -n "$MODE" && "$MODE" != --foreground && "$MODE" != --daemon ]]; then
+    echo "Usage: bash start.sh [--foreground] (set CONTAINER_RUNTIME=podman or docker)" >&2
     exit 1
+fi
+if [[ -z "$MODE" ]]; then
+    require_command node
+    exec node "$START_DIR/scripts/launch.mjs"
+fi
+if [[ "$MODE" == --daemon ]]; then
+    trap '' HUP
 fi
 for tool in dotnet node npm curl; do require_command "$tool"; done
 initialize_runtime
@@ -43,7 +51,7 @@ cleanup() {
         fi
     done
     if ! compose stop; then
-        echo "Container cleanup failed. Run scripts/clean.sh." >&2
+        echo "Container cleanup failed. Use the harness to clean this run's owned resources." >&2
         status=1
     fi
     exit "$status"
@@ -56,16 +64,19 @@ compose up -d
 wait_for PostgreSQL postgres_ready
 wait_for Redis redis_ready
 (
+    if [[ "$MODE" == --daemon ]]; then exec 3>&-; fi
     cd src/BingoBoard.MigrationService
     dotnet bin/Debug/net10.0/BingoBoard.MigrationService.dll
 )
 (
+    if [[ "$MODE" == --daemon ]]; then exec 3>&-; fi
     cd src/BingoBoard.Admin
     exec dotnet bin/Debug/net10.0/BingoBoard.Admin.dll
 ) >.script-state/admin.log 2>&1 &
 ADMIN_PID=$!
 wait_for "admin backend" version_ready "http://localhost:$ADMIN_PORT"
 (
+    if [[ "$MODE" == --daemon ]]; then exec 3>&-; fi
     cd src/bingo-board
     exec node node_modules/vite/bin/vite.js --host localhost --port "$FRONTEND_PORT" --strictPort
 ) >.script-state/frontend.log 2>&1 &
@@ -74,7 +85,14 @@ wait_for "player frontend" http_ready "http://localhost:$FRONTEND_PORT/"
 check_application
 
 echo "Player: http://localhost:$FRONTEND_PORT | Admin: http://localhost:$ADMIN_PORT (user: admin)"
-echo "Logs: $START_DIR/.script-state | Press Ctrl+C to stop; database data is preserved."
+echo "Logs: $START_DIR/.script-state | The harness owns cleanup; database data is preserved."
+if [[ "$MODE" == --daemon ]]; then
+    kill -0 "$ADMIN_PID" "$FRONTEND_PID"
+    printf 'ready\n' >&3
+    exec 3>&-
+else
+    echo "Press Ctrl+C to stop."
+fi
 while kill -0 "$ADMIN_PID" 2>/dev/null && kill -0 "$FRONTEND_PID" 2>/dev/null; do
     sleep 1
 done
