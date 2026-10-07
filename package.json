@@ -8,7 +8,7 @@
     "build": "tsc",
     "test": "npm run build && node --test tests/*.test.mjs",
     "check": "tsc --noEmit",
-    "bench": "npm run build --silent && node dist/cli.js",
+    "bench": "bash scripts/bench.sh",
     "validate": "npm run check && npm test && npm run bench -- validate"
   },
   "dependencies": {

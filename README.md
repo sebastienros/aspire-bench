@@ -51,7 +51,7 @@ the common objective verifier, and cleans up even on failures/interruption.
 Startup may download public NuGet/npm packages and images. Smoke establishes
 infrastructure readiness, not agent quality.
 
-## Real paired evaluation
+## Direct Vally evaluation
 
 ### Native local-snapshot experiment
 
@@ -90,8 +90,8 @@ npm run bench -- plan
 npm run bench -- dry-run --variants all
 
 # Paid commands: only run intentionally with a subscription token.
-npm run bench -- eval --model gpt-6-luna --variants aspire-none,aspire-mcp --pairs 1 --allow-paid
-npm run bench -- eval --model gpt-6-luna --variants all --pairs 1 --allow-paid
+bash scripts/run.sh --model gpt-6-luna --variants aspire-none,aspire-mcp --pairs 1 --allow-paid
+bash scripts/run.sh --model gpt-6-luna --variants all --pairs 1 --allow-paid
 ```
 
 Every selection uses the same shared prompt, model, limits and objective grader.
@@ -105,7 +105,7 @@ A real evaluation requires an explicit consent flag and model:
 ```bash
 # Token authorized for your Copilot subscription; never write it to a file.
 export COPILOT_GITHUB_TOKEN="$(gh auth token)"
-npm run bench -- eval --model gpt-5.5 --pairs 3 --timeout 15m --allow-paid
+bash scripts/run.sh --model gpt-5.5 --pairs 3 --timeout 15m --allow-paid
 unset COPILOT_GITHUB_TOKEN
 ```
 
@@ -127,16 +127,17 @@ Results default to ignored `.runs/<timestamp>/`; `--output DIR` requires a new
 directory. Recreate the deterministic, **free** paired comparison with:
 
 ```bash
-npm run bench -- compare .runs/<timestamp>
+bash scripts/report.sh .runs/<timestamp>
 ```
 
 | Artifact | Meaning |
 |---|---|
 | `metadata.json` | Source/harness commits, tool versions, OS/architecture, model, timeout, selected variants and baseline |
 | `experiment.yaml`, `experiment-plan.json`, `<pair>-<variant>/plan.json` | Native experiment, resolved effective specs, hashes and declared varying axes |
-| `paired.json`, `comparison.md` | Success/cost summary; unavailable failure metrics are N/A, not zero |
+| `paired.json`, `comparison.md` | Derived after cleanup from native JSONL and lifecycle status; unavailable failure metrics are N/A, not zero |
 | `<pair>-<variant>/visibility.json` | Actual loaded skills and agent-visible tools checked before inference |
-| `<pair>-<variant>/proof.json` | Host-side verifier checks and separate setup/grading durations |
+| `<pair>-<variant>/agent.json`, `proof.json` | Host executor identity/setup duration and program grader checks/grading duration |
+| `<pair>-<variant>/vally.log`, `cleanup.log`, `exit-code`, `cleanup-exit-code` | CLI diagnostics and lifecycle completion; failed/incomplete cleanup cannot count as success |
 | `<pair>-<variant>/session-logs/` | Exported SDK session history, including interrupted runs when available |
 | Vally timestamped subdirectories | Native JSONL outcomes, Markdown report, SDK session logs and OTel trajectories |
 | `<pair>-<variant>/workspace.json` | Retained disposable runtime workspace identity/location |
@@ -144,16 +145,42 @@ npm run bench -- compare .runs/<timestamp>
 Vally 0.17's native `vally compare` invokes a paid prompt judge; its experiment
 runner parses `grader_plugins`, `executor_plugins` and `eval_plugin` but does
 **not load them**. Running `vally experiment run` directly would lose required
-isolation/verification hooks. A thin serial adapter therefore calls the native
-`resolveExperiment` API (including merge/drift/hash validation), then passes
-each resolved spec to supported `vally eval --executor-plugin ... --grader-plugin
-... --workers 1 --max-retries 0`. Tests verify registration using Vally's actual
-plugin loaders. Plugin fields are deliberately not placed in the manifest.
+isolation hooks. Small lifecycle scripts therefore use the native
+`resolveExperiment` API (including merge/drift/hash validation), then invoke
+**`vally eval` directly**, with `--executor-plugin`, one worker and no retries.
+The shared spec uses Vally's **built-in `program` grader** to run
+`scripts/verify.sh`; there is no custom grader plugin or in-memory proof map.
+Plugin fields are deliberately not placed in the manifest.
+
+`scripts/run.sh` selects/repeats named variants, alternates order and calls
+`scripts/setup.sh` followed by `scripts/trial.sh`. Setup copies/configures but
+does **not** launch the application. The trial script calls the pinned local CLI:
+
+```bash
+node node_modules/@microsoft/vally-cli/dist/index.js eval \
+  -e "$TRIAL/eval.yaml" --work-dir "$RUNTIME/app" \
+  --workspace "$RUNTIME/workspaces" --output-dir "$TRIAL" \
+  --workers 1 --max-retries 0 --require-pass \
+  --executor-plugin "$PWD/dist/plugin.js" --shutdown-timeout 3m
+```
+
+Use `scripts/trial.sh`, rather than pasting this command into an ambient shell:
+it passes the isolated runtime environment, keeps credentials only in memory,
+and traps failure, interruption and a bounded lifecycle deadline.
+The program grader independently verifies the still-running application and
+cleans owned resources; the shell finalizer calls `scripts/cleanup.sh` again
+even if execution fails or grading never runs. `scripts/report.sh` reads native
+JSONL after cleanup; reporting does not orchestrate inference. The existing
+`npm run bench -- eval ...` command is a compatibility alias for `scripts/run.sh`.
 
 Vally owns local file/skill staging, inference, normalized metrics, trajectories
-and native reports. The adapter only supplies per-run owned HOME/services/auth,
-checks staged inputs before inference, retains evidence and produces a free
-comparison. It does not independently reconstruct variant specs from registry
+and native reports. The scripts only supply per-run owned HOME/services/auth,
+retain evidence and produce a free comparison. The minimal executor controls
+SDK auth/config discovery and asserts staged inputs/effective catalogs before
+inference; arbitrary setup scripts cannot enforce those session-level controls.
+Vally's default executor enables configuration discovery and does not expose
+our exact skills/extensions/history restrictions or catalog assertions.
+The scripts do not independently reconstruct variant specs from registry
 fixtures. Runtime-generated IDs/ports/homes are unique per trial rather than
 experimental factors; secrets remain outside manifest artifacts.
 
@@ -245,7 +272,7 @@ Runtime directories/logs are retained for diagnosis. After a hard crash, use
 the exact runtime root recorded in `workspace.json`:
 
 ```bash
-npm run bench -- cleanup /tmp/aspirebench-<exact-run-directory>
+bash scripts/cleanup.sh /tmp/aspirebench-<exact-run-directory>
 ```
 
 This removes that run's services/disposable data, not retained files. The
@@ -261,7 +288,7 @@ and scenarios, including an explicit `adapter` and native `experiment` path, in
 baseline, serial workers, and only intentional `vary` axes.
 Register its launch/verifier implementation in `harness/adapters.ts`; unknown
 adapters fail closed. Add one common Vally spec under
-`scenarios/`, not different objectives for control and treatment. The runner
+`scenarios/`, not different objectives for control and treatment. Setup
 discovers apps/scenarios from the registry and resolves variant specs from the
 native manifest. Keep variant-selection defaults explicit so adding a cell
 does not silently increase evaluation spend.

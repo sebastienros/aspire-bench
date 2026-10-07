@@ -1,0 +1,208 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { mkdir, mkdtemp, readFile, rm, symlink, writeFile } from "node:fs/promises";
+import path from "node:path";
+import { tmpdir } from "node:os";
+import { spawn } from "node:child_process";
+import { stringify } from "yaml";
+import { command } from "../dist/process.js";
+import { prepare, repoRoot } from "../dist/workspace.js";
+import { experiment } from "../dist/experiment.js";
+import { compare } from "../dist/report.js";
+
+async function fixture(mode = "success") {
+  const directory = await mkdtemp(path.join(tmpdir(), "aspirebench-scripts-test-"));
+  const run = await prepare("bingo", "raw");
+  const bin = path.join(directory, "bin");
+  const mock = path.join(directory, "mock");
+  const output = path.join(directory, "results");
+  await Promise.all([mkdir(bin), mkdir(output), mkdir(path.join(mock, "dist"), { recursive: true }),
+    mkdir(path.join(mock, "scripts"), { recursive: true }),
+    mkdir(path.join(mock, "node_modules/@microsoft"), { recursive: true })]);
+  const env = { ...process.env, PATH: `${bin}:${process.env.PATH}`, NODE_TLS_REJECT_UNAUTHORIZED: "0" };
+  await writeFile(path.join(bin, "docker"), `#!/usr/bin/env bash
+if [[ "$1" == info ]]; then
+    printf '%s\\n' '${JSON.stringify([{ Name: "compose", Path: path.join(bin, "docker") }])}'
+elif [[ "$1" == context ]]; then
+    printf '%s\\n' '{"Host":"unix:///tmp/aspirebench-offline.sock","SkipTLSVerify":false}'
+elif [[ ${JSON.stringify(mode)} == cleanup-failure ]] && [[ "$1" == volume ]]; then
+    echo "offline cleanup failure" >&2
+    exit 3
+fi
+`, { mode: 0o700 });
+  await writeFile(path.join(bin, "lsof"), "#!/usr/bin/env bash\nexit 1\n", { mode: 0o700 });
+  await writeFile(path.join(mock, "package.json"), '{"type":"module"}');
+  await symlink(path.join(repoRoot, "node_modules/@microsoft/vally-cli"),
+    path.join(mock, "node_modules/@microsoft/vally-cli"));
+  await writeFile(path.join(mock, "dist/plugin.js"), `
+    import {writeFile} from "node:fs/promises";
+    import path from "node:path";
+    import {BenchmarkExecutor} from ${JSON.stringify(new URL("../dist/plugin.js", import.meta.url).href)};
+    export function registerExecutors(registry) {
+      registry.register(new BenchmarkExecutor(() => ({
+        name:"offline", supportsEnvVars:true,
+        async execute(stimulus, options) {
+          if (process.env.NODE_TLS_REJECT_UNAUTHORIZED !== undefined)
+            throw new Error("Ambient TLS bypass leaked");
+          if (${JSON.stringify(mode)} === "failure") throw new Error("offline execution failure");
+          if (${JSON.stringify(mode)} === "hang") {
+            await writeFile(${JSON.stringify(path.join(output, "started"))}, "ready");
+            await new Promise(() => { setInterval(() => {}, 1000); });
+          }
+          await writeFile(path.join(options.workDir,"benchmark-endpoints.json"),
+            JSON.stringify({admin:"http://localhost:1234",frontend:"http://localhost:5678"}));
+          return {id:"offline-trajectory",stimulus,workDir:options.workDir,output:"offline",
+            events:[],endReason:"completed",metadata:{model:"offline",skillsLoaded:[]},
+            metrics:{wallTimeMs:123,tokenUsage:{inputTokens:10,outputTokens:5,totalTokens:15,
+              cacheReadTokens:0,cacheWriteTokens:0,callCount:1,byModel:{}},
+              toolCallCount:2,toolCallBreakdown:{},simulatedToolCallCount:0,
+              skillActivationCount:0,skillActivationBreakdown:{},turnCount:1,errorCount:0}};
+        }, async shutdown() {}
+      })));
+    }
+  `);
+  await writeFile(path.join(mock, "scripts/verify.sh"),
+    `#!/usr/bin/env bash\nexec node ${JSON.stringify(mode === "real-grader"
+      ? path.join(repoRoot, "dist/grade.js") : path.join(mock, "dist/grade.js"))}\n`);
+  await writeFile(path.join(mock, "dist/grade.js"), `
+    import {readFile} from "node:fs/promises";
+    import {gradeApplication} from ${JSON.stringify(new URL("../dist/grade.js", import.meta.url).href)};
+    const run = JSON.parse(await readFile(process.env.ASPIRE_BENCH_OWNERSHIP));
+    const input = JSON.parse(await readFile(process.env.EVALUATE_GRADER_INPUT));
+    if(process.env.EVALUATE_WORKSPACE !== input.trajectory.workDir) throw new Error("Native workspace missing");
+    const result = await gradeApplication(run, input.trajectory, {
+      async verify(){return {passed:true,checks:["injected offline objective"],verificationMs:2}},
+      async cleanup(){},
+    });
+    console.log(JSON.stringify(result));
+  `);
+  run.env.PATH = env.PATH;
+  await writeFile(path.join(run.root, "ownership.json"), JSON.stringify(run));
+  await writeFile(path.join(run.root, "environment.sh"), Object.entries({
+    ...run.env, ASPIRE_BENCH_ROOT: mock, ASPIRE_BENCH_OWNERSHIP: path.join(run.root, "ownership.json"),
+  }).map(([key, value]) => `export ${key}='${value.replaceAll("'", "'\\''")}'`).join("\n"));
+  await writeFile(path.join(output, "workspace.json"),
+    JSON.stringify({ root: run.root, variant: "raw", repetition: 1 }));
+  const plan = (await experiment("bingo", "launch-and-verify")).plans.find(plan => plan.variant === "raw");
+  await writeFile(path.join(output, "eval.yaml"), stringify(plan.effectiveSpec));
+  await writeFile(path.join(directory, "metadata.json"), '{"lifecycle":"scripts","baseline":"raw"}');
+  return { directory, run, output, env, async dispose() {
+    await rm(run.root, { recursive: true });
+    await rm(directory, { recursive: true });
+  } };
+}
+
+test("shell lifecycle calls actual Vally CLI and built-in program grader without custom grader/inference", async () => {
+  const f = await fixture();
+  try {
+    await command("bash", ["scripts/trial.sh", f.run.root, f.output, "30"], { env: f.env });
+    assert.equal((await readFile(path.join(f.output, "exit-code"), "utf8")).trim(), "0");
+    const proof = JSON.parse(await readFile(path.join(f.output, "proof.json")));
+    assert.equal(proof.passed, true);
+    assert.equal(proof.metrics.tokenUsage.totalTokens, 15);
+    const report = await compare(f.directory);
+    assert.match(report, /raw: 1\/1/);
+    assert.match(report, /raw \| pass \| 0.12 \| 15 \| 2 \| 1/);
+    await writeFile(path.join(f.output, "cleanup-exit-code"), "1");
+    assert.match(await compare(f.directory), /raw: 0\/1/);
+    await writeFile(path.join(f.output, "exit-code"), "1");
+    assert.match(await compare(f.directory), /raw: 0\/1/);
+  } finally { await f.dispose(); }
+});
+
+test("shell finalizer cleans and retains failure outcomes even when grading never runs", async () => {
+  const f = await fixture("failure");
+  try {
+    await assert.rejects(command("bash", ["scripts/trial.sh", f.run.root, f.output, "30"], { env: f.env }), /exited 1/);
+    assert.equal((await readFile(path.join(f.output, "cleanup-exit-code"), "utf8")).trim(), "0");
+    assert.match(await readFile(path.join(f.output, "vally.log"), "utf8"), /offline execution failure/);
+    assert.match(await compare(f.directory), /raw: 0\/1/);
+  } finally { await f.dispose(); }
+});
+
+test("actual host program grader rejects absent application dependencies through native Vally", async () => {
+  const f = await fixture("real-grader");
+  try {
+    await assert.rejects(command("bash", ["scripts/trial.sh", f.run.root, f.output, "30"], { env: f.env }), /exited 1/);
+    const proof = JSON.parse(await readFile(path.join(f.output, "proof.json")));
+    assert.equal(proof.passed, false);
+    assert.match(proof.error, /Exactly one owned postgres/);
+    assert.equal((await readFile(path.join(f.output, "cleanup-exit-code"), "utf8")).trim(), "0");
+    assert.match(await compare(f.directory), /raw: 0\/1/);
+  } finally { await f.dispose(); }
+});
+
+test("outer cleanup failure preserves successful objective evidence but rejects lifecycle success", async () => {
+  const f = await fixture("cleanup-failure");
+  try {
+    await assert.rejects(command("bash", ["scripts/trial.sh", f.run.root, f.output, "30"], { env: f.env }),
+      /offline cleanup failure/);
+    assert.equal((await readFile(path.join(f.output, "cleanup-exit-code"), "utf8")).trim(), "1");
+    assert.equal(JSON.parse(await readFile(path.join(f.output, "proof.json"))).objectivePassed, true);
+    assert.match(await compare(f.directory), /raw: 0\/1/);
+  } finally { await f.dispose(); }
+});
+
+test("setup script resolves native spec and writes no authentication or ambient feature flags", async () => {
+  const f = await fixture();
+  let root;
+  try {
+    const output = path.join(f.directory, "setup");
+    const result = await command("bash", ["scripts/setup.sh", "--model", "offline",
+      "--variants", "raw", "--output", output],
+    { env: { ...f.env, COPILOT_GITHUB_TOKEN: "offline-token-not-for-persistence",
+      COPILOT_CUSTOM_SETTING: "do-not-inherit" } });
+    root = result.stdout.trim();
+    const shell = await readFile(path.join(root, "environment.sh"), "utf8");
+    const ownership = await readFile(path.join(root, "ownership.json"), "utf8");
+    const spec = await readFile(path.join(output, "eval.yaml"), "utf8");
+    for (const text of [shell, ownership, spec]) {
+      assert(!text.includes("offline-token-not-for-persistence"));
+      assert(!text.includes("do-not-inherit"));
+      assert(!text.includes("NODE_TLS_REJECT_UNAUTHORIZED"));
+    }
+    assert.match(shell, /ASPIRE_BENCH_ROOT/);
+    assert.match(spec, /type: program/);
+    assert.match(spec, /executor: isolated-benchmark/);
+    await command("bash", ["scripts/cleanup.sh", root], { env: f.env });
+  } finally {
+    if (root) await rm(root, { recursive: true });
+    await f.dispose();
+  }
+});
+
+test("shell lifecycle deadline and TERM both clean a trial without a trajectory", async () => {
+  for (const interrupt of [false, true]) {
+    const f = await fixture("hang");
+    try {
+      if (!interrupt) {
+        await assert.rejects(command("bash", ["scripts/trial.sh", f.run.root, f.output, "2"],
+          { env: f.env }), /exited/);
+        assert.match(await readFile(path.join(f.output, "timeout.txt"), "utf8"), /deadline/);
+      } else {
+        const child = spawn("bash", ["scripts/trial.sh", f.run.root, f.output, "30"],
+          { env: f.env, cwd: repoRoot, stdio: "ignore" });
+        const closed = new Promise(resolve => child.once("close", resolve));
+        for (let attempt = 0; attempt < 100; attempt++) {
+          try { await readFile(path.join(f.output, "started")); break; }
+          catch (error) {
+            if (error.code !== "ENOENT") throw error;
+            await new Promise(resolve => setTimeout(resolve, 50));
+            if (attempt === 99) { child.kill("SIGTERM"); throw new Error("Offline executor did not start"); }
+          }
+        }
+        child.kill("SIGTERM");
+        assert.equal(await closed, 143);
+      }
+      assert.equal((await readFile(path.join(f.output, "cleanup-exit-code"), "utf8")).trim(), "0");
+      assert.match(await compare(f.directory), /raw: 0\/1/);
+    } finally { await f.dispose(); }
+  }
+});
+
+test("paid scripts fail before setup without explicit consent, model and supported token", async () => {
+  await assert.rejects(command("bash", ["scripts/run.sh"]), /allow-paid/);
+  await assert.rejects(command("bash", ["scripts/run.sh", "--allow-paid"]), /model/);
+  await assert.rejects(command("bash", ["scripts/run.sh", "--allow-paid", "--model", "offline"],
+    { env: { PATH: process.env.PATH } }), /Export COPILOT_GITHUB_TOKEN/);
+});

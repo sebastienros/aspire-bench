@@ -6,13 +6,13 @@ import path from "node:path";
 import { stringify } from "yaml";
 import {
   runEval, loadExperimentConfig, resolveExperiment, mergeVariantOverride,
-  createExecutorRegistry, createGraderRegistry, loadExecutorPlugin, loadGraderPlugin,
-  gradeTrajectory,
+  createExecutorRegistry, createDefaultGraderRegistry, loadExecutorPlugin,
 } from "@microsoft/vally";
 import { experiment, planEnvironment, selectVariants } from "../dist/experiment.js";
 import { prepare, hashes, repoRoot } from "../dist/workspace.js";
 import { sessionConfig } from "../dist/agent.js";
 import { BenchmarkExecutor } from "../dist/plugin.js";
+import { gradeApplication } from "../dist/grade.js";
 
 test("native manifest controls all five cells and explicit subsets without drift", async () => {
   const resolved = await experiment("bingo", "launch-and-verify");
@@ -64,12 +64,12 @@ test("native drift detection rejects model differences outside declared axes", a
 
 test("supported plugin loaders register custom hooks and native staging executes every cell without inference", async () => {
   const executors = createExecutorRegistry();
-  const graders = createGraderRegistry();
+  const graders = createDefaultGraderRegistry();
   const plugin = path.join(repoRoot, "dist/plugin.js");
   await loadExecutorPlugin(plugin, executors);
-  await loadGraderPlugin(plugin, graders);
   assert(executors.get("isolated-benchmark"));
-  assert(graders.get("application-ready"));
+  assert(graders.get("program"));
+  assert.equal(graders.get("application-ready"), undefined);
   const resolved = await experiment("bingo", "launch-and-verify");
   for (const plan of resolved.plans) {
     const run = await prepare("bingo", plan.variant, plan);
@@ -78,8 +78,7 @@ test("supported plugin loaders register custom hooks and native staging executes
     const old = process.env.ASPIRE_BENCH_OWNERSHIP;
     process.env.ASPIRE_BENCH_OWNERSHIP = path.join(run.root, "ownership.json");
     let cleaned = false;
-    const executor = new BenchmarkExecutor({
-      createExecutor: () => ({
+    const executor = new BenchmarkExecutor(() => ({
         name: "offline", supportsEnvVars: true,
         async execute(stimulus, options) {
           assert.deepEqual(await hashes(options.workDir), run.baselineHashes);
@@ -104,10 +103,7 @@ test("supported plugin loaders register custom hooks and native staging executes
           };
         },
         async shutdown() {},
-      }),
-      async verify() { return { passed: true, checks: ["offline"], verificationMs: 0 }; },
-      async cleanup() { cleaned = true; },
-    });
+    }));
     try {
       await mkdir(path.join(run.root, "workspaces"), { recursive: true });
       const stimulus = plan.effectiveSpec.stimuli[0];
@@ -116,7 +112,12 @@ test("supported plugin loaders register custom hooks and native staging executes
         workDir: run.workDir, workspace: path.join(run.root, "workspaces/native"),
         environment: planEnvironment(plan), baseDir: path.dirname(plan.evalFile), timeout: 10_000,
       });
-      assert.equal((await gradeTrajectory(result.trajectory, stimulus.graders, { registry: graders })).passed, true);
+      assert.equal(cleaned, false, "Application must remain running until program grading");
+      const owned = JSON.parse(await readFile(path.join(run.root, "ownership.json")));
+      assert.equal((await gradeApplication(owned, result.trajectory, {
+        async verify() { return { passed: true, checks: ["offline"], verificationMs: 0 }; },
+        async cleanup() { cleaned = true; },
+      })).passed, true);
       assert(cleaned);
       await result.cleanup();
     } finally {

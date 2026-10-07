@@ -2,14 +2,13 @@ import { cp, mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { parseArgs } from "node:util";
 import { stringify } from "yaml";
-import { validateEvalSpec, createGraderRegistry } from "@microsoft/vally";
+import { validateEvalSpec, createDefaultGraderRegistry } from "@microsoft/vally";
 import { command, interrupt, checkInterrupted } from "./process.js";
 import { prepare, registry, repoRoot, isolatedEnv, type Run } from "./workspace.js";
 import { dryAgent } from "./agent.js";
 import { cleanup } from "./ownership.js";
 import { submittedEndpoints } from "./verify.js";
-import { registerGraders } from "./plugin.js";
-import { compare, type Trial } from "./report.js";
+import { compare } from "./report.js";
 import { configureRuntime, configureAspire } from "./runtime.js";
 import { applicationAdapter } from "./adapters.js";
 import { withFinalizer } from "./lifecycle.js";
@@ -28,14 +27,13 @@ const { values, positionals } = parseArgs({
     pairs: { type: "string", default: "1" },
     timeout: { type: "string", default: "15m" },
     output: { type: "string" },
+    repetition: { type: "string", default: "1" },
     "allow-paid": { type: "boolean", default: false },
   },
 });
 const action = positionals[0] ?? "help";
 const app = values.app!;
 const scenario = values.scenario!;
-const vally = path.join(repoRoot, "node_modules/@microsoft/vally-cli/dist/index.js");
-const plugin = path.join(repoRoot, "dist/plugin.js");
 
 async function preflight() {
   const [node, dotnet, aspire, docker, compose] = await Promise.all([
@@ -64,9 +62,7 @@ async function validate() {
     applicationAdapter(application.adapter);
     for (const scenarioName of application.scenarios) {
       for (const plan of (await experiment(applicationName, scenarioName)).plans) {
-        const graders = createGraderRegistry();
-        registerGraders(graders);
-        const result = validateEvalSpec(plan.effectiveSpec, { registry: graders });
+        const result = validateEvalSpec(plan.effectiveSpec, { registry: createDefaultGraderRegistry() });
         if (!result.valid) throw new Error(JSON.stringify(result.diagnostics));
       }
     }
@@ -76,16 +72,6 @@ async function validate() {
     }
   }
   console.log("Registry, native Vally experiment drift checks, local staging and evaluation schemas valid.");
-}
-
-async function collectFiles(directory: string, basename: string): Promise<string[]> {
-  const result: string[] = [];
-  for (const item of await readdir(directory, { withFileTypes: true })) {
-    const file = path.join(directory, item.name);
-    if (item.isDirectory()) result.push(...await collectFiles(file, basename));
-    else if (item.name === basename) result.push(file);
-  }
-  return result;
 }
 
 async function runSmoke(run: Run) {
@@ -102,22 +88,14 @@ async function runSmoke(run: Run) {
   }, () => cleanup(run));
 }
 
-async function evaluate() {
-  if (!values["allow-paid"]) throw new Error("Real evaluations spend model credits. Pass --allow-paid explicitly.");
-  if (!values.model) throw new Error("Choose --model explicitly for a reproducible paid evaluation.");
-  if (!process.env.GH_TOKEN && !process.env.GITHUB_TOKEN && !process.env.COPILOT_GITHUB_TOKEN) {
-    throw new Error("Export GH_TOKEN, GITHUB_TOKEN or COPILOT_GITHUB_TOKEN; host login/config is not inherited.");
-  }
-  const pairs = Number(values.pairs);
-  if (!Number.isSafeInteger(pairs) || pairs < 1) throw new Error("--pairs must be a positive integer");
-  if (!/^[1-9]\d*(ms|s|m|h)$/.test(values.timeout!)) throw new Error("--timeout requires a duration, e.g. 15m");
-  const catalog = await registry();
-  const application = catalog.applications[app];
-  if (!application?.scenarios.includes(scenario)) throw new Error(`Unknown ${app}/${scenario}`);
+async function initialize() {
   const resolved = await experiment(app, scenario);
   const variants = selectVariants(resolved.variantNames, values.variants);
+  const pairs = Number(values.pairs);
+  if (!Number.isSafeInteger(pairs) || pairs < 1) throw new Error("--pairs must be a positive integer");
+  if (!values.model) throw new Error("--model is required");
+  if (!/^[1-9]\d*(ms|s|m|h)$/.test(values.timeout!)) throw new Error("Invalid --timeout duration");
   const versions = await preflight();
-  await validate();
   const directory = path.resolve(values.output ?? path.join(repoRoot, ".runs", new Date().toISOString().replace(/[:.]/g, "-")));
   await mkdir(path.dirname(directory), { recursive: true, mode: 0o700 });
   await mkdir(directory, { recursive: false, mode: 0o700 });
@@ -126,89 +104,61 @@ async function evaluate() {
   await writeFile(path.join(directory, "metadata.json"), JSON.stringify({
     versions, model: values.model, timeout: values.timeout, pairs, app, scenario, variants,
     baseline: resolved.baseline,
+    lifecycle: "scripts",
     startedAt: new Date().toISOString(),
     commit: (await command("git", ["rev-parse", "HEAD"], { cwd: repoRoot })).stdout.trim(),
     source: JSON.parse(await readFile(path.join(repoRoot, `apps/${app}/provenance.json`), "utf8")),
     treatment: JSON.parse(await readFile(path.join(repoRoot, "treatment/provenance.json"), "utf8")),
   }, null, 2));
-  const trials: Trial[] = [];
-  for (let pair = 1; pair <= pairs; pair++) {
-    for (const variant of pair % 2 ? variants : [...variants].reverse()) {
-      checkInterrupted();
-      const plan = resolved.plans.find(item => item.variant === variant)!;
-      const run = await prepare(app, variant, plan);
-      run.nativeStaging = true;
-      const trialDir = path.join(directory, `${pair}-${variant}`);
-      await mkdir(trialDir);
-      await writeFile(path.join(trialDir, "workspace.json"), JSON.stringify({
-        root: run.root, id: run.id, fixtureHashes: run.baselineHashes,
-      }, null, 2));
-      const rawSpec = { ...plan.effectiveSpec,
-        defaults: { ...plan.effectiveSpec.defaults, model: values.model, timeout: values.timeout },
-      };
-      await writeFile(path.join(trialDir, "plan.json"), JSON.stringify({
-        variant, configHash: plan.configHash, evalHash: plan.evalHash, effectiveSpec: plan.effectiveSpec,
-      }, null, 2));
-      const specFile = path.join(trialDir, "eval.yaml");
-      await writeFile(specFile, stringify(rawSpec));
-      let error: string | undefined;
-      let cleanupFailure: unknown;
-      try {
-        await withFinalizer(async () => {
-          await configureRuntime(run);
-          await command("node", [vally, "eval", "-e", specFile, "--work-dir", run.workDir,
-            "--workspace", path.join(run.root, "workspaces"),
-            "--output-dir", trialDir, "--workers", "1", "--max-retries", "0", "--require-pass",
-            "--executor-plugin", plugin, "--grader-plugin", plugin, "--shutdown-timeout", "3m"],
-          { cwd: run.workDir, env: { ...isolatedEnv(run), ASPIRE_BENCH_OWNERSHIP: path.join(run.root, "ownership.json") },
-            timeout: durationMs(values.timeout!) + 360_000 });
-        }, async () => {
-          try {
-            await cleanup(JSON.parse(await readFile(path.join(run.root, "ownership.json"), "utf8")));
-          } catch (cause) {
-            cleanupFailure = cause;
-            throw cause;
-          }
-        });
-      } catch (cause) { error = cause instanceof Error ? cause.message : String(cause); }
-      const files = await collectFiles(trialDir, "results.jsonl");
-      const proofFiles = await collectFiles(run.root, "proof.json");
-      let trial: Trial = { variant, trial: pair, status: "error", success: false, error };
-      if (files.length === 1) {
-        const outcomes = (await readFile(files[0], "utf8")).trim().split("\n").map(line => JSON.parse(line));
-        const outcome = outcomes.find(record => record.trajectory || record.status === "error");
-        if (outcome) trial = { ...trial, status: outcome.status, success: outcome.gradeResult?.passed === true,
-          metrics: outcome.trajectory?.metrics, error: outcome.error ?? error };
-      }
-      if (proofFiles.length === 1) {
-        const proof = JSON.parse(await readFile(proofFiles[0], "utf8"));
-        trial = { ...trial, success: proof.passed === true && !error,
-          metrics: proof.metrics, setupMs: proof.setupMs, verificationMs: proof.verificationMs };
-        await writeFile(path.join(trialDir, "proof.json"), JSON.stringify(proof, null, 2));
-      }
-      if ((await collectFiles(run.root, "visibility.json")).length) {
-        await writeFile(path.join(trialDir, "visibility.json"), await readFile(path.join(run.root, "visibility.json")));
-      }
-      if ((await readdir(run.root)).includes("session-logs")) {
-        await cp(path.join(run.root, "session-logs"), path.join(trialDir, "session-logs"),
-          { recursive: true });
-      }
-      trials.push(trial);
-      await writeFile(path.join(directory, "paired.json"), JSON.stringify(trials, null, 2));
-      if (cleanupFailure) {
-        await compare(directory);
-        throw cleanupFailure;
-      }
-    }
-  }
-  console.log(await compare(directory));
-  console.log(`Results: ${directory}`);
-  if (trials.some(trial => !trial.success)) process.exitCode = 1;
+  console.log(directory);
 }
 
-function durationMs(duration: string) {
-  const match = /^(\d+)(ms|s|m|h)$/.exec(duration)!;
-  return Number(match[1]) * ({ ms: 1, s: 1000, m: 60_000, h: 3_600_000 }[match[2]]!);
+function shellQuote(value: string) {
+  return `'${value.replaceAll("'", "'\\''")}'`;
+}
+
+async function setup() {
+  if (!values.output || !values.model) throw new Error("setup requires --output and --model");
+  if (!/^[1-9]\d*(ms|s|m|h)$/.test(values.timeout!)) throw new Error("Invalid --timeout duration");
+  const repetition = Number(values.repetition);
+  if (!Number.isSafeInteger(repetition) || repetition < 1) throw new Error("Invalid --repetition");
+  const resolved = await experiment(app, scenario);
+  const selected = selectVariants(resolved.variantNames, values.variants);
+  if (selected.length !== 1) throw new Error("setup requires exactly one --variants entry");
+  const plan = resolved.plans.find(item => item.variant === selected[0])!;
+  const directory = path.resolve(values.output);
+  await mkdir(directory, { recursive: false, mode: 0o700 });
+  const run = await prepare(app, plan.variant, plan);
+  run.nativeStaging = true;
+  try {
+    await writeFile(path.join(directory, "workspace.json"), JSON.stringify({
+      root: run.root, id: run.id, variant: plan.variant, repetition,
+      fixtureHashes: run.baselineHashes,
+    }, null, 2));
+    await configureRuntime(run);
+    await writeFile(path.join(directory, "plan.json"), JSON.stringify(plan, null, 2));
+    await writeFile(path.join(directory, "eval.yaml"), stringify({
+      ...plan.effectiveSpec,
+      defaults: { ...plan.effectiveSpec.defaults, model: values.model, timeout: values.timeout },
+    }));
+    const env = isolatedEnv(run);
+    for (const key of ["GH_TOKEN", "GITHUB_TOKEN", "COPILOT_GITHUB_TOKEN"]) delete env[key];
+    env.ASPIRE_BENCH_OWNERSHIP = path.join(run.root, "ownership.json");
+    env.ASPIRE_BENCH_ROOT = repoRoot;
+    await writeFile(path.join(run.root, "environment.sh"), Object.entries(env)
+      .map(([key, value]) => `export ${key}=${shellQuote(value)}`).join("\n") + "\n", { mode: 0o600 });
+    console.log(run.root);
+  } catch (error) {
+    await withFinalizer(async () => { throw error; }, () => cleanup(run));
+  }
+}
+
+async function retain(root: string, directory: string) {
+  for (const name of ["proof.json", "agent.json", "visibility.json", "session-logs"]) {
+    if ((await readdir(root)).includes(name)) {
+      await cp(path.join(root, name), path.join(directory, name), { recursive: true });
+    }
+  }
 }
 
 async function main() {
@@ -218,7 +168,16 @@ async function main() {
     if (!positionals[1]) throw new Error("compare requires an evaluation output directory");
     console.log(await compare(path.resolve(positionals[1]))); return;
   }
-  if (action === "eval") return evaluate();
+  if (action === "initialize") return initialize();
+  if (action === "setup") return setup();
+  if (action === "selection") {
+    console.log(selectVariants((await experiment(app, scenario)).variantNames, values.variants).join("\n"));
+    return;
+  }
+  if (action === "retain") {
+    if (!positionals[1] || !values.output) throw new Error("retain requires runtime root and --output");
+    return retain(path.resolve(positionals[1]), path.resolve(values.output));
+  }
   if (action === "plan") {
     console.log(JSON.stringify(await experiment(app, scenario), null, 2));
     return;
@@ -254,7 +213,8 @@ async function main() {
   }
   if (action !== "help") throw new Error(`Unknown command: ${action}`);
   console.log("Commands: validate | plan | preflight | dry-run [--model MODEL] | smoke | " +
-    "eval --model MODEL --pairs 1 --allow-paid | compare OUTPUT | cleanup RUNTIME_ROOT\n" +
+    "compare OUTPUT | cleanup RUNTIME_ROOT | setup --model MODEL --variants ONE --output DIR\n" +
+    "Evaluations: bash scripts/run.sh --model MODEL --pairs 1 --allow-paid\n" +
     "Options: --app bingo --scenario launch-and-verify --variants raw,aspire|all --timeout 15m --output DIR");
 }
 

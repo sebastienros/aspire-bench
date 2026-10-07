@@ -2,19 +2,18 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { parse } from "yaml";
-import { loadEvalSpec, validateEvalSpec, createGraderRegistry } from "@microsoft/vally";
-import { registerGraders } from "../dist/plugin.js";
+import { loadEvalSpec, validateEvalSpec, createDefaultGraderRegistry } from "@microsoft/vally";
 import { pairedReport } from "../dist/report.js";
 
 test("scenario uses the published Vally schema and identical scoring", async () => {
   const spec = await loadEvalSpec("scenarios/launch-and-verify.yaml");
-  const registry = createGraderRegistry();
-  registerGraders(registry);
+  const registry = createDefaultGraderRegistry();
   const result = validateEvalSpec(spec, { registry });
   assert.equal(result.valid, true, JSON.stringify(result.diagnostics));
   const raw = parse(await readFile("scenarios/launch-and-verify.yaml", "utf8"));
   assert.equal(raw.scoring.threshold, 1);
   assert.equal(raw.stimuli[0].graders[0].required, true);
+  assert.equal(raw.stimuli[0].graders[0].type, "program");
   assert.equal(raw.defaults.executor, "isolated-benchmark");
   assert.equal(raw.stimuli.length, 1);
 });

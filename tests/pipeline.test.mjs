@@ -1,11 +1,12 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
-import { mkdir, readFile, writeFile, rm } from "node:fs/promises";
+import { readFile, writeFile, rm } from "node:fs/promises";
 import path from "node:path";
 import { Writable } from "node:stream";
-import { runEval, gradeTrajectory, createGraderRegistry, EvalJsonlReporter } from "@microsoft/vally";
-import { BenchmarkExecutor, registerGraders } from "../dist/plugin.js";
+import { runEval, EvalJsonlReporter } from "@microsoft/vally";
+import { BenchmarkExecutor } from "../dist/plugin.js";
+import { gradeApplication } from "../dist/grade.js";
 import { prepare, hashes, unchanged } from "../dist/workspace.js";
 import { withFinalizer } from "../dist/lifecycle.js";
 import { ownedCwds } from "../dist/ownership.js";
@@ -32,8 +33,7 @@ test("native Vally execution, grading and JSONL preserve owned workspace and met
   process.env.ASPIRE_BENCH_OWNERSHIP = path.join(run.root, "ownership.json");
   let cleaned = 0;
   let stopped = 0;
-  const executor = new BenchmarkExecutor({
-    createExecutor: () => ({
+  const executor = new BenchmarkExecutor(() => ({
       name: "offline-test", supportsEnvVars: true,
       async execute(stimulus, options) {
         assert(options.sessionLog.rootDir.startsWith(run.root + path.sep));
@@ -44,24 +44,26 @@ test("native Vally execution, grading and JSONL preserve owned workspace and met
         return fakeTrajectory(stimulus, options.workDir);
       },
       async shutdown() { stopped++; },
-    }),
-    async verify(owned, urls) {
-      assert.notEqual(owned.workDir, run.workDir);
-      assert.equal(urls.admin, "http://localhost:1234");
-      return { passed: true, checks: ["offline injected objective"], verificationMs: 2 };
-    },
-    async cleanup() { cleaned++; },
-  });
+  }));
   try {
     const stimulus = { name: "offline", prompt: "Never sent to a model",
-      graders: [{ type: "application-ready", required: true }] };
+      graders: [{ type: "program", required: true }] };
     const result = await runEval({
       prompt: stimulus.prompt, stimulus, skills: [], executor, workDir: run.workDir,
       workspace: path.join(run.root, "workspaces/native-trial"), timeout: 10_000,
+      environment: run.environment,
     });
-    const registry = createGraderRegistry();
-    registerGraders(registry);
-    const grade = await gradeTrajectory(result.trajectory, stimulus.graders, { registry });
+    assert.equal(cleaned, 0);
+    const owned = JSON.parse(await readFile(path.join(run.root, "ownership.json")));
+    const objective = await gradeApplication(owned, result.trajectory, {
+      async verify(owned, urls) {
+        assert.notEqual(owned.workDir, run.workDir);
+        assert.equal(urls.admin, "http://localhost:1234");
+        return { passed: true, checks: ["offline injected objective"], verificationMs: 2 };
+      },
+      async cleanup() { cleaned++; },
+    });
+    const grade = { passed: objective.passed, score: objective.score, results: [objective] };
     assert.equal(grade.passed, true);
     assert.equal(cleaned, 1);
     assert.equal(stopped, 1);
@@ -88,27 +90,24 @@ test("native Vally execution, grading and JSONL preserve owned workspace and met
   }
 });
 
-test("executor cleans owned resources even when delegate shutdown fails", async () => {
+test("executor aggregates execution/shutdown errors and refuses unowned staging", async () => {
   const run = await prepare("bingo", "raw");
   const old = process.env.ASPIRE_BENCH_OWNERSHIP;
   process.env.ASPIRE_BENCH_OWNERSHIP = path.join(run.root, "ownership.json");
-  const workspace = path.join(run.root, "workspaces/failure");
-  await mkdir(workspace, { recursive: true });
-  let cleaned = false;
-  const executor = new BenchmarkExecutor({
-    createExecutor: () => ({
+  const executor = new BenchmarkExecutor(() => ({
       name: "offline", supportsEnvVars: true,
       async execute() { throw new Error("execution failure"); },
       async shutdown() { throw new Error("shutdown failure"); },
-    }),
-    async cleanup() { cleaned = true; },
-  });
+  }));
   try {
-    await assert.rejects(executor.execute({ name: "test", prompt: "offline" }, { workDir: workspace }),
+    await assert.rejects(runEval({
+      prompt: "offline", stimulus: { name: "test", prompt: "offline" }, skills: [], executor,
+      workDir: run.workDir, workspace: path.join(run.root, "workspaces/failure"), timeout: 10_000,
+      environment: run.environment,
+    }),
       error => error instanceof AggregateError
         && error.errors[0].message === "execution failure"
         && error.errors[1].message === "shutdown failure");
-    assert(cleaned);
     await executor.shutdown();
     await assert.rejects(executor.execute({ name: "test", prompt: "offline" }, { workDir: "/outside" }),
       /escapes/);
@@ -123,10 +122,7 @@ test("cleanup failure retains normalized trajectory metrics and fails objective 
   const run = await prepare("bingo", "raw");
   const old = process.env.ASPIRE_BENCH_OWNERSHIP;
   process.env.ASPIRE_BENCH_OWNERSHIP = path.join(run.root, "ownership.json");
-  const workspace = path.join(run.root, "workspaces/cleanup-failure");
-  await mkdir(workspace, { recursive: true });
-  const executor = new BenchmarkExecutor({
-    createExecutor: () => ({
+  const executor = new BenchmarkExecutor(() => ({
       name: "offline", supportsEnvVars: true,
       async execute(stimulus, options) {
         await writeFile(path.join(options.workDir, "benchmark-endpoints.json"),
@@ -134,22 +130,27 @@ test("cleanup failure retains normalized trajectory metrics and fails objective 
         return fakeTrajectory(stimulus, options.workDir);
       },
       async shutdown() {},
-    }),
-    async verify() { return { passed: true, checks: ["objective passed"], verificationMs: 1 }; },
-    async cleanup() { throw new Error("owned resource remains"); },
-  });
+  }));
   try {
-    const trajectory = await executor.execute({ name: "test", prompt: "offline" }, { workDir: workspace });
+    const result = await runEval({
+      prompt: "offline", stimulus: { name: "test", prompt: "offline" }, skills: [], executor,
+      workDir: run.workDir, workspace: path.join(run.root, "workspaces/cleanup-failure"), timeout: 10_000,
+      environment: run.environment,
+    });
+    const trajectory = result.trajectory;
     assert.equal(trajectory.metrics.tokenUsage.totalTokens, 15);
-    const registry = createGraderRegistry();
-    registerGraders(registry);
-    const grade = await gradeTrajectory(trajectory, [{ type: "application-ready", required: true }], { registry });
+    const owned = JSON.parse(await readFile(path.join(run.root, "ownership.json")));
+    const grade = await gradeApplication(owned, trajectory, {
+      async verify() { return { passed: true, checks: ["objective passed"], verificationMs: 1 }; },
+      async cleanup() { throw new Error("owned resource remains"); },
+    });
     assert.equal(grade.passed, false);
     const proof = JSON.parse(await readFile(path.join(run.root, "proof.json")));
     assert.equal(proof.objectivePassed, true);
     assert.equal(proof.passed, false);
     assert.match(proof.cleanupError, /owned resource remains/);
-    await assert.rejects(executor.shutdown(), /owned resource remains/);
+    await executor.shutdown();
+    await result.cleanup();
   } finally {
     if (old === undefined) delete process.env.ASPIRE_BENCH_OWNERSHIP;
     else process.env.ASPIRE_BENCH_OWNERSHIP = old;

@@ -1,4 +1,4 @@
-import { readFile, writeFile } from "node:fs/promises";
+import { readFile, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { TrajectoryMetrics } from "@microsoft/vally";
 
@@ -46,18 +46,70 @@ export function pairedReport(trials: Trial[], baseline = "raw") {
     "Small samples are descriptive, not statistically significant.\n";
 }
 
+async function optionalJson(file: string) {
+  try { return JSON.parse(await readFile(file, "utf8")); }
+  catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+    return undefined;
+  }
+}
+
+async function results(directory: string): Promise<Trial[]> {
+  const trials: Trial[] = [];
+  for (const entry of await readdir(directory, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue;
+    const root = path.join(directory, entry.name);
+    const workspace = await optionalJson(path.join(root, "workspace.json"));
+    if (!workspace) continue;
+    const files: string[] = [];
+    async function walk(parent: string) {
+      for (const item of await readdir(parent, { withFileTypes: true })) {
+        const file = path.join(parent, item.name);
+        if (item.isDirectory() && item.name !== "session-logs") await walk(file);
+        else if (item.name === "results.jsonl") files.push(file);
+      }
+    }
+    await walk(root);
+    if (files.length > 1) throw new Error(`Expected one native result file for ${entry.name}`);
+    const records = files.length ? (await readFile(files[0], "utf8")).trim().split("\n")
+      .filter(Boolean).map(line => JSON.parse(line)).filter(record => record.type === "trial-result") : [];
+    if (records.length > 1) throw new Error(`Expected one native trial for ${entry.name}`);
+    const outcome = records[0];
+    const agent = await optionalJson(path.join(root, "agent.json"));
+    const proof = await optionalJson(path.join(root, "proof.json"));
+    let lifecyclePassed = false;
+    try {
+      lifecyclePassed = (await readFile(path.join(root, "exit-code"), "utf8")).trim() === "0"
+        && (await readFile(path.join(root, "cleanup-exit-code"), "utf8")).trim() === "0";
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+    }
+    trials.push({
+      variant: workspace.variant, trial: workspace.repetition,
+      status: outcome?.status ?? "error",
+      success: lifecyclePassed && outcome?.gradeResult?.passed === true && proof?.passed === true,
+      metrics: outcome?.trajectory?.metrics ?? agent?.metrics,
+      setupMs: agent?.setupMs, verificationMs: proof?.verificationMs,
+      error: outcome?.error ?? proof?.error ?? (!lifecyclePassed ? "Incomplete or failed trial lifecycle" : undefined),
+    });
+  }
+  return trials.sort((a, b) => a.trial - b.trial || a.variant.localeCompare(b.variant));
+}
+
 export async function compare(directory: string) {
-  const trials: Trial[] = JSON.parse(await readFile(path.join(directory, "paired.json"), "utf8"));
+  const metadata = await optionalJson(path.join(directory, "metadata.json"));
+  // Legacy runs retain their original outcomes; new runs derive summaries from
+  // native JSONL only after the scripts have finished cleanup.
+  const trials: Trial[] = metadata?.lifecycle === "scripts"
+    ? await results(directory) : await optionalJson(path.join(directory, "paired.json")) ?? [];
   if (!Array.isArray(trials) || !trials.length) throw new Error("No paired results found");
   let baseline = "raw";
-  try {
-    const metadata = JSON.parse(await readFile(path.join(directory, "metadata.json"), "utf8"));
-    if (metadata.baseline !== undefined) {
-      if (typeof metadata.baseline !== "string") throw new Error("Invalid experiment baseline metadata");
-      baseline = metadata.baseline;
-    }
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+  if (metadata?.baseline !== undefined) {
+    if (typeof metadata.baseline !== "string") throw new Error("Invalid experiment baseline metadata");
+    baseline = metadata.baseline;
+  }
+  if (metadata?.lifecycle === "scripts") {
+    await writeFile(path.join(directory, "paired.json"), JSON.stringify(trials, null, 2));
   }
   const report = pairedReport(trials, baseline);
   await writeFile(path.join(directory, "comparison.md"), report);

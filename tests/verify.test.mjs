@@ -1,8 +1,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
+import { rm } from "node:fs/promises";
 import { endpoints, verifyHttp } from "../dist/verify.js";
-import { ApplicationReadyGrader } from "../dist/plugin.js";
+import { gradeApplication } from "../dist/grade.js";
+import { prepare } from "../dist/workspace.js";
 import { resourceEndpoints } from "../dist/aspire.js";
 
 test("Aspire describe parsing uses displayName and normalizes named links", () => {
@@ -71,7 +73,17 @@ test("shared workflow accepts live contract and rejects unavailable/proxy/state 
 });
 
 test("grader cannot accept agent self-report or missing host proof", async () => {
-  await assert.rejects(new ApplicationReadyGrader().grade({
-    trajectory: { id: "invented", output: "Everything works!" },
-  }), /Missing host-side/);
+  const run = await prepare("bingo", "raw");
+  let cleaned = false;
+  try {
+    const result = await gradeApplication(run, {
+      id: "invented", output: "Everything works!", workDir: run.workDir,
+    }, {
+      async verify() { assert.fail("Missing executor evidence must not reach verification"); },
+      async cleanup() { cleaned = true; },
+    });
+    assert.equal(result.passed, false);
+    assert.match(result.evidence, /agent.json/);
+    assert(cleaned);
+  } finally { await rm(run.root, { recursive: true }); }
 });
