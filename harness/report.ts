@@ -111,7 +111,15 @@ export async function compare(directory: string) {
   if (metadata?.lifecycle === "scripts") {
     await writeFile(path.join(directory, "paired.json"), JSON.stringify(trials, null, 2));
   }
-  const report = pairedReport(trials, baseline);
+  const recordedDefinitions = metadata?.variantDefinitions;
+  const meanings = recordedDefinitions
+    ? "\nVariant definitions recorded at evaluation time:\n\n" +
+      Object.entries(recordedDefinitions).map(([name, definition]) =>
+        `- **${name}**: \`${JSON.stringify(definition)}\``).join("\n") + "\n"
+    : "\nVariant meanings follow this run's recorded harness commit/provenance, " +
+      "not the current registry. Before the raw/raw-scripted split, **raw** " +
+      "denoted the scripted fixture. No lifecycle definitions were recorded for this run.\n";
+  const report = pairedReport(trials, baseline) + meanings;
   await writeFile(path.join(directory, "comparison.md"), report);
   return report;
 }

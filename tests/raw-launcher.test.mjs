@@ -11,7 +11,7 @@ import { cleanup, ownedProcesses } from "../dist/ownership.js";
 import { applicationAdapter } from "../dist/adapters.js";
 
 async function fixture(mode = "success") {
-  const run = await prepare("bingo", "raw");
+  const run = await prepare("bingo", "raw-scripted");
   const bin = path.join(run.root, "bin");
   const events = path.join(run.root, "events");
   const resource = path.join(run.root, "container");

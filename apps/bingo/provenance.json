@@ -7,13 +7,15 @@
   "license": "MIT",
   "adaptations": [
     "Copied self-contained raw and Aspire fixture trees, not submodules.",
+    "The README-only raw fixture is a separate copy of the application's sources, build configuration, Compose dependency definition and MIT license, with all lifecycle scripts omitted; its README documents individual manual commands.",
+    "By explicit user naming decision, the existing management-script fixture is preserved as raw-scripted. Historical runs recorded as raw before this change used that scripted fixture; original artifacts must be interpreted with their recorded harness commit/provenance.",
     "Raw control removes inactive ServiceDefaults project/references, OTel startup hooks, and checkpoint documentation.",
-    "Raw Bash launcher accepts run-scoped ports and Compose project; PowerShell/manual helpers are omitted to avoid unsafe fixed-port alternatives.",
+    "raw-scripted Bash launcher accepts run-scoped ports and Compose project; PowerShell helpers are omitted to avoid unsafe fixed-port alternatives.",
     "Aspire AppHost project paths are relative to the self-contained fixture.",
-    "Both fixtures pin PostgreSQL 18.3 and Redis 8.6 to match the Aspire 13.6 integration defaults.",
-    "Both fixtures select a stable .NET 10 SDK via global.json; the file-based AppHost opts out of central package management for its explicit directives.",
+    "All fixtures pin PostgreSQL 18.3 and Redis 8.6 to match the Aspire 13.6 integration defaults.",
+    "All fixtures select a stable .NET 10 SDK via global.json; the file-based AppHost opts out of central package management for its explicit directives.",
     "Aspire container and data-volume names require a unique BENCH_RUN_ID; no persistent resources are reused.",
-    "Both launchers use npm ci so normal dependency installation preserves the snapshotted lockfile.",
-    "Both fixture READMEs document their own launcher without describing the other variant."
+    "All documented launch paths use npm ci so normal dependency installation preserves the snapshotted lockfile.",
+    "Fixture READMEs document their own launch method without describing other variants."
   ]
 }

@@ -1,4 +1,4 @@
-import { writeFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { command } from "./process.js";
 import { isolatedEnv, type Run } from "./workspace.js";
@@ -10,9 +10,31 @@ export interface ApplicationAdapter {
   verify(run: Run, urls: Endpoints): Promise<Proof>;
 }
 
+export async function manualBingoCommands(run: Run, phase: "start" | "stop") {
+  if (run.adapter !== "bingo" || run.config.lifecycle !== "manual") {
+    throw new Error("Manual README commands require the manual Bingo fixture");
+  }
+  const readme = await readFile(path.join(run.workDir, "README.md"), "utf8");
+  const sections = readme.split("## Stop only this stack");
+  if (sections.length !== 2) throw new Error("Manual README stop section changed");
+  const steps = sections[phase === "start" ? 0 : 1].matchAll(/```bash\n([\s\S]*?)```/g);
+  const commands = [...steps].map(match => match[1]);
+  if (commands.length !== (phase === "start" ? 7 : 1)) {
+    throw new Error("Manual README smoke contract changed");
+  }
+  const result = await command("bash", ["-euc", commands.join("\n")],
+    { cwd: run.workDir, env: isolatedEnv(run), timeout: 600_000 });
+  await writeFile(path.join(run.root, phase === "start" ? "startup.log" : "manual-stop.log"),
+    result.stdout + result.stderr);
+}
+
 async function launchBingo(run: Run) {
   const env = isolatedEnv(run);
   if (run.config.kind === "compose") {
+    if (run.config.lifecycle === "manual") {
+      // Smoke executes the documented commands, without staging a launcher.
+      return manualBingoCommands(run, "start");
+    }
     const started = await command("bash", ["scripts/start.sh"],
       { cwd: run.workDir, env, timeout: 600_000 });
     await writeFile(path.join(run.root, "startup.log"), started.stdout + started.stderr);

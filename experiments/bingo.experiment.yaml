@@ -15,6 +15,12 @@ variants:
         - {src: ../apps/bingo/raw, dest: .}
       skills: []
       mcpServers: null
+  raw-scripted:
+    environment:
+      files:
+        - {src: ../apps/bingo/raw-scripted, dest: .}
+      skills: []
+      mcpServers: null
   aspire-none:
     environment:
       files:

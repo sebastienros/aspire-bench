@@ -7,7 +7,9 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 export const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-export type Variant = { fixture: string; kind: "compose" | "aspire"; apphost?: string };
+export type Variant = {
+  fixture: string; kind: "compose" | "aspire"; apphost?: string; lifecycle?: "manual";
+};
 export type Application = {
   description: string; adapter: string; experiment: string; variants: Record<string, Variant>; scenarios: string[];
 };

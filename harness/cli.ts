@@ -10,7 +10,7 @@ import { cleanup } from "./ownership.js";
 import { submittedEndpoints } from "./verify.js";
 import { compare } from "./report.js";
 import { configureRuntime, configureAspire } from "./runtime.js";
-import { applicationAdapter } from "./adapters.js";
+import { applicationAdapter, manualBingoCommands } from "./adapters.js";
 import { withFinalizer } from "./lifecycle.js";
 import { experiment, selectVariants } from "./experiment.js";
 
@@ -84,12 +84,14 @@ async function runSmoke(run: Run) {
     const proof = await adapter.verify(run, await submittedEndpoints(run));
     await writeFile(path.join(run.root, "proof.json"), JSON.stringify(proof, null, 2));
     if (!proof.passed) throw new Error(proof.error);
+    if (run.config.lifecycle === "manual") await manualBingoCommands(run, "stop");
     console.log(`${run.variant}: objective smoke passed (${run.root})`);
   }, () => cleanup(run));
 }
 
 async function initialize() {
   const resolved = await experiment(app, scenario);
+  const catalog = await registry();
   const variants = selectVariants(resolved.variantNames, values.variants);
   const pairs = Number(values.pairs);
   if (!Number.isSafeInteger(pairs) || pairs < 1) throw new Error("--pairs must be a positive integer");
@@ -105,6 +107,8 @@ async function initialize() {
     versions, model: values.model, timeout: values.timeout, pairs, app, scenario, variants,
     baseline: resolved.baseline,
     lifecycle: "scripts",
+    variantDefinitions: Object.fromEntries(variants.map(name =>
+      [name, catalog.applications[app].variants[name]])),
     startedAt: new Date().toISOString(),
     commit: (await command("git", ["rev-parse", "HEAD"], { cwd: repoRoot })).stdout.trim(),
     source: JSON.parse(await readFile(path.join(repoRoot, `apps/${app}/provenance.json`), "utf8")),
