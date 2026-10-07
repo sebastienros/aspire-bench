@@ -13,8 +13,8 @@
   },
   "dependencies": {
     "@github/copilot-sdk": "1.0.14",
-    "@microsoft/vally": "0.17.0",
-    "@microsoft/vally-cli": "0.17.0",
+    "@microsoft/vally": "0.18.0",
+    "@microsoft/vally-cli": "0.18.0",
     "yaml": "2.8.3"
   },
   "devDependencies": {

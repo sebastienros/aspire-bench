@@ -214,7 +214,7 @@ bash scripts/report.sh .runs/<timestamp>
 | Vally timestamped subdirectories | Native JSONL outcomes, Markdown report, SDK session logs and OTel trajectories |
 | `<pair>-<variant>/workspace.json` | Retained disposable runtime identity, staged baseline hashes and optional patch paths/SHA-256 fingerprints |
 
-Vally 0.17's native `vally compare` invokes a paid prompt judge; its experiment
+Vally 0.18's native `vally compare` invokes a paid prompt judge; its experiment
 runner parses `grader_plugins`, `executor_plugins` and `eval_plugin` but does
 **not load them**. Running `vally experiment run` directly would lose required
 isolation hooks. Small lifecycle scripts therefore use the native
@@ -279,7 +279,7 @@ against today's manual fixture.
 
 ## Patch-based variants
 
-Vally 0.17 supports **`environment.commands`**, executed after files/skills are
+Vally 0.18 supports **`environment.commands`**, executed after files/skills are
 staged and **before** workspace baselines and agent execution. There is no
 separate middleware API needed here; an executor wrapper would apply the patch
 too late for native diff attribution. The harness now supports a constrained
@@ -366,7 +366,7 @@ not based on agent-answer greps, health endpoints alone or a file's presence.
 
 All seven upstream Aspire `SKILL.md` files and **all their references** are
 copied project-locally by native `environment.skills`, one directory per skill
-at the workspace root (Vally 0.17's supported layout). Upstream skill-evaluation
+at the workspace root (Vally 0.18's supported layout). Upstream skill-evaluation
 fixtures are excluded. This is a complete licensed guidance snapshot, not
 hand-written substitutes. `aspire agent init` is the supported regeneration
 path for future snapshots; never copy personal skill/config directories.

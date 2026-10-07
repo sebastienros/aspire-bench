@@ -73,12 +73,14 @@ test("native Vally execution, grading and JSONL preserve owned workspace and met
     const reporter = new EvalJsonlReporter({
       stream: new Writable({ write(chunk, _encoding, done) { jsonl += chunk; done(); } }),
     });
+    await reporter.onRunStart({ runId: run.id, evals: [], totalItems: 1, workers: 1 });
     await reporter.onTrialResult({
       item: { id: "offline", evalName: "test", variant: "raw", stimulus },
       result: { status: "success", durationMs: 123, trajectory: result.trajectory, grade },
     });
     const outcome = JSON.parse(jsonl.trim());
     assert.equal(outcome.type, "trial-result");
+    assert.equal(outcome.runId, run.id);
     assert.equal(outcome.gradeResult.passed, true);
     assert.equal(outcome.trajectory.metrics.tokenUsage.totalTokens, 15);
     assert.equal(JSON.parse(await readFile(path.join(run.root, "proof.json"))).passed, true);

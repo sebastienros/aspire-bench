@@ -52,7 +52,7 @@ async function preflight() {
   return {
     node: node.stdout.trim(), dotnet: dotnet.stdout.trim(), aspire: aspire.stdout.trim(),
     docker: docker.stdout.trim(), compose: compose.stdout.trim(),
-    vally: "0.17.0", copilotSdk: "1.0.14", os: process.platform, arch: process.arch,
+    vally: "0.18.0", copilotSdk: "1.0.14", os: process.platform, arch: process.arch,
   };
 }
 
