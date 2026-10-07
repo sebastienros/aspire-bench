@@ -141,7 +141,7 @@ async function setup() {
   try {
     await writeFile(path.join(directory, "workspace.json"), JSON.stringify({
       root: run.root, id: run.id, variant: plan.variant, repetition,
-      fixtureHashes: run.baselineHashes,
+      fixtureHashes: run.baselineHashes, patches: run.patches,
     }, null, 2));
     await configureRuntime(run);
     await writeFile(path.join(directory, "plan.json"), JSON.stringify(plan, null, 2));

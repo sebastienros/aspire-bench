@@ -3,6 +3,7 @@ import path from "node:path";
 import { lstat, readdir } from "node:fs/promises";
 import { resolveExperiment, type EnvironmentConfig, type ResolvedRunPlan } from "@microsoft/vally";
 import { registry, repoRoot, inside } from "./workspace.js";
+import { patchPaths, patchRecords } from "./patch.js";
 
 export function planEnvironment(plan: ResolvedRunPlan): EnvironmentConfig {
   const environment = plan.effectiveSpec.environment;
@@ -41,9 +42,9 @@ export async function experiment(application: string, scenario: string) {
   assert.equal(resolved.execution.workers, 1, "Local stacks must run serially");
   assert.equal(resolved.baseline, "raw", "Raw must be the control");
   assert.deepEqual([...resolved.variantNames].sort(), Object.keys(entry.variants).sort());
-  assert.deepEqual([...resolved.vary].sort(),
+  assert.deepEqual(resolved.vary.filter(axis => axis !== "/environment/commands").sort(),
     ["/environment/files", "/environment/skills", "/environment/mcpServers"].sort(),
-    "Only local snapshots, skills and MCP may differ");
+    "Only local snapshots, skills, MCP and declared patch setup commands may differ");
   const plans = resolved.plans.filter(plan => plan.effectiveSpec.name === scenario);
   assert.equal(plans.length, resolved.variantNames.length, "One shared eval per variant required");
   for (const plan of plans) {
@@ -52,8 +53,9 @@ export async function experiment(application: string, scenario: string) {
       "Stimulus environments must not override the shared experiment treatment");
     assert.equal(plan.effectiveSpec.defaults?.executor, "isolated-benchmark");
     assert.equal(plan.effectiveSpec.defaults?.runs, 1, "The adapter owns repetitions, not hidden native trials");
-    assert(!env.git && !env.commands?.length && !Object.keys(env.env ?? {}).length,
-      "Local experiment must not clone repositories or inject setup commands/environment");
+    assert(!env.git && !Object.keys(env.env ?? {}).length,
+      "Local experiment must not clone repositories or inject agent environment");
+    await patchRecords(patchPaths(env.commands));
     const config = entry.variants[plan.variant];
     const hasMcp = Object.keys(env.mcpServers ?? {}).length > 0;
     const hasSkills = (env.skills?.length ?? 0) > 0;

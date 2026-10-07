@@ -1,10 +1,11 @@
-import { mkdir, mkdtemp, readFile, readdir, realpath, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, readdir, realpath, rm, writeFile } from "node:fs/promises";
 import { applyEnvironment, type EnvironmentConfig, type ResolvedRunPlan } from "@microsoft/vally";
 import { createHash, randomBytes } from "node:crypto";
 import { tmpdir } from "node:os";
 import { createServer } from "node:net";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import type { PatchRecord } from "./patch.js";
 
 export const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 export type Variant = {
@@ -30,6 +31,7 @@ export interface Run {
   environment?: EnvironmentConfig;
   skillNames?: string[];
   nativeStaging?: boolean;
+  patches?: PatchRecord[];
 }
 
 export async function registry(): Promise<Registry> {
@@ -101,7 +103,17 @@ export async function prepare(application: string, variant: string, plan?: Resol
   const home = path.join(root, "home");
   const id = `aspirebench-${randomBytes(8).toString("hex")}`;
   await mkdir(workDir);
-  await applyEnvironment(environment, workDir, path.dirname(selected.evalFile));
+  const { applyGitPatch, patchPaths, patchRecords } = await import("./patch.js");
+  let patches: PatchRecord[];
+  try {
+    await applyEnvironment({ ...environment, commands: undefined }, workDir, path.dirname(selected.evalFile));
+    patches = await patchRecords(patchPaths(environment.commands));
+    for (const patch of patches) await applyGitPatch(workDir, patch);
+  } catch (error) {
+    try { await rm(root, { recursive: true }); }
+    catch (cleanupError) { throw new AggregateError([error, cleanupError], "Patch preparation and cleanup failed"); }
+    throw error;
+  }
   await mkdir(home, { recursive: true, mode: 0o700 });
   await mkdir(path.join(home, ".copilot"), { mode: 0o700 });
   const env: Record<string, string> = {
@@ -136,6 +148,7 @@ export async function prepare(application: string, variant: string, plan?: Resol
     config: stagedConfig(config, environment), env,
     baselineHashes: await hashes(workDir), initialPids: [], setupMs: performance.now() - start,
     environment, skillNames: (environment.skills ?? []).map(src => path.basename(src)).sort(),
+    patches,
   };
   await writeFile(path.join(root, "ownership.json"), JSON.stringify(run, null, 2), { mode: 0o600 });
   return run;

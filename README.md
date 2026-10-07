@@ -183,7 +183,7 @@ bash scripts/report.sh .runs/<timestamp>
 | `<pair>-<variant>/vally.log`, `cleanup.log`, `exit-code`, `cleanup-exit-code` | CLI diagnostics and lifecycle completion; failed/incomplete cleanup cannot count as success |
 | `<pair>-<variant>/session-logs/` | Exported SDK session history, including interrupted runs when available |
 | Vally timestamped subdirectories | Native JSONL outcomes, Markdown report, SDK session logs and OTel trajectories |
-| `<pair>-<variant>/workspace.json` | Retained disposable runtime workspace identity/location |
+| `<pair>-<variant>/workspace.json` | Retained disposable runtime identity, staged baseline hashes and optional patch paths/SHA-256 fingerprints |
 
 Vally 0.17's native `vally compare` invokes a paid prompt judge; its experiment
 runner parses `grader_plugins`, `executor_plugins` and `eval_plugin` but does
@@ -242,6 +242,63 @@ Reports use recorded metadata/provenance, never the current registry to infer
 past variant meanings. New runs record lifecycle and effective file definitions explicitly; reports
 of older runs flag the naming boundary rather than silently resolving old `raw`
 against today's manual fixture.
+
+## Patch-based variants
+
+Vally 0.17 supports **`environment.commands`**, executed after files/skills are
+staged and **before** workspace baselines and agent execution. There is no
+separate middleware API needed here; an executor wrapper would apply the patch
+too late for native diff attribution. The harness now supports a constrained
+setup helper, `dist/patch.js`, for applying Git-format text diffs to copied apps.
+No bug fixture, new active variant or paid evaluation is included in this change.
+
+To add a future patched variant, create a `.patch` or `.diff` file in the
+repository, register the variant against the existing app/runtime kind, and
+declare the patch command axis and setup command in the native manifest:
+
+```yaml
+vary:
+  - /environment/files
+  - /environment/skills
+  - /environment/mcpServers
+  - /environment/commands
+variants:
+  raw-with-patch:
+    environment:
+      files:
+        - {src: ../apps/bingo/raw, dest: .}
+        - {src: ../apps/bingo/readmes/raw.md, dest: README.md}
+      skills: []
+      mcpServers: null
+      commands:
+        - 'node "$ASPIRE_BENCH_ROOT/dist/patch.js" "$ASPIRE_BENCH_ROOT/apps/bingo/patches/change.patch"'
+```
+
+This is an example fragment, not an additional enabled cell. The root variable
+is host-side lifecycle context supplied by `scripts/trial.sh`; patch paths are
+**repository-root-relative**, unlike `environment.files` sources. Only this
+helper command form is accepted: arbitrary shell/setup commands remain blocked.
+For several patches, list helper invocations in application order.
+
+Preparation applies the same sequence to its owned reference copy and records
+each patch's SHA-256. Native Vally setup applies it to the actual trial workspace
+before inference, rejecting changed inputs. The original app is never modified,
+and patch files/helper scripts are not copied into the agent workspace.
+The intentionally patched tree becomes the verifier's expected source baseline;
+setup time and setup edits are not charged or attributed to the agent.
+
+Each patch is checked with `git apply --check` before applying it. Invalid or
+nonapplicable hunks, path escapes, symlinks/submodules, binary patches and
+protected configuration/runtime paths fail before inference. Renames/copies
+are not supported. Text-file
+modification, addition and deletion are supported; earlier valid patches in a
+sequence may remain in the disposable copy if a later patch fails, but no agent
+starts and the shared source stays unchanged. No services are started by patch
+setup.
+
+Patch application is independent of the task/grader. A future **fix-the-bug**
+scenario must explicitly permit and grade source repairs; the existing
+launch-and-verify scenario still rejects agent source edits.
 
 ## Objective success
 
