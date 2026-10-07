@@ -1,0 +1,11 @@
+diff --git a/compose.yaml b/compose.yaml
+--- a/compose.yaml
++++ b/compose.yaml
+@@ -14,6 +14,7 @@
+ 
+   redis:
+     image: redis:8.6
++    command: ["redis-server", "--maxmemroy", "64mb"]
+     ports:
+       - "127.0.0.1:${REDIS_PORT:?REDIS_PORT required}:6379"
+ 

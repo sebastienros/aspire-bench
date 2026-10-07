@@ -4,7 +4,7 @@ import { parseArgs } from "node:util";
 import { stringify } from "yaml";
 import { validateEvalSpec, createDefaultGraderRegistry } from "@microsoft/vally";
 import { command, interrupt, checkInterrupted } from "./process.js";
-import { prepare, registry, repoRoot, isolatedEnv, stagedConfig, type Run } from "./workspace.js";
+import { prepare, registry, repoRoot, isolatedEnv, stagedConfig, hashes, type Run } from "./workspace.js";
 import { dryAgent } from "./agent.js";
 import { cleanup } from "./ownership.js";
 import { submittedEndpoints } from "./verify.js";
@@ -78,6 +78,10 @@ async function runSmoke(run: Run) {
   const ownership = path.join(run.root, "ownership.json");
   await writeFile(ownership, JSON.stringify(run, null, 2));
   await withFinalizer(async () => {
+    for (const [file, digest] of Object.entries(run.repairFiles ?? {})) {
+      await cp(path.join(repoRoot, run.config.fixture, file), path.join(run.workDir, file));
+      if ((await hashes(run.workDir))[file] !== digest) throw new Error("Reference startup repair hash mismatch");
+    }
     await configureRuntime(run);
     const adapter = applicationAdapter(run.adapter);
     await adapter.launch(run);
@@ -141,7 +145,7 @@ async function setup() {
   try {
     await writeFile(path.join(directory, "workspace.json"), JSON.stringify({
       root: run.root, id: run.id, variant: plan.variant, repetition,
-      fixtureHashes: run.baselineHashes, patches: run.patches,
+      fixtureHashes: run.baselineHashes, patches: run.patches, repairFiles: run.repairFiles,
     }, null, 2));
     await configureRuntime(run);
     await writeFile(path.join(directory, "plan.json"), JSON.stringify(plan, null, 2));

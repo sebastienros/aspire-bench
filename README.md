@@ -2,7 +2,8 @@
 
 A local [Vally](https://microsoft.github.io/vally/) harness comparing **agent
 effectiveness** on a raw application and its aspirified counterpart. This is not
-an HTTP load test. The first scenario is **launch and verify the application**:
+an HTTP load test. The first scenario is **investigate startup failures, repair,
+launch and verify the application**:
 objective success, elapsed agent time, tokens, tool calls, and turns.
 
 Bingo is a licensed snapshot of
@@ -48,6 +49,9 @@ token.
 
 `smoke` launches both real stacks serially **without an agent/model call**, runs
 the common objective verifier, and cleans up even on failures/interruption.
+It restores the injected startup configuration from the pristine snapshot in
+its owned reference workspace before launch. This is a known-good repair smoke,
+not a measurement of diagnosis; evaluation setup never performs that repair.
 Startup may download public NuGet/npm packages and images. Smoke establishes
 infrastructure readiness, not agent quality.
 
@@ -57,8 +61,9 @@ infrastructure readiness, not agent quality.
 
 [`experiments/bingo.experiment.yaml`](experiments/bingo.experiment.yaml) is the
 comparison source of truth: native Vally `repo-comparison`, a shared eval,
-baseline `raw`, serial `execution.workers: 1`, and exactly three varying axes:
-`/environment/files`, `/environment/skills`, `/environment/mcpServers`.
+baseline `raw`, serial `execution.workers: 1`, and four varying axes:
+`/environment/files`, `/environment/skills`, `/environment/mcpServers`,
+`/environment/commands`.
 Local directories are copied through Vally's `environment.files` contract.
 There are no remote clones, new app repositories, or sibling/harness files in
 an agent workspace. Paths in variant overrides resolve relative to the
@@ -82,20 +87,32 @@ not ordinary shell/file tools. Enabling skills also exposes the runtime's skill
 loader. Configuration discovery and global skills/MCP remain disabled in all
 cells.
 
-**Default selection remains `raw,aspire`: two trials per pair, not seven.**
+Each of these seven variants also has a `-bugs` counterpart:
+`raw-bugs`, `raw-documented-bugs`, `raw-scripted-bugs`, `aspire-none-bugs`,
+`aspire-mcp-bugs`, `aspire-skills-bugs`, and `aspire-bugs`. Each counterpart has
+identical files, guidance, skills and MCP, plus its app's Redis startup patch.
+There are fourteen named variants, not a cross-product with invalid cells.
+
+**Default selection remains the healthy `raw,aspire`: two trials per pair, not fourteen.**
 `raw` now has no setup guidance; the former manual README is `raw-documented`,
 and the preserved management scripts and their README are `raw-scripted`.
 `--variants` selects explicit names or `all`; `--pairs` repeats that selected
 set. Each repetition reverses variant order to reduce order bias.
 
 ```bash
-# No inference: inspect resolved native plan and all seven effective catalogs.
+# No inference: inspect resolved native plan and all fourteen effective catalogs.
 npm run bench -- plan
 npm run bench -- dry-run --variants all
 
 # Paid commands: only run intentionally with a subscription token.
 bash scripts/run.sh --model gpt-6-luna --variants aspire-none,aspire-mcp --pairs 1 --allow-paid
 bash scripts/run.sh --model gpt-6-luna --variants all --pairs 1 --allow-paid
+
+# Redis failure investigation and repair pair (paid, only when authorized).
+bash scripts/run.sh --model gpt-6-luna --variants raw-bugs,aspire-bugs --pairs 1 --allow-paid
+
+# No inference: verify the known-good repair and real workflow.
+npm run bench -- smoke --variants raw-bugs,aspire-bugs
 
 # Explicit raw guidance comparison (paid, only when authorized).
 bash scripts/run.sh --model gpt-6-luna --variants raw,raw-documented,raw-scripted --pairs 1 --allow-paid
@@ -104,7 +121,7 @@ bash scripts/run.sh --model gpt-6-luna --variants raw,raw-documented,raw-scripte
 Every selection uses the same shared prompt, model, limits and objective grader.
 Native arrays replace inherited arrays, maps deep-merge, and `null` clears
 inherited MCP maps; offline tests verify these contracts and all seven native
-staging/execution cells without inference.
+healthy and bug staging/execution cells without inference.
 
 `apps/bingo/raw/` is the **one shared raw application snapshot**, with
 build/dependency configuration, Compose for PostgreSQL/Redis only and a license.
@@ -130,6 +147,15 @@ No raw variant receives an AppHost, skills, MCP, other READMEs, sibling fixtures
 or host harness files. File composition is declared **only in the experiment
 manifest**; the registry identifies the shared app/runtime kind, not a second
 file-copy recipe.
+Only `-bugs` cells receive the same Redis command-line bug **after copying**:
+`--maxmemroy 64mb` (a misspelled `maxmemory` option). The raw patch modifies
+`compose.yaml`; the Aspire patch adds the same arguments to Redis in `apphost.cs`.
+Redis exits with a fatal configuration error. Shared source snapshots remain
+healthy, and neither patch files nor an answer are staged for the agent.
+The shared prompt requires log-based investigation and root-cause repair
+when startup fails, without naming the fault. Healthy cells receive no patches,
+so existing names/default selection remain intact. Compare healthy and fault
+runs separately and use recorded commits and patch hashes for historical results.
 All variants share the same task and endpoint/verifier contract. The shared
 prompt does not require a documented entrypoint, so it also applies to unguided
 `raw`. Setup and smoke infer manual versus scripted lifecycle from the selected
@@ -227,6 +253,11 @@ The scripts do not independently reconstruct variant specs from registry
 fixtures. Runtime-generated IDs/ports/homes are unique per trial rather than
 experimental factors; secrets remain outside manifest artifacts.
 
+Reports separate healthy and `-bugs` trials: healthy variants compare to `raw`,
+and bug variants compare to `raw-bugs` only when it was selected. They never
+compute deltas between different fault conditions. The native manifest baseline
+remains `raw`; `raw-bugs` is the matching reporting control for the fault cohort.
+
 Compare objective success first, then costs among successful trials. Cheap
 failures are not improvements. Tokens are SDK/Vally usage metrics, not billing
 estimates; inspect raw usage events for missing telemetry. Report sample size,
@@ -250,7 +281,9 @@ staged and **before** workspace baselines and agent execution. There is no
 separate middleware API needed here; an executor wrapper would apply the patch
 too late for native diff attribution. The harness now supports a constrained
 setup helper, `dist/patch.js`, for applying Git-format text diffs to copied apps.
-No bug fixture, new active variant or paid evaluation is included in this change.
+The current experiment's `-bugs` variants use `apps/bingo/patches/raw-redis-startup.patch` and
+`aspire-redis-startup.patch` for equivalent failures in the two orchestration
+formats, without duplicating either application.
 
 To add a future patched variant, create a `.patch` or `.diff` file in the
 repository, register the variant against the existing app/runtime kind, and
@@ -284,7 +317,7 @@ Preparation applies the same sequence to its owned reference copy and records
 each patch's SHA-256. Native Vally setup applies it to the actual trial workspace
 before inference, rejecting changed inputs. The original app is never modified,
 and patch files/helper scripts are not copied into the agent workspace.
-The intentionally patched tree becomes the verifier's expected source baseline;
+The intentionally patched tree becomes the initial source baseline;
 setup time and setup edits are not charged or attributed to the agent.
 
 Each patch is checked with `git apply --check` before applying it. Invalid or
@@ -296,9 +329,14 @@ sequence may remain in the disposable copy if a later patch fails, but no agent
 starts and the shared source stays unchanged. No services are started by patch
 setup.
 
-Patch application is independent of the task/grader. A future **fix-the-bug**
-scenario must explicitly permit and grade source repairs; the existing
-launch-and-verify scenario still rejects agent source edits.
+Patch application is independent of the task/grader. The current scenario
+permits edits only to patch-modified startup configuration (`compose.yaml` or
+`apphost.cs`), and requires that configuration to change from the broken
+baseline. Correcting the option or removing it can both pass; grading does not
+require one exact diff. All other pre-existing source/guidance remains immutable,
+and the complete real application workflow must pass. Future bugs in service
+source need an explicitly repair-aware scenario rather than weakening this
+startup-only allowance.
 
 ## Objective success
 
@@ -306,7 +344,8 @@ The agent leaves the stack running and writes loopback admin/frontend origins
 to `benchmark-endpoints.json`. Its self-report is not evidence. Before cleanup,
 the host verifier checks:
 
-1. Fixture source/guidance is unchanged; endpoints belong to newly created
+1. Injected startup configuration is repaired; other fixture source/guidance is
+   unchanged; endpoints belong to newly created
    run-owned processes; dependency containers belong to this run.
 2. PostgreSQL accepts connections; actual Identity/BingoSquare tables contain
    migration and seed data; Redis answers authenticated PING when required.
@@ -316,7 +355,7 @@ the host verifier checks:
    Redis-backed producer status and cleared through the application's developer
    API. Both variants receive the identical workflow.
 
-Timeouts, modified fixtures, mocks, missing endpoints/host evidence, failed
+Timeouts, unrelated modified inputs, unrepaired startup configuration, mocks, missing endpoints/host evidence, failed
 workflow assertions and cleanup failures cannot count as success. Grading is
 not based on agent-answer greps, health endpoints alone or a file's presence.
 
@@ -346,8 +385,8 @@ separately.
 
 This is **configuration/resource isolation, not an OS security sandbox**.
 The cooperative local agent has shell access; Aspire is not hidden from raw's
-PATH. The common prompt forbids leaving the workspace or replacing/editing the
-application, and objective checks reject tampering, but a malicious agent can
+PATH. The common prompt forbids leaving the workspace, replacing the
+application or editing outside startup configuration, and objective checks reject tampering, but a malicious agent can
 reach host files, Docker or the network. Use trusted fixtures/skills, preferably
 on a dedicated disposable machine. Tokens are passed only through the child
 environment, not saved in specs. Session logs may contain sensitive output:

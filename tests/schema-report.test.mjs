@@ -43,3 +43,20 @@ test("paired report represents unavailable costs honestly", () => {
   assert.match(report, /raw \| fail \| N\/A \| N\/A/);
   assert.match(report, /aspire \| pass \| 1.23 \| 123 \| 4 \| 2/);
 });
+
+test("bug variants compare to the corresponding bug control, never healthy raw", () => {
+  const metrics = wallTimeMs =>
+    ({ wallTimeMs, tokenUsage: { totalTokens: 10 }, toolCallCount: 1, turnCount: 1 });
+  const report = pairedReport([
+    { trial: 1, variant: "raw", success: true, metrics: metrics(1000) },
+    { trial: 1, variant: "raw-bugs", success: true, metrics: metrics(5000) },
+    { trial: 1, variant: "aspire-bugs", success: true, metrics: metrics(3000) },
+  ]);
+  assert.match(report, /versus \*\*raw-bugs\*\*/);
+  assert.match(report, /aspire-bugs \| 1 \| -2\.00/);
+  assert(!report.includes("aspire-bugs | 1 | 2.00"));
+  assert.match(report, /no cross-task deltas/);
+  assert.match(pairedReport([
+    { trial: 1, variant: "aspire-bugs", success: true, metrics: metrics(3000) },
+  ]), /Baseline \*\*raw-bugs\*\* was not selected/);
+});

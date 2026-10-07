@@ -13,16 +13,21 @@ import { prepare, hashes, repoRoot } from "../dist/workspace.js";
 import { sessionConfig } from "../dist/agent.js";
 import { BenchmarkExecutor } from "../dist/plugin.js";
 import { gradeApplication } from "../dist/grade.js";
+import { verifyInputs } from "../dist/verify.js";
 
-test("native manifest controls seven variants and unchanged default subset without drift", async () => {
+process.env.ASPIRE_BENCH_ROOT = repoRoot;
+
+test("native manifest controls fourteen variants and unchanged default subset without drift", async () => {
   const resolved = await experiment("bingo", "launch-and-verify");
   assert.equal(resolved.name, "repo-comparison");
   assert.equal(resolved.baseline, "raw");
   assert.equal(resolved.execution.workers, 1);
   assert.deepEqual(resolved.variantNames,
-    ["raw", "raw-documented", "raw-scripted", "aspire-none", "aspire-mcp", "aspire-skills", "aspire"]);
+    ["raw", "raw-documented", "raw-scripted", "aspire-none", "aspire-mcp", "aspire-skills", "aspire",
+      "raw-bugs", "raw-documented-bugs", "raw-scripted-bugs", "aspire-none-bugs",
+      "aspire-mcp-bugs", "aspire-skills-bugs", "aspire-bugs"]);
   assert.deepEqual(selectVariants(resolved.variantNames), ["raw", "aspire"]);
-  assert.equal(selectVariants(resolved.variantNames, "all").length, 7);
+  assert.equal(selectVariants(resolved.variantNames, "all").length, 14);
   assert.deepEqual(selectVariants(resolved.variantNames, "aspire-none,aspire-mcp"),
     ["aspire-none", "aspire-mcp"]);
   assert.throws(() => selectVariants(resolved.variantNames, "bad"));
@@ -86,9 +91,10 @@ test("supported plugin loaders register custom hooks and native staging executes
           assert.equal(options.skills.length, run.skillNames.length);
           assert.deepEqual(Object.keys(options.mcpServers ?? {}), Object.keys(run.environment.mcpServers ?? {}));
           const config = sessionConfig({ ...run, workDir: options.workDir }, {});
-          assert.equal(config.enableSkills, ["aspire-skills", "aspire"].includes(plan.variant));
+          const base = plan.variant.replace(/-bugs$/, "");
+          assert.equal(config.enableSkills, ["aspire-skills", "aspire"].includes(base));
           assert.deepEqual(Object.keys(config.mcpServers),
-            ["aspire-mcp", "aspire"].includes(plan.variant) ? ["aspire"] : []);
+            ["aspire-mcp", "aspire"].includes(base) ? ["aspire"] : []);
           await assert.rejects(access(path.join(options.workDir, "harness")));
           await assert.rejects(access(path.join(options.workDir, "apps")));
           await assert.rejects(access(path.join(options.workDir, ".agents/LICENSE")));
@@ -98,6 +104,11 @@ test("supported plugin loaders register custom hooks and native staging executes
           }
           await writeFile(path.join(options.workDir, "benchmark-endpoints.json"),
             JSON.stringify({ admin: "http://localhost:1234", frontend: "http://localhost:5678" }));
+          for (const file of Object.keys(run.repairFiles ?? {})) {
+            const target = path.join(options.workDir, file);
+            await writeFile(target, (await readFile(target, "utf8")).replace("--maxmemroy", "--maxmemory"));
+          }
+          verifyInputs(run, await hashes(options.workDir));
           return {
             id: run.id, stimulus, workDir: options.workDir, events: [], output: "offline",
             endReason: "completed", metadata: { model: "offline", skillsLoaded: [] },
@@ -113,7 +124,14 @@ test("supported plugin loaders register custom hooks and native staging executes
         prompt: stimulus.prompt, stimulus, skills: [], executor,
         workDir: run.workDir, workspace: path.join(run.root, "workspaces/native"),
         environment: planEnvironment(plan), baseDir: path.dirname(plan.evalFile), timeout: 10_000,
+        captureWorkspacePatch: true,
       });
+      if (plan.variant.endsWith("-bugs")) {
+        assert.match(result.trajectory.workspacePatch, /--maxmemory/);
+        assert.match(result.trajectory.workspacePatch, /--maxmemroy/);
+      } else {
+        assert(!result.trajectory.workspacePatch?.includes("--maxmemroy"));
+      }
       assert.equal(cleaned, false, "Application must remain running until program grading");
       const owned = JSON.parse(await readFile(path.join(run.root, "ownership.json")));
       assert.equal((await gradeApplication(owned, result.trajectory, {

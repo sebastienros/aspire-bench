@@ -32,6 +32,7 @@ export interface Run {
   skillNames?: string[];
   nativeStaging?: boolean;
   patches?: PatchRecord[];
+  repairFiles?: Record<string, string>;
 }
 
 export async function registry(): Promise<Registry> {
@@ -105,10 +106,15 @@ export async function prepare(application: string, variant: string, plan?: Resol
   await mkdir(workDir);
   const { applyGitPatch, patchPaths, patchRecords } = await import("./patch.js");
   let patches: PatchRecord[];
+  let repairFiles: Record<string, string>;
   try {
     await applyEnvironment({ ...environment, commands: undefined }, workDir, path.dirname(selected.evalFile));
+    const original = await hashes(workDir);
     patches = await patchRecords(patchPaths(environment.commands));
     for (const patch of patches) await applyGitPatch(workDir, patch);
+    const patched = await hashes(workDir);
+    repairFiles = Object.fromEntries(Object.entries(original).filter(([file, digest]) =>
+      ["compose.yaml", "apphost.cs"].includes(file) && patched[file] !== digest));
   } catch (error) {
     try { await rm(root, { recursive: true }); }
     catch (cleanupError) { throw new AggregateError([error, cleanupError], "Patch preparation and cleanup failed"); }
@@ -148,7 +154,7 @@ export async function prepare(application: string, variant: string, plan?: Resol
     config: stagedConfig(config, environment), env,
     baselineHashes: await hashes(workDir), initialPids: [], setupMs: performance.now() - start,
     environment, skillNames: (environment.skills ?? []).map(src => path.basename(src)).sort(),
-    patches,
+    patches, repairFiles,
   };
   await writeFile(path.join(root, "ownership.json"), JSON.stringify(run, null, 2), { mode: 0o600 });
   return run;

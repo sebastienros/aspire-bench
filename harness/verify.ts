@@ -39,12 +39,26 @@ function dependency(owned: Container[], type: "postgres" | "redis") {
   return matches[0];
 }
 
+export function verifyInputs(run: Run, current: Record<string, string>) {
+  const repairs = run.repairFiles ?? {};
+  const protectedInputs = Object.fromEntries(Object.entries(run.baselineHashes)
+    .filter(([file]) => !(file in repairs)));
+  assert(unchanged(protectedInputs, current), "Application source or guidance outside startup repair was modified");
+  for (const file of Object.keys(repairs)) {
+    assert(["compose.yaml", "apphost.cs"].includes(file), "Invalid startup repair target");
+    assert(current[file] && current[file] !== run.baselineHashes[file],
+      `Injected startup failure must be repaired in ${file}`);
+  }
+}
+
 export async function verify(run: Run, urls: Endpoints): Promise<Proof> {
   const start = performance.now();
   const checks: string[] = [];
   try {
-    assert(unchanged(run.baselineHashes, await hashes(run.workDir)), "Application inputs were modified");
-    checks.push("unchanged application and guidance");
+    verifyInputs(run, await hashes(run.workDir));
+    checks.push(Object.keys(run.repairFiles ?? {}).length
+      ? "startup configuration repaired; other application inputs and guidance unchanged"
+      : "unchanged application and guidance");
     const owned = await containers(run);
     const db = dependency(owned, "postgres");
     const redis = dependency(owned, "redis");

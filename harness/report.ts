@@ -7,7 +7,14 @@ export interface Trial {
   setupMs?: number; verificationMs?: number; metrics?: TrajectoryMetrics; error?: string;
 }
 
-export function pairedReport(trials: Trial[], baseline = "raw") {
+export function pairedReport(trials: Trial[], baseline = "raw"): string {
+  const bugTrials = trials.filter(trial => trial.variant.endsWith("-bugs"));
+  if (bugTrials.length && !baseline.endsWith("-bugs")) {
+    const healthy = trials.filter(trial => !trial.variant.endsWith("-bugs"));
+    return (healthy.length ? pairedReport(healthy, baseline) + "\n\n---\n\n" : "")
+      + pairedReport(bugTrials, `${baseline}-bugs`)
+      + "\nHealthy and injected-failure trials are reported separately; no cross-task deltas are computed.\n";
+  }
   const rows = trials.map(trial => `| ${trial.trial} | ${trial.variant} | ${trial.success ? "pass" : "fail"} | ${
     trial.metrics ? (trial.metrics.wallTimeMs / 1000).toFixed(2) : "N/A"} | ${
     trial.metrics?.tokenUsage.totalTokens ?? "N/A"} | ${trial.metrics?.toolCallCount ?? "N/A"} | ${

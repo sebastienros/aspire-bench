@@ -12,7 +12,14 @@
         "aspire-none": { "fixture": "apps/bingo/aspire", "kind": "aspire", "apphost": "apphost.cs" },
         "aspire-mcp": { "fixture": "apps/bingo/aspire", "kind": "aspire", "apphost": "apphost.cs" },
         "aspire-skills": { "fixture": "apps/bingo/aspire", "kind": "aspire", "apphost": "apphost.cs" },
-        "aspire": { "fixture": "apps/bingo/aspire", "kind": "aspire", "apphost": "apphost.cs" }
+        "aspire": { "fixture": "apps/bingo/aspire", "kind": "aspire", "apphost": "apphost.cs" },
+        "raw-bugs": { "fixture": "apps/bingo/raw", "kind": "compose" },
+        "raw-documented-bugs": { "fixture": "apps/bingo/raw", "kind": "compose" },
+        "raw-scripted-bugs": { "fixture": "apps/bingo/raw", "kind": "compose" },
+        "aspire-none-bugs": { "fixture": "apps/bingo/aspire", "kind": "aspire", "apphost": "apphost.cs" },
+        "aspire-mcp-bugs": { "fixture": "apps/bingo/aspire", "kind": "aspire", "apphost": "apphost.cs" },
+        "aspire-skills-bugs": { "fixture": "apps/bingo/aspire", "kind": "aspire", "apphost": "apphost.cs" },
+        "aspire-bugs": { "fixture": "apps/bingo/aspire", "kind": "aspire", "apphost": "apphost.cs" }
       },
       "scenarios": ["launch-and-verify"]
     }

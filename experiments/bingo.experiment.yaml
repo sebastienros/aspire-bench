@@ -7,6 +7,7 @@ vary:
   - /environment/files
   - /environment/skills
   - /environment/mcpServers
+  - /environment/commands
 baseline: raw
 variants:
   raw:
@@ -79,3 +80,87 @@ variants:
           type: stdio
           command: aspire
           args: [agent, mcp, --non-interactive, --nologo]
+  raw-bugs:
+    environment:
+      files:
+        - {src: ../apps/bingo/raw, dest: .}
+        - {src: ../apps/bingo/readmes/raw.md, dest: README.md}
+      skills: []
+      mcpServers: null
+      commands:
+        - 'node "$ASPIRE_BENCH_ROOT/dist/patch.js" "$ASPIRE_BENCH_ROOT/apps/bingo/patches/raw-redis-startup.patch"'
+  raw-documented-bugs:
+    environment:
+      files:
+        - {src: ../apps/bingo/raw, dest: .}
+        - {src: ../apps/bingo/readmes/raw-documented.md, dest: README.md}
+      skills: []
+      mcpServers: null
+      commands:
+        - 'node "$ASPIRE_BENCH_ROOT/dist/patch.js" "$ASPIRE_BENCH_ROOT/apps/bingo/patches/raw-redis-startup.patch"'
+  raw-scripted-bugs:
+    environment:
+      files:
+        - {src: ../apps/bingo/raw, dest: .}
+        - {src: ../apps/bingo/readmes/raw-scripted.md, dest: README.md}
+        - {src: ../apps/bingo/scripts, dest: scripts}
+      skills: []
+      mcpServers: null
+      commands:
+        - 'node "$ASPIRE_BENCH_ROOT/dist/patch.js" "$ASPIRE_BENCH_ROOT/apps/bingo/patches/raw-redis-startup.patch"'
+  aspire-none-bugs:
+    environment:
+      files:
+        - {src: ../apps/bingo/aspire, dest: .}
+      skills: []
+      mcpServers: null
+      commands:
+        - 'node "$ASPIRE_BENCH_ROOT/dist/patch.js" "$ASPIRE_BENCH_ROOT/apps/bingo/patches/aspire-redis-startup.patch"'
+  aspire-mcp-bugs:
+    environment:
+      files:
+        - {src: ../apps/bingo/aspire, dest: .}
+        - {src: ../treatment/mcp.json, dest: .github/mcp.json}
+      skills: []
+      mcpServers:
+        aspire:
+          type: stdio
+          command: aspire
+          args: [agent, mcp, --non-interactive, --nologo]
+      commands:
+        - 'node "$ASPIRE_BENCH_ROOT/dist/patch.js" "$ASPIRE_BENCH_ROOT/apps/bingo/patches/aspire-redis-startup.patch"'
+  aspire-skills-bugs:
+    environment:
+      files:
+        - {src: ../apps/bingo/aspire, dest: .}
+      skills:
+        - ../treatment/skills/aspire
+        - ../treatment/skills/aspire-deployment
+        - ../treatment/skills/aspire-init
+        - ../treatment/skills/aspire-monitoring
+        - ../treatment/skills/aspire-orchestration
+        - ../treatment/skills/aspire-project-v2-migration
+        - ../treatment/skills/aspireify
+      mcpServers: null
+      commands:
+        - 'node "$ASPIRE_BENCH_ROOT/dist/patch.js" "$ASPIRE_BENCH_ROOT/apps/bingo/patches/aspire-redis-startup.patch"'
+  aspire-bugs:
+    environment:
+      files:
+        - {src: ../apps/bingo/aspire, dest: .}
+        - {src: ../treatment/mcp.json, dest: .github/mcp.json}
+      skills:
+        - ../treatment/skills/aspire
+        - ../treatment/skills/aspire-deployment
+        - ../treatment/skills/aspire-init
+        - ../treatment/skills/aspire-monitoring
+        - ../treatment/skills/aspire-orchestration
+        - ../treatment/skills/aspire-project-v2-migration
+        - ../treatment/skills/aspireify
+      mcpServers:
+        aspire:
+          type: stdio
+          command: aspire
+          args: [agent, mcp, --non-interactive, --nologo]
+      commands:
+        - 'node "$ASPIRE_BENCH_ROOT/dist/patch.js" "$ASPIRE_BENCH_ROOT/apps/bingo/patches/aspire-redis-startup.patch"'
