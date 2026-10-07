@@ -152,8 +152,11 @@ Only `-bugs` cells receive the same Redis command-line bug **after copying**:
 `compose.yaml`; the Aspire patch adds the same arguments to Redis in `apphost.cs`.
 Redis exits with a fatal configuration error. Shared source snapshots remain
 healthy, and neither patch files nor an answer are staged for the agent.
-The shared prompt requires log-based investigation and root-cause repair
-when startup fails, without naming the fault. Healthy cells receive no patches,
+The shared prompt asks only to start the application, verify all services,
+investigate/fix startup problems, and leave it running. It supplies no technology,
+file-name, README, diagnostic-method or fault hints; agents must discover the
+application's orchestration themselves. The only reporting contract is the
+admin/frontend URL JSON needed by the independent verifier. Healthy cells receive no patches,
 so existing names/default selection remain intact. Compare healthy and fault
 runs separately and use recorded commits and patch hashes for historical results.
 All variants share the same task and endpoint/verifier contract. The shared
@@ -385,8 +388,9 @@ separately.
 
 This is **configuration/resource isolation, not an OS security sandbox**.
 The cooperative local agent has shell access; Aspire is not hidden from raw's
-PATH. The common prompt forbids leaving the workspace, replacing the
-application or editing outside startup configuration, and objective checks reject tampering, but a malicious agent can
+PATH. Objective checks reject unrelated source/guidance changes and verify
+owned services and real application behavior, but the intentionally minimal
+prompt is not a safety boundary. A malicious agent can
 reach host files, Docker or the network. Use trusted fixtures/skills, preferably
 on a dedicated disposable machine. Tokens are passed only through the child
 environment, not saved in specs. Session logs may contain sensitive output:

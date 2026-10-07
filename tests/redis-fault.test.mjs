@@ -49,11 +49,13 @@ test("only bug variants receive the same Redis fault; their healthy counterparts
   }
 });
 
-test("shared scenario requires diagnosis and root-cause repairs without revealing the injected fault", async () => {
+test("shared scenario stays succinct and requires startup investigation without technology hints", async () => {
   const prompt = (await experiment("bingo", "launch-and-verify")).plans[0].effectiveSpec.stimuli[0].prompt;
-  assert.match(prompt, /Investigate any startup failures/);
-  assert.match(prompt, /root cause/);
-  assert.match(prompt, /compose.yaml/);
-  assert.match(prompt, /apphost.cs/);
-  assert(!/maxmemroy|maxmemory|64mb/.test(prompt));
+  assert.match(prompt, /Start the application/);
+  assert.match(prompt, /all its services are up and working/);
+  assert.match(prompt, /Investigate and fix any startup problems/);
+  assert.match(prompt, /Leave the application running/);
+  assert.match(prompt, /benchmark-endpoints.json/);
+  assert(prompt.trim().split(/\s+/).length <= 60, "Prompt must remain minimal");
+  assert(!/aspire|apphost|compose|redis|postgres|signalr|migration|seeding|readme|logs|configuration|maxmemroy|maxmemory|64mb/i.test(prompt));
 });

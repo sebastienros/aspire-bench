@@ -9,20 +9,10 @@ defaults:
 stimuli:
   - name: launch-and-verify
     prompt: |
-      Launch this application's complete local stack.
-      Investigate any startup failures using logs and the application's configuration.
-      Diagnose and fix their root cause, then restart the affected services and verify
-      that the complete stack works. You may repair startup configuration in compose.yaml
-      or apphost.cs when present; do not bypass failing dependencies or replace them.
-      Verify that the admin portal and player frontend are reachable, database migrations
-      and seeding have completed, and PostgreSQL and Redis are working. Demonstrate that
-      the frontend's backend API and SignalR proxy work. Leave the stack running.
-      Write benchmark-endpoints.json in the workspace root with exactly these keys:
+      Start the application and verify that all its services are up and working.
+      Investigate and fix any startup problems. Leave the application running.
+      Save its admin and frontend URLs in benchmark-endpoints.json in the workspace root:
       {"admin":"http://localhost:PORT","frontend":"http://localhost:PORT"}.
-      Use the run-scoped configuration already provided in your environment. Do not
-      replace services with mocks, modify other application source or guidance, or access anything outside
-      this workspace. Do not stop unrelated services or change global configuration.
-      The harness performs independent verification and cleanup after you finish.
     graders:
       - type: program
         name: objective-success
