@@ -77,6 +77,12 @@ export function unchanged(before: Record<string, string>, after: Record<string, 
   return Object.entries(before).every(([file, digest]) => after[file] === digest);
 }
 
+export function stagedConfig(config: Variant, environment: EnvironmentConfig): Variant {
+  return config.kind === "compose"
+    ? { ...config, lifecycle: environment.files?.some(file => file.dest === "scripts") ? undefined : "manual" }
+    : config;
+}
+
 export async function prepare(application: string, variant: string, plan?: ResolvedRunPlan): Promise<Run> {
   const start = performance.now();
   const catalog = await registry();
@@ -126,7 +132,8 @@ export async function prepare(application: string, variant: string, plan?: Resol
     throw new Error("Port allocation collided; retry preparation");
   }
   const run: Run = {
-    id, root, workDir, home, variant, application, adapter: catalog.applications[application].adapter, config, env,
+    id, root, workDir, home, variant, application, adapter: catalog.applications[application].adapter,
+    config: stagedConfig(config, environment), env,
     baselineHashes: await hashes(workDir), initialPids: [], setupMs: performance.now() - start,
     environment, skillNames: (environment.skills ?? []).map(src => path.basename(src)).sort(),
   };

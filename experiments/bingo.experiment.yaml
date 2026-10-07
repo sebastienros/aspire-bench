@@ -13,12 +13,22 @@ variants:
     environment:
       files:
         - {src: ../apps/bingo/raw, dest: .}
+        - {src: ../apps/bingo/readmes/raw.md, dest: README.md}
+      skills: []
+      mcpServers: null
+  raw-documented:
+    environment:
+      files:
+        - {src: ../apps/bingo/raw, dest: .}
+        - {src: ../apps/bingo/readmes/raw-documented.md, dest: README.md}
       skills: []
       mcpServers: null
   raw-scripted:
     environment:
       files:
-        - {src: ../apps/bingo/raw-scripted, dest: .}
+        - {src: ../apps/bingo/raw, dest: .}
+        - {src: ../apps/bingo/readmes/raw-scripted.md, dest: README.md}
+        - {src: ../apps/bingo/scripts, dest: scripts}
       skills: []
       mcpServers: null
   aspire-none:

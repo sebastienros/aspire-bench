@@ -118,7 +118,8 @@ export async function compare(directory: string) {
         `- **${name}**: \`${JSON.stringify(definition)}\``).join("\n") + "\n"
     : "\nVariant meanings follow this run's recorded harness commit/provenance, " +
       "not the current registry. Before the raw/raw-scripted split, **raw** " +
-      "denoted the scripted fixture. No lifecycle definitions were recorded for this run.\n";
+      "denoted the scripted fixture. At commit 319104f raw had the manual README; " +
+      "the current raw has no setup guidance. No lifecycle definitions were recorded for this run.\n";
   const report = pairedReport(trials, baseline) + meanings;
   await writeFile(path.join(directory, "comparison.md"), report);
   return report;

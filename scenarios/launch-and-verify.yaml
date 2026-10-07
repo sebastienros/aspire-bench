@@ -9,7 +9,7 @@ defaults:
 stimuli:
   - name: launch-and-verify
     prompt: |
-      Launch this application's complete local stack using its documented entrypoint.
+      Launch this application's complete local stack.
       Verify that the admin portal and player frontend are reachable, database migrations
       and seeding have completed, and PostgreSQL and Redis are working. Demonstrate that
       the frontend's backend API and SignalR proxy work. Leave the stack running.

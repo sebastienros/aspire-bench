@@ -3,13 +3,14 @@ import assert from "node:assert/strict";
 import { access, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { tmpdir } from "node:os";
-import { prepare, hashes } from "../dist/workspace.js";
+import { prepare, hashes, repoRoot } from "../dist/workspace.js";
 import { sessionConfig } from "../dist/agent.js";
 import { compare } from "../dist/report.js";
 import { command } from "../dist/process.js";
+import { validateRawFiles } from "../dist/experiment.js";
 
 test("manual raw stages only licensed unchanged app/build files and README, never management scripts", async () => {
-  const manual = await prepare("bingo", "raw");
+  const manual = await prepare("bingo", "raw-documented");
   const scripted = await prepare("bingo", "raw-scripted");
   try {
     assert.equal(manual.config.lifecycle, "manual");
@@ -48,8 +49,68 @@ test("manual raw stages only licensed unchanged app/build files and README, neve
   }
 });
 
+test("three raw cells compose the same source snapshot with only their declared README/script overlays", async () => {
+  const runs = await Promise.all(["raw", "raw-documented", "raw-scripted"].map(name => prepare("bingo", name)));
+  try {
+    const readmes = [];
+    const core = [];
+    for (const run of runs) {
+      assert.equal(run.config.fixture, "apps/bingo/raw");
+      assert.equal(run.environment.files[0].src, path.join(repoRoot, "apps/bingo/raw"));
+      assert.equal(run.environment.files[1].src, path.join(repoRoot, `apps/bingo/readmes/${run.variant}.md`));
+      assert.equal(run.environment.files[1].dest, "README.md");
+      const content = await hashes(run.workDir);
+      core.push(Object.fromEntries(Object.entries(content).filter(([name]) =>
+        name !== "README.md" && !name.startsWith("scripts/"))));
+      readmes.push(await readFile(path.join(run.workDir, "README.md"), "utf8"));
+      assert.equal(run.environment.files.length, run.variant === "raw-scripted" ? 3 : 2);
+      if (run.variant === "raw-scripted") {
+        assert.equal(run.environment.files[2].dest, "scripts");
+        await access(path.join(run.workDir, "scripts/start.sh"));
+      } else {
+        await assert.rejects(access(path.join(run.workDir, "scripts")));
+      }
+      for (const name of ["readmes", "raw-documented.md", "raw-scripted", "harness", "apps", ".agents"]) {
+        await assert.rejects(access(path.join(run.workDir, name)));
+      }
+      const config = sessionConfig(run, {});
+      assert.equal(config.enableSkills, false);
+      assert.deepEqual(config.mcpServers, {});
+    }
+    assert.deepEqual(core[0], core[1]);
+    assert.deepEqual(core[0], core[2]);
+    assert.equal(new Set(readmes).size, 3);
+    assert(!readmes[0].includes("```"), "Unguided raw README contains no setup commands");
+    assert(!/dotnet|compose|npm|nohup|benchmark-endpoints|migration|start|stop/i.test(readmes[0]));
+    assert.match(readmes[1], /nohup bash/);
+    assert.match(readmes[2], /scripts\/start.sh/);
+    await assert.rejects(access(path.join(repoRoot, "apps/bingo/raw/README.md")));
+    await assert.rejects(access(path.join(repoRoot, "apps/bingo/raw-scripted")));
+  } finally {
+    for (const run of runs) await rm(run.root, { recursive: true });
+  }
+});
+
+test("raw file composition rejects sibling snapshots, host files, missing/duplicate guides and unsafe destinations", async () => {
+  const fixture = path.join(repoRoot, "apps/bingo/raw");
+  const base = { src: fixture, dest: "." };
+  const readme = { src: path.join(repoRoot, "apps/bingo/readmes/raw.md"), dest: "README.md" };
+  const scripts = { src: path.join(repoRoot, "apps/bingo/scripts"), dest: "scripts" };
+  await validateRawFiles([base, readme], fixture);
+  await validateRawFiles([base, readme, scripts], fixture);
+  for (const files of [
+    [base], [base, scripts], [base, readme, readme],
+    [{ ...base, src: path.join(repoRoot, "apps/bingo/aspire") }, readme],
+    [base, { src: path.join(repoRoot, "README.md"), dest: "README.md" }],
+    [base, readme, { src: path.join(repoRoot, "harness"), dest: "scripts" }],
+    [base, { ...readme, dest: "../README.md" }],
+    [base, { ...readme, dest_root: "assets" }],
+    [base, readme, { ...scripts, dest: "hidden" }],
+  ]) await assert.rejects(validateRawFiles(files, fixture));
+});
+
 test("manual stop guidance refuses a recycled/unrelated PID without sending signals or stopping Compose", async () => {
-  const run = await prepare("bingo", "raw");
+  const run = await prepare("bingo", "raw-documented");
   const bin = path.join(run.root, "bin");
   try {
     await mkdir(bin);

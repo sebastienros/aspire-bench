@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import path from "node:path";
-import { readdir } from "node:fs/promises";
+import { lstat, readdir } from "node:fs/promises";
 import { resolveExperiment, type EnvironmentConfig, type ResolvedRunPlan } from "@microsoft/vally";
 import { registry, repoRoot, inside } from "./workspace.js";
 
@@ -8,6 +8,28 @@ export function planEnvironment(plan: ResolvedRunPlan): EnvironmentConfig {
   const environment = plan.effectiveSpec.environment;
   assert(environment && typeof environment === "object", "Concrete experiment environment required");
   return environment;
+}
+
+export async function validateRawFiles(files: NonNullable<EnvironmentConfig["files"]>, fixture: string) {
+  assert.deepEqual(files[0], { src: fixture, dest: "." },
+    "Raw variants must start with the registered common app snapshot");
+  const assets = path.dirname(fixture);
+  const overlays = files.slice(1);
+  assert(overlays.length >= 1 && overlays.length <= 2, "Raw requires one README and optional scripts");
+  assert.equal(overlays.filter(file => file.dest === "README.md").length, 1,
+    "Exactly one raw README overlay is required");
+  for (const overlay of overlays) {
+    assert(!overlay.dest_root, "Raw overlays must target the workspace");
+    const src = path.resolve(overlay.src);
+    const isReadme = overlay.dest === "README.md"
+      && path.dirname(src) === path.join(assets, "readmes") && path.extname(src) === ".md";
+    const isScripts = overlay.dest === "scripts" && src === path.join(assets, "scripts");
+    assert(isReadme || isScripts, "Raw overlays must be an application README or lifecycle scripts");
+    const item = await lstat(src);
+    assert(!item.isSymbolicLink(), "Overlay symlinks are not allowed");
+    assert(isReadme ? item.isFile() : item.isDirectory(), "Invalid overlay source type");
+    if (isScripts) await cleanSource(src);
+  }
 }
 
 export async function experiment(application: string, scenario: string) {
@@ -44,7 +66,11 @@ export async function experiment(application: string, scenario: string) {
         { src: path.join(repoRoot, "treatment/LICENSE"), dest: ".agents/LICENSE" },
         ...(hasMcp ? [{ src: path.join(repoRoot, "treatment/mcp.json"), dest: ".github/mcp.json" }] : []),
       ] : [])];
-    assert.deepEqual(files, expected, "Manifest must stage only the registered snapshot and treatment files");
+    if (config.kind === "aspire") {
+      assert.deepEqual(files, expected, "Manifest must stage only the registered snapshot and treatment files");
+    } else {
+      await validateRawFiles(files, fixture);
+    }
     const names = hasSkills
       ? (await readdir(path.join(repoRoot, "treatment/skills"))).sort() : [];
     assert.deepEqual((env.skills ?? []).map(src => path.resolve(src)).sort(),

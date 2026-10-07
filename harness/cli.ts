@@ -4,7 +4,7 @@ import { parseArgs } from "node:util";
 import { stringify } from "yaml";
 import { validateEvalSpec, createDefaultGraderRegistry } from "@microsoft/vally";
 import { command, interrupt, checkInterrupted } from "./process.js";
-import { prepare, registry, repoRoot, isolatedEnv, type Run } from "./workspace.js";
+import { prepare, registry, repoRoot, isolatedEnv, stagedConfig, type Run } from "./workspace.js";
 import { dryAgent } from "./agent.js";
 import { cleanup } from "./ownership.js";
 import { submittedEndpoints } from "./verify.js";
@@ -12,7 +12,7 @@ import { compare } from "./report.js";
 import { configureRuntime, configureAspire } from "./runtime.js";
 import { applicationAdapter, manualBingoCommands } from "./adapters.js";
 import { withFinalizer } from "./lifecycle.js";
-import { experiment, selectVariants } from "./experiment.js";
+import { experiment, planEnvironment, selectVariants } from "./experiment.js";
 
 process.once("SIGINT", interrupt);
 process.once("SIGTERM", interrupt);
@@ -67,7 +67,7 @@ async function validate() {
       }
     }
     for (const variant of Object.values(application.variants)) {
-      await readFile(path.join(repoRoot, variant.fixture, "README.md"));
+      if (variant.kind === "aspire") await readFile(path.join(repoRoot, variant.fixture, "README.md"));
       if (variant.kind === "aspire") await readFile(path.join(repoRoot, variant.fixture, variant.apphost!));
     }
   }
@@ -107,8 +107,12 @@ async function initialize() {
     versions, model: values.model, timeout: values.timeout, pairs, app, scenario, variants,
     baseline: resolved.baseline,
     lifecycle: "scripts",
-    variantDefinitions: Object.fromEntries(variants.map(name =>
-      [name, catalog.applications[app].variants[name]])),
+    variantDefinitions: Object.fromEntries(resolved.plans.filter(plan => variants.includes(plan.variant))
+      .map(plan => [plan.variant, {
+        ...stagedConfig(catalog.applications[app].variants[plan.variant], planEnvironment(plan)),
+        files: planEnvironment(plan).files?.map(file =>
+          ({ ...file, src: path.relative(repoRoot, file.src) })),
+      }])),
     startedAt: new Date().toISOString(),
     commit: (await command("git", ["rev-parse", "HEAD"], { cwd: repoRoot })).stdout.trim(),
     source: JSON.parse(await readFile(path.join(repoRoot, `apps/${app}/provenance.json`), "utf8")),

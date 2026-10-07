@@ -67,7 +67,8 @@ drift before any agent starts.
 
 | Variant | Application snapshot | Aspire skills | Aspire MCP |
 |---|---|---|---|
-| `raw` | Raw, README-only manual lifecycle | No | No |
+| `raw` | Raw, README without setup guidance | No | No |
+| `raw-documented` | Same raw app, manual configure/run/stop README | No | No |
 | `raw-scripted` | Same raw app, lifecycle management scripts | No | No |
 | `aspire-none` | Aspire | No | No |
 | `aspire-mcp` | Aspire | No | Yes |
@@ -81,14 +82,14 @@ not ordinary shell/file tools. Enabling skills also exposes the runtime's skill
 loader. Configuration discovery and global skills/MCP remain disabled in all
 cells.
 
-**Default selection remains `raw,aspire`: two trials per pair, not six.**
-By explicit naming decision, `raw` now means the README-only manual fixture;
-the preserved management-script fixture is `raw-scripted`.
+**Default selection remains `raw,aspire`: two trials per pair, not seven.**
+`raw` now has no setup guidance; the former manual README is `raw-documented`,
+and the preserved management scripts and their README are `raw-scripted`.
 `--variants` selects explicit names or `all`; `--pairs` repeats that selected
 set. Each repetition reverses variant order to reduce order bias.
 
 ```bash
-# No inference: inspect resolved native plan and all six effective catalogs.
+# No inference: inspect resolved native plan and all seven effective catalogs.
 npm run bench -- plan
 npm run bench -- dry-run --variants all
 
@@ -96,26 +97,49 @@ npm run bench -- dry-run --variants all
 bash scripts/run.sh --model gpt-6-luna --variants aspire-none,aspire-mcp --pairs 1 --allow-paid
 bash scripts/run.sh --model gpt-6-luna --variants all --pairs 1 --allow-paid
 
-# Explicit manual versus scripted launch comparison (paid, only when authorized).
-bash scripts/run.sh --model gpt-6-luna --variants raw,raw-scripted --pairs 1 --allow-paid
+# Explicit raw guidance comparison (paid, only when authorized).
+bash scripts/run.sh --model gpt-6-luna --variants raw,raw-documented,raw-scripted --pairs 1 --allow-paid
 ```
 
 Every selection uses the same shared prompt, model, limits and objective grader.
 Native arrays replace inherited arrays, maps deep-merge, and `null` clears
-inherited MCP maps; offline tests verify these contracts and all six native
+inherited MCP maps; offline tests verify these contracts and all seven native
 staging/execution cells without inference.
 
-The new `apps/bingo/raw/` is a distinct self-contained source snapshot with
-build/dependency configuration, Compose for PostgreSQL/Redis only, and a README.
-It contains no lifecycle scripts, AppHost, skills, MCP or hidden scripted copy.
-Native `environment.files` stages only that folder into the raw agent workspace,
-not `raw-scripted`, sibling apps or the host harness. The README documents
-configuration, build/install, dependency readiness, migrations/seeding,
-individual detached backend/frontend launches, endpoint submission and
-working-directory-checked stopping. It is not a replacement launcher file.
-`npm run bench -- smoke --variants raw` executes those actual README start/stop
-commands in an owned workspace without inference; setup never prestarts an
-evaluation.
+`apps/bingo/raw/` is the **one shared raw application snapshot**, with
+build/dependency configuration, Compose for PostgreSQL/Redis only and a license.
+It contains no README or lifecycle scripts. The native manifest composes each
+agent workspace using `environment.files`; no duplicate app folders or runtime
+edits are needed:
+
+```yaml
+# raw-documented; raw uses readmes/raw.md instead.
+files:
+  - {src: ../apps/bingo/raw, dest: .}
+  - {src: ../apps/bingo/readmes/raw-documented.md, dest: README.md}
+# raw-scripted uses readmes/raw-scripted.md and also copies:
+# - {src: ../apps/bingo/scripts, dest: scripts}
+```
+
+Only the selected README is visible, always as `README.md`, and only
+`raw-scripted` receives `scripts/`. The unguided `raw` README describes the
+application but provides no setup/run/stop instructions. The documented README
+explains configuration, build/install, dependency readiness, migrations/seeding,
+independent backend/frontend launches, endpoint submission and targeted stopping.
+No raw variant receives an AppHost, skills, MCP, other READMEs, sibling fixtures
+or host harness files. File composition is declared **only in the experiment
+manifest**; the registry identifies the shared app/runtime kind, not a second
+file-copy recipe.
+All variants share the same task and endpoint/verifier contract. The shared
+prompt does not require a documented entrypoint, so it also applies to unguided
+`raw`. Setup and smoke infer manual versus scripted lifecycle from the selected
+file overlays rather than maintaining a separate per-variant copy recipe.
+
+`npm run bench -- smoke --variants raw,raw-documented,raw-scripted` verifies
+all three owned real stacks without inference. Smoke uses host-only manual
+reference commands for the two non-scripted variants, including documented stop;
+it does not inject those commands or documentation into unguided `raw`.
+Evaluation setup never starts the app.
 
 **No paid agent evaluation occurs during setup, validation, dry-run or smoke.**
 A real evaluation requires an explicit consent flag and model:
@@ -136,8 +160,9 @@ Both variants receive the **same prompt, model, timeout, objective grader and
 threshold**. Runs are serial: one worker, one trial per Vally invocation, and
 **no automatic retries**. Pair order alternates raw-first/treatment-first.
 Each trial has a new copied workspace, isolated HOME/Copilot config, fresh data
-volume, unique containers/Compose project and allocated ports. Raw follows its
-manual README; `raw-scripted` uses its Bash launcher; Aspire uses exact-target
+volume, unique containers/Compose project and allocated ports. Raw must discover
+the launch steps; `raw-documented` has the manual README; `raw-scripted` has its
+Bash launcher. Aspire uses exact-target
 `aspire start --non-interactive --isolated` and `aspire wait`. Dependency restoration, builds and application
 startup are still the agent's task, not pre-completed work.
 
@@ -210,10 +235,11 @@ not a statistically meaningful finding. The first local Luna pair was inconclusi
 raw timed out and an already-fixed cleanup observer defect invalidated the
 Aspire verdict despite passing application checks. Those private local
 artifacts are retained unchanged, not published as a benchmark claim.
-**Historical runs named `raw` before this split used the scripted fixture**,
-including the original Luna runs. Do not relabel or reinterpret them as manual.
+**Historical runs named `raw` used scripted guidance before `319104f`**,
+including the original Luna runs. At `319104f`, `raw` used the manual README;
+the current `raw` is unguided. Do not relabel or reinterpret older runs as today's raw.
 Reports use recorded metadata/provenance, never the current registry to infer
-past variant meanings. New runs record lifecycle definitions explicitly; reports
+past variant meanings. New runs record lifecycle and effective file definitions explicitly; reports
 of older runs flag the naming boundary rather than silently resolving old `raw`
 against today's manual fixture.
 
@@ -305,11 +331,16 @@ point cleanup at an arbitrary directory.
 
 ## Add an application or scenario
 
-Add licensed, self-contained snapshots under `apps/<name>/<variant>/`, record
+Add licensed, self-contained snapshots under `apps/<name>/`, record
 source commits/adaptations/licenses in `provenance.json`, and register variants
 and scenarios, including an explicit `adapter` and native `experiment` path, in
 `apps/registry.json`. Add a manifest under `experiments/` declaring local staging,
 baseline, serial workers, and only intentional `vary` axes.
+Reuse the same registered raw `fixture` for guidance variants; keep README
+overlays in sibling `readmes/` and optional lifecycle scripts in sibling
+`scripts/`. Declare each composition in native `environment.files`, always
+copying the common source first, one README to `README.md`, and scripts only
+when intended. Do not duplicate application sources just to change guidance.
 Register its launch/verifier implementation in `harness/adapters.ts`; unknown
 adapters fail closed. Add one common Vally spec under
 `scenarios/`, not different objectives for control and treatment. Setup

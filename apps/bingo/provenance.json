@@ -7,8 +7,9 @@
   "license": "MIT",
   "adaptations": [
     "Copied self-contained raw and Aspire fixture trees, not submodules.",
-    "The README-only raw fixture is a separate copy of the application's sources, build configuration, Compose dependency definition and MIT license, with all lifecycle scripts omitted; its README documents individual manual commands.",
-    "By explicit user naming decision, the existing management-script fixture is preserved as raw-scripted. Historical runs recorded as raw before this change used that scripted fixture; original artifacts must be interpreted with their recorded harness commit/provenance.",
+    "raw, raw-documented and raw-scripted reuse one raw source/build/Compose/license snapshot. Native experiment environment.files selects the README overlay and adds the preserved lifecycle scripts only for raw-scripted.",
+    "README overlays are raw (no setup guidance), raw-documented (manual configure/run/stop commands) and raw-scripted (script usage); no duplicate raw application folders are needed.",
+    "Historical raw runs used scripted guidance before commit 319104f, and manual guidance at commit 319104f. New raw uses no setup guidance. Original artifacts must be interpreted with their recorded harness commit, effective file staging and provenance, never today's registry.",
     "Raw control removes inactive ServiceDefaults project/references, OTel startup hooks, and checkpoint documentation.",
     "raw-scripted Bash launcher accepts run-scoped ports and Compose project; PowerShell helpers are omitted to avoid unsafe fixed-port alternatives.",
     "Aspire AppHost project paths are relative to the self-contained fixture.",

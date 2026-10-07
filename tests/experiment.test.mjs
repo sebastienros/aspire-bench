@@ -14,14 +14,15 @@ import { sessionConfig } from "../dist/agent.js";
 import { BenchmarkExecutor } from "../dist/plugin.js";
 import { gradeApplication } from "../dist/grade.js";
 
-test("native manifest controls six variants and unchanged default subset without drift", async () => {
+test("native manifest controls seven variants and unchanged default subset without drift", async () => {
   const resolved = await experiment("bingo", "launch-and-verify");
   assert.equal(resolved.name, "repo-comparison");
   assert.equal(resolved.baseline, "raw");
   assert.equal(resolved.execution.workers, 1);
-  assert.deepEqual(resolved.variantNames, ["raw", "raw-scripted", "aspire-none", "aspire-mcp", "aspire-skills", "aspire"]);
+  assert.deepEqual(resolved.variantNames,
+    ["raw", "raw-documented", "raw-scripted", "aspire-none", "aspire-mcp", "aspire-skills", "aspire"]);
   assert.deepEqual(selectVariants(resolved.variantNames), ["raw", "aspire"]);
-  assert.equal(selectVariants(resolved.variantNames, "all").length, 6);
+  assert.equal(selectVariants(resolved.variantNames, "all").length, 7);
   assert.deepEqual(selectVariants(resolved.variantNames, "aspire-none,aspire-mcp"),
     ["aspire-none", "aspire-mcp"]);
   assert.throws(() => selectVariants(resolved.variantNames, "bad"));

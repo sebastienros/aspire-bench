@@ -1,7 +1,7 @@
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { command } from "./process.js";
-import { isolatedEnv, type Run } from "./workspace.js";
+import { isolatedEnv, repoRoot, type Run } from "./workspace.js";
 import { endpoints, verify, type Endpoints, type Proof } from "./verify.js";
 import { resourceEndpoints } from "./aspire.js";
 
@@ -14,7 +14,9 @@ export async function manualBingoCommands(run: Run, phase: "start" | "stop") {
   if (run.adapter !== "bingo" || run.config.lifecycle !== "manual") {
     throw new Error("Manual README commands require the manual Bingo fixture");
   }
-  const readme = await readFile(path.join(run.workDir, "README.md"), "utf8");
+  // Reference commands are host-only for smoke, including the unguided raw cell.
+  // Evaluation setup never calls this function or exposes this guide to raw.
+  const readme = await readFile(path.join(repoRoot, "apps/bingo/readmes/raw-documented.md"), "utf8");
   const sections = readme.split("## Stop only this stack");
   if (sections.length !== 2) throw new Error("Manual README stop section changed");
   const steps = sections[phase === "start" ? 0 : 1].matchAll(/```bash\n([\s\S]*?)```/g);

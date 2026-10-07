@@ -6,8 +6,9 @@
       "experiment": "experiments/bingo.experiment.yaml",
       "description": "Workshop bingo: PostgreSQL, Redis, migrations, Blazor admin and Vue/Vite player",
       "variants": {
-        "raw": { "fixture": "apps/bingo/raw", "kind": "compose", "lifecycle": "manual" },
-        "raw-scripted": { "fixture": "apps/bingo/raw-scripted", "kind": "compose" },
+        "raw": { "fixture": "apps/bingo/raw", "kind": "compose" },
+        "raw-documented": { "fixture": "apps/bingo/raw", "kind": "compose" },
+        "raw-scripted": { "fixture": "apps/bingo/raw", "kind": "compose" },
         "aspire-none": { "fixture": "apps/bingo/aspire", "kind": "aspire", "apphost": "apphost.cs" },
         "aspire-mcp": { "fixture": "apps/bingo/aspire", "kind": "aspire", "apphost": "apphost.cs" },
         "aspire-skills": { "fixture": "apps/bingo/aspire", "kind": "aspire", "apphost": "apphost.cs" },
