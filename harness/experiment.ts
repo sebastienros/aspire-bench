@@ -62,10 +62,8 @@ export async function experiment(application: string, scenario: string) {
     const fixture = path.resolve(repoRoot, config.fixture);
     const files = env.files ?? [];
     const expected = [{ src: fixture, dest: "." },
-      ...(config.kind === "aspire" ? [
-        { src: path.join(repoRoot, "treatment/LICENSE"), dest: ".agents/LICENSE" },
-        ...(hasMcp ? [{ src: path.join(repoRoot, "treatment/mcp.json"), dest: ".github/mcp.json" }] : []),
-      ] : [])];
+      ...(config.kind === "aspire" && hasMcp
+        ? [{ src: path.join(repoRoot, "treatment/mcp.json"), dest: ".github/mcp.json" }] : [])];
     if (config.kind === "aspire") {
       assert.deepEqual(files, expected, "Manifest must stage only the registered snapshot and treatment files");
     } else {

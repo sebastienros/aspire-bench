@@ -91,6 +91,7 @@ test("supported plugin loaders register custom hooks and native staging executes
             ["aspire-mcp", "aspire"].includes(plan.variant) ? ["aspire"] : []);
           await assert.rejects(access(path.join(options.workDir, "harness")));
           await assert.rejects(access(path.join(options.workDir, "apps")));
+          await assert.rejects(access(path.join(options.workDir, ".agents/LICENSE")));
           if (plan.variant.startsWith("raw")) {
             await assert.rejects(access(path.join(options.workDir, "apphost.cs")));
             await assert.rejects(access(path.join(options.workDir, "aspire/SKILL.md")));

@@ -35,14 +35,12 @@ variants:
     environment:
       files:
         - {src: ../apps/bingo/aspire, dest: .}
-        - {src: ../treatment/LICENSE, dest: .agents/LICENSE}
       skills: []
       mcpServers: null
   aspire-mcp:
     environment:
       files:
         - {src: ../apps/bingo/aspire, dest: .}
-        - {src: ../treatment/LICENSE, dest: .agents/LICENSE}
         - {src: ../treatment/mcp.json, dest: .github/mcp.json}
       skills: []
       mcpServers:
@@ -54,7 +52,6 @@ variants:
     environment:
       files:
         - {src: ../apps/bingo/aspire, dest: .}
-        - {src: ../treatment/LICENSE, dest: .agents/LICENSE}
       skills:
         - ../treatment/skills/aspire
         - ../treatment/skills/aspire-deployment
@@ -68,7 +65,6 @@ variants:
     environment:
       files:
         - {src: ../apps/bingo/aspire, dest: .}
-        - {src: ../treatment/LICENSE, dest: .agents/LICENSE}
         - {src: ../treatment/mcp.json, dest: .github/mcp.json}
       skills:
         - ../treatment/skills/aspire
