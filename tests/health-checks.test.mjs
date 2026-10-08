@@ -29,8 +29,9 @@ test("native Vally resolves two evals × fourteen variants; health config is sep
     assert(health.stimuli[0].turns[index + 1].startsWith(question + "\n"));
   }
   assert.deepEqual(health.stimuli[0].graders.filter(grader => grader.name.endsWith("-health"))
-    .map(grader => [grader.name, grader.turn, grader.required]),
-    [["services-health", undefined, true], ["database-health", undefined, true], ["redis-health", undefined, true]]);
+    .map(grader => [grader.name, grader.type, grader.turn, grader.required]),
+    [["services-health", "custom-metrics", undefined, true],
+      ["database-health", "custom-metrics", undefined, true], ["redis-health", "custom-metrics", undefined, true]]);
   assert.equal(validateEvalSpec(health, { registry: createDefaultGraderRegistry() }).valid, true);
   const launchPlans = await experiment("bingo", "launch-and-verify");
   const healthPlans = await experiment("bingo", "health-checks");
@@ -89,7 +90,7 @@ test(`native health conversation: ${variant}, startup ${failStartup ? "failure" 
                 const subject = ["services", "database", "redis"][sent.length - 2];
                 await writeFile(path.join(options.workingDirectory, `benchmark-${subject}-health.json`),
                   JSON.stringify({ [subject === "services" ? "running" : "ready"]: true,
-                    healthy: true, evidence: ["Offline observed check and result"] }));
+                    healthy: true, evidence: "Offline observed check and result" }));
               }
               return { data: { content: `Offline response ${sent.length}` } };
             },

@@ -139,20 +139,29 @@ Each question also asks the agent to save its assessment in a separate file:
 
 | Question | Result file | Required JSON |
 |---|---|---|
-| All services | `benchmark-services-health.json` | `{"running":true,"healthy":true,"evidence":["observed check and result"]}` |
-| Database | `benchmark-database-health.json` | `{"ready":true,"healthy":true,"evidence":["observed check and result"]}` |
-| Redis | `benchmark-redis-health.json` | `{"ready":true,"healthy":true,"evidence":["observed check and result"]}` |
+| All services | `benchmark-services-health.json` | `{"running":true,"healthy":true,"evidence":"observed check and result"}` |
+| Database | `benchmark-database-health.json` | `{"ready":true,"healthy":true,"evidence":"observed check and result"}` |
+| Redis | `benchmark-redis-health.json` | `{"ready":true,"healthy":true,"evidence":"observed check and result"}` |
 
 The booleans must reflect the observed state, and evidence must describe the
-checks actually performed. The separate required native program graders
+checks actually performed. The separate required native
+[`custom-metrics`](https://microsoft.github.io/vally/reference/graders/custom-metrics/) graders
 `services-health`, `database-health` and `redis-health` evaluate the files
-produced by conversation turns 1, 2 and 3. Each validates its own file, exact
-fields, positive status booleans, and nonempty evidence strings. A successful startup/repair is expected
+produced by conversation turns 1, 2 and 3. Each parses its own JSON file and
+asserts positive status booleans with typed `equals: true` checks, plus a
+non-whitespace evidence string with `matches: '\S'`. A successful startup/repair is expected
 to leave each target healthy; a negative assessment is retained but fails that
-target's check. Missing, malformed, oversized or symlinked reports fail explicitly.
+target's check. Missing, malformed or incorrectly typed metrics fail explicitly.
+Each assertion has its own native result; partial credit cannot pass a required
+grader. Additional keys are allowed, and native metrics also accept a `values`
+envelope. This replaces the custom exact-key, 64 KiB and symlink checks with
+Vally's native metrics semantics; configured paths must remain relative with
+no `..` traversal. The harness remains cooperative isolation, not an OS sandbox.
 Reports and the endpoint JSON are retained via Vally's native `artifacts` capture.
-Vally's workspace-reading program graders evaluate the final workspace, not
+Vally's workspace-reading metrics graders evaluate the final workspace, not
 turn-scoped snapshots, so these graders read distinct files after the conversation.
+They also support artifact-directory grading after the ephemeral workspace is
+gone; a malformed artifact fails rather than falling back to a workspace copy.
 
 All four prompts use **one session and one running application per trial**.
 Vally waits for each response before sending the next question; grading and
@@ -364,8 +373,8 @@ Both scenarios share two required checks using Vally's **built-in `program` grad
 `endpoint-contract` runs `scripts/verify.sh endpoint-contract` to validate the
 generated JSON, and `objective-success` runs `scripts/verify.sh` to verify the
 live application and clean up. There is no custom grader plugin or in-memory
-proof map. The health scenario additionally declares the three report graders
-described above.
+proof map. The health scenario additionally declares the three built-in
+`custom-metrics` report graders described above.
 Plugin fields are deliberately not placed in the manifest.
 
 `endpoint-contract` reports separately in native results. It requires

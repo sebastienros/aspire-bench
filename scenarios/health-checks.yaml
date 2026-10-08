@@ -17,17 +17,17 @@ stimuli:
       - |
         Are all services running and healthy?
         Save your assessment in benchmark-services-health.json in the workspace root:
-        {"running":true,"healthy":true,"evidence":["observed check and result"]}.
+        {"running":true,"healthy":true,"evidence":"observed check and result"}.
         Use booleans reflecting the actual state and describe the checks you performed.
       - |
         Is the database ready and healthy?
         Save your assessment in benchmark-database-health.json in the workspace root:
-        {"ready":true,"healthy":true,"evidence":["observed check and result"]}.
+        {"ready":true,"healthy":true,"evidence":"observed check and result"}.
         Use booleans reflecting the actual state and describe the checks you performed.
       - |
         Is redis ready and healthy?
         Save your assessment in benchmark-redis-health.json in the workspace root:
-        {"ready":true,"healthy":true,"evidence":["observed check and result"]}.
+        {"ready":true,"healthy":true,"evidence":"observed check and result"}.
         Use booleans reflecting the actual state and describe the checks you performed.
     artifacts:
       include:
@@ -43,27 +43,33 @@ stimuli:
           program: bash
           args: [-c, 'exec bash "$ASPIRE_BENCH_ROOT/scripts/verify.sh" endpoint-contract']
           timeout: 30s
-      - type: program
+      - type: custom-metrics
         name: services-health
         required: true
         config:
-          program: bash
-          args: [-c, 'exec bash "$ASPIRE_BENCH_ROOT/scripts/verify.sh" health-report services']
-          timeout: 30s
-      - type: program
+          path: benchmark-services-health.json
+          assertions:
+            - {metric: running, equals: true}
+            - {metric: healthy, equals: true}
+            - {metric: evidence, matches: '\S'}
+      - type: custom-metrics
         name: database-health
         required: true
         config:
-          program: bash
-          args: [-c, 'exec bash "$ASPIRE_BENCH_ROOT/scripts/verify.sh" health-report database']
-          timeout: 30s
-      - type: program
+          path: benchmark-database-health.json
+          assertions:
+            - {metric: ready, equals: true}
+            - {metric: healthy, equals: true}
+            - {metric: evidence, matches: '\S'}
+      - type: custom-metrics
         name: redis-health
         required: true
         config:
-          program: bash
-          args: [-c, 'exec bash "$ASPIRE_BENCH_ROOT/scripts/verify.sh" health-report redis']
-          timeout: 30s
+          path: benchmark-redis-health.json
+          assertions:
+            - {metric: ready, equals: true}
+            - {metric: healthy, equals: true}
+            - {metric: evidence, matches: '\S'}
       - type: program
         name: objective-success
         required: true

@@ -58,7 +58,7 @@ fi
               if (${JSON.stringify(mode)} === "health-missing-report" && subject === "redis") continue;
               await writeFile(path.join(options.workDir, "benchmark-" + subject + "-health.json"),
                 JSON.stringify({[subject === "services" ? "running" : "ready"]:true,
-                  healthy:true,evidence:["Offline observed health check succeeded"]}));
+                  healthy:true,evidence:"Offline observed health check succeeded"}));
             }
           }
           return {id:"offline-trajectory",stimulus,workDir:options.workDir,output:"offline",
@@ -78,14 +78,12 @@ fi
       ? path.join(repoRoot, "dist/grade.js") : path.join(mock, "dist/grade.js"))} "$@"\n`);
   await writeFile(path.join(mock, "dist/grade.js"), `
     import {readFile} from "node:fs/promises";
-    import {gradeApplication,gradeEndpointContract,gradeHealthReport} from ${JSON.stringify(new URL("../dist/grade.js", import.meta.url).href)};
+    import {gradeApplication,gradeEndpointContract} from ${JSON.stringify(new URL("../dist/grade.js", import.meta.url).href)};
     const run = JSON.parse(await readFile(process.env.ASPIRE_BENCH_OWNERSHIP));
     const input = JSON.parse(await readFile(process.env.EVALUATE_GRADER_INPUT));
     if(process.env.EVALUATE_WORKSPACE !== input.trajectory.workDir) throw new Error("Native workspace missing");
     const result = process.argv[2] === "endpoint-contract"
       ? await gradeEndpointContract(run, input.trajectory)
-      : process.argv[2] === "health-report"
-      ? await gradeHealthReport(run, input.trajectory, process.argv[3])
       : await gradeApplication(run, input.trajectory, {
       async verify(){return {passed:true,checks:["injected offline objective"],verificationMs:2}},
       async cleanup(){},
