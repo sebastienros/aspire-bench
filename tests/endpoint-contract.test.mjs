@@ -17,7 +17,8 @@ test("endpoint contract is a separate required native program grader in both sce
       ["endpoint-contract", "objective-success"].includes(grader.name))
       .map(grader => [grader.name, grader.type, grader.required]),
       [["endpoint-contract", "program", true], ["objective-success", "program", true]]);
-    assert.match(spec.stimuli[0].graders[0].config.args[1], /verify\.sh" endpoint-contract$/);
+    assert.match(spec.stimuli[0].graders.find(grader => grader.name === "endpoint-contract")
+      .config.args[1], /verify\.sh" endpoint-contract$/);
     assert.equal(spec.scoring.threshold, 1);
   }
 });

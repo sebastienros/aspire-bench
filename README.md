@@ -158,9 +158,29 @@ envelope. This replaces the custom exact-key, 64 KiB and symlink checks with
 Vally's native metrics semantics; configured paths must remain relative with
 no `..` traversal. The harness remains cooperative isolation, not an OS sandbox.
 Reports and the endpoint JSON are retained via Vally's native `artifacts` capture.
-Vally's workspace-reading metrics graders evaluate the final workspace, not
-turn-scoped snapshots, so these graders read distinct files after the conversation.
-They also support artifact-directory grading after the ephemeral workspace is
+The health scenario also uses native
+[`per-turn diff graders`](https://microsoft.github.io/vally/reference/graders/diff-contains/#per-turn-diff)
+with zero-based `turn` selectors:
+
+| Turn | Required output | Earlier outputs this turn must preserve |
+|---|---|---|
+| 0: startup | `benchmark-endpoints.json` | None yet |
+| 1: all services | `benchmark-services-health.json` | Endpoint JSON |
+| 2: database | `benchmark-database-health.json` | Endpoint and services JSON |
+| 3: Redis | `benchmark-redis-health.json` | Endpoint, services and database JSON |
+
+`diff-contains` requires each output to be written in its assigned turn;
+`diff-not-contains` prevents subsequent questions from revising earlier answers.
+Thus producing a missing report late, or correcting an earlier unhealthy answer
+in a later turn, cannot pass even if the final JSON files and application are healthy.
+Vally captures each turn's actual workspace diff through native turn-completion
+callbacks; missing turn evidence fails rather than falling back to a full-run diff.
+
+Vally 0.18 explicitly rejects `turn` on workspace-reading `custom-metrics` and
+`program` graders. Those value checks run after the conversation on the preserved
+files; they do not independently evaluate every conversational turn.
+The separate live-application/cleanup check remains a whole-run check.
+The `custom-metrics` graders also support artifact-directory grading after the ephemeral workspace is
 gone; a malformed artifact fails rather than falling back to a workspace copy.
 
 All four prompts use **one session and one running application per trial**.
@@ -197,6 +217,10 @@ assessment, not the semantic correctness of its evidence prose. The required
 and cleanup; affirmative JSON cannot make an unhealthy application pass.
 No LLM judge is added. Answers remain inspectable in Vally's trajectory and
 captured JSON artifacts.
+Native per-turn Git snapshots add host bookkeeping during execution; whole-run
+elapsed time is not a per-question timing measurement. Re-grading per-turn diffs
+requires their original recorded evidence and `--run-dir`; the compatibility
+export preserves grader outcomes but does not copy auxiliary diff sidecars.
 Vally also supports separate stimuli and turn-scoped graders, but separate
 stimuli are separate trials, not continuations of an already-started session.
 
@@ -373,8 +397,8 @@ Both scenarios share two required checks using Vally's **built-in `program` grad
 `endpoint-contract` runs `scripts/verify.sh endpoint-contract` to validate the
 generated JSON, and `objective-success` runs `scripts/verify.sh` to verify the
 live application and clean up. There is no custom grader plugin or in-memory
-proof map. The health scenario additionally declares the three built-in
-`custom-metrics` report graders described above.
+proof map. The health scenario additionally declares the built-in per-turn
+diff checks and three `custom-metrics` report graders described above.
 Plugin fields are deliberately not placed in the manifest.
 
 `endpoint-contract` reports separately in native results. It requires

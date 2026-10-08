@@ -59,6 +59,10 @@ for (const subject of ["services", "database", "redis"]) {
         assert.equal(result.score, 1);
         assert.deepEqual(result.details[0].details.map(detail => detail.passed), [true, true, true]);
       }
+      const unsupported = await gradeTrajectory(trajectory,
+        [{ ...config, turn: ["services", "database", "redis"].indexOf(subject) + 1 }], { registry, stimulus });
+      assert.equal(unsupported.passed, false, "Native custom-metrics cannot be scoped to a conversation turn");
+      assert.match(unsupported.details[0].evidence, /reads workspace files.*cannot be scoped/s);
       const artifact = path.join(artifactDir, path.basename(file));
       await writeFile(artifact, JSON.stringify(valid));
       await rm(workDir, { recursive: true });

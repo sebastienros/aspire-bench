@@ -49,17 +49,29 @@ fi
             await writeFile(${JSON.stringify(path.join(output, "started"))}, "ready");
             await new Promise(() => { setInterval(() => {}, 1000); });
           }
-          await writeFile(path.join(options.workDir,"benchmark-endpoints.json"),
-            JSON.stringify(${JSON.stringify(mode)} === "invalid-endpoints"
-              ? {admin:"http://localhost:1234"}
-              : {admin:"http://localhost:1234",frontend:"http://localhost:5678"}));
-          if (stimulus.turns) {
-            for (const subject of ["services", "database", "redis"]) {
-              if (${JSON.stringify(mode)} === "health-missing-report" && subject === "redis") continue;
-              await writeFile(path.join(options.workDir, "benchmark-" + subject + "-health.json"),
-                JSON.stringify({[subject === "services" ? "running" : "ready"]:true,
-                  healthy:true,evidence:"Offline observed health check succeeded"}));
+          const mode = ${JSON.stringify(mode)};
+          const writeReport = async (subject, healthy = true) => {
+            await writeFile(path.join(options.workDir, "benchmark-" + subject + "-health.json"),
+              JSON.stringify({[subject === "services" ? "running" : "ready"]:true,
+                healthy,evidence:"Offline observed health check succeeded"}));
+          };
+          const prompts = stimulus.turns ?? [stimulus.prompt];
+          for (let turn = 0; turn < prompts.length; turn++) {
+            if (turn === 0) {
+              await writeFile(path.join(options.workDir,"benchmark-endpoints.json"),
+                JSON.stringify(mode === "invalid-endpoints"
+                  ? {admin:"http://localhost:1234"}
+                  : {admin:"http://localhost:1234",frontend:"http://localhost:5678"}));
+            } else {
+              const subject = ["services", "database", "redis"][turn - 1];
+              if (!(mode === "health-missing-report" && subject === "redis")
+                && !(mode === "health-late-report" && subject === "services")) {
+                await writeReport(subject, !(mode === "health-late-repair" && subject === "services"));
+              }
+              if ((mode === "health-late-report" && turn === 2)
+                || (mode === "health-late-repair" && turn === 3)) await writeReport("services");
             }
+            await options.onTurnComplete?.({turn,status:"completed",final:turn === prompts.length - 1});
           }
           return {id:"offline-trajectory",stimulus,workDir:options.workDir,output:"offline",
             events:stimulus.turns?.map((prompt,turn)=>({type:"assistant_message",turn,timestamp:new Date(),
@@ -151,7 +163,7 @@ test("native Vally records an endpoint-contract failure and rejects the trial de
   } finally { await f.dispose(); }
 });
 
-for (const mode of ["health-success", "health-missing-report"]) {
+for (const mode of ["health-success", "health-missing-report", "health-late-report", "health-late-repair"]) {
   test(`native health grading and artifact capture: ${mode}`, async () => {
     const f = await fixture(mode);
     try {
@@ -162,13 +174,19 @@ for (const mode of ["health-success", "health-missing-report"]) {
       const passed = mode === "health-success";
       assert.equal(outcome.gradeResult.passed, passed);
       assert.deepEqual(outcome.gradeResult.details.map(detail => [detail.name, detail.passed]),
-        [["endpoint-contract", true], ["services-health", true], ["database-health", true],
-          ["redis-health", passed], ["objective-success", true]]);
+        [["startup-endpoint-output", true], ["endpoint-contract", true],
+          ["services-health-output", mode !== "health-late-report"], ["preserve-startup-output", true],
+          ["services-health", true], ["database-health-output", true],
+          ["preserve-startup-and-services", mode !== "health-late-report"], ["database-health", true],
+          ["redis-health-output", mode !== "health-missing-report"],
+          ["preserve-prior-outputs", mode !== "health-late-repair"],
+          ["redis-health", mode !== "health-missing-report"], ["objective-success", true]]);
+      assert.deepEqual(outcome.trajectory.turnDiffs.map(record => record.turn), [0, 1, 2, 3]);
       assert.equal(JSON.parse(await readFile(path.join(f.output, "proof.json"))).passed, true);
       assert.match(await compare(f.directory), new RegExp("raw: " + (passed ? "1" : "0") + "/1"));
       const artifacts = (await readdir(f.output, { recursive: true }))
         .filter(file => file.includes("artifacts/") && file.endsWith("-health.json"));
-      assert.equal(artifacts.length, passed ? 3 : 2);
+      assert.equal(artifacts.length, mode === "health-missing-report" ? 2 : 3);
       for (const file of artifacts) {
         assert.equal(JSON.parse(await readFile(path.join(f.output, file), "utf8")).healthy, true);
       }

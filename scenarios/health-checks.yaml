@@ -19,16 +19,19 @@ stimuli:
         Save your assessment in benchmark-services-health.json in the workspace root:
         {"running":true,"healthy":true,"evidence":"observed check and result"}.
         Use booleans reflecting the actual state and describe the checks you performed.
+        Do not change benchmark-endpoints.json.
       - |
         Is the database ready and healthy?
         Save your assessment in benchmark-database-health.json in the workspace root:
         {"ready":true,"healthy":true,"evidence":"observed check and result"}.
         Use booleans reflecting the actual state and describe the checks you performed.
+        Do not change previously saved benchmark JSON files.
       - |
         Is redis ready and healthy?
         Save your assessment in benchmark-redis-health.json in the workspace root:
         {"ready":true,"healthy":true,"evidence":"observed check and result"}.
         Use booleans reflecting the actual state and describe the checks you performed.
+        Do not change previously saved benchmark JSON files.
     artifacts:
       include:
         - benchmark-endpoints.json
@@ -36,6 +39,12 @@ stimuli:
         - benchmark-database-health.json
         - benchmark-redis-health.json
     graders:
+      - type: diff-contains
+        name: startup-endpoint-output
+        turn: 0
+        required: true
+        config:
+          pattern: '(?m)^\+\+\+ b/benchmark-endpoints\.json$'
       - type: program
         name: endpoint-contract
         required: true
@@ -43,6 +52,18 @@ stimuli:
           program: bash
           args: [-c, 'exec bash "$ASPIRE_BENCH_ROOT/scripts/verify.sh" endpoint-contract']
           timeout: 30s
+      - type: diff-contains
+        name: services-health-output
+        turn: 1
+        required: true
+        config:
+          pattern: '(?m)^\+\+\+ b/benchmark-services-health\.json$'
+      - type: diff-not-contains
+        name: preserve-startup-output
+        turn: 1
+        required: true
+        config:
+          pattern: '(?m)^diff --git a/benchmark-endpoints\.json b/'
       - type: custom-metrics
         name: services-health
         required: true
@@ -52,6 +73,18 @@ stimuli:
             - {metric: running, equals: true}
             - {metric: healthy, equals: true}
             - {metric: evidence, matches: '\S'}
+      - type: diff-contains
+        name: database-health-output
+        turn: 2
+        required: true
+        config:
+          pattern: '(?m)^\+\+\+ b/benchmark-database-health\.json$'
+      - type: diff-not-contains
+        name: preserve-startup-and-services
+        turn: 2
+        required: true
+        config:
+          pattern: '(?m)^diff --git a/benchmark-(endpoints|services-health)\.json b/'
       - type: custom-metrics
         name: database-health
         required: true
@@ -61,6 +94,18 @@ stimuli:
             - {metric: ready, equals: true}
             - {metric: healthy, equals: true}
             - {metric: evidence, matches: '\S'}
+      - type: diff-contains
+        name: redis-health-output
+        turn: 3
+        required: true
+        config:
+          pattern: '(?m)^\+\+\+ b/benchmark-redis-health\.json$'
+      - type: diff-not-contains
+        name: preserve-prior-outputs
+        turn: 3
+        required: true
+        config:
+          pattern: '(?m)^diff --git a/benchmark-(endpoints|services-health|database-health)\.json b/'
       - type: custom-metrics
         name: redis-health
         required: true

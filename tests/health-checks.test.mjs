@@ -32,6 +32,15 @@ test("native Vally resolves two evals × fourteen variants; health config is sep
     .map(grader => [grader.name, grader.type, grader.turn, grader.required]),
     [["services-health", "custom-metrics", undefined, true],
       ["database-health", "custom-metrics", undefined, true], ["redis-health", "custom-metrics", undefined, true]]);
+  assert.deepEqual(health.stimuli[0].graders.filter(grader => grader.turn !== undefined)
+    .map(grader => [grader.name, grader.type, grader.turn, grader.required]),
+    [["startup-endpoint-output", "diff-contains", 0, true],
+      ["services-health-output", "diff-contains", 1, true],
+      ["preserve-startup-output", "diff-not-contains", 1, true],
+      ["database-health-output", "diff-contains", 2, true],
+      ["preserve-startup-and-services", "diff-not-contains", 2, true],
+      ["redis-health-output", "diff-contains", 3, true],
+      ["preserve-prior-outputs", "diff-not-contains", 3, true]]);
   assert.equal(validateEvalSpec(health, { registry: createDefaultGraderRegistry() }).valid, true);
   const launchPlans = await experiment("bingo", "launch-and-verify");
   const healthPlans = await experiment("bingo", "health-checks");
@@ -128,6 +137,16 @@ test(`native health conversation: ${variant}, startup ${failStartup ? "failure" 
     assert.deepEqual(result.trajectory.events.filter(event => event.type === "assistant_message")
       .map(event => event.turn), [0, 1, 2, 3]);
     assert.equal(result.trajectory.endReason, "completed");
+    assert.deepEqual(result.trajectory.turnDiffs.map(record => record.turn), [0, 1, 2, 3]);
+    const turnGraders = stimulus.graders.filter(grader => grader.turn !== undefined);
+    const scoped = await gradeTrajectory(result.trajectory, turnGraders,
+      { registry: createDefaultGraderRegistry(), stimulus });
+    assert.equal(scoped.passed, true, JSON.stringify(scoped));
+    assert(scoped.details.every(detail => detail.passed));
+    const missing = await gradeTrajectory({ ...result.trajectory, turnDiffs: [] }, turnGraders,
+      { registry: createDefaultGraderRegistry(), stimulus });
+    assert.equal(missing.passed, false, "Missing turn snapshots must never fall back to the full-run diff");
+    assert(missing.details.every(detail => !detail.passed));
     const reports = await gradeTrajectory(result.trajectory, stimulus.graders.filter(grader => grader.name.endsWith("-health")),
       { registry: createDefaultGraderRegistry(), stimulus });
     assert.equal(reports.passed, true, JSON.stringify(reports));
