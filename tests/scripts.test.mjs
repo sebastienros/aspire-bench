@@ -293,3 +293,72 @@ test("paid scripts fail before setup without explicit consent, model and support
   await assert.rejects(command("bash", ["scripts/run.sh", "--allow-paid", "--model", "offline"],
     { env: { PATH: process.env.PATH } }), /Export COPILOT_GITHUB_TOKEN/);
 });
+
+test("runner reports finished variants live and persists progress without inference", async () => {
+  for (const mode of ["success", "failure", "cleanup-failure", "setup-failure"]) {
+    const directory = await mkdtemp(path.join(tmpdir(), "aspirebench-progress-test-"));
+    const scripts = path.join(directory, "scripts");
+    const bin = path.join(directory, "bin");
+    const output = path.join(directory, "results");
+    try {
+      await Promise.all([mkdir(scripts), mkdir(bin), mkdir(output)]);
+      await writeFile(path.join(scripts, "run.sh"),
+        await readFile(path.join(repoRoot, "scripts/run.sh")));
+      await writeFile(path.join(bin, "npm"), "#!/usr/bin/env bash\nexit 0\n", { mode: 0o700 });
+      await writeFile(path.join(bin, "node"), `#!/usr/bin/env bash
+case "$2" in
+  selection) printf 'raw\\naspire\\n' ;;
+  initialize) printf '%s\\n' "$TEST_OUTPUT" ;;
+  validate) exit 0 ;;
+  *) exit 2 ;;
+esac
+`, { mode: 0o700 });
+      await writeFile(path.join(scripts, "setup.sh"), `#!/usr/bin/env bash
+if [[ "$TEST_MODE" == setup-failure ]]; then exit 3; fi
+while [[ $# -gt 0 ]]; do
+  if [[ "$1" == --output ]]; then mkdir -p "$2"; printf '%s\\n' "$2"; exit; fi
+  shift
+done
+exit 2
+`);
+      await writeFile(path.join(scripts, "trial.sh"), `#!/usr/bin/env bash
+printf 'private native log\\n' >"$2/vally.log"
+printf '0\\n' >"$2/cleanup-exit-code"
+if [[ "$2" == *-raw && "$TEST_MODE" != success ]]; then
+  if [[ "$TEST_MODE" == cleanup-failure ]]; then printf '1\\n' >"$2/cleanup-exit-code"; fi
+  exit 1
+fi
+`);
+      await writeFile(path.join(scripts, "report.sh"), "#!/usr/bin/env bash\nexit 0\n");
+      const execute = () => command("bash", [path.join(scripts, "run.sh"),
+        "--model", "offline", "--pairs", "2", "--allow-paid"], { env: {
+        ...process.env, PATH: `${bin}:${process.env.PATH}`, COPILOT_GITHUB_TOKEN: "offline",
+        TEST_MODE: mode, TEST_OUTPUT: output,
+      } });
+      if (mode === "success") {
+        const result = await execute();
+        assert.match(result.stdout, /Finished 1\/2 raw: passed \(1\/4 finished\)/);
+        assert(!result.stdout.includes("private native log"));
+      } else {
+        await assert.rejects(execute(), /exited/);
+      }
+      const progress = await readFile(path.join(output, "progress.log"), "utf8");
+      assert.match(progress, /^\d{4}-.*Z Evaluation started: 4 trials/m);
+      if (mode === "setup-failure") {
+        assert.match(progress, /0\/4 finished; 0 failed; 4 unfinished/);
+        assert(!progress.includes("Finished "));
+      } else if (mode === "cleanup-failure") {
+        assert.match(progress, /Finished 1\/2 raw: failed \(exit=1; 1\/4 finished\)/);
+        assert.match(progress, /1\/4 finished; 1 failed; 3 unfinished/);
+        assert(!progress.includes("Starting 1/2 aspire"));
+      } else {
+        assert.match(progress, /Finished 2\/2 raw: (passed|failed).*4\/4 finished/);
+        assert.match(progress, new RegExp(`4/4 finished; ${mode === "success" ? 0 : 2} failed; 0 unfinished`));
+        assert(progress.indexOf("Starting 2/2 aspire") < progress.indexOf("Starting 2/2 raw"));
+      }
+      assert(!progress.includes("private native log"));
+    } finally {
+      await rm(directory, { recursive: true });
+    }
+  }
+});

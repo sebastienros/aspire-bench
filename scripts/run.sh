@@ -56,6 +56,13 @@ OUTPUT="$(node "$ROOT/dist/cli.js" initialize "${INIT[@]}")"
 echo "Results: $OUTPUT"
 status=0
 trial=""
+total=$((PAIRS * ${#names[@]}))
+completed=0
+failed=0
+progress() {
+    printf '%s %s\n' "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" "$*" | tee -a "$OUTPUT/progress.log"
+}
+progress "Evaluation started: $total trials; scenario=$SCENARIO; model=$MODEL"
 finish() {
     local interrupted=$?
     trap - EXIT INT TERM
@@ -63,6 +70,7 @@ finish() {
         kill -TERM "$trial" 2>/dev/null || true
         wait "$trial" 2>/dev/null || true
     fi
+    progress "Evaluation ended: $completed/$total finished; $failed failed; $(($total - completed)) unfinished"
     if ! bash "$ROOT/scripts/report.sh" "$OUTPUT"; then status=1; fi
     if [[ "$interrupted" -ne 0 ]]; then exit "$interrupted"; fi
     exit "$status"
@@ -76,11 +84,21 @@ for ((pair=1; pair<=PAIRS; pair++)); do
         if ((pair % 2 == 0)); then offset=$((${#names[@]} - 1 - index)); fi
         variant="${names[$offset]}"
         directory="$OUTPUT/$pair-$variant"
+        progress "Starting $pair/$PAIRS $variant ($completed/$total finished)"
         runtime="$(bash "$ROOT/scripts/setup.sh" "${COMMON[@]}" --variants "$variant" \
             --repetition "$pair" --output "$directory")"
+        progress "Running $pair/$PAIRS $variant; log=$directory/vally.log"
         bash "$ROOT/scripts/trial.sh" "$runtime" "$directory" "$SECONDS_LIMIT" &
         trial=$!
-        if ! wait "$trial"; then
+        trial_status=0
+        if wait "$trial"; then
+            completed=$((completed + 1))
+            progress "Finished $pair/$PAIRS $variant: passed ($completed/$total finished)"
+        else
+            trial_status=$?
+            completed=$((completed + 1))
+            failed=$((failed + 1))
+            progress "Finished $pair/$PAIRS $variant: failed (exit=$trial_status; $completed/$total finished)"
             status=1
             cat "$directory/vally.log" >&2
         fi

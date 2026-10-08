@@ -283,6 +283,15 @@ bash scripts/run.sh --model gpt-5.5 --pairs 3 --timeout 15m --allow-paid
 unset COPILOT_GITHUB_TOKEN
 ```
 
+The runner prints timestamped variant start/completion messages, repetition
+numbers and a finished/total counter, also saved in `<run>/progress.log`.
+Completion includes grading and cleanup; `failed` means the trial's lifecycle
+exited unsuccessfully, not necessarily an agent execution error. Trials not
+completed before interruption remain unfinished. Native Vally progress and
+details remain in `<run>/<repetition>-<variant>/vally.log`; use `tail -f` on
+that file for live detail (logs may contain sensitive content). Dashboard
+exports are still created during final reporting, not continuously refreshed.
+
 Alternatively export `GH_TOKEN` or `GITHUB_TOKEN`. The SDK does not inherit
 your logged-in Copilot user, personal settings, or OAuth files. Token/account
 policy must permit the selected model. Enterprise managed restrictions may
