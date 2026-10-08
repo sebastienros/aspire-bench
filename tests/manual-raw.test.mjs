@@ -80,14 +80,50 @@ test("three raw cells compose the same source snapshot with only their declared 
     assert.deepEqual(core[0], core[1]);
     assert.deepEqual(core[0], core[2]);
     assert.equal(new Set(readmes).size, 3);
-    assert(!readmes[0].includes("```"), "Unguided raw README contains no setup commands");
-    assert(!/dotnet|compose|npm|nohup|benchmark-endpoints|migration|start|stop/i.test(readmes[0]));
+    assert(!readmes[0].includes("```"), "Lifecycle-only raw README contains no setup commands");
+    assert(!/dotnet|compose|npm|nohup|benchmark-endpoints|migration|postgres|redis|aspire/i.test(readmes[0]));
+    assert.match(readmes[0], /detached processes, not attached asynchronous tool jobs/);
     assert.match(readmes[1], /nohup bash/);
     assert.match(readmes[2], /scripts\/start.sh/);
     await assert.rejects(access(path.join(repoRoot, "apps/bingo/raw/README.md")));
     await assert.rejects(access(path.join(repoRoot, "apps/bingo/raw-scripted")));
   } finally {
     for (const run of runs) await rm(run.root, { recursive: true });
+  }
+});
+
+test("raw and raw-bugs share only lifecycle guidance, preserving the bug patch and other overlays", async () => {
+  const raw = await prepare("bingo", "raw");
+  const bugs = await prepare("bingo", "raw-bugs");
+  try {
+    const overlay = { src: path.join(repoRoot, "apps/bingo/readmes/raw.md"), dest: "README.md" };
+    const readme = await readFile(overlay.src, "utf8");
+    for (const run of [raw, bugs]) {
+      assert.deepEqual(run.environment.files, [
+        { src: path.join(repoRoot, "apps/bingo/raw"), dest: "." }, overlay,
+      ]);
+      assert.equal(await readFile(path.join(run.workDir, "README.md"), "utf8"), readme);
+      assert.match(readme, /Leave application services running after completing the task/);
+      assert.match(readme, /Retain logs and process identifiers for targeted shutdown/);
+      assert(!/```|dotnet|compose|npm|nohup|postgres|redis|aspire|migration/i.test(readme));
+      const files = Object.keys(await hashes(run.workDir));
+      assert(files.every(name => !/\.(sh|ps1|bat|cmd|patch)$/.test(name)));
+      await assert.rejects(access(path.join(run.workDir, "scripts")));
+      await assert.rejects(access(path.join(run.workDir, "apphost.cs")));
+      const config = sessionConfig(run, {});
+      assert.equal(config.enableSkills, false);
+      assert.deepEqual(config.mcpServers, {});
+      assert.deepEqual(config.skillDirectories, []);
+    }
+    assert.deepEqual(raw.patches, []);
+    assert.equal(bugs.patches.length, 1);
+    assert.equal(bugs.patches[0].path, path.join(repoRoot, "apps/bingo/patches/raw-redis-startup.patch"));
+    const healthy = await hashes(raw.workDir);
+    const faulty = await hashes(bugs.workDir);
+    assert.deepEqual(Object.keys(healthy).filter(file => healthy[file] !== faulty[file]), ["compose.yaml"]);
+  } finally {
+    await rm(raw.root, { recursive: true });
+    await rm(bugs.root, { recursive: true });
   }
 });
 

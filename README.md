@@ -72,7 +72,7 @@ drift before any agent starts.
 
 | Variant | Application snapshot | Aspire skills | Aspire MCP |
 |---|---|---|---|
-| `raw` | Raw, README without setup guidance | No | No |
+| `raw` | Raw, lifecycle-only README; no app setup instructions | No | No |
 | `raw-documented` | Same raw app, manual configure/run/stop README | No | No |
 | `raw-scripted` | Same raw app, lifecycle management scripts | No | No |
 | `aspire-none` | Aspire | No | No |
@@ -94,7 +94,7 @@ identical files, guidance, skills and MCP, plus its app's Redis startup patch.
 There are fourteen named variants, not a cross-product with invalid cells.
 
 **Default selection remains the healthy `raw,aspire`: two trials per pair, not fourteen.**
-`raw` now has no setup guidance; the former manual README is `raw-documented`,
+`raw` has lifecycle-only guidance, not application setup instructions; the manual README is `raw-documented`,
 and the preserved management scripts and their README are `raw-scripted`.
 `--variants` selects explicit names or `all`; `--pairs` repeats that selected
 set. Each repetition reverses variant order to reduce order bias.
@@ -139,8 +139,10 @@ files:
 ```
 
 Only the selected README is visible, always as `README.md`, and only
-`raw-scripted` receives `scripts/`. The unguided `raw` README describes the
-application but provides no setup/run/stop instructions. The documented README
+`raw-scripted` receives `scripts/`. Both `raw` and `raw-bugs` use the same
+`apps/bingo/readmes/raw.md` overlay. It describes the application and instructs
+detached long-lived services with retained logs/process identifiers, but provides
+no application-specific setup commands or dependency instructions. The documented README
 explains configuration, build/install, dependency readiness, migrations/seeding,
 independent backend/frontend launches, endpoint submission and targeted stopping.
 No raw variant receives an AppHost, skills, MCP, other READMEs, sibling fixtures
@@ -160,14 +162,14 @@ admin/frontend URL JSON needed by the independent verifier. Healthy cells receiv
 so existing names/default selection remain intact. Compare healthy and fault
 runs separately and use recorded commits and patch hashes for historical results.
 All variants share the same task and endpoint/verifier contract. The shared
-prompt does not require a documented entrypoint, so it also applies to unguided
+prompt does not require a documented entrypoint, so it also applies to lifecycle-only
 `raw`. Setup and smoke infer manual versus scripted lifecycle from the selected
 file overlays rather than maintaining a separate per-variant copy recipe.
 
 `npm run bench -- smoke --variants raw,raw-documented,raw-scripted` verifies
 all three owned real stacks without inference. Smoke uses host-only manual
 reference commands for the two non-scripted variants, including documented stop;
-it does not inject those commands or documentation into unguided `raw`.
+it does not inject those commands or setup documentation into `raw`.
 Evaluation setup never starts the app.
 
 **No paid agent evaluation occurs during setup, validation, dry-run or smoke.**
@@ -271,7 +273,9 @@ Aspire verdict despite passing application checks. Those private local
 artifacts are retained unchanged, not published as a benchmark claim.
 **Historical runs named `raw` used scripted guidance before `319104f`**,
 including the original Luna runs. At `319104f`, `raw` used the manual README;
-the current `raw` is unguided. Do not relabel or reinterpret older runs as today's raw.
+From `caac578` through `35dbfde`, `raw` had no lifecycle guidance. The current
+`raw` and `raw-bugs` have lifecycle-only detached-process guidance. Do not relabel
+or reinterpret older runs as today's raw.
 Reports use recorded metadata/provenance, never the current registry to infer
 past variant meanings. New runs record lifecycle and effective file definitions explicitly; reports
 of older runs flag the naming boundary rather than silently resolving old `raw`
