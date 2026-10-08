@@ -11,6 +11,8 @@ export interface Visibility {
   mcpServers: string[];
   checkedAt: string;
   setupMs: number;
+  requestedModel?: string;
+  selectedModel?: string;
 }
 
 export async function skillNames(run: Run) {
@@ -19,8 +21,18 @@ export async function skillNames(run: Run) {
 
 export function sessionConfig(run: Run, base: SessionConfig): SessionConfig {
   const skillsEnabled = (run.skillNames?.length ?? 0) > 0;
+  const context = [
+    `The application workspace root is ${run.workDir}.`,
+    "Run application commands and save requested benchmark JSON files in that directory.",
+    "Other temporary directories, HOME and the source staging directory are not the application workspace.",
+    `Preserve the supplied runtime environment and resource identity BENCH_RUN_ID=${run.id}.`,
+    `If using Compose, keep COMPOSE_PROJECT_NAME=${run.id}; do not override it with a different project name.`,
+    "Use the supplied *_PORT values when allocating service listeners. Do not use or stop unrelated services.",
+  ].join("\n");
   return {
     ...base,
+    systemMessage: { ...base.systemMessage,
+      content: [base.systemMessage?.content, context].filter(Boolean).join("\n\n") },
     configDirectory: run.env.COPILOT_HOME,
     workingDirectory: run.workDir,
     enableConfigDiscovery: false,
@@ -44,6 +56,15 @@ export function sessionConfig(run: Run, base: SessionConfig): SessionConfig {
       },
     } : {},
   };
+}
+
+export async function checkSessionModel(session: Pick<CopilotSession, "rpc">, requested?: string) {
+  const current = await session.rpc.model.getCurrent();
+  if (requested && requested !== "auto") {
+    assert.equal(current.modelId, requested,
+      `Requested model ${requested} was not selected; runtime selected ${current.modelId ?? "unknown"}`);
+  }
+  return current.modelId;
 }
 
 export async function visibility(session: CopilotSession, run: Run): Promise<Visibility> {
@@ -100,7 +121,10 @@ export class IsolatedClient extends CopilotClient {
   override async createSession(config: SessionConfig) {
     const session = await super.createSession(sessionConfig(this.run, config));
     try {
+      const selectedModel = await checkSessionModel(session, config.model);
       this.visibility = await visibility(session, this.run);
+      this.visibility.requestedModel = config.model;
+      this.visibility.selectedModel = selectedModel;
       this.visibility.runtime = await this.getStatus();
       await writeFile(path.join(this.run.root, "visibility.json"),
         JSON.stringify(this.visibility, null, 2), { mode: 0o600 });

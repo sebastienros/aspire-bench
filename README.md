@@ -69,6 +69,15 @@ the host's existing .NET 10 SDK and Aspire CLI 13.6.x:
 Fixture preparation and executable/config copying are setup, outside reported
 agent time. Agent dependency restore/build/startup remain inside it.
 
+The SDK session receives explicit application-workspace and runtime-ownership
+context, identical in purpose across variants. Requested JSON files must be
+written in that workspace, not HOME or the source staging copy; overriding
+the supplied Compose project identity creates unrelated resources and fails
+objective verification. These instructions reduce mistakes but do not enforce
+an OS boundary. The runtime's selected model is checked before inference:
+substitution of a named model fails explicitly instead of producing a
+mislabeled benchmark. `auto` intentionally permits runtime model selection.
+
 ## Local setup
 
 Use macOS or Linux with Bash, curl, `lsof`, Git, Node **24+**, a stable **.NET 10

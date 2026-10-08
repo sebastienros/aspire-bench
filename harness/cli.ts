@@ -166,6 +166,8 @@ async function setup() {
     await writeFile(path.join(directory, "plan.json"), JSON.stringify(plan, null, 2));
     await writeFile(path.join(directory, "eval.yaml"), stringify({
       ...plan.effectiveSpec,
+      environment: undefined,
+      agent_environment: planEnvironment(plan),
       stimuli: plan.effectiveSpec.stimuli.map(stimulus => {
         if (!stimulus.turns) return stimulus;
         const { prompt, ...configured } = stimulus;

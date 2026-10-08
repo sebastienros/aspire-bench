@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { access, readFile, rm } from "node:fs/promises";
 import path from "node:path";
 import { prepare, isolatedEnv, inside, hashes, unchanged } from "../dist/workspace.js";
-import { sessionConfig, clientConfig } from "../dist/agent.js";
+import { sessionConfig, clientConfig, checkSessionModel } from "../dist/agent.js";
 import { ownsContainer } from "../dist/ownership.js";
 
 test("raw and treatment are distinct copies with isolated configuration", async () => {
@@ -30,11 +30,22 @@ test("raw and treatment are distinct copies with isolated configuration", async 
     assert.deepEqual(rawConfig.availableTools, treatmentConfig.availableTools);
     assert.equal(treatmentConfig.requestExtensions, false);
     assert.equal(treatmentConfig.enableSessionStore, false);
+    assert(rawConfig.systemMessage.content.includes(raw.workDir));
+    assert(rawConfig.systemMessage.content.includes(`COMPOSE_PROJECT_NAME=${raw.id}`));
+    assert(!rawConfig.systemMessage.content.includes(raw.home));
+    assert(!rawConfig.systemMessage.content.includes(treatment.workDir));
+    for (const mode of ["append", "replace", "customize"]) {
+      const config = sessionConfig(raw, { systemMessage: { mode, content: "Existing runtime policy" } });
+      assert.equal(config.systemMessage.mode, mode);
+      assert.match(config.systemMessage.content, /^Existing runtime policy\n\n/);
+      assert(config.systemMessage.content.includes(raw.workDir));
+    }
     const env = isolatedEnv(raw, {
       PATH: "/usr/bin", HOME: "/private/user", GH_TOKEN: "test-only",
       COPILOT_HOME: "/private/config", COPILOT_HOME_SETTINGS_JSON: '{"bad":true}',
       COPILOT_PROVIDER_BASE_URL: "http://uncontrolled", EVALUATE_USE_HOST_COPILOT_HOME: "1",
     });
+
     assert.equal(env.HOME, raw.home);
     assert.equal(env.GH_TOKEN, "test-only");
     assert.equal(env.EVALUATE_USE_HOST_COPILOT_HOME, "0");
@@ -54,6 +65,15 @@ test("raw and treatment are distinct copies with isolated configuration", async 
     await rm(raw.root, { recursive: true });
     await rm(treatment.root, { recursive: true });
   }
+});
+
+test("requested model substitutions fail before inference rather than becoming mislabeled trials", async () => {
+  const session = modelId => ({ rpc: { model: { async getCurrent() { return { modelId }; } } } });
+  assert.equal(await checkSessionModel(session("gpt-6-luna"), "gpt-6-luna"), "gpt-6-luna");
+  await assert.rejects(checkSessionModel(session("claude-sonnet-5"), "claude-haiku-5-5"),
+    /Requested model claude-haiku-5-5.*runtime selected claude-sonnet-5/);
+  await assert.rejects(checkSessionModel(session(undefined), "gpt-6-luna"), /runtime selected unknown/);
+  assert.equal(await checkSessionModel(session("gpt-6-luna"), "auto"), "gpt-6-luna");
 });
 
 test("path and container ownership reject neighboring and unrelated resources", () => {

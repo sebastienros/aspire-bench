@@ -286,6 +286,8 @@ test("setup script resolves native spec and writes no authentication or ambient 
     assert.equal(staged.stimuli[0].prompt, undefined,
       "Do not serialize Vally's synthesized prompt alongside explicit turns");
     assert.equal(staged.stimuli[0].turns.length, 4);
+    assert.equal(staged.environment, undefined);
+    assert(staged.agent_environment.files.length > 0);
     await command("bash", ["scripts/cleanup.sh", root], { env: f.env });
   } finally {
     if (root) await rm(root, { recursive: true });
