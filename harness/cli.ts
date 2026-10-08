@@ -166,6 +166,11 @@ async function setup() {
     await writeFile(path.join(directory, "plan.json"), JSON.stringify(plan, null, 2));
     await writeFile(path.join(directory, "eval.yaml"), stringify({
       ...plan.effectiveSpec,
+      stimuli: plan.effectiveSpec.stimuli.map(stimulus => {
+        if (!stimulus.turns) return stimulus;
+        const { prompt, ...configured } = stimulus;
+        return configured;
+      }),
       defaults: { ...plan.effectiveSpec.defaults, model: models[0], timeout: values.timeout },
     }));
     const env = isolatedEnv(run);

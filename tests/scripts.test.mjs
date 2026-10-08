@@ -4,7 +4,7 @@ import { mkdir, mkdtemp, readFile, readdir, rm, symlink, writeFile } from "node:
 import path from "node:path";
 import { tmpdir } from "node:os";
 import { spawn } from "node:child_process";
-import { stringify } from "yaml";
+import { parse, stringify } from "yaml";
 import { command } from "../dist/process.js";
 import { prepare, repoRoot } from "../dist/workspace.js";
 import { experiment } from "../dist/experiment.js";
@@ -282,6 +282,10 @@ test("setup script resolves native spec and writes no authentication or ambient 
     assert.match(shell, /ASPIRE_BENCH_ROOT/);
     assert.match(spec, /type: program/);
     assert.match(spec, /executor: isolated-benchmark/);
+    const staged = parse(spec);
+    assert.equal(staged.stimuli[0].prompt, undefined,
+      "Do not serialize Vally's synthesized prompt alongside explicit turns");
+    assert.equal(staged.stimuli[0].turns.length, 4);
     await command("bash", ["scripts/cleanup.sh", root], { env: f.env });
   } finally {
     if (root) await rm(root, { recursive: true });
