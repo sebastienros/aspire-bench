@@ -15,6 +15,13 @@ stimuli:
       {"admin":"http://localhost:PORT","frontend":"http://localhost:PORT"}.
     graders:
       - type: program
+        name: endpoint-contract
+        required: true
+        config:
+          program: bash
+          args: [-c, 'exec bash "$ASPIRE_BENCH_ROOT/scripts/verify.sh" endpoint-contract']
+          timeout: 30s
+      - type: program
         name: objective-success
         required: true
         config:

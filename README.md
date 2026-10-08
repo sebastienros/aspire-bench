@@ -337,9 +337,20 @@ runner parses `grader_plugins`, `executor_plugins` and `eval_plugin` but does
 isolation hooks. Small lifecycle scripts therefore use the native
 `resolveExperiment` API (including merge/drift/hash validation), then invoke
 **`vally eval` directly**, with `--executor-plugin`, one worker and no retries.
-The shared spec uses Vally's **built-in `program` grader** to run
-`scripts/verify.sh`; there is no custom grader plugin or in-memory proof map.
+Both scenarios use Vally's **built-in `program` grader** for two required checks:
+`endpoint-contract` runs `scripts/verify.sh endpoint-contract` to validate the
+generated JSON, and `objective-success` runs `scripts/verify.sh` to verify the
+live application and clean up. There is no custom grader plugin or in-memory
+proof map.
 Plugin fields are deliberately not placed in the manifest.
+
+`endpoint-contract` reports separately in native results. It requires
+`benchmark-endpoints.json` to exist, parse as JSON, and contain exactly `admin`
+and `frontend`: distinct loopback HTTP origins with explicit ports, no
+credentials, paths, query strings or fragments. It reuses the objective
+verifier's endpoint validator; it neither starts/stops services nor checks
+their health. Valid JSON alone cannot pass an evaluation: both graders remain
+required, and `objective-success` still validates the endpoint contract itself.
 
 `scripts/run.sh` selects/repeats named variants, alternates order and calls
 `scripts/setup.sh` followed by `scripts/trial.sh`. Setup copies/configures but

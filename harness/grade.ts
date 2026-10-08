@@ -8,6 +8,23 @@ import { submittedEndpoints, type Endpoints, type Proof } from "./verify.js";
 import { cleanup } from "./ownership.js";
 import type { Run } from "./workspace.js";
 
+export async function gradeEndpointContract(run: Run, trajectory: Trajectory) {
+  const result = {
+    name: "endpoint-contract", kind: "code" as const,
+    passed: false, score: 0, evidence: "",
+  };
+  try {
+    assert.equal(trajectory.workDir, run.workDir, "Grader workspace must match host ownership");
+    await submittedEndpoints(run);
+    result.passed = true;
+    result.score = 1;
+    result.evidence = "benchmark-endpoints.json contains exactly admin and frontend with distinct loopback HTTP origins";
+  } catch (error) {
+    result.evidence = error instanceof Error ? error.message : String(error);
+  }
+  return result;
+}
+
 export async function gradeApplication(run: Run, trajectory: Trajectory, dependencies: {
   verify?(run: Run, urls: Endpoints): Promise<Proof>;
   cleanup?(run: Run): Promise<void>;
@@ -50,7 +67,11 @@ async function main() {
   const input = JSON.parse(await readFile(inputFile, "utf8"));
   assert.equal(path.resolve(ownership), path.join(run.root, "ownership.json"));
   assert.equal(process.env.EVALUATE_WORKSPACE, run.workDir, "Native grader workspace must match ownership");
-  const result = await gradeApplication(run, input.trajectory);
+  const mode = process.argv[2];
+  assert(mode === undefined || mode === "endpoint-contract", `Unknown grader mode: ${mode}`);
+  const result = mode === "endpoint-contract"
+    ? await gradeEndpointContract(run, input.trajectory)
+    : await gradeApplication(run, input.trajectory);
   console.log(JSON.stringify(result));
 }
 

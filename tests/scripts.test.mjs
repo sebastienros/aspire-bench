@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { mkdir, mkdtemp, readFile, rm, symlink, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, readdir, rm, symlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { tmpdir } from "node:os";
 import { spawn } from "node:child_process";
@@ -50,7 +50,9 @@ fi
             await new Promise(() => { setInterval(() => {}, 1000); });
           }
           await writeFile(path.join(options.workDir,"benchmark-endpoints.json"),
-            JSON.stringify({admin:"http://localhost:1234",frontend:"http://localhost:5678"}));
+            JSON.stringify(${JSON.stringify(mode)} === "invalid-endpoints"
+              ? {admin:"http://localhost:1234"}
+              : {admin:"http://localhost:1234",frontend:"http://localhost:5678"}));
           return {id:"offline-trajectory",stimulus,workDir:options.workDir,output:"offline",
             events:[],endReason:"completed",metadata:{model:"offline",skillsLoaded:[]},
             metrics:{wallTimeMs:123,tokenUsage:{inputTokens:10,outputTokens:5,totalTokens:15,
@@ -63,14 +65,16 @@ fi
   `);
   await writeFile(path.join(mock, "scripts/verify.sh"),
     `#!/usr/bin/env bash\nexec node ${JSON.stringify(mode === "real-grader"
-      ? path.join(repoRoot, "dist/grade.js") : path.join(mock, "dist/grade.js"))}\n`);
+      ? path.join(repoRoot, "dist/grade.js") : path.join(mock, "dist/grade.js"))} "$@"\n`);
   await writeFile(path.join(mock, "dist/grade.js"), `
     import {readFile} from "node:fs/promises";
-    import {gradeApplication} from ${JSON.stringify(new URL("../dist/grade.js", import.meta.url).href)};
+    import {gradeApplication,gradeEndpointContract} from ${JSON.stringify(new URL("../dist/grade.js", import.meta.url).href)};
     const run = JSON.parse(await readFile(process.env.ASPIRE_BENCH_OWNERSHIP));
     const input = JSON.parse(await readFile(process.env.EVALUATE_GRADER_INPUT));
     if(process.env.EVALUATE_WORKSPACE !== input.trajectory.workDir) throw new Error("Native workspace missing");
-    const result = await gradeApplication(run, input.trajectory, {
+    const result = process.argv[2] === "endpoint-contract"
+      ? await gradeEndpointContract(run, input.trajectory)
+      : await gradeApplication(run, input.trajectory, {
       async verify(){return {passed:true,checks:["injected offline objective"],verificationMs:2}},
       async cleanup(){},
     });
@@ -92,6 +96,15 @@ fi
   } };
 }
 
+async function nativeTrial(f) {
+  const files = (await readdir(f.output, { recursive: true })).filter(file => file.endsWith("results.jsonl"));
+  assert.equal(files.length, 1);
+  const trials = (await readFile(path.join(f.output, files[0]), "utf8")).trim().split("\n")
+    .map(line => JSON.parse(line)).filter(record => record.type === "trial-result");
+  assert.equal(trials.length, 1);
+  return trials[0];
+}
+
 test("shell lifecycle calls actual Vally CLI and built-in program grader without custom grader/inference", async () => {
   const f = await fixture();
   try {
@@ -99,6 +112,8 @@ test("shell lifecycle calls actual Vally CLI and built-in program grader without
     assert.equal((await readFile(path.join(f.output, "exit-code"), "utf8")).trim(), "0");
     const proof = JSON.parse(await readFile(path.join(f.output, "proof.json")));
     assert.equal(proof.passed, true);
+    assert.deepEqual((await nativeTrial(f)).gradeResult.details.map(detail => [detail.name, detail.passed]),
+      [["endpoint-contract", true], ["objective-success", true]]);
     assert.equal(proof.metrics.tokenUsage.totalTokens, 15);
     const report = await compare(f.directory);
     assert.match(report, /raw: 1\/1/);
@@ -107,6 +122,21 @@ test("shell lifecycle calls actual Vally CLI and built-in program grader without
     assert.match(await compare(f.directory), /raw: 0\/1/);
     await writeFile(path.join(f.output, "exit-code"), "1");
     assert.match(await compare(f.directory), /raw: 0\/1/);
+  } finally { await f.dispose(); }
+});
+
+test("native Vally records an endpoint-contract failure and rejects the trial despite completed execution", async () => {
+  const f = await fixture("invalid-endpoints");
+  try {
+    await assert.rejects(command("bash", ["scripts/trial.sh", f.run.root, f.output, "30"], { env: f.env }), /exited 1/);
+    const outcome = await nativeTrial(f);
+    assert.equal(outcome.status, "success", "Agent execution completed, but grading must fail");
+    assert.equal(outcome.gradeResult.passed, false);
+    const contract = outcome.gradeResult.details.find(detail => detail.name === "endpoint-contract");
+    assert.equal(contract.passed, false);
+    assert.equal(contract.score, 0);
+    assert(contract.evidence);
+    assert.equal((await readFile(path.join(f.output, "cleanup-exit-code"), "utf8")).trim(), "0");
   } finally { await f.dispose(); }
 });
 
@@ -127,6 +157,8 @@ test("actual host program grader rejects absent application dependencies through
     const proof = JSON.parse(await readFile(path.join(f.output, "proof.json")));
     assert.equal(proof.passed, false);
     assert.match(proof.error, /Exactly one owned postgres/);
+    assert.deepEqual((await nativeTrial(f)).gradeResult.details.map(detail => [detail.name, detail.passed]),
+      [["endpoint-contract", true], ["objective-success", false]]);
     assert.equal((await readFile(path.join(f.output, "cleanup-exit-code"), "utf8")).trim(), "0");
     assert.match(await compare(f.directory), /raw: 0\/1/);
   } finally { await f.dispose(); }
