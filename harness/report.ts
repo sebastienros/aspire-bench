@@ -7,12 +7,12 @@ export interface Trial {
   setupMs?: number; verificationMs?: number; metrics?: TrajectoryMetrics; error?: string;
 }
 
-export function pairedReport(trials: Trial[], baseline = "raw"): string {
+export function pairedReport(trials: Trial[], baseline = "raw", scenario = "launch-and-verify"): string {
   const bugTrials = trials.filter(trial => trial.variant.endsWith("-bugs"));
   if (bugTrials.length && !baseline.endsWith("-bugs")) {
     const healthy = trials.filter(trial => !trial.variant.endsWith("-bugs"));
-    return (healthy.length ? pairedReport(healthy, baseline) + "\n\n---\n\n" : "")
-      + pairedReport(bugTrials, `${baseline}-bugs`)
+    return (healthy.length ? pairedReport(healthy, baseline, scenario) + "\n\n---\n\n" : "")
+      + pairedReport(bugTrials, `${baseline}-bugs`, scenario)
       + "\nHealthy and injected-failure trials are reported separately; no cross-task deltas are computed.\n";
   }
   const rows = trials.map(trial => `| ${trial.trial} | ${trial.variant} | ${trial.success ? "pass" : "fail"} | ${
@@ -43,7 +43,7 @@ export function pairedReport(trials: Trial[], baseline = "raw"): string {
       "| Variant | Matched successes | Seconds delta | Tokens delta | Tool calls delta | Turns delta |\n" +
       "|---|---:|---:|---:|---:|---:|\n" + deltas.join("\n")
     : `\n\nBaseline **${baseline}** was not selected; no baseline deltas are reported.`;
-  return `# Local launch-and-verify comparison\n\n${summary.join(" ")}\n\n` +
+  return `# Local ${scenario} comparison\n\n${summary.join(" ")}\n\n` +
     "| Repetition | Variant | Success | Agent seconds | Tokens | Tool calls | Turns |\n" +
     "|---|---|---|---:|---:|---:|---:|\n" + rows.join("\n") + deltaReport +
     "\n\nTiming excludes fixture preparation, visibility checks, objective grading and cleanup. " +
@@ -129,7 +129,8 @@ export async function compare(directory: string) {
       "from caac578 through 35dbfde raw had no lifecycle guidance; current raw and raw-bugs " +
       "have lifecycle-only detached-process guidance, not app setup instructions. " +
       "No lifecycle definitions were recorded for this run.\n";
-  const report = pairedReport(trials, baseline) + meanings;
+  const report = pairedReport(trials, baseline, typeof metadata?.scenario === "string"
+    ? metadata.scenario : "launch-and-verify") + meanings;
   await writeFile(path.join(directory, "comparison.md"), report);
   return report;
 }

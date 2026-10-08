@@ -232,7 +232,7 @@ async function main() {
   console.log("Commands: validate | plan | preflight | dry-run [--model MODEL] | smoke | " +
     "compare OUTPUT | export-vally OUTPUT | cleanup RUNTIME_ROOT | setup --model MODEL --variants ONE --output DIR\n" +
     "Evaluations: bash scripts/run.sh --model MODEL --pairs 1 --allow-paid\n" +
-    "Options: --app bingo --scenario launch-and-verify --variants raw,aspire|all --timeout 15m --output DIR");
+    "Options: --app bingo --scenario launch-and-verify|health-checks --variants raw,aspire|all --timeout 15m --output DIR");
 }
 
 try { await main(); }

@@ -1,0 +1,29 @@
+name: health-checks
+version: "1"
+type: capability
+description: Start the application, then investigate service, database and Redis health in the same session.
+defaults:
+  executor: isolated-benchmark
+  runs: 1
+  timeout: 15m
+stimuli:
+  - name: startup-and-health-checks
+    turns:
+      - |
+        Start the application and verify that all its services are up and working.
+        Investigate and fix any startup problems. Leave the application running.
+        Save its admin and frontend URLs in benchmark-endpoints.json in the workspace root:
+        {"admin":"http://localhost:PORT","frontend":"http://localhost:PORT"}.
+      - "Are all services running and healthy?"
+      - "Is the database ready and healthy?"
+      - "Is redis ready and healthy?"
+    graders:
+      - type: program
+        name: objective-success
+        required: true
+        config:
+          program: bash
+          args: [-c, 'exec bash "$ASPIRE_BENCH_ROOT/scripts/verify.sh"']
+          timeout: 5m
+scoring:
+  threshold: 1

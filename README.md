@@ -60,7 +60,7 @@ infrastructure readiness, not agent quality.
 ### Native local-snapshot experiment
 
 [`experiments/bingo.experiment.yaml`](experiments/bingo.experiment.yaml) is the
-comparison source of truth: native Vally `repo-comparison`, a shared eval,
+comparison source of truth: native Vally `repo-comparison`, shared evals,
 baseline `raw`, serial `execution.workers: 1`, and four varying axes:
 `/environment/files`, `/environment/skills`, `/environment/mcpServers`,
 `/environment/commands`.
@@ -122,6 +122,51 @@ Every selection uses the same shared prompt, model, limits and objective grader.
 Native arrays replace inherited arrays, maps deep-merge, and `null` clears
 inherited MCP maps; offline tests verify these contracts and all seven native
 healthy and bug staging/execution cells without inference.
+
+### Post-start health questions
+
+[`scenarios/launch-and-verify.yaml`](scenarios/launch-and-verify.yaml) remains
+the default, single-prompt evaluation. The separate
+[`scenarios/health-checks.yaml`](scenarios/health-checks.yaml) uses Vally's native
+[`turns`](https://microsoft.github.io/vally/reference/eval-spec/) configuration:
+the same startup/repair prompt, followed sequentially by:
+
+- "Are all services running and healthy?"
+- "Is the database ready and healthy?"
+- "Is redis ready and healthy?"
+
+All four prompts use **one session and one running application per trial**.
+Vally waits for each response before sending the next question; grading and
+application cleanup occur after the conversation. If startup execution fails
+or times out, later questions are not sent. Bug variants initially receive the
+same Redis fault as before; health questions follow the agent's startup/repair
+attempt, not a separately injected post-start fault.
+
+The native experiment resolves **two evals × fourteen variants**. The existing
+scripts select one eval with `--scenario`; no additional matrix runner or
+duplicated variant manifest is needed. Their default remains launch-only.
+
+```bash
+# No inference: inspect all fourteen health-check configurations.
+npm run bench -- plan --scenario health-checks --variants all
+
+# Paid: raw vs Aspire, with and without the startup bug.
+bash scripts/run.sh --scenario health-checks --model gpt-6-luna \
+  --variants raw,aspire,raw-bugs,aspire-bugs --pairs 1 --allow-paid
+
+# Paid: include every README/skills/MCP ablation and bug counterpart.
+bash scripts/run.sh --scenario health-checks --model gpt-6-luna \
+  --variants all --pairs 1 --allow-paid
+```
+
+This is **one four-turn trial**, not three independently scored trials.
+Recorded trajectory events retain their conversation-turn indexes; reported
+time, tokens and tool calls cover startup plus all health questions, within
+the shared fifteen-minute budget. The host grader still checks the real
+application workflow and cleanup, not the semantic correctness of each
+natural-language answer. Answers remain inspectable in Vally's trajectory.
+Vally also supports separate stimuli and turn-scoped graders, but separate
+stimuli are separate trials, not continuations of an already-started session.
 
 `apps/bingo/raw/` is the **one shared raw application snapshot**, with
 build/dependency configuration, Compose for PostgreSQL/Redis only and a license.

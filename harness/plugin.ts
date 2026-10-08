@@ -12,6 +12,8 @@ type Delegate = Executor & { configureTracing?(config: TracingConfig): void };
 export class BenchmarkExecutor implements Executor {
   name = "isolated-benchmark";
   supportsEnvVars = true;
+  supportsMultiTurn = true;
+  supportsTurnCompletion = true;
   private delegate?: Delegate;
   private stopped = false;
   private tracing?: TracingConfig;
