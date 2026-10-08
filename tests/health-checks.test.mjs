@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { loadEvalSpec, resolveExperiment, runEval, validateEvalSpec, createDefaultGraderRegistry } from "@microsoft/vally";
+import { gradeTrajectory, loadEvalSpec, resolveExperiment, runEval, validateEvalSpec, createDefaultGraderRegistry } from "@microsoft/vally";
 import { CopilotSdkExecutor } from "@microsoft/vally/executor";
 import { experiment, planEnvironment } from "../dist/experiment.js";
 import { prepare, repoRoot } from "../dist/workspace.js";
@@ -25,7 +25,12 @@ test("native Vally resolves two evals × fourteen variants; health config is sep
   assert.equal(startup.stimuli[0].turns, undefined, "Existing launch scenario is unchanged");
   assert.equal(health.stimuli.length, 1);
   assert.equal(health.stimuli[0].turns[0], startup.stimuli[0].prompt);
-  assert.deepEqual(health.stimuli[0].turns.slice(1), questions);
+  for (const [index, question] of questions.entries()) {
+    assert(health.stimuli[0].turns[index + 1].startsWith(question + "\n"));
+  }
+  assert.deepEqual(health.stimuli[0].graders.filter(grader => grader.name.endsWith("-health"))
+    .map(grader => [grader.name, grader.turn, grader.required]),
+    [["services-health", undefined, true], ["database-health", undefined, true], ["redis-health", undefined, true]]);
   assert.equal(validateEvalSpec(health, { registry: createDefaultGraderRegistry() }).valid, true);
   const launchPlans = await experiment("bingo", "launch-and-verify");
   const healthPlans = await experiment("bingo", "health-checks");
@@ -81,6 +86,10 @@ test(`native health conversation: ${variant}, startup ${failStartup ? "failure" 
                 assert(!cleaned, "Cleanup must not run between health questions");
                 assert.equal(sessions, 1);
                 assert.equal(completions.length, sent.length - 1, "Each previous turn completes before the next prompt");
+                const subject = ["services", "database", "redis"][sent.length - 2];
+                await writeFile(path.join(options.workingDirectory, `benchmark-${subject}-health.json`),
+                  JSON.stringify({ [subject === "services" ? "running" : "ready"]: true,
+                    healthy: true, evidence: ["Offline observed check and result"] }));
               }
               return { data: { content: `Offline response ${sent.length}` } };
             },
@@ -118,6 +127,11 @@ test(`native health conversation: ${variant}, startup ${failStartup ? "failure" 
     assert.deepEqual(result.trajectory.events.filter(event => event.type === "assistant_message")
       .map(event => event.turn), [0, 1, 2, 3]);
     assert.equal(result.trajectory.endReason, "completed");
+    const reports = await gradeTrajectory(result.trajectory, stimulus.graders.filter(grader => grader.name.endsWith("-health")),
+      { registry: createDefaultGraderRegistry(), stimulus });
+    assert.equal(reports.passed, true, JSON.stringify(reports));
+    assert.deepEqual(reports.details.map(detail => [detail.name, detail.passed]),
+      [["services-health", true], ["database-health", true], ["redis-health", true]]);
     const owned = JSON.parse(await readFile(path.join(run.root, "ownership.json")));
     const grade = await gradeApplication(owned, result.trajectory, {
       async verify() { assert.equal(sent.length, 4); return { passed: true, checks: ["offline"], verificationMs: 0 }; },

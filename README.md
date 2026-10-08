@@ -135,6 +135,25 @@ the same startup/repair prompt, followed sequentially by:
 - "Is the database ready and healthy?"
 - "Is redis ready and healthy?"
 
+Each question also asks the agent to save its assessment in a separate file:
+
+| Question | Result file | Required JSON |
+|---|---|---|
+| All services | `benchmark-services-health.json` | `{"running":true,"healthy":true,"evidence":["observed check and result"]}` |
+| Database | `benchmark-database-health.json` | `{"ready":true,"healthy":true,"evidence":["observed check and result"]}` |
+| Redis | `benchmark-redis-health.json` | `{"ready":true,"healthy":true,"evidence":["observed check and result"]}` |
+
+The booleans must reflect the observed state, and evidence must describe the
+checks actually performed. The separate required native program graders
+`services-health`, `database-health` and `redis-health` evaluate the files
+produced by conversation turns 1, 2 and 3. Each validates its own file, exact
+fields, positive status booleans, and nonempty evidence strings. A successful startup/repair is expected
+to leave each target healthy; a negative assessment is retained but fails that
+target's check. Missing, malformed, oversized or symlinked reports fail explicitly.
+Reports and the endpoint JSON are retained via Vally's native `artifacts` capture.
+Vally's workspace-reading program graders evaluate the final workspace, not
+turn-scoped snapshots, so these graders read distinct files after the conversation.
+
 All four prompts use **one session and one running application per trial**.
 Vally waits for each response before sending the next question; grading and
 application cleanup occur after the conversation. If startup execution fails
@@ -159,12 +178,16 @@ bash scripts/run.sh --scenario health-checks --model gpt-6-luna \
   --variants all --pairs 1 --allow-paid
 ```
 
-This is **one four-turn trial**, not three independently scored trials.
+This is **one four-turn trial with three separately reported answer grades**,
+not three independent application launches.
 Recorded trajectory events retain their conversation-turn indexes; reported
 time, tokens and tool calls cover startup plus all health questions, within
-the shared fifteen-minute budget. The host grader still checks the real
-application workflow and cleanup, not the semantic correctness of each
-natural-language answer. Answers remain inspectable in Vally's trajectory.
+the shared fifteen-minute budget. Each file grader checks the structured
+assessment, not the semantic correctness of its evidence prose. The required
+`objective-success` grader independently checks the live application workflow
+and cleanup; affirmative JSON cannot make an unhealthy application pass.
+No LLM judge is added. Answers remain inspectable in Vally's trajectory and
+captured JSON artifacts.
 Vally also supports separate stimuli and turn-scoped graders, but separate
 stimuli are separate trials, not continuations of an already-started session.
 
@@ -337,11 +360,12 @@ runner parses `grader_plugins`, `executor_plugins` and `eval_plugin` but does
 isolation hooks. Small lifecycle scripts therefore use the native
 `resolveExperiment` API (including merge/drift/hash validation), then invoke
 **`vally eval` directly**, with `--executor-plugin`, one worker and no retries.
-Both scenarios use Vally's **built-in `program` grader** for two required checks:
+Both scenarios share two required checks using Vally's **built-in `program` grader**:
 `endpoint-contract` runs `scripts/verify.sh endpoint-contract` to validate the
 generated JSON, and `objective-success` runs `scripts/verify.sh` to verify the
 live application and clean up. There is no custom grader plugin or in-memory
-proof map.
+proof map. The health scenario additionally declares the three report graders
+described above.
 Plugin fields are deliberately not placed in the manifest.
 
 `endpoint-contract` reports separately in native results. It requires

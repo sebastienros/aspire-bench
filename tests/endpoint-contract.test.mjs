@@ -13,7 +13,9 @@ const valid = { admin: "http://localhost:1234", frontend: "http://localhost:5678
 test("endpoint contract is a separate required native program grader in both scenarios", async () => {
   for (const name of ["launch-and-verify", "health-checks"]) {
     const spec = await loadEvalSpec(`scenarios/${name}.yaml`);
-    assert.deepEqual(spec.stimuli[0].graders.map(grader => [grader.name, grader.type, grader.required]),
+    assert.deepEqual(spec.stimuli[0].graders.filter(grader =>
+      ["endpoint-contract", "objective-success"].includes(grader.name))
+      .map(grader => [grader.name, grader.type, grader.required]),
       [["endpoint-contract", "program", true], ["objective-success", "program", true]]);
     assert.match(spec.stimuli[0].graders[0].config.args[1], /verify\.sh" endpoint-contract$/);
     assert.equal(spec.scoring.threshold, 1);

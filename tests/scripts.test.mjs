@@ -53,12 +53,22 @@ fi
             JSON.stringify(${JSON.stringify(mode)} === "invalid-endpoints"
               ? {admin:"http://localhost:1234"}
               : {admin:"http://localhost:1234",frontend:"http://localhost:5678"}));
+          if (stimulus.turns) {
+            for (const subject of ["services", "database", "redis"]) {
+              if (${JSON.stringify(mode)} === "health-missing-report" && subject === "redis") continue;
+              await writeFile(path.join(options.workDir, "benchmark-" + subject + "-health.json"),
+                JSON.stringify({[subject === "services" ? "running" : "ready"]:true,
+                  healthy:true,evidence:["Offline observed health check succeeded"]}));
+            }
+          }
           return {id:"offline-trajectory",stimulus,workDir:options.workDir,output:"offline",
-            events:[],endReason:"completed",metadata:{model:"offline",skillsLoaded:[]},
+            events:stimulus.turns?.map((prompt,turn)=>({type:"assistant_message",turn,timestamp:new Date(),
+              data:{content:"Offline assessment "+turn}}))??[],
+            endReason:"completed",metadata:{model:"offline",skillsLoaded:[]},
             metrics:{wallTimeMs:123,tokenUsage:{inputTokens:10,outputTokens:5,totalTokens:15,
               cacheReadTokens:0,cacheWriteTokens:0,callCount:1,byModel:{}},
               toolCallCount:2,toolCallBreakdown:{},simulatedToolCallCount:0,
-              skillActivationCount:0,skillActivationBreakdown:{},turnCount:1,errorCount:0}};
+              skillActivationCount:0,skillActivationBreakdown:{},turnCount:stimulus.turns?.length??1,errorCount:0}};
         }, async shutdown() {}
       })));
     }
@@ -68,12 +78,14 @@ fi
       ? path.join(repoRoot, "dist/grade.js") : path.join(mock, "dist/grade.js"))} "$@"\n`);
   await writeFile(path.join(mock, "dist/grade.js"), `
     import {readFile} from "node:fs/promises";
-    import {gradeApplication,gradeEndpointContract} from ${JSON.stringify(new URL("../dist/grade.js", import.meta.url).href)};
+    import {gradeApplication,gradeEndpointContract,gradeHealthReport} from ${JSON.stringify(new URL("../dist/grade.js", import.meta.url).href)};
     const run = JSON.parse(await readFile(process.env.ASPIRE_BENCH_OWNERSHIP));
     const input = JSON.parse(await readFile(process.env.EVALUATE_GRADER_INPUT));
     if(process.env.EVALUATE_WORKSPACE !== input.trajectory.workDir) throw new Error("Native workspace missing");
     const result = process.argv[2] === "endpoint-contract"
       ? await gradeEndpointContract(run, input.trajectory)
+      : process.argv[2] === "health-report"
+      ? await gradeHealthReport(run, input.trajectory, process.argv[3])
       : await gradeApplication(run, input.trajectory, {
       async verify(){return {passed:true,checks:["injected offline objective"],verificationMs:2}},
       async cleanup(){},
@@ -87,7 +99,8 @@ fi
   }).map(([key, value]) => `export ${key}='${value.replaceAll("'", "'\\''")}'`).join("\n"));
   await writeFile(path.join(output, "workspace.json"),
     JSON.stringify({ root: run.root, variant: "raw", repetition: 1 }));
-  const plan = (await experiment("bingo", "launch-and-verify")).plans.find(plan => plan.variant === "raw");
+  const plan = (await experiment("bingo", mode.startsWith("health-") ? "health-checks" : "launch-and-verify"))
+    .plans.find(plan => plan.variant === "raw");
   await writeFile(path.join(output, "eval.yaml"), stringify(plan.effectiveSpec));
   await writeFile(path.join(directory, "metadata.json"), '{"lifecycle":"scripts","baseline":"raw"}');
   return { directory, run, output, env, async dispose() {
@@ -139,6 +152,32 @@ test("native Vally records an endpoint-contract failure and rejects the trial de
     assert.equal((await readFile(path.join(f.output, "cleanup-exit-code"), "utf8")).trim(), "0");
   } finally { await f.dispose(); }
 });
+
+for (const mode of ["health-success", "health-missing-report"]) {
+  test(`native health grading and artifact capture: ${mode}`, async () => {
+    const f = await fixture(mode);
+    try {
+      const execute = () => command("bash", ["scripts/trial.sh", f.run.root, f.output, "30"], { env: f.env });
+      if (mode === "health-success") await execute();
+      else await assert.rejects(execute(), /exited 1/);
+      const outcome = await nativeTrial(f);
+      const passed = mode === "health-success";
+      assert.equal(outcome.gradeResult.passed, passed);
+      assert.deepEqual(outcome.gradeResult.details.map(detail => [detail.name, detail.passed]),
+        [["endpoint-contract", true], ["services-health", true], ["database-health", true],
+          ["redis-health", passed], ["objective-success", true]]);
+      assert.equal(JSON.parse(await readFile(path.join(f.output, "proof.json"))).passed, true);
+      assert.match(await compare(f.directory), new RegExp("raw: " + (passed ? "1" : "0") + "/1"));
+      const artifacts = (await readdir(f.output, { recursive: true }))
+        .filter(file => file.includes("artifacts/") && file.endsWith("-health.json"));
+      assert.equal(artifacts.length, passed ? 3 : 2);
+      for (const file of artifacts) {
+        assert.equal(JSON.parse(await readFile(path.join(f.output, file), "utf8")).healthy, true);
+      }
+      assert.equal((await readFile(path.join(f.output, "cleanup-exit-code"), "utf8")).trim(), "0");
+    } finally { await f.dispose(); }
+  });
+}
 
 test("shell finalizer cleans and retains failure outcomes even when grading never runs", async () => {
   const f = await fixture("failure");
