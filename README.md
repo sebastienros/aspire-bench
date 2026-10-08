@@ -15,6 +15,60 @@ Exact commits, licenses, and adaptations are recorded in
 [`apps/bingo/provenance.json`](apps/bingo/provenance.json) and
 [`treatment/provenance.json`](treatment/provenance.json).
 
+## Why this harness exists
+
+The benchmark measures how effectively an agent starts and repairs a real
+application, then assesses its services, database and Redis health. Raw and
+Aspire variants share the task, model, limits and live objective checks.
+README guidance, Aspire skills/MCP and injected startup faults are explicit
+experimental factors. We compare success first, then elapsed agent time,
+tokens, tool calls and turns; this is not a load test or a sandbox benchmark.
+
+Vally supplies the evaluation engine. This repository adds the application
+fixtures, controlled treatments and application-specific lifecycle/proof:
+
+| Responsibility | Vally | This harness on the local backend |
+|---|---|---|
+| Experiment and execution | Native variant resolution, file/skill staging, comma-separated model matrix, sequential conversation turns and inference through the SDK executor | Selects/repeats variant batches, supplies owned runtime context and delegates execution to the native executor |
+| Grading and results | Per-turn diff graders, JSON `custom-metrics`, program-grader execution, metrics, trajectories, reports and `serve` dashboard | Validates endpoints and independently exercises the live application; records cleanup-aware verdicts and exports named variants/models for the dashboard |
+| Agent configuration | Built-in local execution does not enforce this benchmark's exact configuration-discovery/catalog policy | Fresh HOME/Copilot/XDG/.NET/Aspire configuration per model trial; disables inherited personal/built-in skills, plugins, extensions, history and hosted GitHub MCP; checks actual skills/tool visibility against the variant |
+| Application resources | The local backend stages workspaces, but does not define this application's service ownership or teardown | Fresh application state, unique Compose/container/volume identities, allocated ports, serial trials and targeted owned-resource cleanup, including failure/interruption |
+| Security boundary | Vally also offers a separate native Docker backend | This benchmark currently uses the **local backend**, not Docker isolation; its controls are cooperative configuration/resource isolation, not an OS sandbox |
+
+The executor checks the staged workspace location and hashes before inference.
+Harness implementation and sibling variants are not staged into the agent's
+application tree. Copilot authentication tokens are forwarded only through explicit in-memory
+environment handling, not persisted in generated specs or environment files;
+ambient harness context and TLS-bypass settings are excluded from the agent
+environment.
+
+**Host access remains possible.** The agent runs as your host user and can
+access files outside its workspace, host tools, Docker and the network.
+Processes that escape the owned working-directory tree may evade cleanup.
+Ports are allocated but not reserved until services bind. The host Docker
+daemon and its image cache are shared. These controls reduce accidental
+cross-trial contamination; they do not contain malicious agents or fixtures.
+Use a dedicated disposable machine for untrusted work, and treat logs and
+trajectories as potentially sensitive.
+
+### Tool installation versus per-trial state
+
+The harness does **not** install .NET or Aspire between trials. It requires
+the host's existing .NET 10 SDK and Aspire CLI 13.6.x:
+
+- .NET uses the installed SDK with a fresh `DOTNET_CLI_HOME`.
+- Each Aspire trial copies the existing CLI executable into its private
+  `home/bin`, without the installation sidecar, settings or credentials, and
+  uses a fresh `ASPIRE_HOME`. Raw retains host tools on PATH; Aspire is not
+  deliberately hidden from it.
+- Application NuGet/npm restore, build and launch are the agent's task.
+  Fresh HOME/workspaces can trigger repeated dependency downloads; Docker
+  images remain cached in the shared daemon. This is not a guaranteed
+  cold-cache or warm-cache benchmark.
+
+Fixture preparation and executable/config copying are setup, outside reported
+agent time. Agent dependency restore/build/startup remain inside it.
+
 ## Local setup
 
 Use macOS or Linux with Bash, curl, `lsof`, Git, Node **24+**, a stable **.NET 10
