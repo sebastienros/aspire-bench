@@ -215,6 +215,76 @@ bash scripts/report.sh .runs/<timestamp>
 | `<pair>-<variant>/session-logs/` | Exported SDK session history, including interrupted runs when available |
 | Vally timestamped subdirectories | Native JSONL outcomes, Markdown report, SDK session logs and OTel trajectories |
 | `<pair>-<variant>/workspace.json` | Retained disposable runtime identity, staged baseline hashes and optional patch paths/SHA-256 fingerprints |
+| `vally-export/<snapshot>/` | Derived native experiment-format JSONL, real variant names, matched repetition indexes and lifecycle-aware verdicts for Vally's dashboard |
+
+### Native Vally results dashboard
+
+Use Vally's existing local dashboard, rather than a separate web app.
+New `scripts/run.sh` runs automatically create a compatible export during final
+reporting. Export an existing **single harness run folder** without changing its
+original results or regenerating reports:
+
+```bash
+npm run bench -- export-vally .runs/<run>
+# Prints .runs/<run>/vally-export/<snapshot>.
+npx --no-install vally serve .runs/<run>/vally-export/<snapshot>
+# Open http://127.0.0.1:3200.
+```
+
+The export has one native `results.jsonl` per named variant, so Vally's one-level
+directory ingestion loads the **whole run**. The dashboard provides run/outcome
+filters, metric matrices, grader/tool statistics and trajectory drilldowns.
+It binds to `127.0.0.1` with CORS disabled by default. Keep those defaults.
+There is no browser disk upload or cloud service.
+
+To load multiple runs into the same dashboard, ingest each exported snapshot
+into a local SQLite database, then serve the database:
+
+```bash
+npx --no-install vally ingest .runs/<run-a>/vally-export/<snapshot-a> --store .runs/history.db
+npx --no-install vally ingest .runs/<run-b>/vally-export/<snapshot-b> --store .runs/history.db
+npx --no-install vally serve --store .runs/history.db
+```
+
+No model credits are used by export, ingestion or serving (do not add
+`--compare` to an evaluation: Vally's comparison judge is a different, paid
+operation). Source files remain untouched. Exports are immutable content-based
+snapshots; exporting unchanged inputs again returns the same directory. If an
+interrupted/in-progress run later acquires more artifacts, exporting again
+creates a **new snapshot**. Ingest only the desired snapshot per source run,
+not every revision, or the history will contain multiple views of the same trials.
+Vally does not live-refresh or re-ingest an existing database run identity.
+
+The adapter preserves native trajectories/usage and replaces the per-invocation
+`main` label with the recorded harness variant. `trialIndex` is zero-based from
+the recorded repetition. Healthy and `-bugs` cohorts have separate experiment
+identities and the corresponding `raw` / `raw-bugs` baseline. Identities and
+visible eval/experiment labels include cohort/model/harness commit; no histories,
+models or task versions are silently pooled or relabeled. Vally's comparison UI
+still allows you to manually select unrelated runs: check provenance before
+drawing conclusions. It does not implement the harness's matched-success-only
+delta policy; use `comparison.md` for those deltas.
+
+For current scripted runs the exported verdict requires the native grade,
+objective proof, and successful trial **and cleanup** exit markers. The additional
+`harness-lifecycle` grader shows execution errors, objective failures, cleanup
+failures or incomplete evidence. Legacy exports preserve the original
+`paired.json` verdict, including known historical harness defects, rather than
+retroactively declaring success. `export.json` and the JSONL's `harness` field
+retain definitions, provenance, missing-metric flags and setup/grading timing.
+Malformed or conflicting artifacts fail export explicitly.
+
+**Native UI limitation:** Vally 0.18 normalizes missing trajectory usage to zero
+in some charts. The exporter does not invent metrics; its lifecycle grader
+evidence flags unavailable metrics explicitly. An execution-error duration may
+be invocation time, not measured agent time. Do not interpret those zero bars as
+zero-cost failures; use the harness's N/A-aware report for cost comparisons.
+Relative native diff sidecars are not copied; original trial folders remain the
+source for auxiliary artifacts.
+
+**Privacy:** exports retain original local trajectory content and can contain
+credentials or private output. They are not redacted. Keep the dashboard local,
+do not commit exports/databases, and review/redact artifacts before sharing.
 
 Vally 0.18's native `vally compare` invokes a paid prompt judge; its experiment
 runner parses `grader_plugins`, `executor_plugins` and `eval_plugin` but does

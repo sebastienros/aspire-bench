@@ -13,6 +13,7 @@ import { configureRuntime, configureAspire } from "./runtime.js";
 import { applicationAdapter, manualBingoCommands } from "./adapters.js";
 import { withFinalizer } from "./lifecycle.js";
 import { experiment, planEnvironment, selectVariants } from "./experiment.js";
+import { exportVally } from "./export.js";
 
 process.once("SIGINT", interrupt);
 process.once("SIGTERM", interrupt);
@@ -180,6 +181,10 @@ async function main() {
     if (!positionals[1]) throw new Error("compare requires an evaluation output directory");
     console.log(await compare(path.resolve(positionals[1]))); return;
   }
+  if (action === "export-vally") {
+    if (!positionals[1]) throw new Error("export-vally requires one harness run folder");
+    console.log(await exportVally(path.resolve(positionals[1]))); return;
+  }
   if (action === "initialize") return initialize();
   if (action === "setup") return setup();
   if (action === "selection") {
@@ -225,7 +230,7 @@ async function main() {
   }
   if (action !== "help") throw new Error(`Unknown command: ${action}`);
   console.log("Commands: validate | plan | preflight | dry-run [--model MODEL] | smoke | " +
-    "compare OUTPUT | cleanup RUNTIME_ROOT | setup --model MODEL --variants ONE --output DIR\n" +
+    "compare OUTPUT | export-vally OUTPUT | cleanup RUNTIME_ROOT | setup --model MODEL --variants ONE --output DIR\n" +
     "Evaluations: bash scripts/run.sh --model MODEL --pairs 1 --allow-paid\n" +
     "Options: --app bingo --scenario launch-and-verify --variants raw,aspire|all --timeout 15m --output DIR");
 }
