@@ -60,3 +60,19 @@ test("bug variants compare to the corresponding bug control, never healthy raw",
     { trial: 1, variant: "aspire-bugs", success: true, metrics: metrics(3000) },
   ]), /Baseline \*\*raw-bugs\*\* was not selected/);
 });
+
+test("multi-model baseline deltas never pair successes from a different model", () => {
+  const metrics = wallTimeMs =>
+    ({ wallTimeMs, tokenUsage: { totalTokens: 10 }, toolCallCount: 1, turnCount: 4 });
+  const report = pairedReport([
+    { model: "one", trial: 1, variant: "raw", success: true, metrics: metrics(1000) },
+    { model: "one", trial: 1, variant: "aspire", success: true, metrics: metrics(2000) },
+    { model: "two", trial: 1, variant: "raw", success: false, metrics: metrics(500) },
+    { model: "two", trial: 1, variant: "aspire", success: true, metrics: metrics(3000) },
+  ]);
+  assert.match(report, /# Model: one/);
+  assert.match(report, /# Model: two/);
+  assert.match(report, /aspire \| 1 \| 1\.00/);
+  assert.match(report, /aspire \| 0 \| N\/A/);
+  assert(!report.includes("aspire | 1 | 2.00"));
+});

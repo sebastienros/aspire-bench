@@ -149,7 +149,7 @@ export function compatibleOutcome(input: ExportInput): Json {
   return {
     ...original,
     type: "trial-result",
-    itemId: `${variant}__trial-${index - 1}`,
+    itemId: `${variant}__model-${digest(model).slice(0, 12)}__trial-${index - 1}`,
     variant, trialIndex: index - 1, model,
     evalName: `${scenario} [${cohort}; ${model}; ${text(metadata.commit).slice(0, 12)}]`,
     evalFilePath: `scenarios/${scenario}.yaml`,
@@ -198,7 +198,12 @@ export async function exportVally(directory: string): Promise<string> {
   if (metadata.lifecycle !== "scripts") {
     assert(legacy.length, "Legacy export requires original paired.json verdicts; native grades alone are insufficient");
   }
-  const trials = new Map<string, { variant: string; repetition: number; directory?: string; legacy?: Json }>();
+  const trials = new Map<string, { variant: string; repetition: number; model?: string; directory?: string; legacy?: Json }>();
+  const models = Array.isArray(metadata.models) && metadata.models.length > 1
+    ? metadata.models.map(model => {
+      assert(typeof model === "string" && model.length, "Invalid recorded model");
+      return model;
+    }) : [];
   for (const entry of await readdir(root, { withFileTypes: true })) {
     const match = /^(\d+)-([a-z][a-z0-9-]*)$/.exec(entry.name);
     if (!match) continue;
@@ -207,7 +212,17 @@ export async function exportVally(directory: string): Promise<string> {
     const variant = variantName(workspace.variant ?? match[2]);
     const index = repetition(workspace.repetition ?? Number(match[1]));
     assert.equal(entry.name, `${index}-${variant}`, "Trial identity disagrees with workspace.json");
-    trials.set(entry.name, { variant, repetition: index, directory: entry.name });
+    if (models.length) {
+      for (const [modelIndex, model] of models.entries()) {
+        const child = `${entry.name}/model-${modelIndex + 1}`;
+        const childWorkspace = object(await json(root, `${child}/workspace.json`));
+        assert(!childWorkspace.model || childWorkspace.model === model, "Model trial identity mismatch");
+        trials.set(child, { variant, repetition: index, model,
+          directory: Object.keys(childWorkspace).length ? child : undefined });
+      }
+    } else {
+      trials.set(entry.name, { variant, repetition: index, directory: entry.name });
+    }
   }
   for (const trial of legacy) {
     const variant = variantName(trial.variant), index = repetition(trial.trial);
@@ -218,7 +233,12 @@ export async function exportVally(directory: string): Promise<string> {
     assert(Number(metadata.pairs) <= 10_000, "Too many recorded repetitions");
     for (const name of metadata.variants) for (let index = 1; index <= Number(metadata.pairs); index++) {
       const variant = variantName(name), key = `${index}-${variant}`;
-      if (!trials.has(key)) trials.set(key, { variant, repetition: index });
+      if (models.length) {
+        for (const [modelIndex, model] of models.entries()) {
+          const child = `${key}/model-${modelIndex + 1}`;
+          if (!trials.has(child)) trials.set(child, { variant, repetition: index, model });
+        }
+      } else if (!trials.has(key)) trials.set(key, { variant, repetition: index });
     }
   }
   assert(trials.size, "No harness trials found");
@@ -226,7 +246,8 @@ export async function exportVally(directory: string): Promise<string> {
   for (const trial of trials.values()) {
     const base = trial.directory;
     records.push(compatibleOutcome({
-      metadata, variant: trial.variant, repetition: trial.repetition, legacy: trial.legacy,
+      metadata: trial.model ? { ...metadata, model: trial.model } : metadata,
+      variant: trial.variant, repetition: trial.repetition, legacy: trial.legacy,
       ...(base ? {
         native: await nativeRecord(root, base),
         proof: object(await json(root, `${base}/proof.json`)),
@@ -243,7 +264,7 @@ export async function exportVally(directory: string): Promise<string> {
   const destination = path.join(root, "vally-export", revision.slice(0, 16));
   const manifest = {
     format: "aspire-bench-vally-export", version: 1, revision,
-    model: metadata.model, commit: metadata.commit, versions: metadata.versions,
+    model: metadata.model, models: metadata.models, commit: metadata.commit, versions: metadata.versions,
     startedAt: metadata.startedAt, scenario: metadata.scenario,
     variantDefinitions: metadata.variantDefinitions ?? null,
     warnings: [

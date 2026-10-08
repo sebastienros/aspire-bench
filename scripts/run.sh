@@ -44,6 +44,8 @@ case "${BASH_REMATCH[2]}" in
 esac
 # Reserve time for the five-minute program grader and SDK shutdown.
 SECONDS_LIMIT=$((SECONDS_LIMIT + 540))
+IFS=',' read -r -a models <<<"$MODEL"
+SECONDS_LIMIT=$((SECONDS_LIMIT * ${#models[@]}))
 npm run build --silent
 node "$ROOT/dist/cli.js" validate
 COMMON=(--app "$APP" --scenario "$SCENARIO" --model "$MODEL" --timeout "$TIMEOUT")
@@ -62,7 +64,9 @@ failed=0
 progress() {
     printf '%s %s\n' "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" "$*" | tee -a "$OUTPUT/progress.log"
 }
-progress "Evaluation started: $total trials; scenario=$SCENARIO; model=$MODEL"
+unit=trials
+if ((${#models[@]} > 1)); then unit="variant batches (${#models[@]} models each)"; fi
+progress "Evaluation started: $total $unit; scenario=$SCENARIO; model=$MODEL"
 finish() {
     local interrupted=$?
     trap - EXIT INT TERM

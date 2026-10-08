@@ -41,10 +41,17 @@ trap 'exit 143' TERM
 # to the agent. Credentials stay in memory, never in environment.sh or YAML.
 env -i PATH="$PATH" GH_TOKEN="${GH_TOKEN:-}" GITHUB_TOKEN="${GITHUB_TOKEN:-}" \
     COPILOT_GITHUB_TOKEN="${COPILOT_GITHUB_TOKEN:-}" \
-    bash -c 'source "$1/environment.sh"; exec node "$ASPIRE_BENCH_ROOT/node_modules/@microsoft/vally-cli/dist/index.js" eval \
-        -e "$2/eval.yaml" --work-dir "$1/app" --workspace "$1/workspaces" \
+    bash -c 'source "$1/environment.sh"; models=(); workspace=(--workspace "$1/workspaces")
+        if [[ -n "${ASPIRE_BENCH_MODELS:-}" ]]; then models=(--model "$ASPIRE_BENCH_MODELS"); fi
+        if [[ -n "${ASPIRE_BENCH_MODEL_CONTEXTS:-}" ]]; then
+            mkdir -p "$1/workspaces"
+            export TMPDIR="$1/workspaces"
+            workspace=()
+        fi
+        exec node "$ASPIRE_BENCH_ROOT/node_modules/@microsoft/vally-cli/dist/index.js" eval \
+        -e "$2/eval.yaml" --work-dir "$1/app" "${workspace[@]}" \
         --output-dir "$2" --workers 1 --max-retries 0 --require-pass \
-        --executor-plugin "$ASPIRE_BENCH_ROOT/dist/plugin.js" --shutdown-timeout 3m' \
+        --executor-plugin "$ASPIRE_BENCH_ROOT/dist/plugin.js" --shutdown-timeout 3m "${models[@]}"' \
     bash "$RUNTIME" "$OUTPUT" >"$OUTPUT/vally.log" 2>&1 &
 child=$!
 (

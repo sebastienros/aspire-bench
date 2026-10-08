@@ -170,6 +170,10 @@ test("finalization preserves primary errors and ownership excludes preexisting o
     "p102", "n/private/tmp/owned-neighbor", "p103", "n/private/tmp/owned/home",
     "p104", "n/private/tmp/owned", "p105", "n/private/tmp/owned/app",
   ].join("\n"), 103, 105), [101, 104]);
+  assert.deepEqual(ownedCwds("/private/tmp/owned", [], [
+    "p201", "n/private/tmp/owned (deleted)",
+    "p202", "n/private/tmp/owned-neighbor (deleted)",
+  ].join("\n"), 203), [201]);
   assert.throws(() => applicationAdapter("unknown"), /Unsupported/);
   assert.throws(() => applicationAdapter("toString"), /Unsupported/);
 });

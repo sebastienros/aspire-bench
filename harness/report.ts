@@ -4,10 +4,17 @@ import type { TrajectoryMetrics } from "@microsoft/vally";
 
 export interface Trial {
   variant: string; trial: number; status: string; success: boolean;
+  model?: string;
   setupMs?: number; verificationMs?: number; metrics?: TrajectoryMetrics; error?: string;
 }
 
 export function pairedReport(trials: Trial[], baseline = "raw", scenario = "health-checks"): string {
+  const models = [...new Set(trials.map(trial => trial.model))];
+  if (models.length > 1) {
+    return models.map(model => `# Model: ${model ?? "unrecorded"}\n\n` +
+      pairedReport(trials.filter(trial => trial.model === model), baseline, scenario)).join("\n\n---\n\n")
+      + "\nModels are reported separately; baseline deltas never match across models.\n";
+  }
   const bugTrials = trials.filter(trial => trial.variant.endsWith("-bugs"));
   if (bugTrials.length && !baseline.endsWith("-bugs")) {
     const healthy = trials.filter(trial => !trial.variant.endsWith("-bugs"));
@@ -28,7 +35,8 @@ export function pairedReport(trials: Trial[], baseline = "raw", scenario = "heal
   const deltas = variants.filter(variant => variant !== baseline).map(variant => {
     const matched = trials.filter(trial => trial.variant === variant && trial.success && trial.metrics)
       .flatMap(trial => {
-        const other = control.find(item => item.trial === trial.trial && item.success && item.metrics);
+        const other = control.find(item => item.trial === trial.trial && item.model === trial.model
+          && item.success && item.metrics);
         return other?.metrics && trial.metrics ? [{ trial: trial.metrics, control: other.metrics }] : [];
       });
     const average = (select: (metrics: TrajectoryMetrics) => number) => matched.length
@@ -63,11 +71,20 @@ async function optionalJson(file: string) {
 
 async function results(directory: string): Promise<Trial[]> {
   const trials: Trial[] = [];
+  const roots: string[] = [];
   for (const entry of await readdir(directory, { withFileTypes: true })) {
     if (!entry.isDirectory()) continue;
     const root = path.join(directory, entry.name);
     const workspace = await optionalJson(path.join(root, "workspace.json"));
     if (!workspace) continue;
+    const children = (await readdir(root, { withFileTypes: true }))
+      .filter(item => item.isDirectory() && /^model-\d+$/.test(item.name));
+    if (children.length) roots.push(...children.map(item => path.join(root, item.name)));
+    else roots.push(root);
+  }
+  for (const root of roots) {
+    const workspace = await optionalJson(path.join(root, "workspace.json"));
+    if (!workspace) throw new Error("Missing model trial workspace metadata");
     const files: string[] = [];
     async function walk(parent: string) {
       for (const item of await readdir(parent, { withFileTypes: true })) {
@@ -77,10 +94,10 @@ async function results(directory: string): Promise<Trial[]> {
       }
     }
     await walk(root);
-    if (files.length > 1) throw new Error(`Expected one native result file for ${entry.name}`);
+    if (files.length > 1) throw new Error(`Expected one native result file for ${path.basename(root)}`);
     const records = files.length ? (await readFile(files[0], "utf8")).trim().split("\n")
       .filter(Boolean).map(line => JSON.parse(line)).filter(record => record.type === "trial-result") : [];
-    if (records.length > 1) throw new Error(`Expected one native trial for ${entry.name}`);
+    if (records.length > 1) throw new Error(`Expected one native trial for ${path.basename(root)}`);
     const outcome = records[0];
     const agent = await optionalJson(path.join(root, "agent.json"));
     const proof = await optionalJson(path.join(root, "proof.json"));
@@ -93,6 +110,7 @@ async function results(directory: string): Promise<Trial[]> {
     }
     trials.push({
       variant: workspace.variant, trial: workspace.repetition,
+      model: workspace.model ?? outcome?.model ?? outcome?.trajectory?.metadata?.model,
       status: outcome?.status ?? "error",
       success: lifecyclePassed && outcome?.gradeResult?.passed === true && proof?.passed === true,
       metrics: outcome?.trajectory?.metrics ?? agent?.metrics,

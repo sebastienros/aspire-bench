@@ -205,10 +205,15 @@ bash scripts/run.sh --scenario health-checks --model gpt-6-luna \
   --variants all --pairs 1 --allow-paid
 
 # Paid: run the full scenario/variant set with two models (28 trials).
-for model in gpt-6-luna gpt-5.5; do
-  npm run bench -- eval --model "$model" --variants all --pairs 1 --allow-paid
-done
+npm run bench -- eval --model gpt-6-luna,gpt-5.5 \
+  --variants all --pairs 1 --allow-paid
 ```
+
+Comma-separated models are passed directly to Vally's native `--model` matrix,
+not expanded into separate harness runs. All models share one `.runs` folder
+and dashboard export; each variant invocation schedules the models serially.
+Every model receives its own HOME/config, ports, container/volume identity and
+fresh application workspace. Baseline deltas are computed within a model only.
 
 This is **one four-turn trial with three separately reported answer grades**,
 not three independent application launches.
@@ -294,6 +299,8 @@ completed before interruption remain unfinished. Native Vally progress and
 details remain in `<run>/<repetition>-<variant>/vally.log`; use `tail -f` on
 that file for live detail (logs may contain sensitive content). Dashboard
 exports are still created during final reporting, not continuously refreshed.
+For multiple models, the visible counter counts variant batches: a batch
+finishes after its Vally invocation and cleanup, and passes only if all model trials pass.
 
 Alternatively export `GH_TOKEN` or `GITHUB_TOKEN`. The SDK does not inherit
 your logged-in Copilot user, personal settings, or OAuth files. Token/account
@@ -301,7 +308,8 @@ policy must permit the selected model. Enterprise managed restrictions may
 still apply; visibility validation rejects changes to the declared treatment.
 
 Both variants receive the **same prompt, model, timeout, objective grader and
-threshold**. Runs are serial: one worker, one trial per Vally invocation, and
+threshold** for each selected model. Runs are serial: one worker, one variant
+per Vally invocation (one trial per selected model), and
 **no automatic retries**. Pair order alternates raw-first/treatment-first.
 Each trial has a new copied workspace, isolated HOME/Copilot config, fresh data
 volume, unique containers/Compose project and allocated ports. Raw must discover
@@ -330,6 +338,14 @@ bash scripts/report.sh .runs/<timestamp>
 | `<pair>-<variant>/workspace.json` | Retained disposable runtime identity, staged baseline hashes and optional patch paths/SHA-256 fingerprints |
 | `vally-export/<snapshot>/` | Derived native experiment-format JSONL, real variant names, matched repetition indexes and lifecycle-aware verdicts for Vally's dashboard |
 
+Multi-model trials retain per-model `workspace.json`, `agent.json`, `proof.json`,
+session logs, native result records and lifecycle markers in
+`<pair>-<variant>/model-<index>/`, following the recorded model-list order.
+The parent keeps the original multi-model native results and combined log;
+one failed model cannot overwrite another model's outcome or evidence.
+Unstarted/interrupted model cells export as incomplete or execution errors,
+never successes.
+
 ### Native Vally results dashboard
 
 Use Vally's existing local dashboard, rather than a separate web app.
@@ -343,6 +359,10 @@ npm run bench -- export-vally .runs/<run>
 npx --no-install vally serve .runs/<run>/vally-export/<snapshot>
 # Open http://127.0.0.1:3200.
 ```
+
+A comma-separated multi-model evaluation needs only this single export.
+Both model identities are retained for native filtering and comparisons;
+there is no need to ingest separate model runs into SQLite.
 
 The export has one native `results.jsonl` per named variant, so Vally's one-level
 directory ingestion loads the **whole run**. The dashboard provides run/outcome
@@ -432,6 +452,13 @@ node node_modules/@microsoft/vally-cli/dist/index.js eval \
   --workers 1 --max-retries 0 --require-pass \
   --executor-plugin "$PWD/dist/plugin.js" --shutdown-timeout 3m
 ```
+
+For multiple models the script adds native `--model MODEL1,MODEL2` and uses
+Vally-managed temporary workspaces under the owned runtime's `TMPDIR`.
+Vally 0.18's explicit `--workspace` path otherwise collides across models.
+Temporary workspaces are released after grading; captured JSON artifacts,
+turn diffs and trajectories remain in the original native results directory.
+The lifecycle deadline scales with the number of selected models.
 
 Use `scripts/trial.sh`, rather than pasting this command into an ambient shell:
 it passes the isolated runtime environment, keeps credentials only in memory,

@@ -14,6 +14,7 @@ import { applicationAdapter, manualBingoCommands } from "./adapters.js";
 import { withFinalizer } from "./lifecycle.js";
 import { experiment, planEnvironment, selectVariants } from "./experiment.js";
 import { exportVally } from "./export.js";
+import { modelList } from "./models.js";
 
 process.once("SIGINT", interrupt);
 process.once("SIGTERM", interrupt);
@@ -101,6 +102,7 @@ async function initialize() {
   const pairs = Number(values.pairs);
   if (!Number.isSafeInteger(pairs) || pairs < 1) throw new Error("--pairs must be a positive integer");
   if (!values.model) throw new Error("--model is required");
+  const models = modelList(values.model);
   if (!/^[1-9]\d*(ms|s|m|h)$/.test(values.timeout!)) throw new Error("Invalid --timeout duration");
   const versions = await preflight();
   const directory = path.resolve(values.output ?? path.join(repoRoot, ".runs", new Date().toISOString().replace(/[:.]/g, "-")));
@@ -109,7 +111,7 @@ async function initialize() {
   await writeFile(path.join(directory, "experiment-plan.json"), JSON.stringify(resolved, null, 2));
   await cp(resolved.experimentFile, path.join(directory, "experiment.yaml"));
   await writeFile(path.join(directory, "metadata.json"), JSON.stringify({
-    versions, model: values.model, timeout: values.timeout, pairs, app, scenario, variants,
+    versions, model: values.model, models, timeout: values.timeout, pairs, app, scenario, variants,
     baseline: resolved.baseline,
     lifecycle: "scripts",
     variantDefinitions: Object.fromEntries(resolved.plans.filter(plan => variants.includes(plan.variant))
@@ -132,6 +134,7 @@ function shellQuote(value: string) {
 
 async function setup() {
   if (!values.output || !values.model) throw new Error("setup requires --output and --model");
+  const models = modelList(values.model);
   if (!/^[1-9]\d*(ms|s|m|h)$/.test(values.timeout!)) throw new Error("Invalid --timeout duration");
   const repetition = Number(values.repetition);
   if (!Number.isSafeInteger(repetition) || repetition < 1) throw new Error("Invalid --repetition");
@@ -143,34 +146,91 @@ async function setup() {
   await mkdir(directory, { recursive: false, mode: 0o700 });
   const run = await prepare(app, plan.variant, plan);
   run.nativeStaging = true;
+  const runs = [run];
   try {
+    for (let index = 1; index < models.length; index++) {
+      const next = await prepare(app, plan.variant, plan);
+      next.nativeStaging = true;
+      runs.push(next);
+    }
+    if (models.length > 1) {
+      for (const runtime of runs) runtime.nativeWorkspaceRoot = path.join(run.root, "workspaces");
+      await writeFile(path.join(run.root, "model-contexts.json"), JSON.stringify(
+        runs.map((runtime, index) => ({ model: models[index], root: runtime.root }))), { mode: 0o600 });
+    }
     await writeFile(path.join(directory, "workspace.json"), JSON.stringify({
       root: run.root, id: run.id, variant: plan.variant, repetition,
       fixtureHashes: run.baselineHashes, patches: run.patches, repairFiles: run.repairFiles,
     }, null, 2));
-    await configureRuntime(run);
+    for (const runtime of runs) await configureRuntime(runtime);
     await writeFile(path.join(directory, "plan.json"), JSON.stringify(plan, null, 2));
     await writeFile(path.join(directory, "eval.yaml"), stringify({
       ...plan.effectiveSpec,
-      defaults: { ...plan.effectiveSpec.defaults, model: values.model, timeout: values.timeout },
+      defaults: { ...plan.effectiveSpec.defaults, model: models[0], timeout: values.timeout },
     }));
     const env = isolatedEnv(run);
     for (const key of ["GH_TOKEN", "GITHUB_TOKEN", "COPILOT_GITHUB_TOKEN"]) delete env[key];
     env.ASPIRE_BENCH_OWNERSHIP = path.join(run.root, "ownership.json");
     env.ASPIRE_BENCH_ROOT = repoRoot;
+    env.ASPIRE_BENCH_MODELS = models.join(",");
+    if (models.length > 1) env.ASPIRE_BENCH_MODEL_CONTEXTS = path.join(run.root, "model-contexts.json");
     await writeFile(path.join(run.root, "environment.sh"), Object.entries(env)
       .map(([key, value]) => `export ${key}=${shellQuote(value)}`).join("\n") + "\n", { mode: 0o600 });
     console.log(run.root);
   } catch (error) {
-    await withFinalizer(async () => { throw error; }, () => cleanup(run));
+    await withFinalizer(async () => { throw error; }, async () => {
+      const errors = [];
+      for (const runtime of runs) {
+        try { await cleanup(runtime); } catch (cleanupError) { errors.push(cleanupError); }
+      }
+      if (errors.length) throw new AggregateError(errors, "Model runtime cleanup failed");
+    });
   }
 }
 
-async function retain(root: string, directory: string) {
+async function retain(root: string, directory: string, singleModel = false) {
+  if (!singleModel && (await readdir(root)).includes("model-contexts.json")) {
+    const contexts: { model: string; root: string }[] = JSON.parse(
+      await readFile(path.join(root, "model-contexts.json"), "utf8"));
+    const workspace = JSON.parse(await readFile(path.join(directory, "workspace.json"), "utf8"));
+    const files = [];
+    for (const entry of await readdir(directory, { withFileTypes: true })) {
+      if (entry.isDirectory() && !entry.name.startsWith("model-")) {
+        const file = path.join(directory, entry.name, "results.jsonl");
+        if ((await readdir(path.join(directory, entry.name))).includes("results.jsonl")) files.push(file);
+      }
+    }
+    if (files.length > 1) throw new Error("Expected one native multi-model result file");
+    const records = files.length ? (await readFile(files[0], "utf8")).split("\n").filter(Boolean)
+      .map(line => JSON.parse(line)).filter(record => record.type === "trial-result") : [];
+    for (const [index, context] of contexts.entries()) {
+      const target = path.join(directory, `model-${index + 1}`);
+      await mkdir(target, { recursive: true });
+      await retain(context.root, target, true);
+      const runtime: Run = JSON.parse(await readFile(path.join(context.root, "ownership.json"), "utf8"));
+      await writeFile(path.join(target, "workspace.json"), JSON.stringify({
+        ...workspace, root: context.root, id: runtime.id, model: context.model,
+        fixtureHashes: runtime.baselineHashes, patches: runtime.patches, repairFiles: runtime.repairFiles,
+      }));
+      await cp(path.join(directory, "plan.json"), path.join(target, "plan.json"));
+      const selected = records.filter(record =>
+        (record.model ?? record.trajectory?.metadata?.model) === context.model);
+      if (selected.length > 1) throw new Error("Expected one native trial per model");
+      if (selected.length) {
+        await writeFile(path.join(target, "results.jsonl"), JSON.stringify(selected[0]) + "\n");
+        await writeFile(path.join(target, "exit-code"),
+          selected[0].status === "success" && selected[0].gradeResult?.passed === true ? "0\n" : "1\n");
+      }
+    }
+    return;
+  }
   for (const name of ["proof.json", "agent.json", "visibility.json", "session-logs"]) {
     if ((await readdir(root)).includes(name)) {
       await cp(path.join(root, name), path.join(directory, name), { recursive: true });
     }
+  }
+  if ((await readdir(root)).includes("cleanup-exit-code")) {
+    await cp(path.join(root, "cleanup-exit-code"), path.join(directory, "cleanup-exit-code"));
   }
 }
 
@@ -206,7 +266,25 @@ async function main() {
     if (root !== run.root || !/^aspirebench-[a-f0-9]{16}$/.test(run.id)) {
       throw new Error("Runtime ownership manifest does not match requested root");
     }
-    await cleanup(run);
+    const contexts = (await readdir(root)).includes("model-contexts.json")
+      ? JSON.parse(await readFile(path.join(root, "model-contexts.json"), "utf8")) as { root: string }[]
+      : [{ root }];
+    const errors = [];
+    for (const context of contexts) {
+      const runtime: Run = JSON.parse(await readFile(path.join(context.root, "ownership.json"), "utf8"));
+      if (runtime.root !== context.root || !/^aspirebench-[a-f0-9]{16}$/.test(runtime.id)) {
+        throw new Error("Model runtime ownership mismatch");
+      }
+      try {
+        await cleanup(runtime);
+        await writeFile(path.join(runtime.root, "cleanup-exit-code"), "0\n");
+      } catch (error) {
+        await writeFile(path.join(runtime.root, "cleanup-exit-code"), "1\n");
+        errors.push(error);
+      }
+    }
+    if (errors.length) throw new AggregateError(errors, `Model runtime cleanup failed: ${
+      errors.map(error => error instanceof Error ? error.message : String(error)).join("; ")}`);
     console.log(`Cleaned owned runtime resources for ${run.id}`); return;
   }
   if (action === "dry-run" || action === "smoke") {
@@ -231,7 +309,7 @@ async function main() {
   if (action !== "help") throw new Error(`Unknown command: ${action}`);
   console.log("Commands: validate | plan | preflight | dry-run [--model MODEL] | smoke | " +
     "compare OUTPUT | export-vally OUTPUT | cleanup RUNTIME_ROOT | setup --model MODEL --variants ONE --output DIR\n" +
-    "Evaluations: bash scripts/run.sh --model MODEL --pairs 1 --allow-paid\n" +
+    "Evaluations: bash scripts/run.sh --model MODEL[,MODEL...] --pairs 1 --allow-paid\n" +
     "Options: --app bingo --scenario health-checks --variants raw,aspire|all --timeout 15m --output DIR");
 }
 

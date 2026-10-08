@@ -9,13 +9,18 @@ import { command } from "../dist/process.js";
 import { prepare, repoRoot } from "../dist/workspace.js";
 import { experiment } from "../dist/experiment.js";
 import { compare } from "../dist/report.js";
+import { exportVally } from "../dist/export.js";
+import { modelList } from "../dist/models.js";
+import { openDatabase } from "@microsoft/vally-server";
 
-async function fixture(mode = "success") {
+async function fixture(mode = "success", models = ["offline"]) {
   const directory = await mkdtemp(path.join(tmpdir(), "aspirebench-scripts-test-"));
   const run = await prepare("bingo", "raw");
+  const runs = [run];
+  for (const model of models.slice(1)) runs.push(await prepare("bingo", "raw"));
   const bin = path.join(directory, "bin");
   const mock = path.join(directory, "mock");
-  const output = path.join(directory, "results");
+  const output = path.join(directory, "1-raw");
   await Promise.all([mkdir(bin), mkdir(output), mkdir(path.join(mock, "dist"), { recursive: true }),
     mkdir(path.join(mock, "scripts"), { recursive: true }),
     mkdir(path.join(mock, "node_modules/@microsoft"), { recursive: true })]);
@@ -45,11 +50,17 @@ fi
           if (process.env.NODE_TLS_REJECT_UNAUTHORIZED !== undefined)
             throw new Error("Ambient TLS bypass leaked");
           if (${JSON.stringify(mode)} === "failure") throw new Error("offline execution failure");
-          if (${JSON.stringify(mode)} === "hang") {
+          if (${JSON.stringify(mode)} === "multi-second-failure" && options.model === "offline-two")
+            throw new Error("second model execution failure");
+          if (${JSON.stringify(mode)} === "hang"
+            || (${JSON.stringify(mode)} === "multi-second-hang" && options.model === "offline-two")) {
             await writeFile(${JSON.stringify(path.join(output, "started"))}, "ready");
             await new Promise(() => { setInterval(() => {}, 1000); });
           }
           const mode = ${JSON.stringify(mode)};
+          await writeFile(path.join(options.env.HOME, "model-runtime.json"),
+            JSON.stringify({model:options.model,home:options.env.HOME,id:options.env.BENCH_RUN_ID,
+              workDir:options.workDir}));
           const writeReport = async (subject, healthy = true) => {
             await writeFile(path.join(options.workDir, "benchmark-" + subject + "-health.json"),
               JSON.stringify({[subject === "services" ? "running" : "ready"]:true,
@@ -76,7 +87,7 @@ fi
           return {id:"offline-trajectory",stimulus,workDir:options.workDir,output:"offline",
             events:stimulus.turns?.map((prompt,turn)=>({type:"assistant_message",turn,timestamp:new Date(),
               data:{content:"Offline assessment "+turn}}))??[],
-            endReason:"completed",metadata:{model:"offline",skillsLoaded:[]},
+            endReason:"completed",metadata:{model:options.model??"offline",skillsLoaded:[]},
             metrics:{wallTimeMs:123,tokenUsage:{inputTokens:10,outputTokens:5,totalTokens:15,
               cacheReadTokens:0,cacheWriteTokens:0,callCount:1,byModel:{}},
               toolCallCount:2,toolCallBreakdown:{},simulatedToolCallCount:0,
@@ -98,23 +109,39 @@ fi
       ? await gradeEndpointContract(run, input.trajectory)
       : await gradeApplication(run, input.trajectory, {
       async verify(){return {passed:true,checks:["injected offline objective"],verificationMs:2}},
-      async cleanup(){},
+      async cleanup(){
+        if (${JSON.stringify(mode)} === "multi-cleanup-failure" && run.root === ${JSON.stringify(run.root)})
+          throw new Error("first model objective cleanup failed");
+      },
     });
     console.log(JSON.stringify(result));
   `);
-  run.env.PATH = env.PATH;
-  await writeFile(path.join(run.root, "ownership.json"), JSON.stringify(run));
+  for (const runtime of runs) {
+    runtime.env.PATH = env.PATH;
+    if (models.length > 1) runtime.nativeWorkspaceRoot = path.join(run.root, "workspaces");
+    await writeFile(path.join(runtime.root, "ownership.json"), JSON.stringify(runtime));
+  }
+  if (models.length > 1) {
+    await writeFile(path.join(run.root, "model-contexts.json"),
+      JSON.stringify(runs.map((runtime, index) => ({ model: models[index], root: runtime.root }))));
+  }
   await writeFile(path.join(run.root, "environment.sh"), Object.entries({
     ...run.env, ASPIRE_BENCH_ROOT: mock, ASPIRE_BENCH_OWNERSHIP: path.join(run.root, "ownership.json"),
+    ...(models.length > 1 ? { ASPIRE_BENCH_MODELS: models.join(","),
+      ASPIRE_BENCH_MODEL_CONTEXTS: path.join(run.root, "model-contexts.json") } : {}),
   }).map(([key, value]) => `export ${key}='${value.replaceAll("'", "'\\''")}'`).join("\n"));
   await writeFile(path.join(output, "workspace.json"),
     JSON.stringify({ root: run.root, variant: "raw", repetition: 1 }));
   const plan = (await experiment("bingo", "health-checks"))
     .plans.find(plan => plan.variant === "raw");
   await writeFile(path.join(output, "eval.yaml"), stringify(plan.effectiveSpec));
-  await writeFile(path.join(directory, "metadata.json"), '{"lifecycle":"scripts","baseline":"raw"}');
-  return { directory, run, output, env, async dispose() {
-    await rm(run.root, { recursive: true });
+  await writeFile(path.join(output, "plan.json"), JSON.stringify(plan));
+  await writeFile(path.join(directory, "metadata.json"), JSON.stringify({
+    lifecycle: "scripts", baseline: "raw", models, model: models.join(","),
+    variants: ["raw"], pairs: 1, scenario: "health-checks",
+  }));
+  return { directory, run, runs, output, env, async dispose() {
+    for (const runtime of runs) await rm(runtime.root, { recursive: true });
     await rm(directory, { recursive: true });
   } };
 }
@@ -365,5 +392,140 @@ fi
     } finally {
       await rm(directory, { recursive: true });
     }
+  }
+});
+
+test("comma-separated model configuration rejects empty and duplicate identities", () => {
+  assert.deepEqual(modelList("offline-one, offline-two"), ["offline-one", "offline-two"]);
+  for (const value of ["", "one,", ",two", "one,one", "one,\ntwo"]) {
+    assert.throws(() => modelList(value));
+  }
+});
+
+for (const mode of ["success", "multi-second-failure", "multi-cleanup-failure"]) {
+  test(`native comma-separated model matrix retains separate runtime evidence: ${mode}`, async () => {
+    const f = await fixture(mode, ["offline-one", "offline-two"]);
+    const db = openDatabase(":memory:");
+    try {
+      const execute = () => command("bash", ["scripts/trial.sh", f.run.root, f.output, "60"], { env: f.env });
+      if (mode === "success") await execute();
+      else await assert.rejects(execute(), /exited/);
+      const nativeFiles = (await readdir(f.output, { recursive: true }))
+        .filter(file => file.endsWith("results.jsonl") && !file.startsWith("model-"));
+      assert.equal(nativeFiles.length, 1, "Both models are scheduled in ONE native Vally invocation");
+      const records = (await readFile(path.join(f.output, nativeFiles[0]), "utf8")).trim().split("\n")
+        .map(line => JSON.parse(line)).filter(record => record.type === "trial-result");
+      assert.equal(records.length, 2, await readFile(path.join(f.output, "vally.log"), "utf8"));
+      assert.deepEqual(records.map(record => record.model), ["offline-one", "offline-two"]);
+      assert.equal(new Set(records.map(record => record.runId)).size, 1);
+      for (const [index, runtime] of f.runs.entries()) {
+        const retained = path.join(f.output, `model-${index + 1}`);
+        assert.equal(JSON.parse(await readFile(path.join(retained, "workspace.json"))).model,
+          ["offline-one", "offline-two"][index]);
+        assert.equal((await readFile(path.join(retained, "cleanup-exit-code"), "utf8")).trim(), "0");
+      }
+      const first = JSON.parse(await readFile(path.join(f.runs[0].home, "model-runtime.json")));
+      assert.equal(first.model, "offline-one");
+      if (mode === "success") {
+        const second = JSON.parse(await readFile(path.join(f.runs[1].home, "model-runtime.json")));
+        assert.equal(second.model, "offline-two");
+        assert.notEqual(first.home, second.home);
+        assert.notEqual(first.id, second.id);
+        assert.notEqual(first.workDir, second.workDir);
+        assert(records.every(record => record.gradeResult.passed));
+        assert(records.every(record => record.trajectory.turnDiffs.length === 4));
+        const artifacts = (await readdir(f.output, { recursive: true }))
+          .filter(file => file.includes("artifacts/") && file.endsWith("benchmark-services-health.json"));
+        assert.equal(artifacts.length, 2, "Each native model trial captures its own health answer");
+      } else {
+        assert.equal(records[1].status, "error");
+        assert.equal(records[0].gradeResult.passed, mode !== "multi-cleanup-failure");
+        if (mode === "multi-cleanup-failure")
+          assert.match(records[1].error, /Previous model cleanup failed/);
+      }
+      const report = await compare(f.directory);
+      assert.match(report, /# Model: offline-one/);
+      assert.match(report, /# Model: offline-two/);
+      const exported = await exportVally(f.directory);
+      const outcomes = (await readFile(path.join(exported, "raw/results.jsonl"), "utf8")).trim().split("\n")
+        .map(line => JSON.parse(line));
+      assert.equal(outcomes.length, 2);
+      assert.equal(new Set(outcomes.map(outcome => outcome.itemId)).size, 2);
+      await db.ingestDirectory(exported);
+      const imported = (await db.dataSource.listOutcomes()).items;
+      assert.equal(imported.length, 2, "Native dashboard does not overwrite one model with the other");
+      assert.equal(new Set(imported.map(outcome => outcome.experimentRunId)).size, 1);
+      assert.equal(imported.filter(outcome => outcome.passed).length,
+        mode === "success" ? 2 : mode === "multi-second-failure" ? 1 : 0);
+    } finally {
+      db.close();
+      await f.dispose();
+    }
+  });
+}
+
+test("multi-model setup configures fresh runtimes and forwards the CSV to the native CLI", async () => {
+  const f = await fixture();
+  let contexts = [];
+  try {
+    const output = path.join(f.directory, "multi-setup");
+    const result = await command("bash", ["scripts/setup.sh", "--model", "offline-one, offline-two",
+      "--variants", "raw", "--output", output], { env: f.env });
+    const root = result.stdout.trim();
+    contexts = JSON.parse(await readFile(path.join(root, "model-contexts.json")));
+    assert.deepEqual(contexts.map(context => context.model), ["offline-one", "offline-two"]);
+    const runtimes = await Promise.all(contexts.map(async context =>
+      JSON.parse(await readFile(path.join(context.root, "ownership.json")))));
+    assert.equal(new Set(runtimes.map(runtime => runtime.id)).size, 2);
+    assert.equal(new Set(runtimes.map(runtime => runtime.home)).size, 2);
+    for (const runtime of runtimes) {
+      assert.equal(runtime.nativeWorkspaceRoot, path.join(root, "workspaces"));
+      assert.equal(runtime.env.COMPOSE_PROJECT_NAME, runtime.id);
+      assert.equal(new Set([runtime.env.POSTGRES_PORT, runtime.env.REDIS_PORT,
+        runtime.env.ADMIN_PORT, runtime.env.FRONTEND_PORT]).size, 4);
+    }
+    assert.match(await readFile(path.join(root, "environment.sh"), "utf8"),
+      /ASPIRE_BENCH_MODELS='offline-one,offline-two'/);
+    await command("bash", ["scripts/cleanup.sh", root], { env: f.env });
+    for (const context of contexts)
+      assert.equal((await readFile(path.join(context.root, "cleanup-exit-code"), "utf8")).trim(), "0");
+  } finally {
+    for (const context of contexts) await rm(context.root, { recursive: true });
+    await f.dispose();
+  }
+});
+
+test("interrupted multi-model evaluation retains the finished model and never fabricates the unfinished one", async () => {
+  const f = await fixture("multi-second-hang", ["offline-one", "offline-two"]);
+  let child;
+  let closed;
+  try {
+    child = spawn("bash", ["scripts/trial.sh", f.run.root, f.output, "60"],
+      { env: f.env, cwd: repoRoot, stdio: "ignore" });
+    closed = new Promise(resolve => child.once("close", resolve));
+    for (let attempt = 0; attempt < 150; attempt++) {
+      try { await readFile(path.join(f.output, "started")); break; }
+      catch (error) {
+        if (error.code !== "ENOENT") throw error;
+        await new Promise(resolve => setTimeout(resolve, 50));
+        if (attempt === 149) throw new Error("Second native model did not start");
+      }
+    }
+    child.kill("SIGTERM");
+    assert.equal(await closed, 143);
+    const exported = await exportVally(f.directory);
+    const outcomes = (await readFile(path.join(exported, "raw/results.jsonl"), "utf8")).trim().split("\n")
+      .map(line => JSON.parse(line));
+    assert.equal(outcomes.length, 2);
+    assert.equal(outcomes.find(outcome => outcome.model === "offline-one").harness.outcome, "pass");
+    assert.equal(outcomes.find(outcome => outcome.model === "offline-two").gradeResult.passed, false);
+    for (const runtime of f.runs)
+      assert.equal((await readFile(path.join(runtime.root, "cleanup-exit-code"), "utf8")).trim(), "0");
+  } finally {
+    if (child && child.exitCode === null) {
+      child.kill("SIGTERM");
+      await closed;
+    }
+    await f.dispose();
   }
 });

@@ -33,6 +33,7 @@ export interface Run {
   nativeStaging?: boolean;
   patches?: PatchRecord[];
   repairFiles?: Record<string, string>;
+  nativeWorkspaceRoot?: string;
 }
 
 export async function registry(): Promise<Registry> {

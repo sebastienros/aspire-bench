@@ -1,6 +1,6 @@
 import { setTimeout as delay } from "node:timers/promises";
 import path from "node:path";
-import { realpath } from "node:fs/promises";
+import { access, realpath } from "node:fs/promises";
 import { command } from "./process.js";
 import { inside, isolatedEnv, type Run } from "./workspace.js";
 
@@ -39,7 +39,17 @@ export async function ownedProcesses(run: Run) {
   const candidates = new Set(await processSnapshot());
   const result = await command("lsof", ["-n", "-d", "cwd", "-Fpn"], { accept: [0, 1] });
   const root = await realpath(run.root);
-  return ownedCwds(root, run.initialPids, result.stdout, process.pid, result.pid)
+  const roots = [root];
+  if (run.nativeWorkspaceRoot && !inside(root, run.workDir)) {
+    if (!inside(run.nativeWorkspaceRoot, run.workDir)) throw new Error("Native workspace ownership mismatch");
+    try { roots.push(await realpath(run.workDir)); }
+    catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+      roots.push(path.resolve(run.workDir));
+    }
+  }
+  return [...new Set(roots.flatMap(ownedRoot =>
+    ownedCwds(ownedRoot, run.initialPids, result.stdout, process.pid, result.pid)))]
     .filter(pid => candidates.has(pid));
 }
 
@@ -50,7 +60,7 @@ export function ownedCwds(root: string, initialPids: number[], output: string,
   for (const line of output.split("\n")) {
     if (line.startsWith("p")) pid = Number(line.slice(1));
     if (line.startsWith("n") && pid !== currentPid && pid !== observerPid && !initialPids.includes(pid)) {
-      const cwd = line.slice(1);
+      const cwd = line.slice(1).replace(/ \(deleted\)$/, "");
       if (cwd === root || inside(root, cwd)) pids.push(pid);
     }
   }
@@ -63,7 +73,15 @@ export async function cleanup(run: Run) {
     try { await action(); }
     catch (error) { errors.push(error instanceof Error ? error : new Error(String(error))); }
   }
-  if (run.config.kind === "aspire") {
+  let workspaceExists = true;
+  if (run.nativeWorkspaceRoot) {
+    try { await access(run.workDir); }
+    catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+      workspaceExists = false;
+    }
+  }
+  if (run.config.kind === "aspire" && workspaceExists) {
     await attempt(async () => {
       // "No running AppHost" is an expected no-op; all other failures are reported.
       const stopped = await command("aspire", ["stop", "--apphost",
