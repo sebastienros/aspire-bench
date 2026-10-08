@@ -7,7 +7,7 @@ PAIRS=1
 TIMEOUT=15m
 VARIANTS=raw,aspire
 APP=bingo
-SCENARIO=launch-and-verify
+SCENARIO=health-checks
 OUTPUT=""
 PAID=0
 while [[ $# -gt 0 ]]; do

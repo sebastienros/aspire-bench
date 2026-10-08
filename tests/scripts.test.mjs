@@ -109,7 +109,7 @@ fi
   }).map(([key, value]) => `export ${key}='${value.replaceAll("'", "'\\''")}'`).join("\n"));
   await writeFile(path.join(output, "workspace.json"),
     JSON.stringify({ root: run.root, variant: "raw", repetition: 1 }));
-  const plan = (await experiment("bingo", mode.startsWith("health-") ? "health-checks" : "launch-and-verify"))
+  const plan = (await experiment("bingo", "health-checks"))
     .plans.find(plan => plan.variant === "raw");
   await writeFile(path.join(output, "eval.yaml"), stringify(plan.effectiveSpec));
   await writeFile(path.join(directory, "metadata.json"), '{"lifecycle":"scripts","baseline":"raw"}');
@@ -135,12 +135,14 @@ test("shell lifecycle calls actual Vally CLI and built-in program grader without
     assert.equal((await readFile(path.join(f.output, "exit-code"), "utf8")).trim(), "0");
     const proof = JSON.parse(await readFile(path.join(f.output, "proof.json")));
     assert.equal(proof.passed, true);
-    assert.deepEqual((await nativeTrial(f)).gradeResult.details.map(detail => [detail.name, detail.passed]),
+    assert.deepEqual((await nativeTrial(f)).gradeResult.details
+      .filter(detail => ["endpoint-contract", "objective-success"].includes(detail.name))
+      .map(detail => [detail.name, detail.passed]),
       [["endpoint-contract", true], ["objective-success", true]]);
     assert.equal(proof.metrics.tokenUsage.totalTokens, 15);
     const report = await compare(f.directory);
     assert.match(report, /raw: 1\/1/);
-    assert.match(report, /raw \| pass \| 0.12 \| 15 \| 2 \| 1/);
+    assert.match(report, /raw \| pass \| 0.12 \| 15 \| 2 \| 4/);
     await writeFile(path.join(f.output, "cleanup-exit-code"), "1");
     assert.match(await compare(f.directory), /raw: 0\/1/);
     await writeFile(path.join(f.output, "exit-code"), "1");
@@ -212,7 +214,9 @@ test("actual host program grader rejects absent application dependencies through
     const proof = JSON.parse(await readFile(path.join(f.output, "proof.json")));
     assert.equal(proof.passed, false);
     assert.match(proof.error, /Exactly one owned postgres/);
-    assert.deepEqual((await nativeTrial(f)).gradeResult.details.map(detail => [detail.name, detail.passed]),
+    assert.deepEqual((await nativeTrial(f)).gradeResult.details
+      .filter(detail => ["endpoint-contract", "objective-success"].includes(detail.name))
+      .map(detail => [detail.name, detail.passed]),
       [["endpoint-contract", true], ["objective-success", false]]);
     assert.equal((await readFile(path.join(f.output, "cleanup-exit-code"), "utf8")).trim(), "0");
     assert.match(await compare(f.directory), /raw: 0\/1/);
@@ -344,6 +348,7 @@ fi
       }
       const progress = await readFile(path.join(output, "progress.log"), "utf8");
       assert.match(progress, /^\d{4}-.*Z Evaluation started: 4 trials/m);
+      assert.match(progress, /scenario=health-checks/);
       if (mode === "setup-failure") {
         assert.match(progress, /0\/4 finished; 0 failed; 4 unfinished/);
         assert(!progress.includes("Finished "));

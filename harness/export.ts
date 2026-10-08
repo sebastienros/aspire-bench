@@ -119,7 +119,7 @@ export function compatibleOutcome(input: ExportInput): Json {
   }
   const passed = outcome === "pass";
   const sourceGrade = isStimulusGradeResult(rawGrade) ? rawGrade : undefined;
-  const scenario = text(metadata.scenario, "launch-and-verify");
+  const scenario = text(metadata.scenario, "health-checks");
   const model = text(object(trajectory?.metadata).model, text(original.model, text(metadata.model)));
   const cohort = variant.endsWith("-bugs") ? "bugs" : "healthy";
   const baseline = text(metadata.baseline, "raw");

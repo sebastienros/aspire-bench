@@ -22,7 +22,7 @@ const { values, positionals } = parseArgs({
   allowPositionals: true,
   options: {
     app: { type: "string", default: "bingo" },
-    scenario: { type: "string", default: "launch-and-verify" },
+    scenario: { type: "string", default: "health-checks" },
     variants: { type: "string", default: "raw,aspire" },
     model: { type: "string" },
     pairs: { type: "string", default: "1" },
@@ -232,7 +232,7 @@ async function main() {
   console.log("Commands: validate | plan | preflight | dry-run [--model MODEL] | smoke | " +
     "compare OUTPUT | export-vally OUTPUT | cleanup RUNTIME_ROOT | setup --model MODEL --variants ONE --output DIR\n" +
     "Evaluations: bash scripts/run.sh --model MODEL --pairs 1 --allow-paid\n" +
-    "Options: --app bingo --scenario launch-and-verify|health-checks --variants raw,aspire|all --timeout 15m --output DIR");
+    "Options: --app bingo --scenario health-checks --variants raw,aspire|all --timeout 15m --output DIR");
 }
 
 try { await main(); }

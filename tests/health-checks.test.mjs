@@ -5,7 +5,8 @@ import path from "node:path";
 import { gradeTrajectory, loadEvalSpec, resolveExperiment, runEval, validateEvalSpec, createDefaultGraderRegistry } from "@microsoft/vally";
 import { CopilotSdkExecutor } from "@microsoft/vally/executor";
 import { experiment, planEnvironment } from "../dist/experiment.js";
-import { prepare, repoRoot } from "../dist/workspace.js";
+import { prepare, registry, repoRoot } from "../dist/workspace.js";
+import { command } from "../dist/process.js";
 import { BenchmarkExecutor } from "../dist/plugin.js";
 import { gradeApplication } from "../dist/grade.js";
 import { pairedReport } from "../dist/report.js";
@@ -16,15 +17,17 @@ const questions = [
   "Is redis ready and healthy?",
 ];
 
-test("native Vally resolves two evals × fourteen variants; health config is separate and identical across variants", async () => {
+test("native Vally resolves only health-checks × fourteen variants; CLI defaults to the same scenario", async () => {
   const native = await resolveExperiment("experiments/bingo.experiment.yaml");
-  assert.equal(native.plans.length, 28);
-  const startup = await loadEvalSpec("scenarios/launch-and-verify.yaml");
+  assert.equal(native.plans.length, 14);
+  assert.deepEqual((await registry()).applications.bingo.scenarios, ["health-checks"]);
+  assert.deepEqual((await command("node", ["dist/cli.js", "selection", "--variants", "all"])).stdout.trim().split("\n"),
+    native.plans.map(plan => plan.variant));
+  await assert.rejects(experiment("bingo", "launch-and-verify"));
   const health = await loadEvalSpec("scenarios/health-checks.yaml");
-  assert.equal(startup.stimuli.length, 1);
-  assert.equal(startup.stimuli[0].turns, undefined, "Existing launch scenario is unchanged");
   assert.equal(health.stimuli.length, 1);
-  assert.equal(health.stimuli[0].turns[0], startup.stimuli[0].prompt);
+  assert.equal(health.stimuli[0].turns.length, 4);
+  assert.match(health.stimuli[0].turns[0], /Start the application/);
   for (const [index, question] of questions.entries()) {
     assert(health.stimuli[0].turns[index + 1].startsWith(question + "\n"));
   }
@@ -42,13 +45,9 @@ test("native Vally resolves two evals × fourteen variants; health config is sep
       ["redis-health-output", "diff-contains", 3, true],
       ["preserve-prior-outputs", "diff-not-contains", 3, true]]);
   assert.equal(validateEvalSpec(health, { registry: createDefaultGraderRegistry() }).valid, true);
-  const launchPlans = await experiment("bingo", "launch-and-verify");
   const healthPlans = await experiment("bingo", "health-checks");
-  assert.equal(launchPlans.plans.length, 14);
   assert.equal(healthPlans.plans.length, 14);
   for (const plan of healthPlans.plans) {
-    assert.deepEqual(planEnvironment(plan),
-      planEnvironment(launchPlans.plans.find(item => item.variant === plan.variant)));
     assert.deepEqual(plan.effectiveSpec.stimuli, health.stimuli);
   }
   assert.match(pairedReport([], "raw", "health-checks"), /Local health-checks comparison/);

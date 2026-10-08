@@ -7,7 +7,7 @@ import { verifyInputs } from "../dist/verify.js";
 import { experiment } from "../dist/experiment.js";
 
 test("only bug variants receive the same Redis fault; their healthy counterparts differ only by setup", async () => {
-  const resolved = await experiment("bingo", "launch-and-verify");
+  const resolved = await experiment("bingo", "health-checks");
   assert(resolved.vary.includes("/environment/commands"));
   for (const plan of resolved.plans) {
     const base = plan.variant.replace(/-bugs$/, "");
@@ -50,7 +50,7 @@ test("only bug variants receive the same Redis fault; their healthy counterparts
 });
 
 test("shared scenario stays succinct and requires startup investigation without technology hints", async () => {
-  const prompt = (await experiment("bingo", "launch-and-verify")).plans[0].effectiveSpec.stimuli[0].prompt;
+  const prompt = (await experiment("bingo", "health-checks")).plans[0].effectiveSpec.stimuli[0].turns[0];
   assert.match(prompt, /Start the application/);
   assert.match(prompt, /all its services are up and working/);
   assert.match(prompt, /Investigate and fix any startup problems/);

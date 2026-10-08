@@ -6,14 +6,14 @@ import { loadEvalSpec, validateEvalSpec, createDefaultGraderRegistry } from "@mi
 import { pairedReport } from "../dist/report.js";
 
 test("scenario uses the published Vally schema and identical scoring", async () => {
-  const spec = await loadEvalSpec("scenarios/launch-and-verify.yaml");
+  const spec = await loadEvalSpec("scenarios/health-checks.yaml");
   const registry = createDefaultGraderRegistry();
   const result = validateEvalSpec(spec, { registry });
   assert.equal(result.valid, true, JSON.stringify(result.diagnostics));
-  const raw = parse(await readFile("scenarios/launch-and-verify.yaml", "utf8"));
+  const raw = parse(await readFile("scenarios/health-checks.yaml", "utf8"));
   assert.equal(raw.scoring.threshold, 1);
   assert.equal(raw.stimuli[0].graders[0].required, true);
-  assert.equal(raw.stimuli[0].graders[0].type, "program");
+  assert.equal(raw.stimuli[0].graders[0].type, "diff-contains");
   assert.equal(raw.defaults.executor, "isolated-benchmark");
   assert.equal(raw.stimuli.length, 1);
 });

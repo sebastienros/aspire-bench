@@ -6,7 +6,7 @@
   "aspireSource": "demo/checkpoints/03-observe/csharp",
   "license": "MIT",
   "adaptations": [
-    "Each original healthy variant has an optional -bugs counterpart. Native setup applies raw-redis-startup.patch or aspire-redis-startup.patch only after copying for these counterparts. Both inject --maxmemroy 64mb into the Redis command line; shared snapshots and original variants remain healthy. The shared launch-and-verify task requires investigating and repairing startup failures when present.",
+    "Each original healthy variant has an optional -bugs counterpart. Native setup applies raw-redis-startup.patch or aspire-redis-startup.patch only after copying for these counterparts. Both inject --maxmemroy 64mb into the Redis command line; shared snapshots and original variants remain healthy. The startup turn of health-checks requires investigating and repairing startup failures when present.",
     "Copied self-contained raw and Aspire fixture trees, not submodules.",
     "raw, raw-documented and raw-scripted reuse one raw source/build/Compose/license snapshot. Native experiment environment.files selects the README overlay and adds the preserved lifecycle scripts only for raw-scripted.",
     "README overlays are raw (lifecycle-only detached-process guidance, no app setup instructions), raw-documented (manual configure/run/stop commands) and raw-scripted (script usage). raw and raw-bugs use the same raw.md overlay; no duplicate raw application folders are needed.",

@@ -2,8 +2,8 @@
 
 A local [Vally](https://microsoft.github.io/vally/) harness comparing **agent
 effectiveness** on a raw application and its aspirified counterpart. This is not
-an HTTP load test. The first scenario is **investigate startup failures, repair,
-launch and verify the application**:
+an HTTP load test. The scenario is **investigate startup failures, repair,
+launch and verify the application, then assess services, database and Redis health**:
 objective success, elapsed agent time, tokens, tool calls, and turns.
 
 Bingo is a licensed snapshot of
@@ -125,11 +125,10 @@ healthy and bug staging/execution cells without inference.
 
 ### Post-start health questions
 
-[`scenarios/launch-and-verify.yaml`](scenarios/launch-and-verify.yaml) remains
-the default, single-prompt evaluation. The separate
-[`scenarios/health-checks.yaml`](scenarios/health-checks.yaml) uses Vally's native
+[`scenarios/health-checks.yaml`](scenarios/health-checks.yaml) is the sole active
+scenario and the default. It uses Vally's native
 [`turns`](https://microsoft.github.io/vally/reference/eval-spec/) configuration:
-the same startup/repair prompt, followed sequentially by:
+startup/repair prompt, followed sequentially by:
 
 - "Are all services running and healthy?"
 - "Is the database ready and healthy?"
@@ -190,9 +189,8 @@ or times out, later questions are not sent. Bug variants initially receive the
 same Redis fault as before; health questions follow the agent's startup/repair
 attempt, not a separately injected post-start fault.
 
-The native experiment resolves **two evals × fourteen variants**. The existing
-scripts select one eval with `--scenario`; no additional matrix runner or
-duplicated variant manifest is needed. Their default remains launch-only.
+The native experiment resolves **one eval × fourteen variants**. Startup is
+already turn 0, so the redundant `launch-and-verify` scenario has been retired.
 
 ```bash
 # No inference: inspect all fourteen health-check configurations.
@@ -205,6 +203,11 @@ bash scripts/run.sh --scenario health-checks --model gpt-6-luna \
 # Paid: include every README/skills/MCP ablation and bug counterpart.
 bash scripts/run.sh --scenario health-checks --model gpt-6-luna \
   --variants all --pairs 1 --allow-paid
+
+# Paid: run the full scenario/variant set with two models (28 trials).
+for model in gpt-6-luna gpt-5.5; do
+  npm run bench -- eval --model "$model" --variants all --pairs 1 --allow-paid
+done
 ```
 
 This is **one four-turn trial with three separately reported answer grades**,

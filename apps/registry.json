@@ -21,7 +21,7 @@
         "aspire-skills-bugs": { "fixture": "apps/bingo/aspire", "kind": "aspire", "apphost": "apphost.cs" },
         "aspire-bugs": { "fixture": "apps/bingo/aspire", "kind": "aspire", "apphost": "apphost.cs" }
       },
-      "scenarios": ["launch-and-verify", "health-checks"]
+      "scenarios": ["health-checks"]
     }
   }
 }

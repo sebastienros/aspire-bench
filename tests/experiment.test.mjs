@@ -18,7 +18,7 @@ import { verifyInputs } from "../dist/verify.js";
 process.env.ASPIRE_BENCH_ROOT = repoRoot;
 
 test("native manifest controls fourteen variants and unchanged default subset without drift", async () => {
-  const resolved = await experiment("bingo", "launch-and-verify");
+  const resolved = await experiment("bingo", "health-checks");
   assert.equal(resolved.name, "repo-comparison");
   assert.equal(resolved.baseline, "raw");
   assert.equal(resolved.execution.workers, 1);
@@ -48,7 +48,7 @@ test("native drift detection rejects model differences outside declared axes", a
   const root = await mkdtemp(path.join(tmpdir(), "aspirebench-experiment-test-"));
   try {
     const config = await loadExperimentConfig(path.join(repoRoot, "experiments/bingo.experiment.yaml"));
-    config.evals = [path.join(repoRoot, "scenarios/launch-and-verify.yaml")];
+    config.evals = [path.join(repoRoot, "scenarios/health-checks.yaml")];
     config.variants.raw.overrides = { model: "different-model" };
     await writeFile(path.join(root, "experiment.yaml"), stringify(config));
     await assert.rejects(resolveExperiment(path.join(root, "experiment.yaml")), /drift|vary/i);
@@ -76,7 +76,7 @@ test("supported plugin loaders register custom hooks and native staging executes
   assert(executors.get("isolated-benchmark"));
   assert(graders.get("program"));
   assert.equal(graders.get("application-ready"), undefined);
-  const resolved = await experiment("bingo", "launch-and-verify");
+  const resolved = await experiment("bingo", "health-checks");
   for (const plan of resolved.plans) {
     const run = await prepare("bingo", plan.variant, plan);
     run.nativeStaging = true;

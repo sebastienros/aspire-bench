@@ -10,8 +10,8 @@ import { repoRoot } from "../dist/workspace.js";
 
 const valid = { admin: "http://localhost:1234", frontend: "http://localhost:5678" };
 
-test("endpoint contract is a separate required native program grader in both scenarios", async () => {
-  for (const name of ["launch-and-verify", "health-checks"]) {
+test("endpoint contract is a separate required native program grader in the health scenario", async () => {
+  for (const name of ["health-checks"]) {
     const spec = await loadEvalSpec(`scenarios/${name}.yaml`);
     assert.deepEqual(spec.stimuli[0].graders.filter(grader =>
       ["endpoint-contract", "objective-success"].includes(grader.name))

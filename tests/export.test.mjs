@@ -8,7 +8,7 @@ import { compatibleOutcome, exportVally } from "../dist/export.js";
 import { command } from "../dist/process.js";
 
 const metadata = {
-  lifecycle: "scripts", app: "bingo", scenario: "launch-and-verify", model: "offline-test",
+  lifecycle: "scripts", app: "bingo", scenario: "health-checks", model: "offline-test",
   baseline: "raw", pairs: 1, startedAt: "2026-10-01T00:00:00Z", commit: "historic-scripted",
   versions: { vally: "0.18.0" },
   variantDefinitions: { raw: { lifecycle: "scripted", files: [{ src: "recorded/readme.md", dest: "README.md" }] } },
@@ -17,13 +17,13 @@ const metrics = { wallTimeMs: 2000, turnCount: 2, toolCallCount: 4,
   tokenUsage: { inputTokens: 12, outputTokens: 3, totalTokens: 15 } };
 const grade = {
   name: "objective-success", kind: "code", passed: true, score: 1, evidence: "Application ready",
-  stimulusName: "launch-and-verify", trajectoryId: "offline", timestamp: metadata.startedAt, details: [],
+  stimulusName: "startup-and-health-checks", trajectoryId: "offline", timestamp: metadata.startedAt, details: [],
 };
 const native = {
-  type: "trial-result", variant: "main", stimulus: "launch-and-verify", status: "success",
+  type: "trial-result", variant: "main", stimulus: "startup-and-health-checks", status: "success",
   gradeResult: grade, durationMs: 4000,
   trajectory: { id: "offline", metadata: { model: "offline-test" }, metrics,
-    events: [], endReason: "completed", stimulus: { name: "launch-and-verify", prompt: "offline" } },
+    events: [], endReason: "completed", stimulus: { name: "startup-and-health-checks", prompt: "offline" } },
 };
 function input(overrides = {}) {
   return { metadata, variant: "raw", repetition: 1, native,
@@ -101,7 +101,7 @@ async function fixture(variants = ["raw", "aspire", "raw-bugs", "aspire-bugs"]) 
     await writeFile(path.join(dir, "exit-code"), "0");
     await writeFile(path.join(dir, "cleanup-exit-code"), "0");
     await writeFile(path.join(dir, "plan.json"), JSON.stringify({ evalHash: "recorded-eval-hash",
-      configHash: "recorded-config-hash", relativeEvalFile: "scenarios/launch-and-verify.yaml" }));
+      configHash: "recorded-config-hash", relativeEvalFile: "scenarios/health-checks.yaml" }));
   }
   return root;
 }

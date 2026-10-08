@@ -121,8 +121,8 @@ test("native experiment command axis and setup patch the baseline before any exe
 `;
     await writeFile(file, patch);
     const spec = await loadExperimentConfig(path.join(repoRoot, "experiments/bingo.experiment.yaml"));
-    spec.evals = [path.join(repoRoot, "scenarios/launch-and-verify.yaml")];
-    for (const plan of (await experiment("bingo", "launch-and-verify")).plans) {
+    spec.evals = [path.join(repoRoot, "scenarios/health-checks.yaml")];
+    for (const plan of (await experiment("bingo", "health-checks")).plans) {
       spec.variants[plan.variant].environment = planEnvironment(plan);
     }
     if (!spec.vary.includes("/environment/commands")) spec.vary.push("/environment/commands");

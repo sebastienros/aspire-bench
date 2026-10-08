@@ -1,6 +1,5 @@
 name: repo-comparison
 evals:
-  - ../scenarios/launch-and-verify.yaml
   - ../scenarios/health-checks.yaml
 execution:
   workers: 1

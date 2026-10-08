@@ -7,7 +7,7 @@ export interface Trial {
   setupMs?: number; verificationMs?: number; metrics?: TrajectoryMetrics; error?: string;
 }
 
-export function pairedReport(trials: Trial[], baseline = "raw", scenario = "launch-and-verify"): string {
+export function pairedReport(trials: Trial[], baseline = "raw", scenario = "health-checks"): string {
   const bugTrials = trials.filter(trial => trial.variant.endsWith("-bugs"));
   if (bugTrials.length && !baseline.endsWith("-bugs")) {
     const healthy = trials.filter(trial => !trial.variant.endsWith("-bugs"));
@@ -130,7 +130,7 @@ export async function compare(directory: string) {
       "have lifecycle-only detached-process guidance, not app setup instructions. " +
       "No lifecycle definitions were recorded for this run.\n";
   const report = pairedReport(trials, baseline, typeof metadata?.scenario === "string"
-    ? metadata.scenario : "launch-and-verify") + meanings;
+    ? metadata.scenario : "health-checks") + meanings;
   await writeFile(path.join(directory, "comparison.md"), report);
   return report;
 }
