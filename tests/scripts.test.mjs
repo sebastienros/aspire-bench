@@ -13,14 +13,14 @@ import { exportVally } from "../dist/export.js";
 import { modelList } from "../dist/models.js";
 import { openDatabase } from "@microsoft/vally-server";
 
-async function fixture(mode = "success", models = ["offline"]) {
+async function fixture(mode = "success", models = ["offline"], variant = "raw") {
   const directory = await mkdtemp(path.join(tmpdir(), "aspirebench-scripts-test-"));
-  const run = await prepare("bingo", "raw");
+  const run = await prepare("bingo", variant);
   const runs = [run];
-  for (const model of models.slice(1)) runs.push(await prepare("bingo", "raw"));
+  for (const model of models.slice(1)) runs.push(await prepare("bingo", variant));
   const bin = path.join(directory, "bin");
   const mock = path.join(directory, "mock");
-  const output = path.join(directory, "1-raw");
+  const output = path.join(directory, `1-${variant}`);
   await Promise.all([mkdir(bin), mkdir(output), mkdir(path.join(mock, "dist"), { recursive: true }),
     mkdir(path.join(mock, "scripts"), { recursive: true }),
     mkdir(path.join(mock, "node_modules/@microsoft"), { recursive: true })]);
@@ -39,6 +39,17 @@ fi
   await writeFile(path.join(mock, "package.json"), '{"type":"module"}');
   await symlink(path.join(repoRoot, "node_modules/@microsoft/vally-cli"),
     path.join(mock, "node_modules/@microsoft/vally-cli"));
+  await symlink(path.join(repoRoot, "apps"), path.join(mock, "apps"));
+  await writeFile(path.join(mock, "dist/patch.js"),
+    `import {realpathSync,existsSync,writeFileSync} from "node:fs"; import {spawnSync} from "node:child_process";
+    if (${JSON.stringify(mode)} === "first-setup-failure"
+      && !existsSync(${JSON.stringify(path.join(output, "setup-failed"))})) {
+      writeFileSync(${JSON.stringify(path.join(output, "setup-failed"))},"injected offline setup failure");
+      console.error("injected offline setup failure"); process.exit(1);
+    }
+    const result=spawnSync(process.execPath,[${JSON.stringify(path.join(repoRoot, "dist/patch.js"))},
+      realpathSync(process.argv[2])],{stdio:"inherit"});
+    process.exit(result.status??1);\n`);
   await writeFile(path.join(mock, "dist/plugin.js"), `
     import {writeFile} from "node:fs/promises";
     import path from "node:path";
@@ -47,6 +58,12 @@ fi
       registry.register(new BenchmarkExecutor(() => ({
         name:"offline", supportsEnvVars:true,
         async execute(stimulus, options) {
+          if (options.env.BENCH_RUN_ID !== undefined && ${JSON.stringify(variant)}.endsWith("-bugs")) {
+            const {readFile} = await import("node:fs/promises");
+            const source = await readFile(path.join(options.workDir,"compose.yaml"),"utf8");
+            if (!source.includes("--maxmemroy")) throw new Error("Native setup did not inject the fault");
+            await writeFile(path.join(options.workDir,"compose.yaml"),source.replace("--maxmemroy","--maxmemory"));
+          }
           if (process.env.NODE_TLS_REJECT_UNAUTHORIZED !== undefined)
             throw new Error("Ambient TLS bypass leaked");
           if (${JSON.stringify(mode)} === "failure") throw new Error("offline execution failure");
@@ -127,18 +144,19 @@ fi
   }
   await writeFile(path.join(run.root, "environment.sh"), Object.entries({
     ...run.env, ASPIRE_BENCH_ROOT: mock, ASPIRE_BENCH_OWNERSHIP: path.join(run.root, "ownership.json"),
+    ASPIRE_BENCH_SETUP_OWNERSHIP: path.join(run.root, "ownership.json"),
     ...(models.length > 1 ? { ASPIRE_BENCH_MODELS: models.join(","),
       ASPIRE_BENCH_MODEL_CONTEXTS: path.join(run.root, "model-contexts.json") } : {}),
   }).map(([key, value]) => `export ${key}='${value.replaceAll("'", "'\\''")}'`).join("\n"));
   await writeFile(path.join(output, "workspace.json"),
-    JSON.stringify({ root: run.root, variant: "raw", repetition: 1 }));
+    JSON.stringify({ root: run.root, variant, repetition: 1 }));
   const plan = (await experiment("bingo", "health-checks"))
-    .plans.find(plan => plan.variant === "raw");
+    .plans.find(plan => plan.variant === variant);
   await writeFile(path.join(output, "eval.yaml"), stringify(plan.effectiveSpec));
   await writeFile(path.join(output, "plan.json"), JSON.stringify(plan));
   await writeFile(path.join(directory, "metadata.json"), JSON.stringify({
     lifecycle: "scripts", baseline: "raw", models, model: models.join(","),
-    variants: ["raw"], pairs: 1, scenario: "health-checks",
+    variants: [variant], pairs: 1, scenario: "health-checks",
   }));
   return { directory, run, runs, output, env, async dispose() {
     for (const runtime of runs) await rm(runtime.root, { recursive: true });
@@ -534,4 +552,45 @@ test("interrupted multi-model evaluation retains the finished model and never fa
     }
     await f.dispose();
   }
+});
+
+for (const variant of ["raw", "raw-bugs"]) {
+  for (const models of [["offline-one", "offline-two"], ["offline-two", "offline-one"]]) {
+    test(`native setup is independent of stale executor ownership: ${variant}, ${models.join(",")}`, async () => {
+      const f = await fixture("success", models, variant);
+      try {
+        await command("bash", ["scripts/trial.sh", f.run.root, f.output, "60"], { env: f.env });
+        for (const [index, model] of models.entries()) {
+          const root = path.join(f.output, `model-${index + 1}`);
+          const record = JSON.parse(await readFile(path.join(root, "results.jsonl"), "utf8"));
+          assert.equal(record.model, model);
+          assert.equal(record.gradeResult.passed, true);
+          assert(record.trajectory.turnDiffs.some(diff => diff.turn === 0));
+          const state = JSON.parse(await readFile(path.join(f.runs[index].home, "model-runtime.json")));
+          assert.equal(state.id, f.runs[index].id);
+          assert.equal(state.model, model);
+          assert.equal((await readFile(path.join(root, "cleanup-exit-code"), "utf8")).trim(), "0");
+        }
+      } finally { await f.dispose(); }
+    });
+  }
+}
+
+test("failed native setup cannot poison the next model's runtime or patch baseline", async () => {
+  const f = await fixture("first-setup-failure", ["offline-one", "offline-two"], "raw-bugs");
+  try {
+    await assert.rejects(command("bash", ["scripts/trial.sh", f.run.root, f.output, "60"],
+      { env: f.env }), /exited 1/);
+    const first = JSON.parse(await readFile(path.join(f.output, "model-1/results.jsonl")));
+    const second = JSON.parse(await readFile(path.join(f.output, "model-2/results.jsonl")));
+    assert.equal(first.status, "error");
+    assert.match(first.error, /injected offline setup failure/);
+    assert.equal(first.trajectory, null);
+    assert.equal(second.gradeResult.passed, true);
+    const state = JSON.parse(await readFile(path.join(f.runs[1].home, "model-runtime.json")));
+    assert.equal(state.id, f.runs[1].id);
+    assert.equal(state.model, "offline-two");
+    for (const runtime of f.runs)
+      assert.equal((await readFile(path.join(runtime.root, "cleanup-exit-code"), "utf8")).trim(), "0");
+  } finally { await f.dispose(); }
 });

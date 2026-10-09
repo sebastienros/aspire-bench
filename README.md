@@ -523,6 +523,17 @@ Temporary workspaces are released after grading; captured JSON artifacts,
 turn diffs and trajectories remain in the original native results directory.
 The lifecycle deadline scales with the number of selected models.
 
+Native file/patch setup runs before the executor receives a model identity.
+Setup therefore uses a stable host-owned context (`ASPIRE_BENCH_SETUP_OWNERSHIP`)
+for the common variant's fingerprinted patches and confined native workspace
+root, independently of the execution/grading context selected per model.
+Setup never starts services or supplies another model's HOME/ports. This avoids
+stale ownership from a preceding model contaminating the next setup command.
+Pre-fix multi-model bug trials that failed with
+`Patch setup must run in the owned application workspace` are harness setup
+errors, not evidence of model repair ability; their recorded results are not
+rewritten. Model-authored source/lockfile changes still fail integrity grading.
+
 Use `scripts/trial.sh`, rather than pasting this command into an ambient shell:
 it passes the isolated runtime environment, keeps credentials only in memory,
 and traps failure, interruption and a bounded lifecycle deadline.

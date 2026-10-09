@@ -10,6 +10,7 @@ import { applyGitPatch, patchPaths, patchRecords } from "../dist/patch.js";
 import { prepare, hashes, unchanged, repoRoot } from "../dist/workspace.js";
 import { experiment, planEnvironment } from "../dist/experiment.js";
 import { BenchmarkExecutor } from "../dist/plugin.js";
+import { command } from "../dist/process.js";
 
 function diff(file, before, after) {
   return `diff --git a/${file} b/${file}
@@ -96,6 +97,47 @@ test("setup accepts only declared patch-helper invocations, not arbitrary shell 
     valid.replace("apps/bingo/patches/change.patch", "../../outside.patch"),
     valid.replace("dist/patch.js", "dist/cli.js"),
   ]) assert.throws(() => patchPaths([invalid]));
+});
+
+test("setup ownership is stable across model contexts and rejects unrelated or symlink-escaped workspaces", async () => {
+  const resolved = await experiment("bingo", "health-checks");
+  for (const plan of resolved.plans.filter(plan => plan.variant.endsWith("-bugs"))) {
+    const setup = await prepare("bingo", plan.variant, plan);
+    const other = await prepare("bingo", plan.variant, plan);
+    try {
+      const root = path.join(setup.root, "workspaces");
+      await mkdir(root);
+      other.nativeWorkspaceRoot = root;
+      await writeFile(path.join(other.root, "ownership.json"), JSON.stringify(other));
+      const env = { ...process.env,
+        ASPIRE_BENCH_SETUP_OWNERSHIP: path.join(setup.root, "ownership.json"),
+        ASPIRE_BENCH_OWNERSHIP: path.join(other.root, "ownership.json") };
+      const target = plan.variant.startsWith("raw") ? "compose.yaml" : "apphost.cs";
+      const source = await readFile(path.join(repoRoot, setup.config.fixture, target), "utf8");
+      const patch = setup.patches[0].path;
+      const apply = cwd => command(process.execPath, ["dist/patch.js", patch]
+        .map((value, index) => index === 0 ? path.join(repoRoot, value) : value), { cwd, env });
+      const workspace = path.join(root, "native-model");
+      await mkdir(workspace);
+      await writeFile(path.join(workspace, target), source);
+      await apply(workspace);
+      assert.match(await readFile(path.join(workspace, target), "utf8"), /--maxmemroy/);
+      // A failed command must not change either ownership context or another tree.
+      await assert.rejects(apply(other.workDir), /owned application workspace/);
+      assert.equal(JSON.parse(await readFile(path.join(other.root, "ownership.json"))).workDir, other.workDir);
+      const escaped = path.join(root, "escaped");
+      await symlink(other.workDir, escaped);
+      await assert.rejects(apply(escaped), /owned application workspace/);
+      const afterFailure = path.join(root, "next-model");
+      await mkdir(afterFailure);
+      await writeFile(path.join(afterFailure, target), source);
+      await apply(afterFailure);
+      assert.match(await readFile(path.join(afterFailure, target), "utf8"), /--maxmemroy/);
+    } finally {
+      await rm(setup.root, { recursive: true });
+      await rm(other.root, { recursive: true });
+    }
+  }
 });
 
 test("native experiment command axis and setup patch the baseline before any executor/agent runs", async () => {

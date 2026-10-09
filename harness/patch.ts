@@ -67,12 +67,15 @@ export async function applyGitPatch(workDir: string, record: PatchRecord) {
 
 async function main() {
   assert.equal(process.argv.length, 3, "Usage: node dist/patch.js PATCH_FILE");
-  const ownership = process.env.ASPIRE_BENCH_OWNERSHIP;
+  const ownership = process.env.ASPIRE_BENCH_SETUP_OWNERSHIP ?? process.env.ASPIRE_BENCH_OWNERSHIP;
   assert(ownership, "Patch setup requires a host-owned benchmark workspace");
   const run: Run = JSON.parse(await readFile(ownership, "utf8"));
   assert.equal(path.resolve(ownership), path.join(run.root, "ownership.json"));
   const cwd = await realpath(process.cwd());
-  assert(cwd === run.workDir || inside(path.join(run.root, "workspaces"), cwd),
+  const runtimeRoot = await realpath(run.root);
+  const workspaceRoot = run.nativeWorkspaceRoot ?? path.join(runtimeRoot, "workspaces");
+  assert(inside(runtimeRoot, workspaceRoot), "Patch workspace root must belong to the setup runtime");
+  assert(cwd === run.workDir || inside(workspaceRoot, cwd),
     "Patch setup must run in the owned application workspace");
   const record = run.patches?.find(item => item.path === path.resolve(process.argv[2]));
   assert(record, "Patch input was not declared and fingerprinted during preparation");

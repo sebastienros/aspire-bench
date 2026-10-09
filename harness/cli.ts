@@ -178,6 +178,7 @@ async function setup() {
     const env = isolatedEnv(run);
     for (const key of ["GH_TOKEN", "GITHUB_TOKEN", "COPILOT_GITHUB_TOKEN"]) delete env[key];
     env.ASPIRE_BENCH_OWNERSHIP = path.join(run.root, "ownership.json");
+    env.ASPIRE_BENCH_SETUP_OWNERSHIP = env.ASPIRE_BENCH_OWNERSHIP;
     env.ASPIRE_BENCH_ROOT = repoRoot;
     env.ASPIRE_BENCH_MODELS = models.join(",");
     if (models.length > 1) env.ASPIRE_BENCH_MODEL_CONTEXTS = path.join(run.root, "model-contexts.json");
