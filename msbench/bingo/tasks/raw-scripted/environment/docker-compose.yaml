@@ -1,0 +1,6 @@
+services:
+  main:
+    privileged: true
+    build:
+      additional_contexts:
+        raw-app: ${MSBENCH_RAW_APP_CONTEXT:-https://github.com/sebastienros/aspire-bench.git#sebros/msbench-benchmark-variants:msbench/bingo/common/raw-app}

@@ -15,6 +15,13 @@ Exact commits, licenses, and adaptations are recorded in
 [`apps/bingo/provenance.json`](apps/bingo/provenance.json) and
 [`treatment/provenance.json`](treatment/provenance.json).
 
+The independent [MSBench / Harbor-native benchmark](msbench/README.md) contains
+four ready-configured task folders: three raw guidance flavors and the full
+Aspire skills/MCP treatment. Select cells using standard
+`msbench-cli run --variant` commands; use Harbor's oracle mode for local image checks without
+model inference. The two benchmark structures are maintained separately;
+there is no conversion or synchronization.
+
 ## Why this harness exists
 
 The benchmark measures how effectively an agent starts and repairs a real

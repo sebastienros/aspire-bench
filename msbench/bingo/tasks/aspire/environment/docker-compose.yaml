@@ -1,0 +1,6 @@
+services:
+  main:
+    privileged: true
+    build:
+      additional_contexts:
+        aspire-app: ${MSBENCH_ASPIRE_APP_CONTEXT:-https://github.com/sebastienros/aspire-bench.git#sebros/msbench-benchmark-variants:msbench/bingo/common/aspire-app}
