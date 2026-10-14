@@ -84,6 +84,22 @@ msbench-cli list instances --dataset msbench/bingo/dataset.jsonl \
   --benchmark aspire-bench --variant raw-scripted --format json
 ```
 
+Validate the published task through MSBench without model inference:
+
+```bash
+MSBENCH_DISABLE_RUN_ANALYSIS=1 msbench-cli run \
+  --dataset msbench/bingo/dataset.jsonl \
+  --benchmark aspire-bench --variant raw \
+  --config fix_validation --backend local --workers 1
+```
+
+`fix_validation` selects Harbor's **oracle** agent, which runs the reference
+solutions. Do not combine it with `--harbor-resume-trajectory`: oracle does
+not support trajectory resumption. `--model` does not turn this validation
+config into a model evaluation. `MSBENCH_DISABLE_RUN_ANALYSIS=1` disables the
+optional model-based report analysis, not the task verifier; it also avoids
+warnings if MSBench's default analysis model is unavailable.
+
 Run an intentional model evaluation using the normal CLI:
 
 ```bash
