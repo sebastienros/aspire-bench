@@ -136,6 +136,12 @@ the flag uses the documented output reset and avoids retaining that lock;
 it changes the experiment to fresh conversations, not same-conversation
 continuation. Only enable resumption with a runner demonstrated to support it.
 
+Cloud run [2026101504123494](https://msbenchapp.azurewebsites.net/run-analysis/2026101504123494)
+confirmed this default path end to end for `raw` with `github-copilot-cli` and
+`gpt-6-luna`: all four agent invocations executed, every step received reward
+1, and the final reward was 1. Metadata recorded `resume_trajectory: false`
+for every step, with no completion-lock skips or trial exceptions.
+
 ### Remote CES staging
 
 The dataset uses the documented Harbor-native **build-on-demand** layout:
@@ -182,8 +188,9 @@ CES App lookup before checkout. Subsequent cloud run `2026101503460490`
 successfully checked out the task, built the raw image, authenticated Copilot,
 and passed startup. The earlier source-access failure is not the blocker in
 that later run; its remaining failure was the runner lock described above.
-Cloud provisioning is therefore demonstrated for raw, not yet for every variant
-or for the complete four-step Copilot workflow.
+Later run `2026101504123494` completed all four raw steps successfully without
+resumption. The full cloud Copilot workflow is therefore demonstrated for raw,
+not yet for every variant or for Aspire skill/MCP consumption.
 
 The earlier CES run `2026101502008746` used `ces-dev1` and placeholder
 `image_tag` values, causing a pull of an unpublished image from
