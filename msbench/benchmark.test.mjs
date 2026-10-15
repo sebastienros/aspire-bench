@@ -34,6 +34,11 @@ test("MSBench variants use shared application sources and independent guidance o
         assert(!dockerfile.includes("dotnet build") && !dockerfile.includes("npm ci"));
         assert(!/COPY\s+\.\.\//.test(dockerfile), "Build context must be self-contained");
         assert(dockerfile.includes(`COPY --from=${appName} / /app/`));
+        for (const tool of ["jq", "unzip"]) {
+            assert.match(dockerfile, new RegExp(`\\b${tool}\\b`));
+        }
+        assert.match(dockerfile, /apt-get install -y --no-install-recommends azure-cli/);
+        assert.match(dockerfile, /signed-by=\/usr\/share\/keyrings\/microsoft-azure-cli\.gpg/);
         const compose = await readFile(path.join(task, "environment/docker-compose.yaml"), "utf8");
         assert.match(compose, /additional_contexts:/);
         assert(compose.includes(`https://github.com/sebastienros/aspire-bench.git#${row.task_repo_commit}:msbench/bingo/common/${appName}`));

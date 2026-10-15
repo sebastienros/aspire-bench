@@ -113,6 +113,25 @@ Change `--variant` to `raw-documented`, `raw-scripted`, or `aspire`, keeping
 agent/model and run settings fixed. Omit `--backend local` or choose a
 supported CES backend for cloud execution.
 
+### Local Copilot agent prerequisites and authentication
+
+All four images include Azure CLI, `jq`, and `unzip`, required by the
+`github-copilot-cli` package downloader. These tools are installed at image
+build time rather than consuming the agent's setup timeout.
+
+The local Copilot plugin downloads its runtime from authenticated Azure Blob
+Storage during setup. Its default model index also obtains an Azure token
+for the Copilot endpoint. A host `az login` is **not** automatically available
+inside the task container. Installing the tools does not provide authentication:
+without an authenticated container, the downloader can wait for interactive
+login until Harbor's 360-second agent setup timeout expires.
+
+This benchmark does not mount your host Azure login cache, forward credentials
+by default, or include credentials in images. Configure container authentication
+through your approved execution environment before running this agent. Oracle
+validation requires no Copilot package download or Azure authentication and
+does not verify this agent-specific setup path.
+
 **Commit and push the tasks and shared apps before running through MSBench**, including
 with `--backend local`: MSBench fetches `task_path` from `task_repo`; it does
 not execute an uncommitted local folder. The dataset points at this repository's
@@ -168,7 +187,8 @@ to complete the task. Offline structural/grader checks are available with
 ## Environment and grading
 
 All images contain .NET 10.0.100, Node 24.14.0, Docker 28.0.4/Compose and
-Aspire CLI 13.6.0. Application restore/build/startup belongs to the task, not
+Aspire CLI 13.6.0, plus Azure CLI, `jq`, and `unzip` for agent provisioning.
+Application restore/build/startup belongs to the task, not
 image construction. The Aspire task declares skills and MCP in `task.toml`.
 The selected MSBench agent must support consuming these capabilities and
 trajectory resumption; CLI flags alone do not prove effective discovery or
