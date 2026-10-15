@@ -44,7 +44,7 @@ application setup exposed to the benchmark agent.
 | `raw` | Raw app, lifecycle-only README | None |
 | `raw-documented` | Raw app, manual setup README | None |
 | `raw-scripted` | Raw app, launcher/check scripts and README | None |
-| `aspire` | Aspire app | Seven skills and stdio MCP; agent consumption must be verified |
+| `aspire` | Aspire app | MCP use verified with Copilot; seven declared skills not discovered in the observed run |
 
 All four variants use instance ID `bingo-health-checks`. The dataset declares
 their logical benchmark relationship with `variant_of_benchmark`,
@@ -189,8 +189,9 @@ successfully checked out the task, built the raw image, authenticated Copilot,
 and passed startup. The earlier source-access failure is not the blocker in
 that later run; its remaining failure was the runner lock described above.
 Later run `2026101504123494` completed all four raw steps successfully without
-resumption. The full cloud Copilot workflow is therefore demonstrated for raw,
-not yet for every variant or for Aspire skill/MCP consumption.
+resumption. Run `2026101504938791` also completed all four Aspire steps. Cloud
+Copilot execution is demonstrated for raw and Aspire, including Aspire MCP
+use, but not Aspire skill discovery.
 
 The earlier CES run `2026101502008746` used `ces-dev1` and placeholder
 `image_tag` values, causing a pull of an unpublished image from
@@ -209,24 +210,34 @@ these through `MSBENCH_SKILLS_DIR` and `MSBENCH_MCP_CONFIG`; this does not prove
 that a particular agent loads them.
 
 The [built-in agent guide](https://msbenchapp.azurewebsites.net/documentation/using-msbench-built-in-agents)
-explicitly says the shipped `github-copilot-cli` and
-`github-copilot-coding-agent` packages do **not** read `MSBENCH_MCP_CONFIG`.
-The task declaration and `.github/mcp.json` must not be treated as proof of
-Copilot MCP registration. That guide documents `GITHUB_COPILOT_MCP_JSON`
-configuration through a runner for those packages. A compatible agent/runner
-must also load the skills and record the effective skill and tool catalog.
+says the shipped Copilot packages do not read `MSBENCH_MCP_CONFIG`, but the
+runtime observed in cloud run
+[2026101504938791](https://msbenchapp.azurewebsites.net/run-analysis/2026101504938791)
+does: its runner logs forwarding that variable to
+`COPILOT_CLI_MCP_CONFIG_FILE` and invokes Copilot with
+`--additional-mcp-config @/drop/mcp-config.json`. The trajectory confirms actual
+Aspire tool calls, including `aspire-list_resources`, `aspire-doctor`, and
+Aspire log/trace tools. No custom runner or extra CLI arguments were needed.
+This observed runtime evidence supersedes the guide's MCP limitation for this
+run; do not assume every package version behaves identically.
 
-Until that consuming integration is configured and verified, the `aspire` task
-is an Aspire application with declared skills/MCP, **not a verified full
-skills/MCP treatment under the stock Copilot command**. Oracle success checks
-the application and grader only; oracle does not test skill discovery, MCP
-registration, model access, or conversation resumption. No custom runner is
-silently added to the standard commands.
+The same run's model-visible `<available_skills>` catalog contained only
+`customize-cloud-agent` and `github-pr-media`, not the seven Aspire skills.
+There were no Aspire skill loader calls in its trajectory. The declared
+`/opt/aspire-skills` assets therefore do not establish an active skill treatment:
+this run demonstrates the Aspire application plus MCP, **not the full
+skills/MCP treatment**. Agent-side skill discovery still needs integration.
+
+All four steps received reward 1 with `gpt-6-luna`, no trial exceptions, and
+`resume_trajectory: false`. Agent execution durations were approximately
+98, 60, 31, and 697 seconds. The Redis duration included a 600-second shell
+wait visible in the process log, so it is not pure model reasoning time.
+Oracle success alone cannot establish any of these agent-side capabilities.
 
 The setup audit successfully initialized the Aspire MCP server and listed its
 14 tools directly inside the benchmark image, and verified all seven skill
-directories. This establishes that the assets/server are available, not that
-Copilot registers or loads them.
+directories. That probe established asset/server availability; the cloud
+trajectory above separately establishes actual MCP use.
 
 ### Local Copilot agent prerequisites and authentication
 
