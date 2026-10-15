@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { access, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { access, mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
@@ -24,6 +24,8 @@ test("MSBench variants use shared application sources and independent guidance o
         assert(task.startsWith(path.join(root, "bingo/tasks") + path.sep));
         const config = await readFile(path.join(task, "task.toml"), "utf8");
         assert.equal((config.match(/\[\[steps\]\]/g) ?? []).length, 4);
+        assert.deepEqual([...config.matchAll(/^name = "(startup|services|database|redis)"$/gm)]
+            .map(match => match[1]), ["startup", "services", "database", "redis"]);
         assert.match(config, /multi_step_reward_strategy = "final"/);
         assert.doesNotMatch(config, /^\s*docker_image\s*=/m);
         const { hashes } = await import(path.join(task, "tests/hashes.js"));
@@ -46,6 +48,9 @@ test("MSBench variants use shared application sources and independent guidance o
         assert.match(dockerfile, /signed-by=\/usr\/share\/keyrings\/microsoft-azure-cli\.gpg/);
         const compose = await readFile(path.join(task, "environment/docker-compose.yaml"), "utf8");
         assert.match(compose, /additional_contexts:/);
+        assert.match(compose, /privileged: true/);
+        assert.doesNotMatch(compose, /volumes:|ports:/,
+            "Tasks must not inherit host sockets, credentials, or published ports");
         assert(compose.includes(`https://github.com/sebastienros/aspire-bench.git#${row.task_repo_commit}:msbench/bingo/common/${appName}`));
         for (const step of ["startup", "services", "database", "redis"]) {
             assert((await readFile(path.join(task, `steps/${step}/instruction.md`), "utf8")).trim());
@@ -55,6 +60,27 @@ test("MSBench variants use shared application sources and independent guidance o
         if (row.benchmark_variant === "aspire") {
             assert.match(config, /skills_dir = "\/opt\/aspire-skills"/);
             assert.match(config, /transport = "stdio"/);
+            assert.match(config, /command = "aspire"/);
+            const mcpArgs = config.match(/^args = (\[.*\])$/m);
+            assert(mcpArgs, "Aspire MCP arguments must be declared");
+            assert.deepEqual(JSON.parse(mcpArgs[1]), ["agent", "mcp", "--non-interactive", "--nologo"]);
+            assert.match(dockerfile, /COPY skills\/ \/opt\/aspire-skills\//);
+            const skills = path.join(task, "environment/skills");
+            const skillNames = (await readdir(skills, { withFileTypes: true }))
+                .filter(entry => entry.isDirectory()).map(entry => entry.name).sort();
+            assert.deepEqual(skillNames, ["aspire", "aspire-deployment", "aspire-init",
+                "aspire-monitoring", "aspire-orchestration", "aspire-project-v2-migration", "aspireify"]);
+            for (const name of skillNames) {
+                const document = await readFile(path.join(skills, name, "SKILL.md"), "utf8");
+                assert.match(document, /^---\r?\n/);
+                assert.match(document, new RegExp(`^name: ${name}$`, "m"));
+                assert.match(document, /^description:/m);
+            }
+            const mcp = JSON.parse(await readFile(path.join(commonApp, ".github/mcp.json"), "utf8"));
+            assert.deepEqual(mcp.mcpServers.aspire, {
+                type: "stdio", command: "aspire",
+                args: ["agent", "mcp", "--non-interactive", "--nologo"],
+            });
             await access(path.join(commonApp, "apphost.cs"));
             await assert.rejects(access(path.join(task, "environment/app/apphost.cs")));
         } else {

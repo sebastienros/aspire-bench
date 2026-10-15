@@ -39,12 +39,12 @@ four `steps/`: startup, services, database, Redis. Each step has
 reference implementations for Harbor's standard oracle validation, not
 application setup exposed to the benchmark agent.
 
-| Variant | Application and guidance | Aspire skills/MCP |
+| Variant | Application and guidance | Declared Aspire skills/MCP |
 |---|---|---|
 | `raw` | Raw app, lifecycle-only README | None |
 | `raw-documented` | Raw app, manual setup README | None |
 | `raw-scripted` | Raw app, launcher/check scripts and README | None |
-| `aspire` | Aspire app | Seven skills and stdio MCP |
+| `aspire` | Aspire app | Seven skills and stdio MCP; agent consumption must be verified |
 
 All four variants use instance ID `bingo-health-checks`. The dataset declares
 their logical benchmark relationship with `variant_of_benchmark`,
@@ -67,13 +67,17 @@ executable:
 pipx inject msbench-cli 'harbor==0.20.0' --include-apps
 ```
 
-Both `msbench-cli` and `harbor` must be on PATH. For pipx, add its executable
-directory to the current shell if needed:
+Both `msbench-cli` and `harbor` must be on PATH. MSBench also discovers agent
+plugin executables through PATH. For the macOS pipx installation used here:
 
 ```bash
-export PATH="$HOME/.local/bin:$PATH"
-command -v msbench-cli harbor
+export PATH="$HOME/Library/Application Support/pipx/venvs/msbench-cli/bin:$HOME/.local/bin:$PATH"
+command -v msbench-cli harbor msbench-agent-github-copilot-cli
 ```
+
+On other platforms, substitute pipx's actual `msbench-cli` environment `bin`
+directory. Listing an agent in the remote registry does not prove its local
+runtime executable is discoverable.
 
 Installing plain `msbench-cli` does not install Harbor. The CLI's suggestion
 to run `pip install msbench-cli` when Harbor is missing does not address this.
@@ -106,12 +110,31 @@ Run an intentional model evaluation using the normal CLI:
 msbench-cli run --dataset msbench/bingo/dataset.jsonl \
   --benchmark aspire-bench --variant raw \
   --agent YOUR_AGENT --model YOUR_MODEL \
-  --backend local --workers 1 --harbor-resume-trajectory
+  --backend local --workers 1
 ```
 
 Change `--variant` to `raw-documented`, `raw-scripted`, or `aspire`, keeping
 agent/model and run settings fixed. Keep `--backend` explicit: omitting it
 defaults to `ces-dev1`, not local execution or the staging onboarding path.
+
+### Multi-step invocation and trajectory resumption
+
+The default is one fresh agent invocation and a clean `OUTPUT_DIR` per step.
+The application workspace, running services, and verifier checkpoints persist;
+only agent output is reset. All variants must use the same invocation mode
+when comparing outcomes.
+
+Do **not** add `--harbor-resume-trajectory` to the stock Copilot commands below.
+It preserves `OUTPUT_DIR` and sets `harbor_step.resume_trajectory` in metadata,
+but does not keep an agent process alive or automatically restore conversation
+history. The packaged runner must implement that contract.
+
+In run `2026101503460490`, `gpt-6-luna` passed startup, but the next three
+invocations found `/output/.runner-lock` and exited without processing their
+instructions. This is not evidence of model failure on those steps. Removing
+the flag uses the documented output reset and avoids retaining that lock;
+it changes the experiment to fresh conversations, not same-conversation
+continuation. Only enable resumption with a runner demonstrated to support it.
 
 ### Remote CES staging
 
@@ -119,7 +142,8 @@ The dataset uses the documented Harbor-native **build-on-demand** layout:
 `image_tag` is omitted, `run_platform` is `linux_container`, and
 `container_registry` selects `msbenchstaging.azurecr.io`. Task TOMLs omit
 `docker_image`, so Harbor builds the task environment from its Dockerfile.
-No application-image push is required.
+No application-image push is required. A registry is not a backend selector;
+the registry field does not force a run onto `ces-staging`.
 
 Validate remote orchestration with oracle before spending model inference:
 
@@ -139,12 +163,12 @@ MSBENCH_RUN_ANALYSIS_MODEL=gpt-6-luna msbench-cli run \
   --benchmark aspire-bench --variant raw \
   --agent github-copilot-cli --model gpt-6-luna \
   --backend ces-staging --acr msbenchstaging.azurecr.io \
-  --workers 1 --harbor-resume-trajectory
+  --workers 1
 ```
 
 Use `--backend ces-staging` with `status`, `report`, and `extract` for these
 run IDs. Staging access, cloud agent identity, and privileged Docker Compose
-support remain runtime requirements; local oracle success does not prove them.
+support remain runtime requirements.
 Do not assume a submission or completed CES job is a verifier pass.
 
 Cloud GitHub checkout also requires the
@@ -153,14 +177,13 @@ Cloud GitHub checkout also requires the
 must install/configure the app and approve the repository access. A public
 repository does not bypass this cloud installation-token flow.
 
-Staging oracle run `2026101503131983` reached the native path without pulling
-the placeholder image, but failed while looking up the CES App installation
-for `sebastienros`, before repository checkout. The lookup reported
-`The property 'Count' cannot be found on this object`; the returned installation
-list did not include this owner. A later `CACHE_NAME and CACHE_KEY are required`
-error was secondary. Approve the repository-specific installation before
-retrying; if token lookup still fails, provide this run ID to the CES owner.
-No task or verifier result was produced by that run.
+Staging oracle run `2026101503131983` reached the native path but failed at the
+CES App lookup before checkout. Subsequent cloud run `2026101503460490`
+successfully checked out the task, built the raw image, authenticated Copilot,
+and passed startup. The earlier source-access failure is not the blocker in
+that later run; its remaining failure was the runner lock described above.
+Cloud provisioning is therefore demonstrated for raw, not yet for every variant
+or for the complete four-step Copilot workflow.
 
 The earlier CES run `2026101502008746` used `ces-dev1` and placeholder
 `image_tag` values, causing a pull of an unpublished image from
@@ -169,6 +192,34 @@ unless deliberately switching to published prebuilt images.
 
 See the upstream [cloud guide](https://github.com/devdiv-microsoft/MicrosoftSweBench/blob/main/docs/detailed-reference/harbor/cloud.md)
 and [image-less dataset guide](https://github.com/devdiv-microsoft/MicrosoftSweBench/blob/main/docs/detailed-reference/harbor/onboarding-dataset.md).
+
+### Aspire treatment: declaration is not agent consumption
+
+The Aspire image includes seven skills at `/opt/aspire-skills`, referenced by
+`environment.skills_dir`, and an installed `aspire` executable. Its
+`environment.mcp_servers` declares the stdio command. Harbor/MSBench exposes
+these through `MSBENCH_SKILLS_DIR` and `MSBENCH_MCP_CONFIG`; this does not prove
+that a particular agent loads them.
+
+The [built-in agent guide](https://msbenchapp.azurewebsites.net/documentation/using-msbench-built-in-agents)
+explicitly says the shipped `github-copilot-cli` and
+`github-copilot-coding-agent` packages do **not** read `MSBENCH_MCP_CONFIG`.
+The task declaration and `.github/mcp.json` must not be treated as proof of
+Copilot MCP registration. That guide documents `GITHUB_COPILOT_MCP_JSON`
+configuration through a runner for those packages. A compatible agent/runner
+must also load the skills and record the effective skill and tool catalog.
+
+Until that consuming integration is configured and verified, the `aspire` task
+is an Aspire application with declared skills/MCP, **not a verified full
+skills/MCP treatment under the stock Copilot command**. Oracle success checks
+the application and grader only; oracle does not test skill discovery, MCP
+registration, model access, or conversation resumption. No custom runner is
+silently added to the standard commands.
+
+The setup audit successfully initialized the Aspire MCP server and listed its
+14 tools directly inside the benchmark image, and verified all seven skill
+directories. This establishes that the assets/server are available, not that
+Copilot registers or loads them.
 
 ### Local Copilot agent prerequisites and authentication
 
@@ -210,9 +261,9 @@ The shared-app source currently selects the same published branch as the
 dataset. Builds require network access to GitHub.
 
 Local MSBench execution requires its optional Harbor runtime
-(`msbench-cli[harbor]`); the documented runtime is Harbor 0.20.0.
-For local Harbor execution, prebuilt images are not required: Harbor builds
-each task's Dockerfile. CES worker image provisioning is a separate requirement.
+(`msbench-cli[harbor]`); the documented local runtime is Harbor 0.20.0.
+Both local and cloud Harbor-native execution can build each task's Dockerfile
+on demand; neither requires publishing an application image.
 
 ## Standard local image validation
 
@@ -248,9 +299,9 @@ All images contain .NET 10.0.100, Node 24.14.0, Docker 28.0.4/Compose and
 Aspire CLI 13.6.0, plus Azure CLI, `jq`, and `unzip` for agent provisioning.
 Application restore/build/startup belongs to the task, not
 image construction. The Aspire task declares skills and MCP in `task.toml`.
-The selected MSBench agent must support consuming these capabilities and
-trajectory resumption; CLI flags alone do not prove effective discovery or
-same-conversation continuation.
+The selected MSBench agent must consume the declared capabilities to measure
+the full treatment. Trajectory resumption is a separate, optional runner
+capability, not a requirement for multi-step tasks.
 
 Each step has a 900-second agent limit and a 300-second verifier limit. Final
 reward is binary, using Harbor's `final` aggregation. The graders enforce
@@ -258,6 +309,9 @@ endpoint and health-report contracts, preservation of previous JSON outputs,
 unchanged application inputs, dependency readiness/seed data, application
 listener ownership, frontend API/SignalR proxying and a database/Redis
 round-trip workflow. Redis verification handles the Aspire image's TLS.
+Earlier steps check report shape and immutable checkpoints; the final Redis
+step performs the live stack checks. Intermediate rewards are not independent
+proof that every reported service was healthy.
 
 The only environment bootstrap script starts a **private Docker daemon**
 needed by Compose and Aspire. There is no host Docker socket mount or host
