@@ -15,12 +15,17 @@ test("MSBench variants use shared application sources and independent guidance o
         && row.variant_of_benchmark === "aspire-bench" && row.default_variant === "raw"
         && row.task_style === "harbor-native"
         && row.task_repo === "https://github.com/sebastienros/aspire-bench"));
+    assert(rows.every(row => !("image_tag" in row)
+        && row.run_platform === "linux_container"
+        && row.container_registry === "msbenchstaging.azurecr.io"),
+        "Build-on-demand tasks must not request an unpublished prebuilt image");
     for (const row of rows) {
         const task = path.resolve(root, "..", row.task_path);
         assert(task.startsWith(path.join(root, "bingo/tasks") + path.sep));
         const config = await readFile(path.join(task, "task.toml"), "utf8");
         assert.equal((config.match(/\[\[steps\]\]/g) ?? []).length, 4);
         assert.match(config, /multi_step_reward_strategy = "final"/);
+        assert.doesNotMatch(config, /^\s*docker_image\s*=/m);
         const { hashes } = await import(path.join(task, "tests/hashes.js"));
         const overlayHashes = await hashes(path.join(task, "environment/app"));
         const appName = row.benchmark_variant === "aspire" ? "aspire-app" : "raw-app";

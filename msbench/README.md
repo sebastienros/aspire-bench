@@ -110,8 +110,50 @@ msbench-cli run --dataset msbench/bingo/dataset.jsonl \
 ```
 
 Change `--variant` to `raw-documented`, `raw-scripted`, or `aspire`, keeping
-agent/model and run settings fixed. Omit `--backend local` or choose a
-supported CES backend for cloud execution.
+agent/model and run settings fixed. Keep `--backend` explicit: omitting it
+defaults to `ces-dev1`, not local execution or the staging onboarding path.
+
+### Remote CES staging
+
+The dataset uses the documented Harbor-native **build-on-demand** layout:
+`image_tag` is omitted, `run_platform` is `linux_container`, and
+`container_registry` selects `msbenchstaging.azurecr.io`. Task TOMLs omit
+`docker_image`, so Harbor builds the task environment from its Dockerfile.
+No application-image push is required.
+
+Validate remote orchestration with oracle before spending model inference:
+
+```bash
+MSBENCH_DISABLE_RUN_ANALYSIS=1 msbench-cli run \
+  --dataset msbench/bingo/dataset.jsonl \
+  --benchmark aspire-bench --variant raw \
+  --config fix_validation --backend ces-staging \
+  --acr msbenchstaging.azurecr.io --workers 1
+```
+
+Once staging oracle passes, run the model agent:
+
+```bash
+MSBENCH_RUN_ANALYSIS_MODEL=gpt-6-luna msbench-cli run \
+  --dataset msbench/bingo/dataset.jsonl \
+  --benchmark aspire-bench --variant raw \
+  --agent github-copilot-cli --model gpt-6-luna \
+  --backend ces-staging --acr msbenchstaging.azurecr.io \
+  --workers 1 --harbor-resume-trajectory
+```
+
+Use `--backend ces-staging` with `status`, `report`, and `extract` for these
+run IDs. Staging access, cloud agent identity, and privileged Docker Compose
+support remain runtime requirements; local oracle success does not prove them.
+Do not assume a submission or completed CES job is a verifier pass.
+
+The earlier CES run `2026101502008746` used `ces-dev1` and placeholder
+`image_tag` values, causing a pull of an unpublished image from
+`codeexeccachecorp.azurecr.io` before Harbor started. Do not restore those tags
+unless deliberately switching to published prebuilt images.
+
+See the upstream [cloud guide](https://github.com/devdiv-microsoft/MicrosoftSweBench/blob/main/docs/detailed-reference/harbor/cloud.md)
+and [image-less dataset guide](https://github.com/devdiv-microsoft/MicrosoftSweBench/blob/main/docs/detailed-reference/harbor/onboarding-dataset.md).
 
 ### Local Copilot agent prerequisites and authentication
 
@@ -154,7 +196,8 @@ dataset. Builds require network access to GitHub.
 
 Local MSBench execution requires its optional Harbor runtime
 (`msbench-cli[harbor]`); the documented runtime is Harbor 0.20.0.
-Prebuilt images are not required: Harbor builds each task's Dockerfile.
+For local Harbor execution, prebuilt images are not required: Harbor builds
+each task's Dockerfile. CES worker image provisioning is a separate requirement.
 
 ## Standard local image validation
 
