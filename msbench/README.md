@@ -147,6 +147,21 @@ run IDs. Staging access, cloud agent identity, and privileged Docker Compose
 support remain runtime requirements; local oracle success does not prove them.
 Do not assume a submission or completed CES job is a verifier pass.
 
+Cloud GitHub checkout also requires the
+[CES App](https://github.com/apps/ces-app) installed for the repository owner
+`sebastienros`, with access to **only** `aspire-bench`. An authorized owner
+must install/configure the app and approve the repository access. A public
+repository does not bypass this cloud installation-token flow.
+
+Staging oracle run `2026101503131983` reached the native path without pulling
+the placeholder image, but failed while looking up the CES App installation
+for `sebastienros`, before repository checkout. The lookup reported
+`The property 'Count' cannot be found on this object`; the returned installation
+list did not include this owner. A later `CACHE_NAME and CACHE_KEY are required`
+error was secondary. Approve the repository-specific installation before
+retrying; if token lookup still fails, provide this run ID to the CES owner.
+No task or verifier result was produced by that run.
+
 The earlier CES run `2026101502008746` used `ces-dev1` and placeholder
 `image_tag` values, causing a pull of an unpublished image from
 `codeexeccachecorp.azurecr.io` before Harbor started. Do not restore those tags
