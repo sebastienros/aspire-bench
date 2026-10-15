@@ -100,6 +100,25 @@ test("MSBench variants use shared application sources and independent guidance o
     }
 });
 
+test("all variants start once then assess existing resources with identical prompts", async () => {
+    for (const step of ["startup", "services", "database", "redis"]) {
+        const prompts = await Promise.all(variants.map(variant =>
+            readFile(path.join(root, "bingo/tasks", variant, "steps", step, "instruction.md"), "utf8")));
+        for (const prompt of prompts) {
+            assert.equal(prompt, prompts[0], "Lifecycle instructions must not favor a variant");
+            if (step === "startup") {
+                assert.match(prompt, /Start the application using its normal startup workflow, including its dependencies/);
+                assert.match(prompt, /admin and frontend HTTP endpoints respond/);
+                assert.match(prompt, /Dependency readiness and health will be assessed in later steps/);
+            } else {
+                assert.match(prompt, /Wait for and verify/);
+                assert.match(prompt, /do not start, restart, or recreate/);
+                assert.match(prompt, /remain[s]? running/);
+            }
+        }
+    }
+});
+
 test("each standalone grader preserves checkpoints and rejects invalid health reports", async () => {
     for (const variant of variants) {
         const helpers = path.join(root, "bingo/tasks", variant, "tests");

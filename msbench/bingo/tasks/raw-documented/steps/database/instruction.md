@@ -1,4 +1,6 @@
-Is the database ready and healthy?
+The application and its dependencies were started earlier and remain running.
+Wait for and verify that the existing database is ready and healthy.
+Observe the existing application; do not start, restart, or recreate the database separately.
 Save your assessment in benchmark-database-health.json in the workspace root:
 {"ready":true,"healthy":true,"evidence":"observed check and result"}.
 Use booleans reflecting the actual state and describe the checks you performed.

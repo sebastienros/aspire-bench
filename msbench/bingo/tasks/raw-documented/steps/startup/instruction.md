@@ -1,5 +1,6 @@
-Start the application and verify that all its services are up and working.
-Investigate and fix any startup problems. Leave the application running.
+Start the application using its normal startup workflow, including its dependencies.
+Wait until the admin and frontend HTTP endpoints respond. Leave the application running.
+Dependency readiness and health will be assessed in later steps; do not perform those assessments here.
 Save its admin and frontend URLs in benchmark-endpoints.json in the workspace root:
 {"admin":"http://localhost:PORT","frontend":"http://localhost:PORT"}.
 

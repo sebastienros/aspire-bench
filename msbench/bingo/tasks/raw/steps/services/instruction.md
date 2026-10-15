@@ -1,4 +1,6 @@
-Are all services running and healthy?
+The application was started in the previous step and remains running.
+Wait for and verify that its services are running and healthy.
+Observe the existing application; do not start, restart, or recreate services separately.
 Save your assessment in benchmark-services-health.json in the workspace root:
 {"running":true,"healthy":true,"evidence":"observed check and result"}.
 Use booleans reflecting the actual state and describe the checks you performed.

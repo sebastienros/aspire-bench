@@ -39,6 +39,15 @@ four `steps/`: startup, services, database, Redis. Each step has
 reference implementations for Harbor's standard oracle validation, not
 application setup exposed to the benchmark agent.
 
+The prompts use the same lifecycle in every variant: start the application
+and its dependencies once through its normal workflow, then wait for and
+verify the existing services, database, and Redis. Startup waits for the admin
+and frontend HTTP endpoints, not a separate assessment of every dependency.
+Later steps observe the running application without starting, restarting, or
+recreating individual resources. This accommodates Aspire's application-wide
+startup as well as the raw variants' startup workflows. Output contracts and
+step order remain unchanged.
+
 | Variant | Application and guidance | Declared Aspire skills/MCP |
 |---|---|---|
 | `raw` | Raw app, lifecycle-only README | None |
