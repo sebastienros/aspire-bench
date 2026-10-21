@@ -48,6 +48,7 @@ WORKDIR /app
 COPY --from=aspire-app / /app/
 COPY app/ /app/
 COPY skills/ /opt/aspire-skills/
+COPY skills/ /app/.github/skills/
 COPY input-hashes.json /opt/benchmark/input-hashes.json
 COPY entrypoint.sh /opt/benchmark/entrypoint.sh
 ENTRYPOINT ["tini", "--", "bash", "/opt/benchmark/entrypoint.sh"]

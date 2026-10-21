@@ -33,9 +33,13 @@ test("MSBench variants use shared application sources and independent guidance o
         const appName = row.benchmark_variant === "aspire" ? "aspire-app" : "raw-app";
         const commonApp = path.join(root, "bingo/common", appName);
         const commonHashes = await hashes(commonApp);
+        const skillHashes = row.benchmark_variant === "aspire"
+            ? Object.fromEntries(Object.entries(await hashes(path.join(task, "environment/skills")))
+                .map(([file, digest]) => [path.join(".github/skills", file), digest]))
+            : {};
         assert(Object.keys(commonHashes).every(file => !(file in overlayHashes)),
             "Guidance overlays must not duplicate or replace shared application files");
-        assert.deepEqual({ ...commonHashes, ...overlayHashes },
+        assert.deepEqual({ ...commonHashes, ...overlayHashes, ...skillHashes },
             JSON.parse(await readFile(path.join(task, "environment/input-hashes.json"), "utf8")));
         const dockerfile = await readFile(path.join(task, "environment/Dockerfile"), "utf8");
         assert(!dockerfile.includes("dotnet build") && !dockerfile.includes("npm ci"));
@@ -51,7 +55,8 @@ test("MSBench variants use shared application sources and independent guidance o
         assert.match(compose, /privileged: true/);
         assert.doesNotMatch(compose, /volumes:|ports:/,
             "Tasks must not inherit host sockets, credentials, or published ports");
-        assert(compose.includes(`https://github.com/sebastienros/aspire-bench.git#${row.task_repo_commit}:msbench/bingo/common/${appName}`));
+        assert.match(compose, new RegExp(`https://github\\.com/sebastienros/aspire-bench\\.git#[a-f0-9]{40}:msbench/bingo/common/${appName}`),
+            "Shared application sources must use an immutable commit");
         for (const step of ["startup", "services", "database", "redis"]) {
             assert((await readFile(path.join(task, `steps/${step}/instruction.md`), "utf8")).trim());
             await access(path.join(task, `steps/${step}/tests/test.sh`));
@@ -65,6 +70,7 @@ test("MSBench variants use shared application sources and independent guidance o
             assert(mcpArgs, "Aspire MCP arguments must be declared");
             assert.deepEqual(JSON.parse(mcpArgs[1]), ["agent", "mcp", "--non-interactive", "--nologo"]);
             assert.match(dockerfile, /COPY skills\/ \/opt\/aspire-skills\//);
+            assert.match(dockerfile, /COPY skills\/ \/app\/\.github\/skills\//);
             const skills = path.join(task, "environment/skills");
             const skillNames = (await readdir(skills, { withFileTypes: true }))
                 .filter(entry => entry.isDirectory()).map(entry => entry.name).sort();
