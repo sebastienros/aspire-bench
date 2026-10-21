@@ -213,7 +213,11 @@ and [image-less dataset guide](https://github.com/devdiv-microsoft/MicrosoftSweB
 ### Aspire treatment: declaration is not agent consumption
 
 The Aspire image includes seven skills at `/opt/aspire-skills`, referenced by
-`environment.skills_dir`, and an installed `aspire` executable. Its
+`environment.skills_dir`, and at `/app/.github/skills` for Copilot's native
+[project-skill discovery](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-skills).
+Both locations are built from the same checked-in skill snapshot; no custom
+runner or runtime staging script is needed. The project copies are covered
+by the verifier's immutable input hashes. The image also has an installed `aspire` executable. Its
 `environment.mcp_servers` declares the stdio command. Harbor/MSBench exposes
 these through `MSBENCH_SKILLS_DIR` and `MSBENCH_MCP_CONFIG`; this does not prove
 that a particular agent loads them.
@@ -235,7 +239,8 @@ The same run's model-visible `<available_skills>` catalog contained only
 There were no Aspire skill loader calls in its trajectory. The declared
 `/opt/aspire-skills` assets therefore do not establish an active skill treatment:
 this run demonstrates the Aspire application plus MCP, **not the full
-skills/MCP treatment**. Agent-side skill discovery still needs integration.
+skills/MCP treatment**. It predates the project-local skill installation above;
+the corrected image still needs agent-trajectory verification.
 
 All four steps received reward 1 with `gpt-6-luna`, no trial exceptions, and
 `resume_trajectory: false`. Agent execution durations were approximately
@@ -270,11 +275,11 @@ does not verify this agent-specific setup path.
 **Commit and push the tasks and shared apps before running through MSBench**, including
 with `--backend local`: MSBench fetches `task_path` from `task_repo`; it does
 not execute an uncommitted local folder. The dataset points at this repository's
-origin, `https://github.com/sebastienros/aspire-bench`, and currently selects
-the published `sebros/msbench-benchmark-variants` branch.
-While working on a pushed branch, edit `task_repo_commit` in the four rows to
-that branch, and change the Git source ref in all four tasks'
-`environment/docker-compose.yaml` files to that branch.
+origin, `https://github.com/sebastienros/aspire-bench`. The dataset currently
+pins task definitions to `1fcca7e91c89716f0e4a8bf7324da13a39f70c66`;
+all four Compose contexts pin shared application sources to
+`baacba3e17181491c9a4d419db7d0e6763c3d363`. These are separate commits so
+task changes do not require recopying or republishing unchanged applications.
 For reproducible runs, first pin the Compose Git contexts to a pushed commit
 containing the shared apps, then commit/push the updated task definitions and
 pin the dataset's `task_repo_commit` values to that task commit SHA.
@@ -284,8 +289,7 @@ Tasks use Docker Compose's `build.additional_contexts` and Dockerfile
 `COPY --from=raw-app` or `COPY --from=aspire-app` to load their shared directory
 from this origin repository.
 This works even when MSBench sparse-checks out only a selected task folder.
-The shared-app source currently selects the same published branch as the
-dataset. Builds require network access to GitHub.
+Builds require network access to GitHub.
 
 Local MSBench execution requires its optional Harbor runtime
 (`msbench-cli[harbor]`); the documented local runtime is Harbor 0.20.0.
