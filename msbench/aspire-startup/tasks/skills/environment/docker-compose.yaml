@@ -1,0 +1,7 @@
+services:
+  main:
+    privileged: true
+    build:
+      additional_contexts:
+        aspire-app: ${MSBENCH_ASPIRE_APP_CONTEXT:-https://github.com/sebastienros/aspire-bench.git#baacba3e17181491c9a4d419db7d0e6763c3d363:msbench/bingo/common/aspire-app}
+        aspire-skills: ${MSBENCH_ASPIRE_SKILLS_CONTEXT:-https://github.com/sebastienros/aspire-bench.git#1fcca7e91c89716f0e4a8bf7324da13a39f70c66:msbench/bingo/tasks/aspire/environment/skills}

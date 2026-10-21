@@ -8,6 +8,11 @@ synchronization between the two.
 
 ## Layout and variants
 
+The separate [Aspire startup ablation](aspire-startup/README.md) compares
+no skills/MCP, skills only, MCP only, and both with one matched startup
+recipe and command-boundary timing. It does not change the original
+four-step comparison below.
+
 ```text
 msbench/
   bingo/
