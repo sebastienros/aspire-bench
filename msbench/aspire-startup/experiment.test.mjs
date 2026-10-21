@@ -8,6 +8,19 @@ import { hashes } from "./tasks/none/tests/hashes.js";
 const root = path.dirname(fileURLToPath(import.meta.url));
 const treatments = ["none", "skills", "mcp", "skills-mcp"];
 
+test("startup dataset pins four treatments to one published task commit", async () => {
+    const rows = (await readFile(path.join(root, "dataset.jsonl"), "utf8")).trim().split("\n").map(JSON.parse);
+    assert.deepEqual(rows.map(row => row.benchmark_variant), treatments);
+    assert.equal(new Set(rows.map(row => row.task_repo_commit)).size, 1);
+    for (const row of rows) {
+        assert.match(row.task_repo_commit, /^[a-f0-9]{40}$/);
+        assert.equal(row.instance_id, "bingo-startup");
+        assert.equal(row.variant_of_benchmark, "aspire-startup");
+        assert.equal(row.task_repo, "https://github.com/sebastienros/aspire-bench");
+        assert.equal(row.task_path, `msbench/aspire-startup/tasks/${row.benchmark_variant}`);
+    }
+});
+
 test("startup cells share prompts, recipe and verifier but isolate skill/MCP assets", async () => {
     const first = path.join(root, "tasks/none");
     const app = await hashes(path.join(root, "../bingo/common/aspire-app"));

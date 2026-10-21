@@ -86,3 +86,23 @@ conversation continuation. That requires a separate multi-step runtime probe:
 successful execution, receipt of every new instruction, and an actual reloaded
 session/history must all be demonstrated. Preserving `OUTPUT_DIR`, reusing the
 workspace, or setting `--harbor-resume-trajectory` alone is insufficient.
+
+## Continuation retry with MSBench 0.3.67
+
+Probe [2026102173182342](https://msbenchapp.azurewebsites.net/run-analysis/2026102173182342)
+retried the existing four-step Aspire task after the CLI upgrade, using the
+current standard package rather than a custom runner. It resolved
+`github-copilot-cli-pkg-main-20261021-184958` and CLI `1.0.102`.
+The first agent invocation exited with code 1 before any model tool call;
+the available error reported only `Copilot CLI process exited with code 1`.
+The subsequent three invocations found `/output/.runner-lock` and exited
+without processing their instructions. All step rewards were 0.
+
+This is an agent-runtime failure, not application/model failure, and not a
+valid continuation-performance sample. Upgrading the submission CLI did not
+produce a working resumed session in this probe. Do not remove the lock and
+claim continuation: the runner must reload the actual model session as well.
+The paired fresh-versus-continuation arm remains blocked pending a runner
+with verified session reload (or an explicitly selected custom adapter).
+Keep this diagnostic probe out of startup-ablation aggregates; those use
+the previously working pinned package and CLI version.
