@@ -47,7 +47,7 @@ check them against trajectory/tool boundaries rather than treating their
 valid shape as independent proof. A wait's completion is not a measurement
 of the earliest instant the HTTP endpoint could have responded.
 
-Compare three attempts per cell with the same pinned `gpt-6-luna` agent,
+Compare three model-executed attempts per cell with the same pinned `gpt-6-luna` agent,
 Copilot package/CLI version, and limits. Check actual skill/MCP calls in each
 trajectory: availability does not guarantee consumption. Analyze this
 startup-only experiment independently of the older multi-step totals.
@@ -86,6 +86,84 @@ conversation continuation. That requires a separate multi-step runtime probe:
 successful execution, receipt of every new instruction, and an actual reloaded
 session/history must all be demonstrated. Preserving `OUTPUT_DIR`, reusing the
 workspace, or setting `--harbor-resume-trajectory` alone is insufficient.
+
+## Observed startup results
+
+The October 21, 2026 run used MSBench CLI `0.3.67`, CES staging, model
+`gpt-6-luna`, package `github-copilot-cli-pkg-main-20261014-215627`, and
+Copilot CLI `1.0.99-0` (verified in every executed trial's
+`cli-provenance.json`). Dataset task definitions were pinned to
+`a4b793929abe5d90a6eae75a6e43d5b7ada8904c`; shared application sources
+remained pinned to `baacba3e17181491c9a4d419db7d0e6763c3d363`.
+All four finalized Docker images passed local timed Harbor oracle runs
+before cloud inference.
+
+All 12 model-executed trials passed startup verification with reward 1 and
+no trial/step exceptions. There were **13 submissions**, including one
+agent-setup failure before model execution, reported separately below.
+The following values are independent column medians in seconds, not an
+additive decomposition of a single representative run:
+
+| Variant | Executed passes | Full agent time | Launch command | Subsequent wait | Endpoint extraction | Outside recipe |
+|---|---:|---:|---:|---:|---:|---:|
+| `none` | 3/3 | 82.6 | 19.8 | 44.8 | 0.17 | 21.4 |
+| `skills` | 3/3 | 90.3 | 20.0 | 44.0 | 0.16 | 30.4 |
+| `mcp` | 3/3 | 87.2 | 19.7 | 44.7 | 0.17 | 25.9 |
+| `skills-mcp` | 3/3 | 88.8 | 18.8 | 36.3 | 0.21 | 30.9 |
+
+Outside-recipe time is the per-trial sum of pre-launch and post-recipe
+agent time. Median pre-launch/post-recipe seconds were respectively
+12.0/10.1 (`none`), 18.7/11.9 (`skills`), 14.3/11.7 (`mcp`), and
+18.4/12.5 (`skills-mcp`). Every recipe's recorded start/end boundaries
+were checked against the corresponding shell-tool execution start/end
+events and Harbor's agent-execution interval.
+
+| Variant | Attempt 1: full agent seconds | Attempt 2: full agent seconds | Attempt 3: full agent seconds |
+|---|---|---|---|
+| `none` | [82.6](https://msbenchapp.azurewebsites.net/run-analysis/2026102173520438) | [75.9](https://msbenchapp.azurewebsites.net/run-analysis/2026102173521098) | [117.1](https://msbenchapp.azurewebsites.net/run-analysis/2026102173521720) |
+| `skills` | [83.6](https://msbenchapp.azurewebsites.net/run-analysis/2026102173540362) | [104.1](https://msbenchapp.azurewebsites.net/run-analysis/2026102173541146) | [90.3](https://msbenchapp.azurewebsites.net/run-analysis/2026102173541828) |
+| `mcp` | [87.8](https://msbenchapp.azurewebsites.net/run-analysis/2026102173540372) | [Setup failure](https://msbenchapp.azurewebsites.net/run-analysis/2026102173541158) | [87.2](https://msbenchapp.azurewebsites.net/run-analysis/2026102173541774) |
+| `skills-mcp` | [79.2](https://msbenchapp.azurewebsites.net/run-analysis/2026102173540366) | [93.6](https://msbenchapp.azurewebsites.net/run-analysis/2026102173541052) | [88.8](https://msbenchapp.azurewebsites.net/run-analysis/2026102173541688) |
+
+MCP-only attempt 2 raised `MSBenchAgentSetupError`. Its setup log showed
+that npm installation completed but the Copilot CLI startup probe failed
+with `no platform package found`. No model ran and no startup timing was
+produced; the underlying reason for the missing package was not established.
+A separately tagged, otherwise unchanged
+[replacement submission](https://msbenchapp.azurewebsites.net/run-analysis/2026102175185594)
+passed in 80.2 agent seconds. The MCP medians include attempts 1, 3, and
+this replacement; original-submission accounting remains 2 passes and
+1 setup failure, not 3/3 original passes.
+
+### What the trajectories show
+
+Every executed trial followed the common `aspire start` recipe rather
+than inventing a launch procedure. All six skill-enabled trials loaded
+`aspire-orchestration`; two also loaded the `aspire` router. No
+skill-disabled trial invoked a skill. MCP-only trials made no Aspire
+MCP calls. The combined treatment's second attempt made one successful
+`aspire-list_apphosts` call before launch, returning no running AppHosts;
+its other two attempts made none. No no-MCP trial called Aspire MCP.
+This therefore measures **capability availability**, not a forced
+CLI-versus-MCP launch comparison.
+
+With the endpoint recipe, extraction itself took only 0.15-0.26 seconds
+and post-recipe agent work took 7.6-12.5 seconds across trials. The
+combined treatment's median startup agent time was 88.8 seconds, versus
+115.1 seconds for startup in the earlier four-step experiment. That
+historical difference is not a controlled estimate of the recipe's
+effect alone: the task scope/prompt also changed and infrastructure
+timing/cache state was not controlled.
+
+Skills still added observable pre-launch discovery: their trajectories
+loaded guidance/reference files and performed worktree/AppHost checks
+before the supplied command. Median launch-command times were similar
+across cells (18.8-20.0 seconds); the full-agent differences do not imply
+that skills make the application itself slower. Wait time and total time
+also varied substantially, including a 117.1-second no-skills/no-MCP
+trial. Three valid samples per cell, unequal actual MCP consumption,
+and unpaired infrastructure variation are insufficient for a reliable
+performance ranking or a causal claim about MCP.
 
 ## Continuation retry with MSBench 0.3.67
 
