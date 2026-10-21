@@ -19,6 +19,8 @@ test("MSBench variants use shared application sources and independent guidance o
         && row.run_platform === "linux_container"
         && row.container_registry === "msbenchstaging.azurecr.io"),
         "Build-on-demand tasks must not request an unpublished prebuilt image");
+    assert(rows.every(row => /^[a-f0-9]{40}$/.test(row.task_repo_commit)),
+        "Comparison task definitions must use immutable commits");
     for (const row of rows) {
         const task = path.resolve(root, "..", row.task_path);
         assert(task.startsWith(path.join(root, "bingo/tasks") + path.sep));

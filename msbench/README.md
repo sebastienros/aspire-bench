@@ -53,7 +53,7 @@ step order remain unchanged.
 | `raw` | Raw app, lifecycle-only README | None |
 | `raw-documented` | Raw app, manual setup README | None |
 | `raw-scripted` | Raw app, launcher/check scripts and README | None |
-| `aspire` | Aspire app | MCP use verified with Copilot; seven declared skills not discovered in the observed run |
+| `aspire` | Aspire app | Seven project skills installed; Aspire skill loading and MCP use verified with Copilot |
 
 All four variants use instance ID `bingo-health-checks`. The dataset declares
 their logical benchmark relationship with `variant_of_benchmark`,
@@ -186,6 +186,68 @@ run IDs. Staging access, cloud agent identity, and privileged Docker Compose
 support remain runtime requirements.
 Do not assume a submission or completed CES job is a verifier pass.
 
+### Pinned four-variant comparison (2026-10-21)
+
+Three independent attempts per variant completed on CES staging, using:
+
+- Task commit `1fcca7e91c89716f0e4a8bf7324da13a39f70c66` and shared application
+  commit `baacba3e17181491c9a4d419db7d0e6763c3d363`.
+- Agent package `github-copilot-cli-pkg-main-20261014-215627`,
+  Copilot CLI `1.0.99-0` (confirmed in each step's `cli-provenance.json`),
+  model `gpt-6-luna`, one worker per run, and no trajectory resumption.
+- The existing 900-second per-step agent limits and identical prompts.
+  Optional model-based report analysis was disabled.
+
+| Variant | Final passes | Median agent seconds | Median input tokens | Median output tokens | Median tool calls |
+|---|---:|---:|---:|---:|---:|
+| `raw` | 3/3 | 197.5 | 555,339 | 10,106 | 67 |
+| `raw-documented` | 3/3 | 178.0 | 471,332 | 8,024 | 58 |
+| `raw-scripted` | 3/3 | 159.9 | 435,747 | 5,777 | 53 |
+| `aspire` | 3/3 | 242.1 | 936,295 | 10,052 | 69 |
+
+All 48 step rewards were 1, with no trial or step exceptions. Every Aspire
+attempt loaded `aspire` and `aspire-orchestration`, and made 10, 8, and 4
+Aspire MCP calls respectively. The raw attempts made no Aspire skill or MCP
+calls. This confirms actual treatment consumption, not merely configuration.
+
+Agent seconds sum all four Harbor `agent_execution` durations per trial;
+they include shell/application waits but exclude image builds, agent setup,
+verifiers, queue time, and report finalization. Token figures sum the four
+steps' `agent_result` values; input includes cached tokens. Each table column
+is its own median, not necessarily from the same attempt. Tool calls count
+`tool.execution_start` events from each step's trajectory.
+
+This is a small, single-application smoke comparison, not evidence of a
+general performance ranking. The variants combine application orchestration,
+guidance, skills and MCP rather than isolating each factor. These image
+builds use cached/remote dependencies, not controlled cold caches. With
+success saturated at 3/3 for every variant, more trials and additional tasks
+are needed before drawing effectiveness conclusions.
+
+| Variant | Attempt 1 | Attempt 2 | Attempt 3 |
+|---|---|---|---|
+| `raw` | [2026102168804688](https://msbenchapp.azurewebsites.net/run-analysis/2026102168804688) | [2026102168805324](https://msbenchapp.azurewebsites.net/run-analysis/2026102168805324) | [2026102168805924](https://msbenchapp.azurewebsites.net/run-analysis/2026102168805924) |
+| `raw-documented` | [2026102168822404](https://msbenchapp.azurewebsites.net/run-analysis/2026102168822404) | [2026102168823056](https://msbenchapp.azurewebsites.net/run-analysis/2026102168823056) | [2026102168823658](https://msbenchapp.azurewebsites.net/run-analysis/2026102168823658) |
+| `raw-scripted` | [2026102168822398](https://msbenchapp.azurewebsites.net/run-analysis/2026102168822398) | [2026102168823052](https://msbenchapp.azurewebsites.net/run-analysis/2026102168823052) | [2026102168823656](https://msbenchapp.azurewebsites.net/run-analysis/2026102168823656) |
+| `aspire` | [2026102168822410](https://msbenchapp.azurewebsites.net/run-analysis/2026102168822410) | [2026102168823090](https://msbenchapp.azurewebsites.net/run-analysis/2026102168823090) | [2026102168823706](https://msbenchapp.azurewebsites.net/run-analysis/2026102168823706) |
+
+Reproduce one variant's three-attempt batch with standard MSBench commands:
+
+```bash
+export USE_COPILOT_CLI_VERSION=1.0.99-0
+MSBENCH_DISABLE_RUN_ANALYSIS=1 msbench-cli run \
+  --dataset msbench/bingo/dataset.jsonl \
+  --benchmark aspire-bench --variant raw \
+  --agent github-copilot-cli=github-copilot-cli-pkg-main-20261014-215627 \
+  --model gpt-6-luna --env USE_COPILOT_CLI_VERSION \
+  --backend ces-staging --acr msbenchstaging.azurecr.io \
+  --workers 1 --repeat 3 --tag comparison=20261021-pinned
+unset USE_COPILOT_CLI_VERSION
+```
+
+Repeat with the other three `--variant` values. Keep the source, package,
+CLI version, model, limits and invocation mode fixed.
+
 Cloud GitHub checkout also requires the
 [CES App](https://github.com/apps/ces-app) installed for the repository owner
 `sebastienros`, with access to **only** `aspire-bench`. An authorized owner
@@ -198,9 +260,10 @@ successfully checked out the task, built the raw image, authenticated Copilot,
 and passed startup. The earlier source-access failure is not the blocker in
 that later run; its remaining failure was the runner lock described above.
 Later run `2026101504123494` completed all four raw steps successfully without
-resumption. Run `2026101504938791` also completed all four Aspire steps. Cloud
-Copilot execution is demonstrated for raw and Aspire, including Aspire MCP
-use, but not Aspire skill discovery.
+resumption. Run `2026101504938791` also completed all four Aspire steps.
+Those initial runs demonstrated cloud execution and Aspire MCP, but did not
+yet establish Aspire skill discovery. The pinned comparison above verifies
+both skill consumption and MCP use with the corrected image.
 
 The earlier CES run `2026101502008746` used `ces-dev1` and placeholder
 `image_tag` values, causing a pull of an unpublished image from
@@ -240,9 +303,23 @@ There were no Aspire skill loader calls in its trajectory. The declared
 `/opt/aspire-skills` assets therefore do not establish an active skill treatment:
 this run demonstrates the Aspire application plus MCP, **not the full
 skills/MCP treatment**. It predates the project-local skill installation above;
-the corrected image still needs agent-trajectory verification.
+the corrected image was verified separately below.
 
-All four steps received reward 1 with `gpt-6-luna`, no trial exceptions, and
+Cloud probe [2026102168273796](https://msbenchapp.azurewebsites.net/run-analysis/2026102168273796)
+verified the project-local installation: the actual `skill` tool loaded
+`aspire` in all four steps and `aspire-orchestration` during startup. Aspire
+MCP calls also appeared in the trajectory. All four step rewards and the final
+reward were 1, with no trial exception and resumption disabled. This verifies
+actual skill consumption rather than just asset presence; it does not imply
+all seven skills should be invoked for this task.
+
+The probe pinned `github-copilot-cli=github-copilot-cli-pkg-main-20261014-215627`,
+`USE_COPILOT_CLI_VERSION=1.0.99-0`, and model `gpt-6-luna`. Harbor agent
+execution durations were approximately 130, 48, 28, and 38 seconds; these include
+shell waits and application work, not just model reasoning.
+
+In the earlier run `2026101504938791`, all four steps received reward 1 with
+`gpt-6-luna`, no trial exceptions, and
 `resume_trajectory: false`. Agent execution durations were approximately
 98, 60, 31, and 697 seconds. The Redis duration included a 600-second shell
 wait visible in the process log, so it is not pure model reasoning time.
