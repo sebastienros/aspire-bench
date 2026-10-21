@@ -184,3 +184,66 @@ The paired fresh-versus-continuation arm remains blocked pending a runner
 with verified session reload (or an explicitly selected custom adapter).
 Keep this diagnostic probe out of startup-ablation aggregates; those use
 the previously working pinned package and CLI version.
+
+## Alternative-agent continuation control
+
+Two additional October 21 runs used the unchanged original four-step Aspire
+task and model `gpt-6-luna`, with MSBench CLI `0.3.67` on CES staging:
+
+| Mode | Run | Step rewards | Final reward | Actual conversations |
+|---|---|---|---|---|
+| Fresh | [2026102179917578](https://msbenchapp.azurewebsites.net/run-analysis/2026102179917578) | 1, 1, 1, 1 | 1 | Four separate Codex threads |
+| Resume requested | [2026102179916912](https://msbenchapp.azurewebsites.net/run-analysis/2026102179916912) | 1, 1, 1, 1 | 1 | Four separate Codex threads |
+
+Both used Registry agent `msbench-codex-cli@0.14.1792564410`, explicitly
+pinned Python runtime `msbench-agent-codex-cli==0.0.15`, and resolved vendor
+CLI `codex-cli 0.163.0`. The vendor CLI version was observed, not explicitly
+pinned. The task image, sources, instructions, skills/MCP declarations, and
+limits were unchanged; no custom runner was introduced.
+
+Standard command (for the fresh control, omit `--harbor-resume-trajectory`
+and set the conversation tag to `fresh`):
+
+```bash
+MSBENCH_DISABLE_RUN_ANALYSIS=1 msbench-cli run \
+  --dataset msbench/bingo/dataset.jsonl \
+  --benchmark aspire-bench --variant aspire \
+  --agent msbench-codex-cli@0.14.1792564410 \
+  --agent-runtime-version 0.0.15 --model gpt-6-luna \
+  --backend ces-staging --acr msbenchstaging.azurecr.io --workers 1 \
+  --harbor-resume-trajectory \
+  --tag experiment=continuation-codex-control \
+  --tag conversation=resume-requested
+```
+
+Every native step completed without a trial/step exception, including in
+resume-requested mode: Codex did not encounter the Copilot runner's lock
+refusal. Per-step `harbor-metadata.json` correctly reported
+`resume_trajectory: false` for the fresh control and `true` for the requested
+resume control. Runner logs accumulated in the latter's output snapshots.
+However, raw per-step `agent.log` events recorded these distinct thread IDs:
+
+| Step | Fresh thread | Resume-requested thread |
+|---|---|---|
+| startup | `01a16088-1c55-7903-9325-6f13994ca17b` | `01a16087-e657-7252-95a9-f8286d39832d` |
+| services | `01a16089-cf82-7ee0-b104-2c09229adf16` | `01a1608e-b77d-7313-8183-7311233dc157` |
+| database | `01a1608a-582d-7791-a639-b9e6d25fd782` | `01a1608f-7768-7b42-9dae-d46bc2203077` |
+| redis | `01a1608b-561e-77c3-b336-d11110a8eb63` | `01a16090-74ba-7041-8aa6-e20d08a9b07a` |
+
+The prepared package's `run-codex-cli-exec.cjs` confirms the distinction:
+it extracts only the current `metadata.problem_statement`, then invokes
+`codex exec ... -- <problemStatement>` for every step. It does not select
+`exec resume`, load a prior thread, or inject conversation history.
+The converted resume-services trajectory was malformed JSON, so thread
+identity was checked in raw events rather than relying on that conversion.
+
+This control shows that the shared execution path can deliver and complete
+all four instructions with output preservation enabled. It narrows the
+**lock refusal** toward the Copilot runner integration; it does not diagnose
+Copilot's initial exit or prove MSBench conversation resumption works
+end-to-end. Neither Codex run is a genuine resumed-session sample. Total
+agent times were 283.2 seconds (fresh) and 591.6 seconds (resume requested),
+but these are not continuation-effect measurements: both started fresh
+threads and the latter's startup alone took 440.6 seconds.
+The paired fresh-versus-genuinely-resumed comparison remains blocked on
+a packaged runner that actually reloads its conversation.
