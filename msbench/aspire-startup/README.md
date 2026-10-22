@@ -247,3 +247,26 @@ but these are not continuation-effect measurements: both started fresh
 threads and the latter's startup alone took 440.6 seconds.
 The paired fresh-versus-genuinely-resumed comparison remains blocked on
 a packaged runner that actually reloads its conversation.
+
+## Compact startup-skill follow-up
+
+The separate `compact-skills` treatment replaces the seven general Aspire
+skills with one short `aspire-orchestration` skill. It points directly to the
+same README recipe and retains failure handling and input-preservation rules,
+without a router or additional reference files. MCP remains absent.
+The application, prompt, recipe, oracle, resource limits, and live checks
+match the existing `skills` treatment; the verifier only adds the new
+treatment name to its accepted values. The original four-cell dataset and
+historical tasks remain unchanged.
+
+This intentionally tests a reduced, startup-specific guidance bundle, not
+lossless compression of all seven skills or general Aspire capabilities.
+The README already supplies the commands in both arms. Compare three fresh
+model attempts per arm with the original pinned Copilot package/CLI/model,
+and verify actual skill consumption and timing boundaries before interpreting
+pre-launch or total-time differences. Run both arms again rather than
+using the historical skill-enabled sample as the sole baseline.
+
+The compact image passed a local Harbor oracle run with reward 1 and no
+exceptions. The structural suite checks shared inputs and the compact
+skill's exact immutable-input manifest.

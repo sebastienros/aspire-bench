@@ -70,6 +70,38 @@ test("startup endpoint contract rejects invalid or nonlocal URLs", async () => {
         assert.throws(() => endpoints(value));
 });
 
+test("compact skill treatment changes guidance only, without MCP or extra references", async () => {
+    const task = path.join(root, "tasks/compact-skills");
+    const baseline = path.join(root, "tasks/skills");
+    for (const file of ["steps/startup/instruction.md", "steps/startup/solution/solve.sh",
+        "steps/startup/tests/test.sh", "environment/app/README.md", "environment/entrypoint.sh",
+        "tests/hashes.js", "tests/http.js", "tests/process.js"]) {
+        assert.equal(await readFile(path.join(task, file), "utf8"),
+            await readFile(path.join(baseline, file), "utf8"), file);
+    }
+    const config = await readFile(path.join(task, "task.toml"), "utf8");
+    assert.equal(config.replace('treatment = "compact-skills"', 'treatment = "skills"'),
+        await readFile(path.join(baseline, "task.toml"), "utf8"));
+    const verifier = await readFile(path.join(task, "tests/startup-verify.js"), "utf8");
+    assert.equal(verifier.replace(', "compact-skills"', ""),
+        await readFile(path.join(baseline, "tests/startup-verify.js"), "utf8"));
+    const skillFiles = await hashes(path.join(task, "environment/skills"));
+    assert.deepEqual(Object.keys(skillFiles), ["aspire-orchestration/SKILL.md"]);
+    const skill = await readFile(path.join(task, "environment/skills/aspire-orchestration/SKILL.md"), "utf8");
+    assert(skill.length < 1500);
+    assert.match(skill, /\/app\/README.md/);
+    const dockerfile = await readFile(path.join(task, "environment/Dockerfile"), "utf8");
+    assert.match(dockerfile, /RUN rm \/app\/.github\/mcp.json/);
+    assert.match(dockerfile, /COPY skills\/ \/app\/.github\/skills\//);
+    const expected = { ...await hashes(path.join(root, "../bingo/common/aspire-app")),
+        ...await hashes(path.join(task, "environment/app")) };
+    delete expected[".github/mcp.json"];
+    for (const [file, digest] of Object.entries(skillFiles))
+        expected[`.github/skills/${file}`] = digest;
+    assert.deepEqual(JSON.parse(await readFile(path.join(task, "environment/input-hashes.json"), "utf8")),
+        expected);
+});
+
 test("startup timing contract rejects unordered, stale, or invented field shapes", async () => {
     const { validateTiming } = await import("./tasks/none/tests/startup-verify.js");
     const now = Date.now();
