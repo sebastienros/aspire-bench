@@ -8,6 +8,11 @@ synchronization between the two.
 
 ## Layout and variants
 
+The [Aspire improvement findings register](FINDINGS.md) collects actionable
+lessons across experiments, including evidence, limitations, negative results,
+and proposed skills/MCP improvements. Update it as new experiments change
+what we know.
+
 The separate [Aspire startup ablation](aspire-startup/README.md) compares
 no skills/MCP, skills only, MCP only, and both with one matched startup
 recipe and command-boundary timing. It does not change the original

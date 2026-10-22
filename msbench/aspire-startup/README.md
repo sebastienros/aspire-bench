@@ -1,5 +1,8 @@
 # Aspire startup ablation
 
+Cross-experiment lessons and improvement candidates are tracked in the
+[Aspire improvement findings register](../FINDINGS.md).
+
 This experiment isolates skills/MCP availability from the four-step Bingo
 benchmark. It uses the same shared Aspire application, installed tools,
 resources, and agent limits, but only asks for startup and endpoint discovery.
