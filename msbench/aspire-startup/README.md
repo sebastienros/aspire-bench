@@ -354,3 +354,74 @@ Check actual skill loading, correct startup and timing files, discovery cost,
 and full agent time independently. The prompt does not name either guidance
 file. A passing oracle proves image/verifier viability, not model skill
 discovery; both images passed locally before cloud submissions.
+
+The separate `location-dataset.jsonl` pins both treatments to
+`a449468c06970caeffd4f89989c314c3c6cf6d56`. Standard reproduction:
+
+```bash
+export USE_COPILOT_CLI_VERSION=1.0.99-0
+MSBENCH_DISABLE_RUN_ANALYSIS=1 msbench-cli run \
+  --dataset msbench/aspire-startup/location-dataset.jsonl \
+  --benchmark aspire-startup --variant startup-skill \
+  --agent github-copilot-cli=github-copilot-cli-pkg-main-20261014-215627 \
+  --model gpt-6-luna --env USE_COPILOT_CLI_VERSION \
+  --backend ces-staging --acr msbenchstaging.azurecr.io --workers 1 \
+  --repeat 3 --tag experiment=startup-recipe-location
+unset USE_COPILOT_CLI_VERSION
+```
+
+Repeat with `--variant readme-only`. The earlier datasets and their explicitly
+README-directed prompts are unchanged and are not pooled into this comparison.
+
+### Observed recipe-location results
+
+The October 21 comparison (October 22 UTC run IDs) used MSBench `0.3.67`,
+the pinned package/model above, and verified CLI `1.0.99-0` in all six
+model-executed trials. Every executed startup and final reward was 1,
+with no trial/step exceptions.
+
+| Recipe location | Full agent time | Pre-launch | Launch command | Subsequent wait | Extraction | Post-recipe | Outside recipe |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| README only | 86.3 | 14.3 | 19.3 | 45.5 | 0.16 | 9.7 | 23.0 |
+| Single startup skill | 72.4 | 8.9 | 20.4 | 36.4 | 0.21 | 6.1 | 14.9 |
+
+Values are independent column medians in seconds. Outside-recipe time
+is computed per trial before taking the median. Cooperative timestamp
+boundaries were checked against Harbor's agent interval and the shell
+execution. README attempt 2 used an asynchronous shell: its final
+`read_bash` exit-0 event, not the initial still-running tool return,
+provides the completion bound.
+
+| Recipe location | Attempt 1: full agent seconds | Attempt 2: full agent seconds | Attempt 3: full agent seconds |
+|---|---|---|---|
+| README only | [89.6](https://msbenchapp.azurewebsites.net/run-analysis/2026102202625460) | [86.3](https://msbenchapp.azurewebsites.net/run-analysis/2026102202626270) | [77.4](https://msbenchapp.azurewebsites.net/run-analysis/2026102202626884) |
+| Single startup skill | [72.4](https://msbenchapp.azurewebsites.net/run-analysis/2026102202625462) | [Build HTTP 503](https://msbenchapp.azurewebsites.net/run-analysis/2026102202626280) | [Build HTTP 504](https://msbenchapp.azurewebsites.net/run-analysis/2026102202626886) |
+
+Eight submissions produced those six executed trials. The two skill-arm
+build failures occurred fetching `https://aspire.dev/install.sh`, before
+model execution, and have no startup timing. Two unchanged, explicitly
+tagged replacements passed in
+[76.2 seconds](https://msbenchapp.azurewebsites.net/run-analysis/2026102203603998)
+and [70.3 seconds](https://msbenchapp.azurewebsites.net/run-analysis/2026102203604770).
+Skill medians include the original executed trial and these replacements;
+original-submission accounting remains one pass and two build failures.
+
+All three executed skill trials invoked `aspire-startup` first, then ran
+the recipe in one shell without opening the README or inspecting AppHost
+sources beforehand. README-only trials instead searched the workspace,
+read the README and AppHost/configuration, and inspected repository or
+environment state before launch. The same procedural content therefore
+reached the agent through a directly selected skill with less discovery
+in these observed trajectories.
+
+Median pre-launch time fell by 5.4 seconds and outside-recipe time by
+8.1 seconds. Full agent time was 13.9 seconds lower in this sample, but
+the readiness-wait median was also 9.0 seconds lower; these independent
+medians do not form an additive causal decomposition. Three valid
+samples per arm, replacement trials later in time, and uncontrolled
+infrastructure/cache variation do not establish the size of a general
+speedup. The supported conclusion is narrower: a self-contained,
+discoverable startup skill worked without a procedural README and
+consistently avoided the observed pre-launch repository discovery.
+This does not demonstrate `aspire run` alone suffices: both locations
+still supply explicit readiness, endpoint-extraction, and timing commands.
