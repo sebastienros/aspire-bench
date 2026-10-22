@@ -75,3 +75,14 @@ Repeat with `--variant specific` for the unchanged resource-type control.
 Both local four-step Docker oracles passed on October 22, including the
 table-based CLI solutions, with all step/final rewards 1 and no trial/step
 exceptions. The temporary private table-inspection container was removed.
+
+## Model execution record
+
+| Arm | Attempt 1 | Attempt 2 | Attempt 3 |
+|---|---|---|---|
+| Resource-specific skills | [2026102280077062](https://msbenchapp.azurewebsites.net/run-analysis/2026102280077062) | [2026102280077918](https://msbenchapp.azurewebsites.net/run-analysis/2026102280077918) | [2026102280078532](https://msbenchapp.azurewebsites.net/run-analysis/2026102280078532) |
+| Common CLI table-health skill | [2026102280077500](https://msbenchapp.azurewebsites.net/run-analysis/2026102280077500) | [2026102280078174](https://msbenchapp.azurewebsites.net/run-analysis/2026102280078174) | [2026102280078804](https://msbenchapp.azurewebsites.net/run-analysis/2026102280078804) |
+
+Submitted with MSBench `0.3.67` to CES staging. Native model outcomes,
+consumption, and gains are pending; submission/execution status and local
+oracle success alone do not establish any of them.
