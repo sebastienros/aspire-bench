@@ -5,6 +5,10 @@ This independent Harbor experiment extends the
 remaining three prompts in the original Bingo scenario. It does not change
 the original tasks or their seven-skill snapshot.
 
+The follow-up [common CLI health skill comparison](CLI-README.md) tests a
+single `aspire describe --format table` health entry point against the
+unchanged three resource-type skills below.
+
 | Arm | Skills available |
 |---|---|
 | `general` | Seven unchanged predefined skills + the previously measured startup skill |

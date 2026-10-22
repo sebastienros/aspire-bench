@@ -42,7 +42,7 @@ test("health comparison preserves prompts, app, limits, general skills and verif
     const generalSkills = Object.fromEntries(Object.entries(
         await hashes(path.join(original, "environment/skills")))
         .map(([file, digest]) => [`.github/skills/${file}`, digest]));
-    for (const arm of ["general", "specific"]) {
+    for (const arm of ["general", "specific", "cli"]) {
         const config = await read(path.join(task(arm), "task.toml"));
         assert.equal(config, (await read(path.join(original, "task.toml")))
             .replace('variant = "aspire"', `variant = "${arm}"`)
@@ -80,6 +80,69 @@ test("health comparison preserves prompts, app, limits, general skills and verif
         await read(path.join(root, "../aspire-startup/tasks/startup-skill", startup)));
     assert.equal(await read(path.join(task("general"), startup)),
         await read(path.join(task("specific"), startup)));
+});
+
+test("CLI arm replaces type-specific skills with one generic table health skill", async () => {
+    const skills = path.join(task("cli"), "environment/skills");
+    assert.deepEqual((await readdir(skills)).sort(), ["aspire-health", "aspire-startup"]);
+    assert.equal(await read(path.join(skills, "aspire-startup/SKILL.md")),
+        await read(path.join(task("specific"), "environment/skills/aspire-startup/SKILL.md")));
+    const document = await read(path.join(skills, "aspire-health/SKILL.md"));
+    assert.match(document, /^---\nname: aspire-health\ndescription: .+\n---\n/);
+    assert.match(document, /aspire describe <resource-name> .*--format table/);
+    assert.match(document, /successful CLI exit alone does not mean healthy/);
+    assert.doesNotMatch(document, /pg_isready|redis-cli|docker exec|boardadmin|bingoboard|BENCH_RUN_ID/);
+    for (const step of Object.keys(candidates)) {
+        const oracle = await read(path.join(task("cli"), `steps/${step}/solution/solve.sh`));
+        assert.match(oracle, /aspire describe .*--format table --non-interactive/);
+        assert.doesNotMatch(oracle, /docker |curl |fetch\(|psql|redis-cli/);
+    }
+});
+
+test("CLI table oracle checks relevant rows rather than exit status or Healthy substrings", async () => {
+    const directory = await mkdtemp(path.join(tmpdir(), "aspire-health-table-"));
+    try {
+        const separator = "\u2502";
+        const row = (name, state, health) =>
+            `${separator} ${[name, "Container", state, health, "-"].join(` ${separator} `)} ${separator}\n`;
+        const header = row("Name", "State", "Health");
+        const unrelated = row("unrelated", "Running", "Healthy");
+        for (const [step, names] of Object.entries({
+            services: ["boardadmin", "bingoboard"], database: ["db"], redis: ["cache"],
+        })) {
+            const oracle = await read(path.join(task("cli"), `steps/${step}/solution/solve.sh`));
+            const script = oracle.match(/<<'JS'\n([\s\S]*?)\nJS/)[1]
+                .replace('"/tmp/aspire-health-table.txt"', '"table.txt"');
+            for (const scenario of ["healthy", "unhealthy", "missing", "duplicate", "finished", "unknown"]) {
+                const rows = names.map(name => row(name,
+                    scenario === "finished" ? "Finished" : "Running",
+                    scenario === "unhealthy" ? "Unhealthy" : scenario === "unknown" ? "-" : "Healthy"));
+                const text = header + unrelated
+                    + (scenario === "missing" ? rows.slice(1).join("") : rows.join(""))
+                    + (scenario === "duplicate" ? rows[0] : "")
+                    + row("(http://localhost/?resource=wrapped-link)", "", "");
+                await writeFile(path.join(directory, "table.txt"), text);
+                const code = await new Promise((resolve, reject) => {
+                    const child = spawn(process.execPath,
+                        ["--input-type=module", "-e", script, "-", step, ...names],
+                        { cwd: directory, stdio: "ignore" });
+                    child.on("error", reject);
+                    child.on("close", resolve);
+                });
+                const output = path.join(directory, `benchmark-${step}-health.json`);
+                if (scenario === "healthy") {
+                    assert.equal(code, 0);
+                    assert.equal(JSON.parse(await read(output)).healthy, true);
+                    await rm(output);
+                } else {
+                    assert.notEqual(code, 0, `${step}: ${scenario} must not produce success`);
+                    await assert.rejects(access(output), { code: "ENOENT" });
+                }
+            }
+        }
+    } finally {
+        await rm(directory, { recursive: true });
+    }
 });
 
 test("specific skills contain only focused self-contained read-only health recipes", async () => {

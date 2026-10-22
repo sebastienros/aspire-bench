@@ -61,6 +61,15 @@ after that change; a narrow-looking skill can still overmatch adjacent tasks.
 No reference reads occurred in either arm, so these gains are not evidence
 that reference-file loading was the bottleneck.
 
+**CLI follow-up in progress:** The
+[common CLI health comparison](aspire-health/CLI-README.md) replaces the
+three application-specific probe skills with one generic
+`aspire describe [resource] --format table` health skill, keeping a fresh
+type-specific control. Both local four-step Docker oracles passed. Model
+performance and actual consumption are not yet established. This comparison
+changes observation method and skill granularity together; configured Aspire
+health does not establish independent protocol or seed-data validation.
+
 ## F02: Shorter guidance is not automatically faster end-to-end
 
 **Evidence:** The [compact-skill comparison](aspire-startup/README.md#observed-compact-skill-results)
