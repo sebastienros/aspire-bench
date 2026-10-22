@@ -520,3 +520,22 @@ experiments did load it and perform additional discovery, but also changed
 the skill bundle and guidance arrangement. An invocation-specific comparison
 would need a separate explicit treatment rather than reinterpreting this
 availability result.
+
+## Startup skill alongside the complete predefined bundle
+
+The `startup-full-skills` treatment adds all seven existing skills
+(`aspire`, `aspire-orchestration`, `aspire-monitoring`, `aspireify`,
+`aspire-init`, `aspire-deployment`, and `aspire-project-v2-migration`)
+alongside the unchanged `aspire-startup` skill. The existing bundle is
+fetched from its original pinned snapshot without content or router changes.
+Compare against a fresh `startup-skill` control with the same neutral
+prompt, non-procedural README, recipe, model/runtime, and limits. MCP remains
+absent to isolate skill-bundle effects.
+
+The eight-skill image passed local Docker/Harbor oracle validation.
+Inspect model-advertised skills, actual router/orchestration loads,
+reference reads, pre-launch tool calls, correctness, and timing separately.
+This tests additive availability, not replacement of existing skills.
+The current startup skill is benchmark-specific; product adoption would
+require generalization and preserving exact-target, worktree, editor-session,
+and stop/restart safeguards before removing overlap from other skills.
