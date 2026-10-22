@@ -169,6 +169,14 @@ test("knowledge-location treatments move the exact recipe without directing the 
 });
 
 test("orchestration addition preserves startup-only inputs and adds only the pinned full skill", async () => {
+    const rows = (await readFile(path.join(root, "orchestration-dataset.jsonl"), "utf8")).trim().split("\n").map(JSON.parse);
+    assert.deepEqual(rows.map(row => row.benchmark_variant), ["startup-skill", "startup-orchestration"]);
+    assert.equal(new Set(rows.map(row => row.task_repo_commit)).size, 1);
+    for (const row of rows) {
+        assert.match(row.task_repo_commit, /^[a-f0-9]{40}$/);
+        assert.equal(row.task_repo, "https://github.com/sebastienros/aspire-bench");
+        assert.equal(row.task_path, `msbench/aspire-startup/tasks/${row.benchmark_variant}`);
+    }
     const task = path.join(root, "tasks/startup-orchestration");
     const baseline = path.join(root, "tasks/startup-skill");
     for (const file of ["steps/startup/instruction.md", "steps/startup/solution/solve.sh",
