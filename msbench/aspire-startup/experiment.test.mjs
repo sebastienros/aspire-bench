@@ -71,6 +71,14 @@ test("startup endpoint contract rejects invalid or nonlocal URLs", async () => {
 });
 
 test("compact skill treatment changes guidance only, without MCP or extra references", async () => {
+    const rows = (await readFile(path.join(root, "compact-dataset.jsonl"), "utf8")).trim().split("\n").map(JSON.parse);
+    assert.deepEqual(rows.map(row => row.benchmark_variant), ["skills", "compact-skills"]);
+    assert.equal(new Set(rows.map(row => row.task_repo_commit)).size, 1);
+    for (const row of rows) {
+        assert.match(row.task_repo_commit, /^[a-f0-9]{40}$/);
+        assert.equal(row.task_path, `msbench/aspire-startup/tasks/${row.benchmark_variant}`);
+        assert.equal(row.task_repo, "https://github.com/sebastienros/aspire-bench");
+    }
     const task = path.join(root, "tasks/compact-skills");
     const baseline = path.join(root, "tasks/skills");
     for (const file of ["steps/startup/instruction.md", "steps/startup/solution/solve.sh",
