@@ -83,6 +83,110 @@ exceptions. The temporary private table-inspection container was removed.
 | Resource-specific skills | [2026102280077062](https://msbenchapp.azurewebsites.net/run-analysis/2026102280077062) | [2026102280077918](https://msbenchapp.azurewebsites.net/run-analysis/2026102280077918) | [2026102280078532](https://msbenchapp.azurewebsites.net/run-analysis/2026102280078532) |
 | Common CLI table-health skill | [2026102280077500](https://msbenchapp.azurewebsites.net/run-analysis/2026102280077500) | [2026102280078174](https://msbenchapp.azurewebsites.net/run-analysis/2026102280078174) | [2026102280078804](https://msbenchapp.azurewebsites.net/run-analysis/2026102280078804) |
 
-Submitted with MSBench `0.3.67` to CES staging. Native model outcomes,
-consumption, and gains are pending; submission/execution status and local
-oracle success alone do not establish any of them.
+Submitted with MSBench `0.3.67` to CES staging. The first two attempts per
+arm have completed and passed all 16 steps and four final verifications,
+without trial/step exceptions. The third attempt in each arm is still
+awaiting dispatch as of the October 22 trace investigation. The full
+three-attempt comparison is not complete.
+
+## Trace investigation: resource identity versus extra workflow turns
+
+The first two CLI trials selected only `aspire-health` for all six health
+assessments, used `--format table`, and wrote assessments consistent with
+the returned resource states. Each used one all-resource `describe` per
+assessment, not failed scoped lookups or repeated health polling.
+
+| Step | Specific attempt 1 / 2: seconds | CLI attempt 1 / 2: seconds |
+|---|---:|---:|
+| Services | 15.0 / 10.3 | 24.2 / 23.8 |
+| Database | 18.9 / 16.4 | 30.4 / 29.0 |
+| Redis | 14.9 / 9.2 | 25.3 / 26.4 |
+
+These are individual observed trials, not the final comparison medians.
+
+### What the table actually says
+
+| Requested dependency | Visible logical name | Type column | Other identity hints |
+|---|---|---|---|
+| Database | `db` | `PostgresDatabaseResource` | A separate `postgres` row has Type `Container` |
+| Redis | `cache` | `Container` | `rediss://` endpoint and a wrapped dashboard link containing `resource=harbor-bingo-redis` |
+
+Redis is not explicitly identified as Redis in the Name/Type columns.
+Its hints are indirect and the Docker-name hint is specific to this fixture,
+not a reliable integration contract. Database identity is clearer: the
+table does expose `PostgresDatabaseResource`. The database prompt itself asks
+for the existing database, not specifically "PostgreSQL"; Redis is explicitly
+named in its prompt.
+
+The first CLI trial read the AppHost before querying services and database.
+Its Redis assessment searched for `apphost|Redis|redis|BENCH_RUN_ID|COMPOSE_PROJECT_NAME`
+before describing the app. The second trial again read the AppHost before
+the database query and searched Markdown for `apphost|Redis|redis` before the
+Redis query. Its final Redis evidence explicitly identified `cache` through
+resource ID `harbor-bingo-redis`. Thus identity mapping is a genuine
+portability concern, but there was no observed cycle of failed Redis
+lookups after receiving the table.
+
+### Where the extra time went
+
+First-pair tool-boundary decomposition:
+
+| Step / arm | Before observation command | Observation command | After observation command | Total seconds |
+|---|---:|---:|---:|---:|
+| Services / specific | 10.20 | 0.11 | 4.72 | 15.03 |
+| Services / CLI | 13.94 | 0.14 | 10.09 | 24.17 |
+| Database / specific | 13.73 | 0.14 | 4.98 | 18.85 |
+| Database / CLI | 20.39 | 0.13 | 9.91 | 30.42 |
+| Redis / specific | 9.41 | 0.07 | 5.45 | 14.93 |
+| Redis / CLI | 11.58 | 0.13 | 13.54 | 25.25 |
+
+The observation command is the first `aspire describe` in the CLI arm,
+versus the direct protocol-check recipe in the specific arm. Specific
+recipes also write their report inside that same shell; the CLI arm writes
+its report afterward. These are deliberately different operations, so the
+decomposition explains workflow costs, not pure command equivalence.
+
+All six CLI `describe` calls across the first two trials took only
+0.09-0.14 seconds. The additional wall time was outside the command.
+For the first Redis CLI assessment, the visible sequence relative to agent
+execution start was:
+
+| Time | Action |
+|---|---|
+| +4.47 s | Load `aspire-health` |
+| +8.25 s | Glob workspace and search for AppHost/Redis guidance |
+| +11.58 s | Run `aspire describe`; complete at +11.71 s |
+| +15.53 s | Check whether the requested report file exists |
+| +19.84 s | Add the report with `apply_patch` |
+| +22.94 s | Read report and check Git status |
+| +25.25 s | Agent execution finishes |
+
+The type-specific Redis recipe started at +9.41 seconds, checked Redis and
+wrote its report by +9.48, and finished at +14.93. Of the CLI arm's extra
+10.32 seconds, 8.09 occurred after the observation command. The CLI arm also
+performed general workspace/AppHost/guidance discovery for services, where
+Redis identity was not relevant.
+
+Tool starts/completions expose actions and elapsed time, not internal
+reasoning time. Gaps also include model inference, scheduling, formatting,
+and tool orchestration. They cannot establish that any specific terminology
+caused a measured amount of "thinking."
+
+### Improvement candidates, not changes to this running comparison
+
+Expose explicit integration identity (for example Redis versus a generic
+container) alongside stable logical resource identity, rather than relying
+on arbitrary names or dashboard URLs. Keep database-versus-server identity
+clear as well.
+
+For the skill, avoid rediscovering a supplied AppHost and provide a compact
+report-writing pattern instead of leaving every assessment to compose and
+validate a report in separate turns. The generic skill uses an
+`<apphost-path>` placeholder; the type-specific skills include concrete
+instance-selection and report recipes. That difference must not be
+misattributed to the CLI's runtime.
+
+A causal follow-up can hold the CLI commands and reporting pattern constant
+while adding only an explicit logical-name/integration mapping. Test report
+composition/known-AppHost guidance separately. No prompt, skill, or pinned
+task has been changed during these runs.

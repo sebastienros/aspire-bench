@@ -65,10 +65,16 @@ that reference-file loading was the bottleneck.
 [common CLI health comparison](aspire-health/CLI-README.md) replaces the
 three application-specific probe skills with one generic
 `aspire describe [resource] --format table` health skill, keeping a fresh
-type-specific control. Both local four-step Docker oracles passed. Model
-performance and actual consumption are not yet established. This comparison
-changes observation method and skill granularity together; configured Aspire
-health does not establish independent protocol or seed-data validation.
+type-specific control. Both local four-step Docker oracles passed. The first
+two trials per arm passed all 16 steps, and all six completed CLI health
+assessments selected the common skill and used the table. The third pair is
+still pending, so final performance medians are not established. Initial CLI
+assessments were slower; the
+[trace investigation](aspire-health/CLI-README.md#trace-investigation-resource-identity-versus-extra-workflow-turns)
+locates the additional work outside the health command. This comparison
+changes observation method, app-specific guidance, reporting recipes, and
+skill granularity together; configured Aspire health does not establish
+independent protocol or seed-data validation.
 
 ## F02: Shorter guidance is not automatically faster end-to-end
 
@@ -88,6 +94,15 @@ from application launch, readiness waiting, and reporting.
 consumption varied. A shorter startup-only skill does not replace the broader
 capabilities or safety requirements of general-purpose Aspire skills.
 
+**CLI health trace follow-up:** In the first two completed CLI trials,
+`describe --format table` itself took only 0.09-0.14 seconds. The generic
+skill added AppHost/workspace discovery and separate report-writing/
+validation turns. In the first Redis pair, 8.09 of the extra 10.32 seconds
+occurred after `describe` completed; the type-specific recipe writes its
+report during its probe shell. Optimize the complete workflow, not merely
+replace several probe commands with one CLI command. Tool-event gaps do not
+measure internal reasoning directly.
+
 ## F03: Endpoint discovery needs an accurate, isolation-safe contract
 
 **Evidence:** The original Aspire trajectories incurred endpoint-name and
@@ -105,6 +120,16 @@ summary that avoids resource-name and schema inference.
 only proposed. Historical startup medians cannot isolate the recipe's effect
 because task scope and prompts also changed. Command/wait completion does not
 measure the earliest possible HTTP readiness.
+
+**Resource-identity follow-up:** The CLI health tables show Redis as
+`cache / Container`, with only indirect `rediss://` and dashboard resource-ID
+hints. The database is more identifiable: `db / PostgresDatabaseResource`
+and a separate `postgres / Container` row. Expose integration identity
+alongside stable logical resource identity rather than requiring inference
+from arbitrary names or links. This is an API/UX improvement candidate, not
+an established cause of the timing difference: completed traces searched
+AppHost/guidance before `describe` and did not show failed scoped lookups
+after reading the table.
 
 ## F04: Capability installation and actual usage must be verified separately
 
