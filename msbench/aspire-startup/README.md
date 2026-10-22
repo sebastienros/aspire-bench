@@ -270,3 +270,70 @@ using the historical skill-enabled sample as the sole baseline.
 The compact image passed a local Harbor oracle run with reward 1 and no
 exceptions. The structural suite checks shared inputs and the compact
 skill's exact immutable-input manifest.
+
+The comparison dataset is `compact-dataset.jsonl`, pinning both task
+definitions to `b8c6a2e52a36dae4b889d6857ab565d2a1ab4f19`. Reproduce each
+arm with the standard CLI:
+
+```bash
+export USE_COPILOT_CLI_VERSION=1.0.99-0
+MSBENCH_DISABLE_RUN_ANALYSIS=1 msbench-cli run \
+  --dataset msbench/aspire-startup/compact-dataset.jsonl \
+  --benchmark aspire-startup --variant compact-skills \
+  --agent github-copilot-cli=github-copilot-cli-pkg-main-20261014-215627 \
+  --model gpt-6-luna --env USE_COPILOT_CLI_VERSION \
+  --backend ces-staging --acr msbenchstaging.azurecr.io --workers 1 \
+  --repeat 3 --tag experiment=compact-startup-skills
+unset USE_COPILOT_CLI_VERSION
+```
+
+Repeat with `--variant skills`. Both arms use no MCP and fresh conversations.
+
+### Observed compact-skill results
+
+The October 21 follow-up produced six passing model-executed trials
+(three per arm), with final and startup rewards all 1 and no trial/step
+exceptions. Every executed trial used the pinned package and model above,
+and actual CLI provenance confirmed `1.0.99-0`. Recorded timing boundaries
+were checked against the recipe's shell-tool execution and Harbor's
+agent-execution interval.
+
+| Guidance | Full agent time | Pre-launch | Launch command | Subsequent wait | Extraction | Post-recipe | Outside recipe |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Seven original skills | 83.7 | 13.6 | 17.2 | 45.5 | 0.17 | 8.2 | 21.9 |
+| One compact startup skill | 85.2 | 12.0 | 20.4 | 45.1 | 0.17 | 7.4 | 19.5 |
+
+Values are independent column medians in seconds, not an additive
+representative trial. Outside-recipe time is computed per trial as
+pre-launch plus post-recipe time before taking the median.
+
+| Guidance | Attempt 1: full agent seconds | Attempt 2: full agent seconds | Attempt 3: full agent seconds |
+|---|---|---|---|
+| Original skills | [83.3](https://msbenchapp.azurewebsites.net/run-analysis/2026102200430364) | [83.7](https://msbenchapp.azurewebsites.net/run-analysis/2026102200431170) | [Image-build failure](https://msbenchapp.azurewebsites.net/run-analysis/2026102200431782) |
+| Compact startup skill | [77.2](https://msbenchapp.azurewebsites.net/run-analysis/2026102200430362) | [85.2](https://msbenchapp.azurewebsites.net/run-analysis/2026102200431166) | [89.9](https://msbenchapp.azurewebsites.net/run-analysis/2026102200431780) |
+
+There were seven submissions, not six: the original-skills third attempt
+failed before model execution when fetching `https://aspire.dev/install.sh`
+returned HTTP 503 during Docker build. An explicitly tagged, unchanged
+[replacement](https://msbenchapp.azurewebsites.net/run-analysis/2026102201488750)
+passed in 89.3 agent seconds and supplies the third valid baseline sample.
+The original baseline submissions remain two passes and one infrastructure
+failure; no timing is assigned to the failed build.
+
+All three compact trials loaded only `aspire-orchestration`, read the
+README, then executed the supplied recipe without pre-launch repository
+discovery. All three baseline trials loaded the `aspire` router, and two
+also loaded `aspire-orchestration`. Baseline trajectories additionally
+checked worktree/environment state or searched for AppHost/benchmark files.
+Thus actual guidance consumption was not identical even within the
+original-skills arm.
+
+The compact treatment reduced median pre-launch time by 1.6 seconds and
+outside-recipe time by 2.5 seconds, but **did not improve median full agent
+time** in this sample (85.2 versus 83.7 seconds). Its launch-command median
+was higher, while readiness-wait medians were similar. These three-sample
+arms show less discovery work, not a demonstrated end-to-end speedup.
+The baseline was also faster than its historical 90.3-second median:
+comparing the compact arm only to that older sample would overstate the
+benefit. Do not replace the general-purpose skills based on this
+startup-only, already-documented workflow.
