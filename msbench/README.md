@@ -18,6 +18,11 @@ no skills/MCP, skills only, MCP only, and both with one matched startup
 recipe and command-boundary timing. It does not change the original
 four-step comparison below.
 
+The [specific health skill experiment](aspire-health/README.md) applies the
+same narrow-entry-point approach to service, PostgreSQL, and Redis health.
+It compares the complete unchanged general bundle plus startup with and
+without three specialized assessment skills, using the original four prompts.
+
 ```text
 msbench/
   bingo/
