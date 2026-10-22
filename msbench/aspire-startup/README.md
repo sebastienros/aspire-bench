@@ -337,3 +337,20 @@ The baseline was also faster than its historical 90.3-second median:
 comparing the compact arm only to that older sample would overstate the
 benefit. Do not replace the general-purpose skills based on this
 startup-only, already-documented workflow.
+
+## Recipe-location comparison
+
+The `readme-only` and `startup-skill` treatments test where startup knowledge
+is delivered, rather than adding a skill on top of an already complete README.
+Both receive the same location-neutral instruction, application, limits,
+oracle solution, timing contract, and verifier. Neither has MCP.
+`readme-only` has the original recipe in its README and no skills.
+`startup-skill` has only a brief, non-procedural README and a single discoverable
+`aspire-startup` skill whose body is byte-identical to that recipe. Its
+frontmatter identifies startup and endpoint discovery as the trigger.
+
+This compares two delivery mechanisms, not differently optimized instructions.
+Check actual skill loading, correct startup and timing files, discovery cost,
+and full agent time independently. The prompt does not name either guidance
+file. A passing oracle proves image/verifier viability, not model skill
+discovery; both images passed locally before cloud submissions.

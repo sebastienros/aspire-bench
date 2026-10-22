@@ -123,3 +123,39 @@ test("startup timing contract rejects unordered, stale, or invented field shapes
         { ...timing, launch_started_ms: "0" }, { ...timing, extra: true }])
         assert.throws(() => validateTiming(value, now));
 });
+
+test("knowledge-location treatments move the exact recipe without directing the prompt to a file", async () => {
+    const readmeTask = path.join(root, "tasks/readme-only");
+    const skillTask = path.join(root, "tasks/startup-skill");
+    const readme = await readFile(path.join(readmeTask, "environment/app/README.md"), "utf8");
+    assert.equal(readme, await readFile(path.join(root, "tasks/none/environment/app/README.md"), "utf8"));
+    const skill = await readFile(path.join(skillTask, "environment/skills/aspire-startup/SKILL.md"), "utf8");
+    assert.equal(skill.replace(/^---\n[\s\S]*?\n---\n\n/, ""), readme);
+    const brief = await readFile(path.join(skillTask, "environment/app/README.md"), "utf8");
+    assert(!brief.includes("aspire start") && !brief.includes("benchmark-startup-timings"));
+    for (const file of ["steps/startup/instruction.md", "steps/startup/solution/solve.sh",
+        "steps/startup/tests/test.sh", "tests/startup-verify.js", "tests/hashes.js",
+        "tests/http.js", "tests/process.js", "environment/entrypoint.sh"]) {
+        assert.equal(await readFile(path.join(readmeTask, file), "utf8"),
+            await readFile(path.join(skillTask, file), "utf8"), file);
+    }
+    const prompt = await readFile(path.join(skillTask, "steps/startup/instruction.md"), "utf8");
+    assert(!prompt.includes("README") && !prompt.includes("SKILL.md"));
+    for (const treatment of ["readme-only", "startup-skill"]) {
+        const task = path.join(root, "tasks", treatment);
+        const expected = { ...await hashes(path.join(root, "../bingo/common/aspire-app")),
+            ...await hashes(path.join(task, "environment/app")) };
+        delete expected[".github/mcp.json"];
+        if (treatment === "startup-skill") {
+            const skills = await hashes(path.join(task, "environment/skills"));
+            assert.deepEqual(Object.keys(skills), ["aspire-startup/SKILL.md"]);
+            for (const [file, digest] of Object.entries(skills))
+                expected[`.github/skills/${file}`] = digest;
+        }
+        assert.deepEqual(JSON.parse(await readFile(path.join(task, "environment/input-hashes.json"), "utf8")),
+            expected);
+        const config = await readFile(path.join(task, "task.toml"), "utf8");
+        assert(!config.includes("[[environment.mcp_servers]]"));
+        assert.equal(config.includes("skills_dir"), treatment === "startup-skill");
+    }
+});
