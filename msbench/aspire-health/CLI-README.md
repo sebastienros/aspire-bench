@@ -83,11 +83,84 @@ exceptions. The temporary private table-inspection container was removed.
 | Resource-specific skills | [2026102280077062](https://msbenchapp.azurewebsites.net/run-analysis/2026102280077062) | [2026102280077918](https://msbenchapp.azurewebsites.net/run-analysis/2026102280077918) | [2026102280078532](https://msbenchapp.azurewebsites.net/run-analysis/2026102280078532) |
 | Common CLI table-health skill | [2026102280077500](https://msbenchapp.azurewebsites.net/run-analysis/2026102280077500) | [2026102280078174](https://msbenchapp.azurewebsites.net/run-analysis/2026102280078174) | [2026102280078804](https://msbenchapp.azurewebsites.net/run-analysis/2026102280078804) |
 
-Submitted with MSBench `0.3.67` to CES staging. The first two attempts per
-arm have completed and passed all 16 steps and four final verifications,
-without trial/step exceptions. The third attempt in each arm is still
-awaiting dispatch as of the October 22 trace investigation. The full
-three-attempt comparison is not complete.
+All six original submissions eventually executed and passed: all 24 step
+rewards and six final rewards were 1, without trial/step exceptions or
+replacement submissions. Metadata confirms MSBench `0.3.67`, model
+`gpt-6-luna`, package `github-copilot-cli-pkg-main-20261014-215627`,
+and actual CLI `1.0.99-0` in all 24 invocations. CES dispatch delays are
+excluded from agent timing.
+
+## Completed comparison
+
+| Step | Type-specific: median seconds | Common CLI: median seconds | CLI time increase | Median tool calls: specific / CLI |
+|---|---:|---:|---:|---:|
+| Startup (same guidance) | 79.8 | 89.8 | 12.5% | 4 / 3 |
+| Services | 14.0 | 24.2 | 72.3% | 4 / 11 |
+| Database | 16.4 | 29.0 | 76.3% | 3 / 12 |
+| Redis | 11.4 | 25.3 | 121.7% | 3 / 11 |
+| Three health steps, summed per trial | 38.3 | 79.3 | 107.2% | 10 / 35 |
+| All four steps, summed per trial | 118.0 | 163.7 | 38.7% | 13 / 37 |
+
+Each column is independently aggregated. Aggregate rows are medians of
+per-trial sums, not sums of step medians. Every CLI health assessment was
+slower than every type-specific attempt for the corresponding step.
+
+| Arm / attempt | Startup seconds | Services seconds | Database seconds | Redis seconds | Health sum | Four-step sum |
+|---|---:|---:|---:|---:|---:|---:|
+| Specific 1 | 81.4 | 15.0 | 18.9 | 14.9 | 48.8 | 130.2 |
+| Specific 2 | 75.3 | 10.3 | 16.4 | 9.2 | 36.0 | 111.3 |
+| Specific 3 | 79.8 | 14.0 | 12.8 | 11.4 | 38.3 | 118.0 |
+| CLI 1 | 83.0 | 24.2 | 30.4 | 25.3 | 79.8 | 162.8 |
+| CLI 2 | 104.4 | 23.8 | 29.0 | 26.4 | 79.3 | 183.7 |
+| CLI 3 | 89.8 | 26.8 | 22.0 | 25.2 | 73.9 | 163.7 |
+
+| Health step | Median input tokens: specific / CLI | Median output tokens: specific / CLI |
+|---|---:|---:|
+| Services | 53,993 / 119,080 | 501 / 854 |
+| Database | 54,397 / 130,748 | 598 / 911 |
+| Redis | 53,763 / 130,943 | 393 / 892 |
+| Three health steps, summed per trial | 161,884 / 364,927 | 1,391 / 2,629 |
+
+Input includes cached tokens; its 125.4% aggregate increase is not a
+billed-cost estimate.
+
+All eleven type-specific-arm skills and all nine CLI-arm skills were
+advertised in the actual model prompt of every step. All nine CLI health
+assessments loaded only `aspire-health`, made one successful all-resource
+`describe --format table`, and reported the relevant rows as Running/Healthy.
+There were no direct HTTP/SQL/Redis fallbacks, failed scoped lookups, or
+reference reads. All nine control health assessments selected their matching
+type-specific skill. All startup invocations selected only `aspire-startup`.
+
+The third trial corroborated the earlier trace investigation below:
+workspace/AppHost discovery before the query and separate report
+composition/validation afterward, rather than a slow CLI observation.
+Its service report also tried an unavailable `python` command before
+validating with Node, another consequence of ad-hoc report handling.
+
+Startup is not a benefit of either health method: identical startup guidance
+was slower in the CLI arm. Its median pre-recipe dispatch time was 15.2
+seconds versus 10.8 control, recipe-shell time 60.8 versus 61.3, and post-shell
+time 14.1 versus 8.9. These are independent tool-boundary medians, not proof
+that health metadata caused the difference. Do not attribute the entire
+four-step difference to the health command or internal app startup.
+
+**Conclusion:** The common skill successfully covers all three resource
+categories through configured Aspire health, but this implementation did
+not retain the type-specific recipes' efficiency. The CLI command itself
+is fast; the skill leaves target/AppHost discovery and report generation
+to extra agent turns. This is not evidence that Aspire health queries are
+inherently slower than direct probes or that one skill per resource type
+is required.
+
+Keep this as an experimental alternative, not a replacement for the tested
+type-specific guidance yet. Generalize known-target selection and reporting
+without reintroducing integration-specific probe commands. Explicit
+integration identity is also useful, but the current comparison does not
+isolate identity, recipe specificity, report composition, or skill count.
+Three samples on one app/model/client, fresh conversations, uncontrolled
+hardware/caches/scheduling, and healthy dependencies limit generalization.
+The broader observation-depth caveat above still applies.
 
 ## Trace investigation: resource identity versus extra workflow turns
 
@@ -102,7 +175,8 @@ assessment, not failed scoped lookups or repeated health polling.
 | Database | 18.9 / 16.4 | 30.4 / 29.0 |
 | Redis | 14.9 / 9.2 | 25.3 / 26.4 |
 
-These are individual observed trials, not the final comparison medians.
+These are the individual first two trials used for the initial trace
+investigation, not the final comparison medians above.
 
 ### What the table actually says
 

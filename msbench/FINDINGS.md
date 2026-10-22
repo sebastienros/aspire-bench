@@ -61,15 +61,19 @@ after that change; a narrow-looking skill can still overmatch adjacent tasks.
 No reference reads occurred in either arm, so these gains are not evidence
 that reference-file loading was the bottleneck.
 
-**CLI follow-up in progress:** The
+**CLI follow-up completed:** The
 [common CLI health comparison](aspire-health/CLI-README.md) replaces the
 three application-specific probe skills with one generic
 `aspire describe [resource] --format table` health skill, keeping a fresh
-type-specific control. Both local four-step Docker oracles passed. The first
-two trials per arm passed all 16 steps, and all six completed CLI health
-assessments selected the common skill and used the table. The third pair is
-still pending, so final performance medians are not established. Initial CLI
-assessments were slower; the
+type-specific control. Both local four-step Docker oracles passed, and all
+six original model trials and 24 steps passed without exceptions or
+replacements. All nine CLI health assessments selected the common skill and
+made one successful table query, with no protocol fallbacks or reference
+reads. Median per-trial health-step time increased from 38.3 to 79.3 seconds
+(107.2%); health-step tool calls increased from 10 to 35 and input tokens
+including cache from 161,884 to 364,927. The unchanged startup control was
+also slower (79.8 versus 89.8 seconds), so do not attribute the entire
+four-step difference to health checks. The
 [trace investigation](aspire-health/CLI-README.md#trace-investigation-resource-identity-versus-extra-workflow-turns)
 locates the additional work outside the health command. This comparison
 changes observation method, app-specific guidance, reporting recipes, and
@@ -94,7 +98,7 @@ from application launch, readiness waiting, and reporting.
 consumption varied. A shorter startup-only skill does not replace the broader
 capabilities or safety requirements of general-purpose Aspire skills.
 
-**CLI health trace follow-up:** In the first two completed CLI trials,
+**CLI health trace follow-up:** Across all three completed CLI trials,
 `describe --format table` itself took only 0.09-0.14 seconds. The generic
 skill added AppHost/workspace discovery and separate report-writing/
 validation turns. In the first Redis pair, 8.09 of the extra 10.32 seconds
