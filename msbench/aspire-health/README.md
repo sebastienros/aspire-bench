@@ -55,6 +55,23 @@ unset USE_COPILOT_CLI_VERSION
 
 Repeat with `--variant general` for the control.
 
+### Execution record
+
+Both local Docker oracles passed all four steps with reward 1 and no trial
+or step exceptions on October 22. The host Docker engine initially did not
+respond; validation succeeded after a user-approved Docker Desktop restart.
+That host incident precedes model evaluation and is not an agent failure.
+
+The six initial CES staging submissions are:
+
+| Arm | Attempt 1 | Attempt 2 | Attempt 3 |
+|---|---|---|---|
+| General + startup | [2026102261463000](https://msbenchapp.azurewebsites.net/run-analysis/2026102261463000) | [2026102261463756](https://msbenchapp.azurewebsites.net/run-analysis/2026102261463756) | [2026102261464402](https://msbenchapp.azurewebsites.net/run-analysis/2026102261464402) |
+| General + startup + specific health skills | [2026102261463016](https://msbenchapp.azurewebsites.net/run-analysis/2026102261463016) | [2026102261463720](https://msbenchapp.azurewebsites.net/run-analysis/2026102261463720) | [2026102261464344](https://msbenchapp.azurewebsites.net/run-analysis/2026102261464344) |
+
+Model results are pending. Submission acceptance and local oracle success
+do not establish model gains or actual skill consumption.
+
 Validate both Docker images locally with all four oracle steps before cloud
 inference:
 

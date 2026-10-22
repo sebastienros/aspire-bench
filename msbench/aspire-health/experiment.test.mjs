@@ -1,6 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFile, readdir } from "node:fs/promises";
+import { access, mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
+import { spawn } from "node:child_process";
+import { createServer } from "node:http";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { hashes } from "../bingo/tasks/aspire/tests/hashes.js";
@@ -97,5 +100,49 @@ test("specific skills contain only focused self-contained read-only health recip
             assert.match(recipe, /--tls --cacert \/usr\/lib\/ssl\/aspire\/cert.pem/);
             assert.doesNotMatch(recipe, /--insecure/);
         }
+    }
+});
+
+test("health recipes do not write success reports after failed observations", async () => {
+    const directory = await mkdtemp(path.join(tmpdir(), "aspire-health-"));
+    const server = createServer((request, response) => {
+        response.writeHead(503);
+        response.end("Not ready");
+    });
+    try {
+        await mkdir(path.join(directory, "bin"));
+        await writeFile(path.join(directory, "bin/docker"),
+            '#!/bin/sh\nif [ "$1" = ps ]; then echo owned-container; '
+            + 'else echo "Connection refused" >&2; exit 1; fi\n', { mode: 0o755 });
+        await new Promise(resolve => server.listen(0, "127.0.0.1", resolve));
+        const url = `http://127.0.0.1:${server.address().port}`;
+        await writeFile(path.join(directory, "benchmark-endpoints.json"),
+            JSON.stringify({ admin: url, frontend: url }));
+        for (const [step, skill] of Object.entries(candidates)) {
+            const document = await read(path.join(task("specific"), `environment/skills/${skill}/SKILL.md`));
+            const recipe = document.match(/```bash\n([\s\S]*?)```/)[1]
+                .replace("cd /app\n", "");
+            const result = await new Promise((resolve, reject) => {
+                const child = spawn("bash", ["-c", recipe], {
+                    cwd: directory,
+                    env: {
+                        ...process.env, PATH: `${directory}/bin:${process.env.PATH}`,
+                        BENCH_RUN_ID: "test",
+                    },
+                    stdio: ["ignore", "pipe", "pipe"],
+                });
+                let output = "";
+                child.stdout.on("data", chunk => { output += chunk; });
+                child.stderr.on("data", chunk => { output += chunk; });
+                child.on("error", reject);
+                child.on("close", code => resolve({ code, output }));
+            });
+            assert.notEqual(result.code, 0, `${step} failure must propagate: ${result.output}`);
+            await assert.rejects(access(path.join(directory, `benchmark-${step}-health.json`)),
+                { code: "ENOENT" });
+        }
+    } finally {
+        await new Promise(resolve => server.close(resolve));
+        await rm(directory, { recursive: true });
     }
 });

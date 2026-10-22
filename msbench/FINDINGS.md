@@ -31,6 +31,18 @@ also differed. The total-time difference is not a causal estimate of skill
 benefit. This was application-specific guidance with explicit readiness and
 endpoint commands, not proof that `aspire run` alone satisfies the task.
 
+**Follow-up in progress:** The
+[specific health skill comparison](aspire-health/README.md) extends this
+pattern to service HTTP checks, PostgreSQL readiness/data checks, and
+authenticated Redis TLS checks. Both arms preserve all seven original
+skills and add the same startup skill; only the treatment adds the three
+health skills. Both local four-step Docker oracles passed. Six pinned model
+trials were submitted, but no cloud outcomes or gains have been established
+yet. This tests discoverable application-specific recipes together with
+narrow triggers, not specificity alone. Existing skills remain unchanged;
+the report maps possible routing/reference updates without claiming any
+general skill is replaceable.
+
 ## F02: Shorter guidance is not automatically faster end-to-end
 
 **Evidence:** The [compact-skill comparison](aspire-startup/README.md#observed-compact-skill-results)
