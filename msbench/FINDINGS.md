@@ -31,17 +31,35 @@ also differed. The total-time difference is not a causal estimate of skill
 benefit. This was application-specific guidance with explicit readiness and
 endpoint commands, not proof that `aspire run` alone satisfies the task.
 
-**Follow-up in progress:** The
+**Follow-up completed:** The
 [specific health skill comparison](aspire-health/README.md) extends this
 pattern to service HTTP checks, PostgreSQL readiness/data checks, and
 authenticated Redis TLS checks. Both arms preserve all seven original
 skills and add the same startup skill; only the treatment adds the three
-health skills. Both local four-step Docker oracles passed. Six pinned model
-trials were submitted, but no cloud outcomes or gains have been established
-yet. This tests discoverable application-specific recipes together with
-narrow triggers, not specificity alone. Existing skills remain unchanged;
-the report maps possible routing/reference updates without claiming any
-general skill is replaceable.
+health skills. All six original model trials and 24 steps passed without
+exceptions or replacements. Median services/database/Redis times fell from
+48.5/42.8/45.7 seconds to 14.1/16.2/12.2; the median per-trial health-step
+sum fell 71.6%, from 145.3 to 41.3 seconds. All nine treatment health
+invocations loaded the matching skill first and immediately dispatched its
+recipe, with no router/broad-skill handoff or prior repository discovery.
+Median health-step input tokens, including cache, fell 63.4%.
+
+This tests discoverable application-specific recipes together with narrow
+triggers, not specificity alone. The unchanged startup control was slower
+(75.5 versus 83.1 seconds), largely within its launch/readiness shell; do
+not call every step a win or infer zero metadata overhead. Existing skills
+remain unchanged. The report maps project-local recipe generation and
+possible router/monitoring handoffs without claiming any general skill is
+replaceable.
+
+**Trigger-boundary finding:** Without the new health skills, five of six
+services/database invocations loaded the experimental startup skill despite
+the app already running. With explicit health intent coverage, all six
+selected the matching health skill instead. Exclude already-running
+health-only assessments from startup's description, and measure routing
+after that change; a narrow-looking skill can still overmatch adjacent tasks.
+No reference reads occurred in either arm, so these gains are not evidence
+that reference-file loading was the bottleneck.
 
 ## F02: Shorter guidance is not automatically faster end-to-end
 
