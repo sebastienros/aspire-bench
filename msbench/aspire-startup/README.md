@@ -539,3 +539,79 @@ This tests additive availability, not replacement of existing skills.
 The current startup skill is benchmark-specific; product adoption would
 require generalization and preserving exact-target, worktree, editor-session,
 and stop/restart safeguards before removing overlap from other skills.
+
+`full-skills-dataset.jsonl` pins both tasks to
+`e83edca35b78068ec9d8741fa2e632c833c88bac`. Standard reproduction:
+
+```bash
+export USE_COPILOT_CLI_VERSION=1.0.99-0
+MSBENCH_DISABLE_RUN_ANALYSIS=1 msbench-cli run \
+  --dataset msbench/aspire-startup/full-skills-dataset.jsonl \
+  --benchmark aspire-startup --variant startup-full-skills \
+  --agent github-copilot-cli=github-copilot-cli-pkg-main-20261014-215627 \
+  --model gpt-6-luna --env USE_COPILOT_CLI_VERSION \
+  --backend ces-staging --acr msbenchstaging.azurecr.io --workers 1 \
+  --repeat 3 --tag experiment=startup-full-skills
+unset USE_COPILOT_CLI_VERSION
+```
+
+Repeat with `--variant startup-skill` for the contemporaneous control.
+
+### Observed full-bundle results
+
+The October 21 experiment used MSBench `0.3.67`, the pinned package/model
+above, and verified actual CLI `1.0.99-0` for every trial. All six submissions
+executed and passed with startup/final rewards 1 and no trial/step exceptions.
+No infrastructure replacements were needed. Timing boundaries were checked
+against the recipe shell execution and Harbor's agent interval.
+
+| Available skills | Full agent time | Pre-launch | Launch command | Subsequent wait | Post-recipe | Outside recipe |
+|---|---:|---:|---:|---:|---:|---:|
+| Startup only | 71.1 | 9.0 | 20.6 | 35.2 | 6.4 | 15.2 |
+| Seven predefined skills + startup | 85.3 | 8.5 | 19.7 | 48.4 | 7.7 | 16.3 |
+
+Values are independent column medians in seconds, not an additive
+representative trial. Outside-recipe time is computed per trial.
+
+| Arm | Attempt 1: full agent seconds | Attempt 2: full agent seconds | Attempt 3: full agent seconds |
+|---|---|---|---|
+| Startup only | [72.3](https://msbenchapp.azurewebsites.net/run-analysis/2026102206370112) | [71.1](https://msbenchapp.azurewebsites.net/run-analysis/2026102206370908) | [70.7](https://msbenchapp.azurewebsites.net/run-analysis/2026102206371510) |
+| Full bundle + startup | [85.3](https://msbenchapp.azurewebsites.net/run-analysis/2026102206370110) | [87.3](https://msbenchapp.azurewebsites.net/run-analysis/2026102206370902) | [66.0](https://msbenchapp.azurewebsites.net/run-analysis/2026102206371538) |
+
+All eight skills were advertised in the actual model prompt of every
+full-bundle trial. Every trial in both arms invoked only `aspire-startup`,
+then ran the recipe directly. Neither `aspire` nor `aspire-orchestration`
+was loaded. Every trial made one pre-launch tool call excluding the recipe
+shell, with zero reference reads. Total tool-call counts were 4, 4, 5 for
+the control and 3, 5, 4 for the full bundle (median 4 in both arms).
+
+**The full predefined bundle did not introduce observed routing or
+pre-launch discovery churn when the specific startup skill was available.**
+Pre-launch medians were 9.0 versus 8.5 seconds. Outside-recipe time was
+1.2 seconds higher with the full bundle, a small sample difference rather
+than an established overhead effect. The full-agent median was 14.2 seconds
+higher, alongside a 13.2-second higher readiness-wait median; these do not
+justify attributing a total-time regression to skill selection. One
+full-bundle trial finished faster than every control.
+
+This is three attempts per arm on one application, model, and client.
+It does not prove zero metadata/inference cost, compare loaded broad-skill
+bodies, or test ambiguous targets, editor ownership, startup failures,
+and stop/restart behavior. MCP remains outside this comparison.
+
+### Adoption recommendation
+
+Treat a dedicated startup skill as an **additive candidate**, not a
+replacement for orchestration or the router. The measured direct selection
+survived both orchestration availability and the complete original bundle;
+no removals were required to obtain that behavior.
+
+Do not ship this benchmark's exact file as a general predefined skill:
+it hardcodes `/app/apphost.cs`, Bingo resource names, and benchmark timing
+artifacts. Generalize known-target start/readiness/endpoint discovery first,
+while retaining exact-target, worktree-isolation, editor lifecycle, and
+failure-handling rules. Keep orchestration's broader stop/restart/update
+capabilities and guardrails. If a production skill is introduced, make the
+router aware of that narrow startup path and validate routing before
+removing duplicated instructions. No existing skill content is removed
+or rewritten by these experiments.

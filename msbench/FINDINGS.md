@@ -122,7 +122,7 @@ infrastructure improvement, without silently changing comparison treatments.
 is not implemented by this finding. These events do not establish an Aspire
 runtime or model-reasoning failure.
 
-## F07: Full orchestration availability need not add startup discovery churn
+## F07: Broader skill availability need not add startup discovery churn
 
 **Evidence:** The [orchestration-availability comparison](aspire-startup/README.md#observed-orchestration-availability-results)
 added the full, unchanged orchestration skill alongside the self-contained
@@ -146,6 +146,30 @@ cost. Three samples per arm, including one control infrastructure replacement.
 The orchestration body was never loaded, so this does not measure the cost
 of its invocation or negate discovery overhead observed in other skill-bundle
 experiments. Any forced-invocation test must be reported separately.
+
+**Full-bundle follow-up:** The
+[complete predefined bundle comparison](aspire-startup/README.md#observed-full-bundle-results)
+advertised all seven original skills plus startup in every full-bundle
+trial. Again, all three trials selected only `aspire-startup`, with no
+router/orchestration load, one pre-launch tool call, and zero reference
+reads, matching the three startup-only controls. All six original
+submissions executed and passed without replacements.
+
+Pre-launch medians were 8.5 seconds full-bundle versus 9.0 seconds control;
+outside-recipe medians were 16.3 versus 15.2 seconds. Total medians were
+85.3 versus 71.1 seconds, alongside readiness-wait medians of 48.4 versus
+35.2 seconds. Do not turn the absence of routing churn into a claim of zero
+overall cost, or attribute readiness variation to the bundle from three
+samples.
+
+**Adoption direction:** An additive startup entry point is supported as a
+candidate; neither orchestration nor the router needs to be removed to
+enable direct selection in this scenario. Retain all existing skill content
+until a generalized startup skill and broader routing/safety tests establish
+what overlap can be removed. The measured skill hardcodes Bingo paths,
+resource names, and timing artifacts, so it is not yet a drop-in upstream
+skill. Startup success alone does not validate editor ownership, ambiguous
+targets, worktree isolation across hosts, or stop/restart behavior.
 
 ## Recording future findings
 
