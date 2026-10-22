@@ -448,3 +448,75 @@ readiness-wait variability separately. This measures the effect of making
 the broader skill available alongside startup guidance, not forced
 orchestration consumption or the value of its safeguards in ambiguous
 workspaces.
+
+`orchestration-dataset.jsonl` pins both tasks to
+`e9ca000aebbea9fa5802239c7464761ec4f6566f`. Reproduction uses standard CLI
+commands, with `startup-skill` as the other arm:
+
+```bash
+export USE_COPILOT_CLI_VERSION=1.0.99-0
+MSBENCH_DISABLE_RUN_ANALYSIS=1 msbench-cli run \
+  --dataset msbench/aspire-startup/orchestration-dataset.jsonl \
+  --benchmark aspire-startup --variant startup-orchestration \
+  --agent github-copilot-cli=github-copilot-cli-pkg-main-20261014-215627 \
+  --model gpt-6-luna --env USE_COPILOT_CLI_VERSION \
+  --backend ces-staging --acr msbenchstaging.azurecr.io --workers 1 \
+  --repeat 3 --tag experiment=startup-orchestration-churn
+unset USE_COPILOT_CLI_VERSION
+```
+
+### Observed orchestration-availability results
+
+The October 21 experiment used MSBench `0.3.67` and the same pinned
+package/model above, with actual CLI `1.0.99-0` verified in all six
+executed trials. All six startup/final rewards were 1, with no trial/step
+exceptions. Recipe timestamp boundaries were checked against shell-tool
+events and Harbor's agent interval.
+
+| Available skills | Full agent time | Pre-launch | Launch command | Subsequent wait | Post-recipe | Outside recipe |
+|---|---:|---:|---:|---:|---:|---:|
+| Startup only | 75.0 | 8.8 | 20.7 | 43.6 | 6.3 | 15.1 |
+| Startup + full orchestration | 78.8 | 8.3 | 19.3 | 45.3 | 6.5 | 14.9 |
+
+Values are independent column medians in seconds, not an additive
+representative run. Outside-recipe time is computed per trial.
+
+| Observed churn | Startup only | Startup + full orchestration |
+|---|---|---|
+| Loaded skills, every executed trial | `aspire-startup` only | `aspire-startup` only |
+| Pre-launch tool calls, excluding recipe shell | 1 in every trial | 1 in every trial |
+| Orchestration reference reads | 0 | 0 |
+| Total tool calls per trial | 3, 4, 4 | 4, 4, 5 |
+
+The combined trials' raw process logs confirm that **both** skills were
+advertised in the model's available-skills list. The agent consistently
+selected the dedicated startup skill and went directly to the recipe.
+Thus the absence of orchestration calls is not simply an assumption based
+on installed files. Extra post-launch tool calls involved checking output
+files or HTTP endpoints, not loading orchestration references.
+
+| Arm | Attempt 1: full agent seconds | Attempt 2: full agent seconds | Attempt 3: full agent seconds |
+|---|---|---|---|
+| Startup only | [87.7](https://msbenchapp.azurewebsites.net/run-analysis/2026102204630452) | [Build HTTP 502](https://msbenchapp.azurewebsites.net/run-analysis/2026102204631206) | [75.0](https://msbenchapp.azurewebsites.net/run-analysis/2026102204631854) |
+| Startup + orchestration | [88.0](https://msbenchapp.azurewebsites.net/run-analysis/2026102204630456) | [78.8](https://msbenchapp.azurewebsites.net/run-analysis/2026102204631234) | [67.9](https://msbenchapp.azurewebsites.net/run-analysis/2026102204631852) |
+
+Seven submissions produced six executed samples. The startup-only second
+attempt failed before model execution while fetching the Aspire installer
+(HTTP 502). Its unchanged, explicitly tagged
+[replacement](https://msbenchapp.azurewebsites.net/run-analysis/2026102205656936)
+passed in 72.0 seconds and provides the third valid control sample.
+Original control submissions remain two passes and one build failure.
+
+**No added pre-launch discovery churn was observed from orchestration's
+availability alongside a directly selected startup skill.** The combined
+arm's full-agent median was 3.8 seconds higher, but pre-launch and
+outside-recipe medians were slightly lower, and readiness waits varied.
+With three samples per arm this is not evidence of a total-time penalty
+or proof that metadata has zero inference cost.
+
+This does **not** measure the cost of loading orchestration's body or
+following its references: it was never invoked. Earlier broad-skill
+experiments did load it and perform additional discovery, but also changed
+the skill bundle and guidance arrangement. An invocation-specific comparison
+would need a separate explicit treatment rather than reinterpreting this
+availability result.

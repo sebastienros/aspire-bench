@@ -122,6 +122,31 @@ infrastructure improvement, without silently changing comparison treatments.
 is not implemented by this finding. These events do not establish an Aspire
 runtime or model-reasoning failure.
 
+## F07: Full orchestration availability need not add startup discovery churn
+
+**Evidence:** The [orchestration-availability comparison](aspire-startup/README.md#observed-orchestration-availability-results)
+added the full, unchanged orchestration skill alongside the self-contained
+startup skill, with everything else matched and no router/MCP. Raw model
+prompt logs confirmed both skills were advertised. All three combined
+trials selected only `aspire-startup`, just like the three valid controls.
+Each trial made exactly one pre-launch tool call (the skill load), with
+zero orchestration-reference reads. All six executed trials passed.
+
+Median pre-launch time was 8.3 seconds combined versus 8.8 seconds startup-only;
+outside-recipe time was 14.9 versus 15.1 seconds. Full medians were 78.8
+versus 75.0 seconds, with variable readiness waits.
+
+**Improvement candidate:** Keep a narrow, directly discoverable entry point
+for known startup work while retaining broad orchestration guidance for
+cases that need it. Investigate routing/trigger behavior before removing
+the broader skill on the assumption that its mere presence adds churn.
+
+**Limits / status:** Negative availability-overhead result, not proof of zero
+cost. Three samples per arm, including one control infrastructure replacement.
+The orchestration body was never loaded, so this does not measure the cost
+of its invocation or negate discovery overhead observed in other skill-bundle
+experiments. Any forced-invocation test must be reported separately.
+
 ## Recording future findings
 
 Give each finding a stable ID and include evidence links, exact observed
