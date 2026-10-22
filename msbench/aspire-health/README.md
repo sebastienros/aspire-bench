@@ -38,6 +38,23 @@ prompts. Include all submissions and label infrastructure failures and
 unchanged replacements separately. Exclude queue/build/setup/verifier time
 from agent timing.
 
+`dataset.jsonl` pins both tasks to
+`a924d3763526ab0e5308950f581d761354072eb7`. Model evaluation:
+
+```bash
+export USE_COPILOT_CLI_VERSION=1.0.99-0
+MSBENCH_DISABLE_RUN_ANALYSIS=1 msbench-cli run \
+  --dataset msbench/aspire-health/dataset.jsonl \
+  --benchmark aspire-health --variant specific \
+  --agent github-copilot-cli=github-copilot-cli-pkg-main-20261014-215627 \
+  --model gpt-6-luna --env USE_COPILOT_CLI_VERSION \
+  --backend ces-staging --acr msbenchstaging.azurecr.io --workers 1 \
+  --repeat 3 --tag experiment=specific-health-skills
+unset USE_COPILOT_CLI_VERSION
+```
+
+Repeat with `--variant general` for the control.
+
 Validate both Docker images locally with all four oracle steps before cloud
 inference:
 

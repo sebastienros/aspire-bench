@@ -15,6 +15,24 @@ const candidates = {
     redis: "aspire-redis-health",
 };
 
+test("health dataset pins both four-step treatments to one published commit", async () => {
+    const rows = (await read(path.join(root, "dataset.jsonl"))).trim().split("\n").map(JSON.parse);
+    assert.deepEqual(rows.map(row => row.benchmark_variant), ["general", "specific"]);
+    assert.equal(new Set(rows.map(row => row.task_repo_commit)).size, 1);
+    for (const row of rows) {
+        assert.match(row.task_repo_commit, /^[a-f0-9]{40}$/);
+        assert.equal(row.task_path, `msbench/aspire-health/tasks/${row.benchmark_variant}`);
+        assert.equal(row.task_repo, "https://github.com/sebastienros/aspire-bench");
+        assert.equal(row.variant_of_benchmark, "aspire-health");
+        assert.equal(row.default_variant, "general");
+        assert.equal(row.instance_id, "bingo-health-checks");
+        assert.equal(row.task_style, "harbor-native");
+        assert.equal(row.container_registry, "msbenchstaging.azurecr.io");
+        assert.equal(row.run_platform, "linux_container");
+        assert(!("image_tag" in row));
+    }
+});
+
 test("health comparison preserves prompts, app, limits, general skills and verifiers", async () => {
     const shared = await hashes(path.join(root, "../bingo/common/aspire-app"));
     delete shared[".github/mcp.json"];
