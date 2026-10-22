@@ -428,3 +428,23 @@ discoverable startup skill worked without a procedural README and
 consistently avoided the observed pre-launch repository discovery.
 This does not demonstrate `aspire run` alone suffices: both locations
 still supply explicit readiness, endpoint-extraction, and timing commands.
+
+## Adding full orchestration alongside the startup skill
+
+The `startup-orchestration` treatment adds the existing full
+`aspire-orchestration` skill and its reference files to `startup-skill`.
+The original standalone `aspire-startup` skill, brief README, neutral prompt,
+application, recipe, and limits remain identical. MCP and the router skill
+remain absent. A pinned Docker build context fetches orchestration from the
+existing skill snapshot; it is not rewritten or reduced for this experiment.
+The combined image passed local Docker/Harbor oracle validation.
+
+Compare three fresh attempts in each arm with the same Copilot package,
+CLI, and model as prior experiments. Inspect actual skill selection rather
+than assuming that both available skills are loaded. Define observable churn
+as additional skill loads, reference-file reads, pre-launch tool calls,
+and pre-launch/outside-recipe agent time. Treat application launch and
+readiness-wait variability separately. This measures the effect of making
+the broader skill available alongside startup guidance, not forced
+orchestration consumption or the value of its safeguards in ambiguous
+workspaces.

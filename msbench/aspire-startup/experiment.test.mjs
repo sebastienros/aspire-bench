@@ -167,3 +167,33 @@ test("knowledge-location treatments move the exact recipe without directing the 
         assert.equal(config.includes("skills_dir"), treatment === "startup-skill");
     }
 });
+
+test("orchestration addition preserves startup-only inputs and adds only the pinned full skill", async () => {
+    const task = path.join(root, "tasks/startup-orchestration");
+    const baseline = path.join(root, "tasks/startup-skill");
+    for (const file of ["steps/startup/instruction.md", "steps/startup/solution/solve.sh",
+        "steps/startup/tests/test.sh", "environment/app/README.md", "environment/entrypoint.sh",
+        "tests/hashes.js", "tests/http.js", "tests/process.js",
+        "environment/skills/aspire-startup/SKILL.md"]) {
+        assert.equal(await readFile(path.join(task, file), "utf8"),
+            await readFile(path.join(baseline, file), "utf8"), file);
+    }
+    assert.equal((await readFile(path.join(task, "task.toml"), "utf8"))
+        .replace('treatment = "startup-orchestration"', 'treatment = "startup-skill"'),
+        await readFile(path.join(baseline, "task.toml"), "utf8"));
+    const expected = JSON.parse(await readFile(path.join(baseline, "environment/input-hashes.json"), "utf8"));
+    const orchestration = await hashes(path.join(root,
+        "../bingo/tasks/aspire/environment/skills/aspire-orchestration"));
+    for (const [file, digest] of Object.entries(orchestration))
+        expected[`.github/skills/aspire-orchestration/${file}`] = digest;
+    assert.deepEqual(JSON.parse(await readFile(path.join(task, "environment/input-hashes.json"), "utf8")),
+        expected);
+    const dockerfile = await readFile(path.join(task, "environment/Dockerfile"), "utf8");
+    assert.equal(dockerfile.replace("BENCH_STARTUP_TREATMENT=startup-orchestration",
+        "BENCH_STARTUP_TREATMENT=startup-skill")
+        .replace("COPY --from=orchestration / /opt/aspire-skills/aspire-orchestration/\n", "")
+        .replace("COPY --from=orchestration / /app/.github/skills/aspire-orchestration/\n", ""),
+        await readFile(path.join(baseline, "environment/Dockerfile"), "utf8"));
+    assert.match(await readFile(path.join(task, "environment/docker-compose.yaml"), "utf8"),
+        /orchestration:.*git#[a-f0-9]{40}:msbench\/bingo\/tasks\/aspire\/environment\/skills\/aspire-orchestration/);
+});
