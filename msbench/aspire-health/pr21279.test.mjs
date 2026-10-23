@@ -11,6 +11,23 @@ const treatment = path.join(root, "tasks/cli-pr21279");
 const read = file => readFile(file, "utf8");
 const version = "17.0.0-pr.21279.g6676979b";
 
+test("PR dataset pins the new default and unchanged CLI control to one task commit", async () => {
+    const rows = (await read(path.join(root, "cli-pr21279-dataset.jsonl"))).trim().split("\n").map(JSON.parse);
+    assert.deepEqual(rows.map(row => row.benchmark_variant), ["cli-pr21279", "cli"]);
+    assert.equal(new Set(rows.map(row => row.task_repo_commit)).size, 1);
+    for (const row of rows) {
+        assert.match(row.task_repo_commit, /^[a-f0-9]{40}$/);
+        assert.equal(row.task_path, `msbench/aspire-health/tasks/${row.benchmark_variant}`);
+        assert.equal(row.task_repo, "https://github.com/sebastienros/aspire-bench");
+        assert.equal(row.variant_of_benchmark, "aspire-health-cli-pr21279");
+        assert.equal(row.default_variant, "cli-pr21279");
+        assert.equal(row.task_style, "harbor-native");
+        assert.equal(row.run_platform, "linux_container");
+        assert.equal(row.container_registry, "msbenchstaging.azurecr.io");
+        assert(!("image_tag" in row));
+    }
+});
+
 test("PR variant preserves prompts, health recipes, skills, verifiers and limits", async () => {
     for (const directory of ["steps", "tests", "environment/skills"]) {
         assert.deepEqual(await hashes(path.join(treatment, directory)),

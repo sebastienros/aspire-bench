@@ -340,6 +340,25 @@ DOCKER_DEFAULT_PLATFORM=linux/amd64 harbor run \
   --jobs-dir .runs/msbench-oracle --job-name health-cli-pr21279-x64 --n-concurrent 1
 ```
 
+[cli-pr21279-dataset.jsonl](cli-pr21279-dataset.jsonl) pins the new default
+variant and unchanged `cli` control to task commit
+`9e9eedbfbff421c95dc2d01928fea6cbba9cb6d7`. To measure the PR build with the
+previous model/client pins:
+
+```bash
+export USE_COPILOT_CLI_VERSION=1.0.99-0
+MSBENCH_DISABLE_RUN_ANALYSIS=1 msbench-cli run \
+  --dataset msbench/aspire-health/cli-pr21279-dataset.jsonl \
+  --benchmark aspire-health-cli-pr21279 --variant cli-pr21279 \
+  --agent github-copilot-cli=github-copilot-cli-pkg-main-20261014-215627 \
+  --model gpt-6-luna --env USE_COPILOT_CLI_VERSION \
+  --backend ces-staging --acr msbenchstaging.azurecr.io --workers 1 \
+  --repeat 3 --tag experiment=cli-health-pr21279
+unset USE_COPILOT_CLI_VERSION
+```
+
+Use `--variant cli` for a fresh 13.6.0 control under the same dataset.
+
 **Measurement status:** No model trials have been submitted for this variant.
 The prior 13.6.0 timings must not be relabeled as PR-build measurements. A
 fresh CLI-versus-CLI comparison can keep the skill and reporting instructions

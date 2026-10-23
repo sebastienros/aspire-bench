@@ -146,6 +146,8 @@ Native and explicit AMD64 local Docker oracles passed all four steps and
 final verification with unchanged skills/prompts/reporting recipes.
 Public PR artifacts are preserved with user approval and checksum-verified
 so builds need no GitHub credentials. Old fixtures/results remain intact.
+The new `aspire-health-cli-pr21279` dataset defaults to the PR build and
+includes an unchanged CLI control pinned to the same task commit.
 This validates availability and compatibility, not reduced agent churn:
 no new model trials have run, and comparing this toolchain to 13.6.0 would
 not isolate this PR from other product changes. Replacing the CLI alone
