@@ -1,0 +1,27 @@
+{
+  "repository": "microsoft/aspire",
+  "pull_request": 21279,
+  "head_sha": "6676979b2bb4ed074568b84c84fb36a196d38f06",
+  "workflow_run_id": 39876549957,
+  "workflow_run_attempt": 1,
+  "version": "17.0.0-pr.21279.g6676979b",
+  "release_url": "https://github.com/sebastienros/aspire-bench/releases/tag/aspire-pr-21279-6676979b",
+  "installer": {
+    "url": "https://raw.githubusercontent.com/microsoft/aspire/6676979b2bb4ed074568b84c84fb36a196d38f06/eng/scripts/get-aspire-cli-pr.sh",
+    "sha256": "2e2336d8a10ed4db92be2de0416e3eb21f60541ab4a7e2b4df0f1606fc48ee8e"
+  },
+  "assets": {
+    "linux-arm64": {
+      "name": "aspire-pr21279-linux-arm64.tar.gz",
+      "sha256": "14f8ab337ec763bb05a4094083844fc0ac6be7ec0afac892a86dfed89cb31b6f",
+      "size_bytes": 258190820,
+      "upstream_artifacts": ["built-nugets", "built-nugets-for-linux-arm64", "cli-native-archives-linux-arm64"]
+    },
+    "linux-x64": {
+      "name": "aspire-pr21279-linux-x64.tar.gz",
+      "sha256": "bd30e457cbb30d5042e99016e41f7fac83669f1101ac029e70a5a047d9c32f34",
+      "size_bytes": 275342631,
+      "upstream_artifacts": ["built-nugets", "built-nugets-for-linux-x64", "cli-native-archives-linux-x64"]
+    }
+  }
+}

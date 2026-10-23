@@ -135,6 +135,22 @@ an established cause of the timing difference: completed traces searched
 AppHost/guidance before `describe` and did not show failed scoped lookups
 after reading the table.
 
+**Upstream implementation / local follow-up:** The separate
+[PR 21279 toolchain variant](aspire-health/CLI-README.md#pr-21279-toolchain-follow-up)
+pins [microsoft/aspire#21279](https://github.com/microsoft/aspire/pull/21279)
+at `6676979b`, using matching CLI, AppHost SDK, and Hosting packages
+`17.0.0-pr.21279.g6676979b`. The real table now shows
+`cache / Redis`, `postgres / PostgreSQL Server`, and
+`db / PostgreSQL Database`; JSON exposes `serviceDisplayName`.
+Native and explicit AMD64 local Docker oracles passed all four steps and
+final verification with unchanged skills/prompts/reporting recipes.
+Public PR artifacts are preserved with user approval and checksum-verified
+so builds need no GitHub credentials. Old fixtures/results remain intact.
+This validates availability and compatibility, not reduced agent churn:
+no new model trials have run, and comparing this toolchain to 13.6.0 would
+not isolate this PR from other product changes. Replacing the CLI alone
+does not add service display metadata to old Hosting packages.
+
 ## F04: Capability installation and actual usage must be verified separately
 
 **Evidence:** Original cloud runs did not consume the supplied skills until

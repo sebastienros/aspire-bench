@@ -264,3 +264,85 @@ A causal follow-up can hold the CLI commands and reporting pattern constant
 while adding only an explicit logical-name/integration mapping. Test report
 composition/known-AppHost guidance separately. No prompt, skill, or pinned
 task has been changed during these runs.
+
+## PR 21279 toolchain follow-up
+
+The separate `tasks/cli-pr21279` variant uses
+[microsoft/aspire#21279](https://github.com/microsoft/aspire/pull/21279),
+which exposes resource service display names. Existing `cli`, `specific`,
+datasets, and historical results remain unchanged.
+
+| Input | Pinned value |
+|---|---|
+| Aspire source | `6676979b2bb4ed074568b84c84fb36a196d38f06` |
+| CI build | [39876549957](https://github.com/microsoft/aspire/actions/runs/39876549957), attempt 1 |
+| CLI / AppHost SDK / Hosting packages | `17.0.0-pr.21279.g6676979b` |
+| Installer | Same source commit, SHA-256 verified |
+| Preserved public artifacts | [Dedicated prerelease](https://github.com/sebastienros/aspire-bench/releases/tag/aspire-pr-21279-6676979b) |
+
+[pr21279-build.json](pr21279-build.json) records artifact names, sizes,
+checksums, and original build provenance. With user approval, Linux ARM64 and
+x64 CLI archives, cross-platform NuGet packages, and matching Dashboard/
+Orchestration packages were preserved before GitHub Actions artifacts expire.
+Redundant .NET-tool CLI packages were omitted. These are public upstream
+artifacts, not a new Microsoft release.
+
+Docker builds download the preserved assets without authentication and
+verify SHA-256 before installing. The installer uses `--local-dir`,
+`--hive-label pr-21279`, `--skip-path`, `--skip-extension`, and
+`--skip-completions`; `ASPIRE_HOME` and the container PATH explicitly select
+the isolated install. No GitHub credentials are passed into the build or
+stored in image layers. The image asserts the actual CLI version.
+
+Replacing only the CLI executable would not supply the new integration
+metadata from the old AppHost packages. The new variant therefore overlays
+only the AppHost SDK/Hosting versions, corresponding central package entries,
+a local PR NuGet source, and the README's CLI requirement. Application logic,
+.NET 10 SDK, Node, dependency image tags, all four prompts, both skills,
+health/reporting recipes, limits, and verifiers are unchanged. The input hash
+manifest protects the overlaid files as well.
+
+### Observed local output
+
+The actual all-resource table now contains:
+
+| Name | Type | State | Health |
+|---|---|---|---|
+| `cache` | `Redis` | Running | Healthy |
+| `postgres` | `PostgreSQL Server` | Running | Healthy |
+| `db` | `PostgreSQL Database` | Running | Healthy |
+| `bingoboard` | `Vite` | Running | Healthy |
+
+Logical resource names remain `cache`, `postgres`, and `db`; the **Type
+column** now supplies the integration's service display name. Structured
+`describe --format Json` also exposes `serviceDisplayName`. Local inspection
+asserted the Redis, PostgreSQL Server, and PostgreSQL Database values against
+the running application, not just a synthetic table or `--version`.
+
+The unchanged startup endpoint extractor and five-column health table
+oracles work with this output. Both the native local Docker oracle and the
+explicit Linux AMD64 oracle passed all four steps and final verification,
+without trial/step exceptions. A separate private Docker inspection confirmed
+the full table and JSON fields, then stopped the exact AppHost and removed
+the container. Initial fixture bring-up failed the immutable-input check
+because its copied hash manifest still described the old package files;
+after updating the manifest, both complete oracles passed. This was a local
+fixture preparation error, not a CLI or model failure.
+
+Reproduce:
+
+```bash
+node --test msbench/aspire-health/experiment.test.mjs msbench/aspire-health/pr21279.test.mjs
+harbor run --path msbench/aspire-health/tasks/cli-pr21279 --agent oracle \
+  --jobs-dir .runs/msbench-oracle --job-name health-cli-pr21279-native --n-concurrent 1
+DOCKER_DEFAULT_PLATFORM=linux/amd64 harbor run \
+  --path msbench/aspire-health/tasks/cli-pr21279 --agent oracle \
+  --jobs-dir .runs/msbench-oracle --job-name health-cli-pr21279-x64 --n-concurrent 1
+```
+
+**Measurement status:** No model trials have been submitted for this variant.
+The prior 13.6.0 timings must not be relabeled as PR-build measurements. A
+fresh CLI-versus-CLI comparison can keep the skill and reporting instructions
+fixed, but the upgrade from 13.6.0 to this PR build also changes Hosting and
+other product implementation. It cannot isolate the effect of display names
+alone. That would require a matching parent build as a control.
