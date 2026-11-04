@@ -392,6 +392,42 @@ publish/prepare behavior and both positive/negative runtime oracles. Only owned
 runner commands were stopped; no shared restart/prune, cloud provisioning,
 model submission, or repeat sweep. Historical tasks/tracker are untouched.
 
+## F11: Feature/data-evolution checks need real state; local pair gates remain blocked
+
+**Evidence:** The [bounded F01/M01 tasks](bingo-evolution/README.md#local-outcomes-2026-11-04)
+extend Bingo without changing historical fixtures. F01 adds an actual active
+catalog joining PostgreSQL definitions to Redis called-state through player and
+admin origins. M01 specifies an additive persisted-description migration over
+preexisting active/inactive squares and users. Prompts are matched and
+outcome-neutral; raw has useful reload/migration scripts, Aspire has eight
+explicitly exposed skills and ordinary resource operations, with MCP disabled.
+
+The initial F01 raw Docker oracle passed (reward 1, no exception), including
+fresh nonces, direct SQL/Redis observations and seven rejected no-op/hardcoded/
+integrity/data-loss cases. In particular, recreating a table with identical rows
+was rejected using its original database/table identity, not just row counts.
+[Native result and output](bingo-evolution/evidence/validation.json) retain the
+evidence. All 11 new/relevant historical structural and negative tests passed.
+
+**Failure / limits:** F01 Aspire failed before agent execution when the new
+grader could not recognize its Redis image. The matcher assumed unqualified
+names; registry qualification is the working diagnosis, but the original image
+string was not retained. The candidate fixture fix is not runtime-reverified
+and is not evidence of an Aspire product failure. Shared-host
+disk exhaustion and an unresponsive Docker daemon then prevented completion of
+the replacement and both M01 validations. The initial raw oracle predates the
+image-name/artifact-list changes. **Neither final matched pair is verified or
+model-ready.** No completed M01 positive grade, model attempt, performance
+comparison, or observed skill/tool-use benefit is claimed. Setup/oracle runtime
+is not agent-development time.
+
+**Improvement candidate / status:** Keep schema/data correctness independent of
+resource readiness: compare original identifiers and contents, preserve migration
+history and database/table identity, and verify fresh writes/negative inputs
+through HTTP plus SQL/Redis. This mechanism has partial local proof, not an
+adopted product change. Complete both exact final Docker oracles only after the
+shared host is healthy; withhold cloud datasets/submissions until that gate.
+
 ## Recording future findings
 
 Give each finding a stable ID and include evidence links, exact observed

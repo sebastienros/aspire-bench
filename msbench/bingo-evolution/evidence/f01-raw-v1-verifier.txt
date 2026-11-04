@@ -1,0 +1,2 @@
+Verified f01: fresh functional contracts, negative inputs,
+real SQL/Redis, legacy rows/users/history, live frontend/version/SignalR and dependency identity.

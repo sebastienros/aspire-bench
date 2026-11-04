@@ -1,0 +1,122 @@
+{
+  "status": "blocked-local-docker-validation",
+  "date": "2026-11-04",
+  "source_base_commit": "80365e57f03e1c37e507f5673ed03bc31b83608e",
+  "branch": "sebros/bingo-feature-and-migration",
+  "model_runs": [],
+  "cloud_dataset_published": false,
+  "pair_gates": {
+    "f01": "not-passed",
+    "m01": "not-passed"
+  },
+  "toolchain": {
+    "harbor": "0.20.0",
+    "validation_host": "macOS with Linux aarch64 Docker",
+    "node_image": "node:24.14.0-bookworm-slim",
+    "dotnet_image": "mcr.microsoft.com/dotnet/sdk:10.0.100-noble",
+    "docker_image": "docker:28.0.4-dind",
+    "aspire_cli": "13.6.0",
+    "postgres": "18.3",
+    "redis": "8.6",
+    "application_context_commit": "baacba3e17181491c9a4d419db7d0e6763c3d363",
+    "general_skills_commit": "1fcca7e91c89716f0e4a8bf7324da13a39f70c66",
+    "application_context_checks": {
+      "raw_files_matching_pin": 97,
+      "aspire_files_matching_pin": 101,
+      "git_context_diff": "none"
+    }
+  },
+  "budgets_seconds": {
+    "agent": 900,
+    "verifier": 300,
+    "image_build": 1200
+  },
+  "attempts": [
+    {
+      "job": "evolution-f01-raw-v1",
+      "command": "MSBENCH_RAW_APP_CONTEXT=\"$PWD/msbench/bingo/common/raw-app\" harbor run --path msbench/bingo-evolution/tasks/f01-raw-scripted --agent oracle --jobs-dir .runs/msbench-oracle --job-name evolution-f01-raw-v1 --n-concurrent 1",
+      "status": "completed-initial-draft",
+      "reward": 1,
+      "exception": null,
+      "trial": "f01-raw-scripted__kfJ4Rfm",
+      "task_checksum": "42b0ac8e3e28bfcbdade21d160b029e25f0e5e276fba086e5923e4f148ae86ee",
+      "whole_job_seconds": 93.72315,
+      "oracle_execution_seconds": 13.716026,
+      "verifier_seconds": 1.573108,
+      "negative_checks_rejected": [
+        "unchanged application plus success report",
+        "hardcoded empty catalog",
+        "modified protected guidance",
+        "valid but swapped endpoint origins",
+        "changed inactive legacy row",
+        "rebuilt table containing identical rows",
+        "lost unrelated Redis state"
+      ],
+      "evidence": {
+        "f01-raw-v1-result.json": "5a8482d953c9308d2599a6d6874b1b6c024d901f3acb400315104a6ef8b9fb32",
+        "f01-raw-v1-oracle.txt": "cc686cbdea6462c6e177d9711a212dc096d3c7960fa5058921f3aa40f1aae926",
+        "f01-raw-v1-verifier.txt": "30544308a1b84bd88c2694fa80a69d174707f70239916a04e13500d571d33279"
+      },
+      "final_revision_revalidation_required": true,
+      "post_run_changes": [
+        "common helper accepts registry-qualified image names",
+        "artifact list narrowed to source paths excluding build/node_modules",
+        "raw reload keeps dependencies alive and permits recovery after a failed rebuild"
+      ]
+    },
+    {
+      "job": "evolution-f01-aspire-v1",
+      "status": "failed-before-agent",
+      "reward": null,
+      "failure": "AssertionError [ERR_ASSERTION]: Owned Redis required",
+      "failure_origin": "fixture-grader image recognition; registry qualification is the working diagnosis, not an observed Aspire product failure",
+      "observation": "docker logs --tail 100 d77b3ee29d2f",
+      "stack": [
+        "at redis (file:///opt/benchmark/evolution.mjs:49:5)",
+        "at async main (file:///opt/benchmark/evolution.mjs:229:9)"
+      ],
+      "fix": "Match the final slash-delimited image component for Redis and PostgreSQL.",
+      "diagnosis_limit": "Original Config.Image was not captured before Docker became unavailable.",
+      "fix_runtime_verified": false,
+      "evidence_path": ".runs/msbench-oracle/evolution-f01-aspire-v1/"
+    },
+    {
+      "job": "evolution-f01-aspire-v2",
+      "status": "not-launched",
+      "reward": null,
+      "failure": "Task-owned cleanup command blocked on unresponsive Docker before Harbor launch; shell stopped."
+    },
+    {
+      "job": "evolution-m01-raw-v1",
+      "status": "cancelled-during-oracle-shared-host-failure",
+      "reward": null,
+      "trial": "m01-raw-scripted__QsYg7Fe",
+      "observation": "Healthcheck passed; process inspection showed oracle, rebuilt admin and verifier running. No completed trial result was retrieved.",
+      "evidence_path": ".runs/msbench-oracle/evolution-m01-raw-v1/"
+    },
+    {
+      "job": "evolution-m01-aspire-v2",
+      "status": "not-launched",
+      "reward": null,
+      "failure": "Docker daemon is not running. Please start Docker and try again.",
+      "evidence_path": "m01-aspire-v2-launch.txt"
+    }
+  ],
+  "infrastructure_blocker": {
+    "coordinator_report": "Shared-host disk exhaustion (31 GiB to 1.2 GiB), containerd metadata I/O/read-only errors, unresponsive Docker API.",
+    "child_observed": [
+      "Docker exec/logs/removal commands became unresponsive",
+      "Harbor reported Docker daemon unavailable",
+      "df -h . showed /System/Volumes/Data 926 GiB size, 901 GiB used, 2.8 GiB available, 100% capacity"
+    ],
+    "actions": "Stopped only task-owned Harbor/inspection shell process trees; no restart, prune, shared cleanup or new Docker/model work."
+  },
+  "static_validation": {
+    "command": "node --test msbench/benchmark.test.mjs msbench/bingo-iteration/experiment.test.mjs msbench/bingo-evolution/experiment.test.mjs",
+    "passed": 11,
+    "shell_syntax": "passed for every new .sh",
+    "whitespace": "git diff --check passed",
+    "final_common_grader_sha256": "334a906e2d449feb225b134ca37ffe3b477d53d5603d8370f682cb1316edce4a"
+  },
+  "interpretation": "Local partial fixture evidence only. Neither matched scenario pair is verified/model-ready. No model-performance or Aspire-advantage claim."
+}
