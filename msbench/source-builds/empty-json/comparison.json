@@ -1,0 +1,264 @@
+{
+  "comparisons": {
+    "describe-json": {
+      "control": {
+        "exit": 0,
+        "stdoutBytes": 0,
+        "stderrBytes": 103,
+        "stdout": "",
+        "stderr": "Scanning for running AppHosts...\n\u2139\ufe0f No running AppHost found. Use 'aspire run' to start one first.\n"
+      },
+      "treatment": {
+        "exit": 0,
+        "stdoutBytes": 22,
+        "stderrBytes": 103,
+        "stdout": "{\n  \"resources\": []\n}\n",
+        "stderr": "Scanning for running AppHosts...\n\u2139\ufe0f No running AppHost found. Use 'aspire run' to start one first.\n"
+      }
+    },
+    "resources-json": {
+      "control": {
+        "exit": 0,
+        "stdoutBytes": 0,
+        "stderrBytes": 103,
+        "stdout": "",
+        "stderr": "Scanning for running AppHosts...\n\u2139\ufe0f No running AppHost found. Use 'aspire run' to start one first.\n"
+      },
+      "treatment": {
+        "exit": 0,
+        "stdoutBytes": 22,
+        "stderrBytes": 103,
+        "stdout": "{\n  \"resources\": []\n}\n",
+        "stderr": "Scanning for running AppHosts...\n\u2139\ufe0f No running AppHost found. Use 'aspire run' to start one first.\n"
+      }
+    },
+    "missing-path": {
+      "control": {
+        "exit": 7,
+        "stdoutBytes": 0,
+        "stderrBytes": 158,
+        "stdout": "",
+        "stderr": "\u274c The --apphost option specified a project that does not exist.\n\ud83d\udcc4 See logs at /tmp/agentic-empty-json-home/.aspire/logs/cli_20261104T225957_cadcf058.log\n"
+      },
+      "treatment": {
+        "exit": 7,
+        "stdoutBytes": 0,
+        "stderrBytes": 158,
+        "stdout": "",
+        "stderr": "\u274c The --apphost option specified a project that does not exist.\n\ud83d\udcc4 See logs at /tmp/agentic-empty-json-home/.aspire/logs/cli_20261104T230342_5f3c160d.log\n"
+      }
+    },
+    "json-follow": {
+      "control": {
+        "exit": 0,
+        "stdoutBytes": 0,
+        "stderrBytes": 103,
+        "stdout": "",
+        "stderr": "Scanning for running AppHosts...\n\u2139\ufe0f No running AppHost found. Use 'aspire run' to start one first.\n"
+      },
+      "treatment": {
+        "exit": 0,
+        "stdoutBytes": 0,
+        "stderrBytes": 103,
+        "stdout": "",
+        "stderr": "Scanning for running AppHosts...\n\u2139\ufe0f No running AppHost found. Use 'aspire run' to start one first.\n"
+      }
+    },
+    "mermaid": {
+      "control": {
+        "exit": 0,
+        "stdoutBytes": 0,
+        "stderrBytes": 103,
+        "stdout": "",
+        "stderr": "Scanning for running AppHosts...\n\u2139\ufe0f No running AppHost found. Use 'aspire run' to start one first.\n"
+      },
+      "treatment": {
+        "exit": 0,
+        "stdoutBytes": 0,
+        "stderrBytes": 103,
+        "stdout": "",
+        "stderr": "Scanning for running AppHosts...\n\u2139\ufe0f No running AppHost found. Use 'aspire run' to start one first.\n"
+      }
+    },
+    "mermaid-follow": {
+      "control": {
+        "exit": 1,
+        "stdoutBytes": 0,
+        "stderrBytes": 200,
+        "stdout": "",
+        "stderr": "\u274c The Mermaid output format does not support --follow. Omit --follow to export a resource graph snapshot.\n\ud83d\udcc4 See logs at /tmp/agentic-empty-json-home/.aspire/logs/cli_20261104T230031_b51bb837.log\n"
+      },
+      "treatment": {
+        "exit": 1,
+        "stdoutBytes": 0,
+        "stderrBytes": 200,
+        "stdout": "",
+        "stderr": "\u274c The Mermaid output format does not support --follow. Omit --follow to export a resource graph snapshot.\n\ud83d\udcc4 See logs at /tmp/agentic-empty-json-home/.aspire/logs/cli_20261104T230343_58acd0d7.log\n"
+      }
+    },
+    "table": {
+      "control": {
+        "exit": 0,
+        "stdoutBytes": 103,
+        "stderrBytes": 0,
+        "stdout": "Scanning for running AppHosts...\n\u2139\ufe0f No running AppHost found. Use 'aspire run' to start one first.\n",
+        "stderr": ""
+      },
+      "treatment": {
+        "exit": 0,
+        "stdoutBytes": 103,
+        "stderrBytes": 0,
+        "stdout": "Scanning for running AppHosts...\n\u2139\ufe0f No running AppHost found. Use 'aspire run' to start one first.\n",
+        "stderr": ""
+      }
+    },
+    "table-follow": {
+      "control": {
+        "exit": 0,
+        "stdoutBytes": 103,
+        "stderrBytes": 0,
+        "stdout": "Scanning for running AppHosts...\n\u2139\ufe0f No running AppHost found. Use 'aspire run' to start one first.\n",
+        "stderr": ""
+      },
+      "treatment": {
+        "exit": 0,
+        "stdoutBytes": 103,
+        "stderrBytes": 0,
+        "stdout": "Scanning for running AppHosts...\n\u2139\ufe0f No running AppHost found. Use 'aspire run' to start one first.\n",
+        "stderr": ""
+      }
+    }
+  },
+  "dependencies": {
+    "Aspire.Cli": {
+      "identicalPackageCount": 87,
+      "packages": {
+        "Azure.Core/1.63.0": "5egODg5yWcRV0kkAv22jQL7YmsfupX7intDYbxZMu8giASSQVfG5+mwC+BdJOWvhFT1Y+9KzuvbUGqAVEBzsfw==",
+        "Azure.Monitor.OpenTelemetry.Exporter/1.9.0": "gXe64QuF30HQkuo1B+FqsekN9coca1vcFKDWCgioo39Hb5Yc0lMS6g8OAa7rGBIssQBoaQQAxIM6Dn4pJbXz+g==",
+        "BouncyCastle.Cryptography/2.7.0": "U+12df8UEWHgBi04YVf/Lgi2dy3SItlIYvHjjEVa/BngCQIzDCDRBk50DDByCfDvSbe5pRNFr3b7UrVK2kMcLw==",
+        "Hex1b/0.173.0": "OFt0LpfwHb4ZTNuDQ7Sez9kHvcWk9R9TSo6/yQ7T86CfVYdlndw6HZAzHxXj099jXK5t0ukPDp+EGKazfRLFVg==",
+        "Markdig/1.3.2": "fZgOC/3CswUrndjDTac70aQpYdtxbW5+5bRumR7vzvI2HJbkmgKisB1c9oT+GA6v0jB/JDR9BLa9FiPzQmaK6A==",
+        "MessagePack/2.5.307": "P9LNJ2bz/wx8J5W0EQW4Bh7G5BiEikXiiDqGvw/WOMRyRI0QcxVvRM4XkqhidGJG6uzMT7iF89o0uYGLwmGifQ==",
+        "MessagePack.Annotations/2.5.307": "kIGiwydfCKWRim1ZoFbZ1qVHDHrQfXdJ+FEFVPEqse/XzvPT7lVUjIb1LOuocP3Tx1+PtFEdEandRhxB64Xd4A==",
+        "Microsoft.Bcl.AsyncInterfaces/10.0.10": "TFI6OKYE1XZz4SGuTSH70c6SBdPpFktXsoa1gCxTr3mKrhmXirnvaS0tKz+J3ZWICEAmMpEGn59nO4ICtUpQXA==",
+        "Microsoft.Bcl.Cryptography/11.0.0-rc.1.26425.128": "+KuxwT6syLFi5bNKopwO09VGphb2EQd3YZSjiMtPaT6YIWv0+oBa2h4l4Zpj1yUTn8smeqzGPLviaBVH7pkJPA==",
+        "Microsoft.DotNet.GenAPI.Task/9.0.103-servicing.25065.25": "85KEUixxUWyJR3egEz3tWuaa1lAv5GTUmijJ2Y+g8yoPKlRT6MHD4itt8MaFhCFfBOnSCHxPN4UIfN6cJnjJdA==",
+        "Microsoft.DotNet.XliffTasks/10.0.0-beta.26528.9": "w9jDutkCX1afxj42F1NOPQj4S61wL2LeJpxZtTOr3QK9g8w3nIaUtoxPC/uzYRnyfgblXGdW6rXZJ4c7HM/hCw==",
+        "Microsoft.Extensions.AI.Abstractions/10.5.2": "Ei+YWV9Ybnps7pR1dgjlG29gelXEwZkhLVAcWmKe6HvXS6LNBYgSdWiY3Hk9OZXYtK34rv/NtLWBQYQGOBQYPQ==",
+        "Microsoft.Extensions.Caching.Memory/11.0.0-rc.1.26425.128": "vm0cIPeFy1TZWcr7xLY/aqvZmXZ63GvAuieN0Fec1Fz+P/vi1sPFdRTJEbJ/NrOP+DduYE/1Ba7Wv0V01g1hdQ==",
+        "Microsoft.Extensions.Configuration/11.0.0-rc.1.26425.128": "67EIKOU5pzuMcTHoezn/hmv1hyMcxpiSIlVL9oT6Uc3bcErYhkTBuZCuVqHuNjJBm0nqmpJb1v644M/NV7Q0Vw==",
+        "Microsoft.Extensions.Configuration.Binder/11.0.0-rc.1.26425.128": "1AI7GybRhwcPmOgi275FOlxDP3PL/pspE1R4itBxLgQ771sRy0LhYi4usSYNvixnocxcPp0aZqJ27CyYdM9Aaw==",
+        "Microsoft.Extensions.Configuration.CommandLine/11.0.0-rc.1.26425.128": "SQwt9GOYl4Sx/vPs/KLDXU5+lXBdDE+jHEJN39fYdfW9NhKuRlDykv3vdcuunkLVHsogsaD3U8S2EMsfVhly2A==",
+        "Microsoft.Extensions.Configuration.EnvironmentVariables/11.0.0-rc.1.26425.128": "pjr9im93UDwrnq4MYr2yKJJxcjk5KJLRdeuvC0S0/K5dttUBUn8YfLX64NRaIruF+wTOcuJ86WS2WvmwzAswcA==",
+        "Microsoft.Extensions.Configuration.FileExtensions/11.0.0-rc.1.26425.128": "TL/JWfhVSpWQ20MU0qyc8b+msicxWQ1mCgksMEozZm6+lB3XvojKPsXF25QIHzTA5qwL+m6gEOcl6c6UG1NW0Q==",
+        "Microsoft.Extensions.Configuration.Json/11.0.0-rc.1.26425.128": "miSqJU+LJExUlMWIaz6aoJ7T44yctRxk7+/GCgEWyUEzwXr2nY7ouh6tJeu+gnhPPqQgMyF/+KWO973+oHe2/g==",
+        "Microsoft.Extensions.Configuration.UserSecrets/11.0.0-rc.1.26425.128": "e92JNCVh3CbfdEO9NT/PHT7N0wKn6BBwUVgM+AY4bqxbpiY9a1USHxh5F5ViLsbZt//jX1LJOB8tA9GA0IBiZQ==",
+        "Microsoft.Extensions.DependencyInjection/11.0.0-rc.1.26425.128": "r9VvtUpwM0MZ21DaTQWDqmsm6ABmuuXA/4aqa9LJVZET0HGlIG0Z5eN2esarFAQW2xtgGFyIYcnWs5uxUUizgg==",
+        "Microsoft.Extensions.Diagnostics/11.0.0-rc.1.26425.128": "4O8+S1awKr1nwX0KboSyMszc1TGlxI1rSZsuFfvoByNnvlOj2C0Zg0/DUTFaBTpKAMCGvBZomDbY3uOtUvhvTw==",
+        "Microsoft.Extensions.FileProviders.Physical/11.0.0-rc.1.26425.128": "Pd0sz0cuM5sS4bMiD31G6Uv+PStLZOYEahGLq9pFMg7s4Spg/oPQQTV5nr4BqweXOsQtHF8hEhlnZqPZOBAvtw==",
+        "Microsoft.Extensions.FileSystemGlobbing/11.0.0-rc.1.26425.128": "uW8Q1sSMS2vnS8mhPdVTkbz5b0S5OEFMV8T7nS0bgz1ubQ/Bl7P2l/fmM8ZScqxNKqjZdNvRQaNgac6YA0HnUw==",
+        "Microsoft.Extensions.Hosting/11.0.0-rc.1.26425.128": "YApAUSwCMTZILvf//btcnYviphbjyr++4f2ynUdou/0ZNXhu1Ptkx1LEFTz8eB3q+4fwOfugI31R4KMShKY1jQ==",
+        "Microsoft.Extensions.Http/11.0.0-rc.1.26425.128": "/QwyZQrjhK4Bh2YEyqPEV7RqznsHtEdrh0sdYBrY6hVtxmIhVX+IHJ6AZegF1rwCPxI9Rr21dp7mHLduTfrQ9w==",
+        "Microsoft.Extensions.Logging/11.0.0-rc.1.26425.128": "SxnI3xH/jZ11sRY5l1DqaqH4z7tyEqAa0ehQ6xsBGenst1mFy91iGWGZfUA0MnyPxQCdjmAlvPmuCvLsrv/ufw==",
+        "Microsoft.Extensions.Logging.Configuration/11.0.0-rc.1.26425.128": "ZrK5NbDAUo4tJmsi4PrqYDU52tHFuGE6n3O+pB/p55Azo8+sr9DnwUDjMu0QOt+DYQfc7Q0yY9MNDGTjEkx2Uw==",
+        "Microsoft.Extensions.Logging.Console/11.0.0-rc.1.26425.128": "ft9SeFeLUyhLRoP9vw9zEtH9ScR/VIIae37IfvVk3Cd2GWHTV/sR9c8i7OR4QCPaVMRNZiL5KBazqOer3P2TZg==",
+        "Microsoft.Extensions.Logging.Debug/11.0.0-rc.1.26425.128": "E8OLQlV4ZaNzRU1bmrWAE+RZNXTnx9Guu+b4fwdrjDA944rk2aYADig/XKssjHZawbKhp2fWUoPDVffdrs8vxw==",
+        "Microsoft.Extensions.Logging.EventLog/11.0.0-rc.1.26425.128": "Z6i2Uy1EsFukiLGo1EFm6bQO1zjUxkEQsPczIUrDQui7Yv/GAkKJKmVR+AMUG69gGd65eRY6eXVBPSh5KAFIUA==",
+        "Microsoft.Extensions.Logging.EventSource/11.0.0-rc.1.26425.128": "1MSql2c+CVjd/+IXJg2Ks4ZTrdM4j+Xr0rxzb9bEApd8VWQJrfAw+D1Hb7PieayYS5CeXSmgluMKGSdhUhZZcg==",
+        "Microsoft.Extensions.Options.ConfigurationExtensions/11.0.0-rc.1.26425.128": "z3K4AJwVQeNAHUfU4DSvs3Yvnzak7vbbD/rtcU4eKMxCKmmw3PA3sTefMTUUcIrePEhpIEODGtiOGJ00b/dNzg==",
+        "Microsoft.Identity.Client/4.90.0": "oc5A0jmu083T3OW1JVYMrM1rekIL8SkBRB/byMMQjFuYlRZsMh3wDeCwwrz9sGI6XlP5BIqO7XWgjPpF3reF5A==",
+        "Microsoft.Identity.Client.Extensions.Msal/4.90.0": "/L7b+fNF+ITSw3SPlbgE7ax2MqVg/a60kHsDooKUbjYDdX88COTTwE20qRPT84fykehBTSmP7LSxh6b5hwIEOw==",
+        "Microsoft.IdentityModel.Abstractions/8.14.0": "iwbCpSjD3ehfTwBhtSNEtKPK0ICun6ov7Ibx6ISNA9bfwIyzI2Siwyi9eJFCJBwxowK9xcA1mj+jBWiigeqgcQ==",
+        "Microsoft.NET.StringTools/18.4.0": "iQWOKi3L5QStmWqDjDubcr1KlTDy88qBTe88I0etlUUo1l0zSNebGJXl1Xetyl+ACA+ujP3YUtxo3Nz54JPriw==",
+        "Microsoft.TemplateEngine.Abstractions/11.0.100-rc.1.26425.128": "xUwllavz1YwliNVYG/HcSL8ZJDO9ci+y39pnNVdQk46IQQ0mNLeAalSnaQRFh16zePEGaHE06HIBi5ECVNg6pg==",
+        "Microsoft.TemplateEngine.Core/11.0.100-rc.1.26425.128": "8S84k8PpAra5Tf0bJsZExCSA6FWlqCIWxhrJjwV8+5Whrm6Sd1ynnQLilFeb1mpwRx2mw058G6QrbMy/iiTe2Q==",
+        "Microsoft.TemplateEngine.Core.Contracts/11.0.100-rc.1.26425.128": "SzOd2nQvP1VZ7ZvLqayGMWVzoJqTkJo3yzsHsiUNCDeHa4ubY7usF6QInxZlCRRAjT48QqzspCVOiJyb0nx6SQ==",
+        "Microsoft.TemplateEngine.Edge/11.0.100-rc.1.26425.128": "YuktyamA/JEUTn5pi33PCJWppkYTZyzAEsoCoyaO+ghBD+ZInDx7cn0iFiopzObEVXgxv94nwNDkv6HGo7zgsQ==",
+        "Microsoft.TemplateEngine.Orchestrator.RunnableProjects/11.0.100-rc.1.26425.128": "JpkaZZZ1fTHQb6QzLYeJz/nIz4NQ1pfjl3HmnsesZMxze6n0GY+gCje2Qzwlr1IfofnlefiLxvn8QQqgoLH4Vg==",
+        "Microsoft.TemplateEngine.Utils/11.0.100-rc.1.26425.128": "Nn5uNeX48TgQXcudmDKB7JqpE+Cck18+Ilm4sykKGauVQl5R0GsSfhNErAZ2uhbnSUD1Bf4RfnvwTIkJP6TtqA==",
+        "Microsoft.VisualStudio.Threading.Only/17.14.15": "NqONyw1RXyj9P3k5e1uU2k9kc1ptwuU5NJQzG+MPq7vQVHUzBY8HLuJf/N2Rw5H/myD96CVxziDxmjawPuzntw==",
+        "Microsoft.VisualStudio.Validation/17.13.22": "fC20ITOxlUpGQ0ltAxITQbeFxwuB6OjLT3lByC4+/Gm46o/Mwv9hlIVrBhiUhnqdQzUUvr4EHkdiYe7WOSMLmw==",
+        "Microsoft.Win32.SystemEvents/6.0.0": "hqTM5628jSsQiv+HGpiq3WKBl2c8v1KZfby2J6Pr7pEPlK9waPdgEO6b8A/+/xn/yZ9ulv8HuqK71ONy2tg67A==",
+        "ModelContextProtocol/1.4.1": "mP5hvBpoWe5EbWBqHWD09A4Dy6Pq+/vV2dumOV4uegCZcg+yqf8q8wrxtuZ3EQyXEJn9jzsnoiI/qyfJAihlZQ==",
+        "ModelContextProtocol.Core/1.4.1": "G/hOBZkJsvF3MSy0sOvXdxca5uRe2Sb4xk7xRuTWNZI45khVBjOLo6nSzGilctIICavNVxbxUF908fLYI9RxkQ==",
+        "Nerdbank.MessagePack/1.2.4": "9NKlDsKkOV5zQFkZZnQmssdV6npFNs0Of1Nz5mvAJA4uANxCge2TfXQ9nCYUet58bEWQ00a/aNHdjmcXEI7iuQ==",
+        "Nerdbank.Streams/2.13.16": "GjifQ5M4IpQWjGNNbIrsj8M/M7ESb2328OeoGeqxk5rOJiuaAJ5zFc6CyqB+5UWKr1KEGK23hKoxA+z1gooAKA==",
+        "Newtonsoft.Json/13.0.4": "pdgNNMai3zv51W5aq268sujXUyx7SNdE2bj1wZcWjAQrKMFZV260lbqYop1d2GM67JI1huLRwxo9ZqnfF/lC6A==",
+        "NuGet.Commands/8.0.0-rc.133": "eNw+n1ZTUnY8ov/+EmWpnFyimD7EO7d7jvguU856Hf3Hkf/8KRPzpWwggf6+yJU9O3j3WnfGpBejiwuaPPJYHQ==",
+        "NuGet.Common/8.0.0-rc.133": "nrIEqHHQRhUFpHNkWH4GHEBA31VVaCqTs44V15vWpf5eE1shKGtIPbVlGR6/al/9yyqIXA3/b675McEfSLg4cw==",
+        "NuGet.Configuration/8.0.0-rc.133": "+YKdBoL0MNvpqnX91h1K02xJR+C7fQp6WOsBoZZeIZAfZZPQCPn95BtMHJtqHPDEs7lrkJaGBtR0+eNhXavSCQ==",
+        "NuGet.Credentials/8.0.0-rc.133": "nMvxi3GhOjS0MLcpoDIy2ipf4173z+GYPgLziiQG58T/h8xeVxtcXV0O0klgEA0yRbHBfsDYWqNHpk8nC1ukgQ==",
+        "NuGet.DependencyResolver.Core/8.0.0-rc.133": "Z0kAtzwHu50EgW2K4BLU6iDquvgWZcSlqYYRoHjSkIeRramsEp8WLUXUG7uFXDBj18PmUaGEZVLyQt2iR8aeYg==",
+        "NuGet.Frameworks/8.0.0-rc.133": "kd0MMQpETLp7uKAGah0QPe0CDqU68wphHjs74RSqZawh4wxcf5MUXXfefL2qkwlJP/AQrYRaDLtjisIDI+28tA==",
+        "NuGet.LibraryModel/8.0.0-rc.133": "r9tfFL9T6gdR8ZX88/9GY48XNz+Z2WOP+Xy5wkvzXj+y+Y9MCSBi7M/ReK75UMwcjuUzZD0byu8RXBj584NIPA==",
+        "NuGet.Packaging/8.0.0-rc.133": "glSyHzjjyGRSjz+rvamAPI8XekfYe9nCdQYZ6sgs+6/bxF+ssRMisTS2qvvsodxYeTrL9lEAcMyg8CNRqMFYng==",
+        "NuGet.ProjectModel/8.0.0-rc.133": "HZGup7eRXLx+3z3IR2/rBvY8ljtdh1daf1Rb7hkfXuUv4Psigv0wT+D3BG4ONBElckrYOPUNaY+rWehKaK7IpQ==",
+        "NuGet.Protocol/8.0.0-rc.133": "HQ4kh/JzTp0jYqmRHzOVQVCOt4uqPRW5Z3z2G3fWUkvWJ4TZjT09KFVbFwXm84ZaQRrueWjx0DZR2fKUgfsSLQ==",
+        "NuGet.Resolver/8.0.0-rc.133": "zjoUdq0KiYoLDCFA021En44l3JkaSR74vH8YhQco5m4hnq4Wr5szKeMbItV9teR/XeadlmlPYqOEZUPD9trfGw==",
+        "NuGet.Versioning/8.0.0-rc.133": "CF5kDDFitNxHHmkojyDxNxhphmFwDGV6CASH0mGCj5Mx+yKHUB5QzStkpyqhWIOnewP2d3+iS5egC8NVsgfaAQ==",
+        "OpenTelemetry/1.18.0": "13AKxycK+olOLe061MjliPTNBR/DUkjyRr0b9zwUhKyMjFS8lXS7G31R85rkbM55up2YFmdykWdAw2giBDJpiQ==",
+        "OpenTelemetry.Api/1.18.0": "Dhzm5oughIY9EWckt2J1yXcEbXpki5WCL2q7prJoYxzH6C7jdkfGtPMTkUVZZ4AhjJKzQnlC+kLSIlmIVwC4Vw==",
+        "OpenTelemetry.Api.ProviderBuilderExtensions/1.18.0": "io6A6PJFp3vIObRGf6oPjdHsdglkinXt/0SpTDJHrVnsLxUtOzwh/QwTsnhBJ43wJ6QcGMkyNzsSSY8XEB1Q5Q==",
+        "OpenTelemetry.Exporter.Console/1.18.0": "OLH5WEH7fmKl8Vkg7w+x2OQySQYhLID1ulQQpn+UAVK7oCqo8Rl5IfOXuoCJ3DB7SiT9HYYpJOQgyNg+CtYCAg==",
+        "OpenTelemetry.Exporter.OpenTelemetryProtocol/1.18.0": "Et3WAviooKGObZjUZN8d6eTsdJs1YM3ZoN+KlWSAHksTmHG1nyGi9XGo2wb0fkFMWK0g80FOPdR1njg52Dm+aw==",
+        "OpenTelemetry.Extensions.Hosting/1.18.0": "u+JMA82H65MKwMvd2qUpL8C2qE4Jux2nvX9hmy036UK/Apv2YyIRYCttF/vlX6nMPcAKI8BXkscmL4QG3C69fw==",
+        "OpenTelemetry.PersistentStorage.Abstractions/1.1.1": "tsZtLJZZNYf7HIZZGm/DcYdQWKye0shFoekx59TkSkmXPB0u8bUXJZMYsdDIId+nyXcwTFdBlv5z0SQHOp+Xxg==",
+        "OpenTelemetry.PersistentStorage.FileSystem/1.1.1": "f66+dhmMQgs4uYN+IbssgGRiINyw639CPWIPHt0+92Jq/VewNm7uZ/sSxQpWVorY/rmvDxfNqL1vzLebfZcczw==",
+        "PolyType/1.3.1": "GFdJvsN/VczpP0GfdPIi0jDudGH2Emk3rcIJHdqwU2SL2zQm1xSl6OTYvQSUxvzHu3ClWo096ICdWXVkpifQUA==",
+        "QRCoder/1.8.0": "RuvX3PEXU6pbY/I5ItAk800jm62r+YnoPLgyS2WTgwxkOnGkOfU9ORiipHUF0LkLyqM8rlroUCA319JjRYfRFQ==",
+        "Semver/3.0.0": "9jZCicsVgTebqkAujRWtC9J1A5EQVlu0TVKHcgoCuv345ve5DYf4D1MjhKEnQjdRZo6x/vdv6QQrYFs7ilGzLA==",
+        "Sigstore/1.1.0": "LRPaENEg/HdAqcr2dcj9VzqF4G0wXexb/7QJne94ipcynpOR334OUZP3rJxfSy4OWCl29X/osQmFi6ctjjwH4g==",
+        "Spectre.Console/0.57.2": "wzsB+P9i6F9G+cFOJxRotCiQWNSzZVAMxi8YMiHlGXXU1JLMXGp7zSSqBMmROZS2bzpK5jk+Saa7Evp8HwqhKg==",
+        "Spectre.Console.Ansi/0.57.2": "Y1+u73shwP+JYHmrkdN6bSt2kaGBEAafhi2nrecczbXdFRey+k7J/WF9YPfcB0rqivv2S8fmif6FSBq9m/AFvw==",
+        "StreamJsonRpc/2.25.29": "ebP0ScWRtbd1EWayLRJ6bjM7aPwYZoJIIU1DApmn/cYl2dydR9f4p6Mj3eY77qzAywy6IbZWB9sJPSWeO5hmrg==",
+        "System.ClientModel/1.16.0": "vLljZON+8lXDUtsPP8uwsPvsBSQaUHhh8NvB+D9TQsXu5n622RLtuLyZAcyIFc98b8ixrwD0AhzUQhtg2NwJnQ==",
+        "System.CommandLine/2.0.12": "FpW672e6qqrTd1EfKqsvUtFZaJWlTlszUR1o8tdakXhkzKbnEZVndtpfd4K3fUPCFcIs9UmcswMyYGJP1zp/rg==",
+        "System.Diagnostics.EventLog/11.0.0-rc.1.26425.128": "ByF+R8H7CN2iMOE6aB4901+AoNftRMJ5hqU114YI99xG4rj89dlJx3F1+iprQEo1h2YFhDPnJtFfVOUabl0IiQ==",
+        "System.Drawing.Common/6.0.0": "NfuoKUiP2nUWwKZN6twGqXioIe1zVD0RIj2t976A+czLHr2nY454RwwXs6JU9Htc6mwqL6Dn/nEL3dpVf2jOhg==",
+        "System.IO.Hashing/11.0.0-rc.1.26425.128": "k2EG0GriOm2mGO+V0/9tq9JBNDI/TREnc7lM1/raddxXBLtxmTy1GrcH0jh8I4PBHV8ajD/J6AVqADeivNUXLA==",
+        "System.Memory.Data/10.0.10": "roR+5AeOpflUxJQlqSfsZs/Bvi1uw4KBuTkIgF1e8l0RdalG4AUn84+sjJLclEfOV85gAjc8+Pp540qjDE5UIg==",
+        "System.Security.Cryptography.Pkcs/11.0.0-rc.1.26425.128": "5SQOSesr5gY/wmYgprSz9XkuONinA6HM8jILvyaXWRdX77322f/OyHvoIR//xcZSfGfS40nhVa5y27k9c/5/MQ==",
+        "System.Security.Cryptography.ProtectedData/11.0.0-rc.1.26425.128": "19smBOUx2Mj1J+AM7WsFItDU5+C7qE4uRI+k9vftujOssimGSMetPg57SJ6l0kJdJzdvS4u1xOxG2x4RZkOFkg==",
+        "Tuf/1.1.0": "sPxV7jTD1+QZgxJX54REbj/AyJdEzjL9YqJEsikoSkuCvhZA/V22NIKqJRmVQJvg8Qqodmc1SttisR4s6hFHqA=="
+      }
+    },
+    "Aspire.TypeSystem": {
+      "identicalPackageCount": 3,
+      "packages": {
+        "Microsoft.DotNet.GenAPI.Task/9.0.103-servicing.25065.25": "85KEUixxUWyJR3egEz3tWuaa1lAv5GTUmijJ2Y+g8yoPKlRT6MHD4itt8MaFhCFfBOnSCHxPN4UIfN6cJnjJdA==",
+        "Microsoft.DotNet.XliffTasks/10.0.0-beta.26528.9": "w9jDutkCX1afxj42F1NOPQj4S61wL2LeJpxZtTOr3QK9g8w3nIaUtoxPC/uzYRnyfgblXGdW6rXZJ4c7HM/hCw==",
+        "Microsoft.NET.ILLink.Tasks/10.0.13": "40yrBMsLEcjixBR4G+FiUaBPvxXIPSKJ2OgSrbOZcmSDBda4Sb0k7BWrfDpIvn3IvvDzwOL/tEPa6gDQfh6aRw=="
+      }
+    }
+  },
+  "artifacts": {
+    "control/baseline.tar.gz": {
+      "bytes": 54049491,
+      "sha256": "a166a9f469a90931b36ea53f9bed568f577fc46f19e2d4fba5bc64f7fbceee6e"
+    },
+    "control/cli/aspire": {
+      "bytes": 130581127,
+      "sha256": "3a80602e141af72f27131073ebf656c5e16ec54e71e716a1a2c821500ae64c73"
+    },
+    "treatment/cli/aspire": {
+      "bytes": 130581132,
+      "sha256": "13a00a7aadcfa1b68d9eef97ec267de5acdafa04bd05480aa3b3a1b984d09b84"
+    },
+    "treatment/cli/libhex1binterop.so": {
+      "bytes": 71960,
+      "sha256": "285d3f2994da13cc31bd29e757d34adca86c9777248a9898f57eef44368e84fc"
+    },
+    "aspire-agentic-empty-json-linux-arm64.tar.gz": {
+      "bytes": 51882663,
+      "sha256": "0de862ef619039e15377459705cd40a059e02959156ce19b792900afa79c2bd4"
+    },
+    "source-base.tar": {
+      "bytes": 153681920,
+      "sha256": "03ce952b043901e099e05a14a9df03dec8b76714f41df0ec3c2c036da1f313da"
+    },
+    "source-treatment.tar": {
+      "bytes": 153692160,
+      "sha256": "3b9dfc43e9479ca553646781c60190f7d97e7059ed2dc7cb70726a070be0533b"
+    }
+  }
+}

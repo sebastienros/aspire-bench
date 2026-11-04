@@ -1,16 +1,43 @@
 {
   "scenario": "I01",
   "task_commit": "5f441f92c526cb3e2ca77a395ac85bfdb4d0a89b",
-  "status": "blocked-model-discovery",
+  "status": "submitted-runtime-unverified",
   "requested_model": "gpt-6.1-terra",
   "model_access_verified": false,
   "msbench_version": "0.3.67",
+  "submission_plugin": "msbench-agent-github-copilot-cli==0.0.28",
+  "harbor_local_version": "0.20.0",
+  "agent": "github-copilot-cli",
+  "agent_package": "github-copilot-cli-pkg-main-20261014-215627",
+  "requested_vendor_cli": "1.0.99-0",
+  "reasoning_effort": "runner-default",
+  "conversation_mode": "fresh-single-step",
+  "budgets": { "agent_seconds": 900, "verifier_seconds": 300, "added_token_cap": null },
   "max_original_model_attempts": 2,
   "automatic_repeats": false,
-  "model_runs": [],
+  "model_runs": [
+    {
+      "variant": "raw-scripted",
+      "model": "gpt-6.1-terra",
+      "run_id": "2026110483094426",
+      "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110483094426",
+      "condition_fingerprint": "7ebe5f2880741942ef35d3fb37dabcdfe0d22529ba7fce065e3051e79d92dcde",
+      "actual_model_verified": false,
+      "submission_log": ".runs/agentic-research/terra-raw-submission.log"
+    },
+    {
+      "variant": "aspire",
+      "model": "gpt-6.1-terra",
+      "run_id": "2026110483115812",
+      "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110483115812",
+      "condition_fingerprint": "af5289033555f86f823120db8678e7a3b6c17ab8fee2d7903291396e4041a1a8",
+      "actual_model_verified": false,
+      "submission_log": ".runs/agentic-research/terra-aspire-submission.log"
+    }
+  ],
   "proposed_conditions": [
-    { "variant": "raw-scripted", "agent": null, "model": null, "fingerprint": null },
-    { "variant": "aspire", "agent": null, "model": null, "fingerprint": null }
+    { "variant": "raw-scripted", "agent": "github-copilot-cli", "model": "gpt-6.1-terra", "fingerprint": "7ebe5f2880741942ef35d3fb37dabcdfe0d22529ba7fce065e3051e79d92dcde" },
+    { "variant": "aspire", "agent": "github-copilot-cli", "model": "gpt-6.1-terra", "fingerprint": "af5289033555f86f823120db8678e7a3b6c17ab8fee2d7903291396e4041a1a8" }
   ],
   "fingerprint_fields_before_submission": [
     "task_commit", "scenario", "variant", "fault_seed", "toolchain_manifest",

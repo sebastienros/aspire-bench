@@ -87,20 +87,28 @@ silently substitute a model or compare its times with historical Luna results.
 
 MSBench 0.3.67's accessible staging Agent Registry was queried successfully.
 Model discovery through both the built-in dev1 index and an explicitly scoped
-staging index returned HTTP 403. No inference has been submitted, no model
-availability is claimed, and no model substitution or proxy-bypass flag was
-used. Logs: `.runs/agentic-research/model-discovery.log` and
-`staging-discovery.log`. This is a model-discovery/access blocker, not an
-Aspire or scenario failure. The CLI reports a newer release exists; no upgrade
-has been performed or assumed to resolve server access.
+staging index returned HTTP 403. After the user confirmed the exact model ID
+`gpt-6.1-terra`, normal explicit-model submission succeeded without a discovery
+override, proxy-bypass flag, CLI upgrade, or model substitution. Discovery failure
+therefore did not prove that run submission was unavailable. Runtime model access
+and actual execution must still be verified from results.
 
-Next: verify accessible model routing, then use the pinned dataset for the two
-new pilot conditions. Retrieve an existing matching condition rather than
-resubmit. Larger repeats require an explicit evidence/budget decision.
+Exactly two new runs were submitted, one per arm, with no repeats:
+
+| Arm | Run |
+|---|---|
+| Raw scripted | [2026110483094426](https://msbenchapp.azurewebsites.net/run-analysis/2026110483094426) |
+| Aspire CLI + existing skills | [2026110483115812](https://msbenchapp.azurewebsites.net/run-analysis/2026110483115812) |
+
+Both request `gpt-6.1-terra`, package
+`github-copilot-cli-pkg-main-20261014-215627`, vendor CLI `1.0.99-0`, one worker,
+CES staging, fresh single-step conversation, and the same agent/verifier budgets.
+Submission CLI/plugin/local Harbor are 0.3.67/0.0.28/0.20.0. Submission logs are
+`.runs/agentic-research/terra-{raw,aspire}-submission.log`; wait/resume logs use
+the same prefix. Admission is not evidence that the requested model ran.
 
 [dataset.jsonl](dataset.jsonl) pins both arms to task source
 `5f441f92c526cb3e2ca77a395ac85bfdb4d0a89b`.
-[pilot-ledger.json](pilot-ledger.json) explicitly records zero model runs,
-the access preflights, and the fields required for duplicate-condition checking.
-Agent/package/model remain unselected until accessibility is verified; do not
-treat a requested model name as an available endpoint or a completed run.
+[pilot-ledger.json](pilot-ledger.json) records the two run IDs, exact requested
+conditions and their fingerprints. Fetch these runs rather than resubmitting
+matching conditions. Results are pending; no performance conclusion is available.

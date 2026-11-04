@@ -1,0 +1,57 @@
+{
+  "repository": "microsoft/aspire",
+  "origin": "https://github.com/microsoft/aspire.git",
+  "worktree": "/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-glowing-spoon",
+  "branch": "sebros/agentic-empty-json",
+  "base_sha": "d698a4f9cb800649791da2b3d81c5850330072c1",
+  "change_sha": "fafe64823d80e8f34fa5fc773ac9d9d9ba64f375",
+  "clean_after_commit": true,
+  "pushed_upstream": false,
+  "sdk": "11.0.100-rc.2.26504.105",
+  "build_image_id": "sha256:e2438fd800a09d2d761aefe4edd30675c8f1db8958e4423c0844cc9a0240e60f",
+  "rid": "linux-arm64",
+  "publish_aot": false,
+  "bundled": false,
+  "control_version": "17.0.0-baseline.gd698a4f9cb80",
+  "treatment_version": "17.0.0-emptyjson.gfafe64823d80",
+  "artifact_root": "/Users/sebastienros/.copilot/session-state/a53c2bbf-6e11-432d-b09d-a98d2944a049/files/empty-json",
+  "archive": {
+    "name": "aspire-agentic-empty-json-linux-arm64.tar.gz",
+    "size_bytes": 51882663,
+    "sha256": "0de862ef619039e15377459705cd40a059e02959156ce19b792900afa79c2bd4"
+  },
+  "cli_sha256": "13a00a7aadcfa1b68d9eef97ec267de5acdafa04bd05480aa3b3a1b984d09b84",
+  "committed_report": "msbench/source-builds/empty-json/report.md",
+  "committed_comparison": "msbench/source-builds/empty-json/comparison.json",
+  "committed_patch": "msbench/source-builds/empty-json/change.patch",
+  "patch_sha256": "46c5956ae99cdd2d1ebd73231182afe6b9f2d97e730e11276ccd73b190b51083",
+  "tests": {
+    "suite": "DescribeCommandTests",
+    "debug": { "passed": 66, "failed": 0, "skipped": 0 },
+    "committed_source_release": { "passed": 66, "failed": 0, "skipped": 0 }
+  },
+  "offline_binary_proof": {
+    "command": "aspire describe --format json --non-interactive --nologo",
+    "control_exit": 0,
+    "treatment_exit": 0,
+    "control_stdout_bytes": 0,
+    "treatment_stdout_bytes": 22,
+    "treatment_json": { "resources": [] },
+    "stderr_byte_identical": true,
+    "invalid_path_exit_preserved": 7,
+    "unaffected_table_mermaid_follow_behavior_preserved": true
+  },
+  "dependency_comparison": {
+    "cli_external_packages_identical": 87,
+    "type_system_external_packages_identical": 3,
+    "native_companion_sha256_identical": true
+  },
+  "limits": [
+    "No agent efficiency measurement",
+    "No Linux x64 build",
+    "No full bundle",
+    "No treatment Hosting packages",
+    "No running Bingo lifecycle",
+    "Connected-resource cases use existing repository command test fakes"
+  ]
+}

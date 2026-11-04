@@ -278,8 +278,9 @@ success. Use runtime behavior plus data/process preservation as promotion gates.
 **Limits / status:** Fixture/grader validation only, not a model performance
 result. The prompt names the editable frontend config; this is not a distributed
 root-cause localization benchmark. MCP is disabled in this first scenario.
-GPT 6.1 Terra availability remains unverified because MSBench model discovery
-returned HTTP 403 on both default and staging indexes; no inference was submitted.
+MSBench model discovery returned HTTP 403 on both default and staging indexes,
+but explicit submission with user-confirmed `gpt-6.1-terra` succeeded. Exactly one
+new run per arm was submitted; runtime model/provenance and results are pending.
 
 ## F09: Successful empty CLI observations need a consistent JSON contract
 
@@ -296,10 +297,22 @@ local artifact paths.
 specific successful no-AppHost snapshot case. Preserve actual errors and
 table/Mermaid/stream behavior; do not convert failures into successful empty data.
 
-**Limits / status:** Baseline binary observation, not an agent-efficiency result.
-A separate matched-base treatment branch is being tested; no adoption claim.
-The source build is managed, unbundled Linux ARM64 and has not run Bingo, so it
-must not replace the validated Harbor toolchain yet.
+**Implemented locally:** Same-base branch `sebros/agentic-empty-json`, commit
+`fafe64823d80e8f34fa5fc773ac9d9d9ba64f375`, emits the existing
+`{"resources":[]}` wrapper only for successful non-follow JSON empty snapshots.
+[Matched binary evidence](source-builds/empty-json/report.md) shows control
+exit 0/stdout 0 bytes versus treatment exit 0/stdout 22 bytes, with byte-identical
+stderr. Invalid-path exit 7 and table/Mermaid/follow behavior remain unchanged.
+All 66 DescribeCommand cases passed in both Debug and exact-source Release.
+Resolved external package versions/hashes match. The
+[portable patch](source-builds/empty-json/change.patch) reconstructs the local
+change; no upstream push/PR was made.
+
+**Limits / status:** Verified product-contract improvement, not demonstrated
+agent-efficiency gain or upstream adoption. The source builds are managed,
+unbundled Linux ARM64 and have not run Bingo, so they must not replace the
+validated Harbor toolchain yet. Connected/error command cases use existing
+repository test services; offline binaries verify the empty/error format cases.
 
 ## Recording future findings
 

@@ -39,7 +39,7 @@ not the benchmark baseline. Do not overwrite another session's changes.
 | Program, scenarios, results | `sebastienros/aspire-bench`, `https://github.com/sebastienros/aspire-bench.git` | `/Users/sebastienros/.copilot/copilot-worktrees/aspire-bench/sebros-legendary-memory` | `sebros/msbench-benchmark-variants`; starting origin/main `3bd7aa49d82cc5b836455d9f9b5bf30bb7223f51` | Active coordinator; commits publish direct main, no PR |
 | Aspire source baseline | `microsoft/aspire`, verified `https://github.com/microsoft/aspire` | `/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-upgraded-couscous` | `sebros/agentic-build-baseline`; clean base `d698a4f9cb800649791da2b3d81c5850330072c1` | Verified managed Linux ARM64 CLI + 3 matching packages; [manifest](source-builds/aspire-baseline.json); not bundled/x64/Bingo-validated |
 | Historical PR binary experiment | Public upstream PR artifacts, mirrored with approval | Harbor Docker tasks under `aspire-health/tasks/cli-pr21279` | `6676979b2bb4ed074568b84c84fb36a196d38f06`, version `17.0.0-pr.21279.g6676979b` | [Build manifest](aspire-health/pr21279-build.json); local validation only, not a matched causal control |
-| Empty-JSON CLI treatment | `microsoft/aspire` origin | `/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-glowing-spoon` | `sebros/agentic-empty-json`; same base `d698a4f9` | Session `a53c2bbf-6e11-432d-b09d-a98d2944a049`; implementing/testing one output-contract change |
+| Empty-JSON CLI treatment | `microsoft/aspire` origin | `/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-glowing-spoon` | `sebros/agentic-empty-json`; base `d698a4f9`; change `fafe64823d80e8f34fa5fc773ac9d9d9ba64f375` | [Manifest](source-builds/aspire-empty-json.json), [proof/patch](source-builds/empty-json/report.md); 66 targeted cases pass in Debug and Release, offline matched binaries verified |
 | Future skill/MCP treatments | Origin-backed worktrees as needed | Not created | Not created | Do not label proposed branches as existing |
 | Optional eShop transfer | `dotnet/eShop` | Not checked out for this program | Unselected | Aspirified/raw equivalence must be verified, not assumed |
 
@@ -136,7 +136,7 @@ Fresh conversations and verified resumed conversations are separate strata.
 
 | ID / priority | Task and Bingo basis | External proof | State |
 |---|---|---|---|
-| I01 / first | Repair/extend player-origin producer API routing in the already-running Vue app | Real frontend -> admin -> database/Redis call/status/clear round trip; preserve prior data and version/SignalR behavior | [Implemented and Docker-validated](bingo-iteration/README.md); model access blocked |
+| I01 / first | Repair/extend player-origin producer API routing in the already-running Vue app | Real frontend -> admin -> database/Redis call/status/clear round trip; preserve prior data and version/SignalR behavior | [Implemented and Docker-validated](bingo-iteration/README.md); two new Terra pilot runs submitted, results pending |
 | D01 / next | Diagnose distributed failure with a healthy process but failed operation | Broken fixture fails, correct targeted repair passes; random fault instance; logs/trace evidence | Planned |
 | H01 / next | Reject misleading readiness or stale endpoint evidence | Functional negative probe fails even if process/resource is green | Planned |
 | F01 | Add a cross-service capability/cache behavior | Hidden fresh data, both positive and negative contracts | Planned |
@@ -177,9 +177,9 @@ not presumed equivalent to handcrafted benchmark-specific guidance.
 - Published initial protocol milestone `df973b5` directly to origin/main.
 - Published I01 task/build-evidence milestone `5f441f9`; the
   [new dataset](bingo-iteration/dataset.jsonl) pins both arms to that exact source.
-  The [pilot ledger](bingo-iteration/pilot-ledger.json) records zero model runs,
-  the two failed discovery paths, and the condition fields to check before
-  spending on inference.
+  The [pilot ledger](bingo-iteration/pilot-ledger.json) records the failed
+  discovery paths, two subsequently admitted explicit-model submissions, and
+  unique condition fingerprints; it does not yet claim runtime model verification.
 - Source baseline build succeeded from an exact clean `git archive` of
   `d698a4f9`, using a Docker-managed Linux filesystem after a macOS bind-mount
   NuGet enumeration failure. No product changes were needed. Portable archive
@@ -194,25 +194,49 @@ not presumed equivalent to handcrafted benchmark-specific guidance.
   application-model smoke. This does not start DCP or prove Bingo compatibility.
 - Reproduced a bounded contract gap: no-AppHost `describe --format json` exits
   0 with empty stdout, unlike `ps`'s `[]`. A same-base isolated treatment
-  branch is testing an empty resources wrapper without altering actual errors.
+  branch has proved an empty resources wrapper without altering actual errors.
 - I01 both raw-scripted and Aspire Docker oracles passed. Adding four runtime
   negative grader cases also passed in both arms: unchanged app, unrelated source
   edit, invalid endpoint file, and lost prior state were rejected. Correct repair
   then passed real frontend/admin/SQL/Redis behavior and error checks. Raw logs:
   `.runs/msbench-oracle/bingo-iteration-{raw,aspire}-{v1,negatives}/`.
-- All 26 current benchmark structural/negative unit tests passed. No model trial
-  has run; oracle durations are not agent-performance results.
+- All 26 current benchmark structural/negative unit tests passed. Oracle
+  durations are not agent-performance results.
 - Accessible staging Agent Registry queried. Model discovery returned HTTP 403
   through both the built-in dev1 index and an explicit staging index, using the
-  installed CLI's normal auth path. No inference, duplicate-condition submission,
-  silent model substitution, upgrade, or speculative proxy-bypass was attempted.
+  installed CLI's normal auth path. No duplicate-condition submission, silent
+  model substitution, upgrade, or speculative proxy-bypass was attempted.
   Logs: `.runs/agentic-research/{model-discovery,staging-discovery}.log`.
+
+### 2026-11-04: first matched source change and Terra admission
+
+- After the user supplied exact model ID `gpt-6.1-terra`, normal explicit-model
+  submission succeeded despite discovery HTTP 403. Do not equate discovery
+  failure with model/runtime unavailability.
+- Exactly two original pilot runs: raw
+  [2026110483094426](https://msbenchapp.azurewebsites.net/run-analysis/2026110483094426)
+  and Aspire
+  [2026110483115812](https://msbenchapp.azurewebsites.net/run-analysis/2026110483115812).
+  Same historical runner package/vendor CLI, new Terra model, no repeat flag,
+  no comparison with historical Luna timings. Results/provenance pending.
+- Local product change committed only on Aspire trial branch at `fafe6482`.
+  Same-base binaries: JSON empty snapshot stdout changes from 0 to 22 bytes,
+  valid `{"resources":[]}`, with identical stderr and exit 0. Invalid-path
+  exit 7 and table/Mermaid/follow output remain unchanged. All 66 focused tests
+  pass in both Debug and committed-source Release. Matching dependencies are
+  recorded in the [comparison](source-builds/empty-json/comparison.json).
+- The [report](source-builds/empty-json/report.md),
+  [manifest](source-builds/aspire-empty-json.json), and portable git-format patch
+  preserve branch/commit/reproduction proof. Archive SHA-256
+  `0de862ef619039e15377459705cd40a059e02959156ce19b792900afa79c2bd4`.
+  This is a contract fix, not evidence of faster agents or a complete Bingo
+  source-build toolchain. No upstream PR/push.
 
 ## Next actions / unresolved decisions
 
-Publish I01's immutable dataset, resolve accessible low-budget model routing
-(prefer GPT 6.1 Terra), then run at most the two new pilot conditions.
-Capture the empty-JSON trial's focused tests and matched binary evidence.
+Retrieve the two existing Terra pilot runs; do not resubmit matching conditions.
+Verify actual model/vendor/skills/runtime and hidden grader results, then record
+the conclusion even if there is no Aspire benefit.
 Complete matching Linux x64/full payload+Bingo smoke before inserting custom
 source builds into Harbor. Build D01 next, then test generated project-local
 skills and natural MCP use on meaningful diagnosis work. Larger sweeps and
