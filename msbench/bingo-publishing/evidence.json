@@ -1,0 +1,65 @@
+{
+  "scenario": "P01",
+  "status": "blocked-shared-docker-storage-not-runtime-validated",
+  "eligible_for_model_submission": false,
+  "completed_deployment": false,
+  "model_runs": [],
+  "application_source": {
+    "repository": "https://github.com/sebastienros/aspire-bench",
+    "commit": "baacba3e17181491c9a4d419db7d0e6763c3d363",
+    "path": "msbench/bingo/common/raw-app",
+    "same_for_both_arms": true
+  },
+  "aspire_intended_version": "13.6.0",
+  "aspire_actual_task_execution_verified": false,
+  "budgets_seconds": {
+    "agent": 900,
+    "verifier": 300
+  },
+  "attempts": [
+    {
+      "arm": "raw-scripted",
+      "job": "p01-raw-v1",
+      "trial": "raw-scripted__GUBpQJZ",
+      "result": ".runs/msbench-oracle/p01-raw-v1/raw-scripted__GUBpQJZ/result.json",
+      "result_sha256": "9cd4d0cf5a280e3676af4148e1776817741d9a6784a9084d11fe05fe45b20b45",
+      "attempt_task_checksum": "44b84bef28c6f8b589f57e521dc3cefc1829be3cd6cb671231b06afc66d6a4ee",
+      "phase": "environment-image-build",
+      "exception": "RuntimeError",
+      "agent_result": null,
+      "verifier_result": null,
+      "reward": null,
+      "observed_error": "write /var/lib/docker/buildkit/containerd-overlayfs/metadata_v2.db: input/output error"
+    },
+    {
+      "arm": "aspire",
+      "job": "p01-aspire-v1",
+      "trial": "aspire__DwWnCFq",
+      "result": ".runs/msbench-oracle/p01-aspire-v1/aspire__DwWnCFq/result.json",
+      "result_sha256": "3ed3eb5560d2c074d62592cf5c41e9456a48440c3265e0b33328377120ccbdbc",
+      "attempt_task_checksum": "12affb4db3a4225163ecef00ec1cf2b3eb098c3e3b50e03c3c098157c8e3d4ad",
+      "phase": "environment-image-build",
+      "exception": "RuntimeError",
+      "agent_result": null,
+      "verifier_result": null,
+      "reward": null,
+      "observed_error": "failed to copy file data for /usr/local/libexec/docker/cli-plugins/docker-buildx: input/output error"
+    }
+  ],
+  "static_validation": {
+    "command": "node --test msbench/bingo-publishing/experiment.test.mjs",
+    "passed_tests": 4,
+    "runtime_evidence": false
+  },
+  "observed_base_image_digests_during_failed_builds": {
+    "mcr.microsoft.com/dotnet/sdk:10.0.100-noble": "sha256:c7445f141c04f1a6b454181bd098dcfa606c61ba0bd213d0a702489e5bd4cd71",
+    "node:24.14.0-bookworm-slim": "sha256:d8e448a56fc63242f70026718378bd4b00f8c82e78d20eefb199224a4d8e33d8",
+    "docker:28.0.4-dind": "sha256:4de6a5668da5d138bf9c18b29d2702e43c8773daee085087ba4fac61a6d34b7f"
+  },
+  "owned_process_cleanup": {
+    "runner_processes_stopped": true,
+    "remaining_container_state_verified": false,
+    "shared_engine_restart_or_prune": false
+  },
+  "remaining_prerequisite": "Owner-controlled recovery of disk headroom and writable/responsive Docker/BuildKit, followed by sequential final-task image builds and actual positive/negative runtime oracles. CLI 13.6 prepare/output/env-file behavior and final AppHost have not executed."
+}

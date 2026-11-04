@@ -349,6 +349,34 @@ The first oracle predates added fixed-port/secret guards; final-task Docker
 validation was interrupted by the shared host failure. No model run is eligible
 until the final task is validated; static tests are not a substitute.
 
+## F12: Local publishing needs a production runtime gate; P01 remains blocked
+
+**Paired evidence:** The [P01 publishing draft](bingo-publishing/README.md)
+and [failure manifest](bingo-publishing/evidence.json) preserve one raw and one
+Aspire local Docker oracle attempt. Both failed during environment-image build,
+before any agent solution or verifier: BuildKit returned file/metadata
+`input/output error`; raw also failed syncing dpkg state. Shared-host disk
+exhaustion was reported by the coordinator, with a direct local observation of
+100% disk capacity and 2.8 GiB available. Neither arm has a deployment, reward,
+executed functional check, or model result. Four structural tests pass only.
+
+**Improvement candidate / design:** Evaluate published .NET + production-served
+Vue with real login, version routing, WebSocket SignalR/database catalog and
+Redis behavior; keep environment-owned dependencies and prior data unchanged.
+Do not treat Vite proxies, AppHost containers, Development-only producer APIs,
+generated YAML text, or publish-only output as completed production deployment.
+Use exact release-family APIs: current documentation plus 13.6 NuGet inspection
+confirmed `AddDockerComposeEnvironment`, `ConfigureComposeFile` and
+`AddDockerfile`; it did not establish runtime compatibility.
+
+**Limits / status:** Blocked, NOT Docker-validated and not eligible for model
+submission. The implementation and intended rejection cases are scaffolding,
+not observed passes or proof of Aspire benefit. Recover the shared engine under
+its owner's control, then sequentially establish image builds, CLI/Hosting 13.6
+publish/prepare behavior and both positive/negative runtime oracles. Only owned
+runner commands were stopped; no shared restart/prune, cloud provisioning,
+model submission, or repeat sweep. Historical tasks/tracker are untouched.
+
 ## Recording future findings
 
 Give each finding a stable ID and include evidence links, exact observed

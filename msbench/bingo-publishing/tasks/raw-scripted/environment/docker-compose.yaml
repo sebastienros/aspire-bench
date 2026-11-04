@@ -1,0 +1,7 @@
+services:
+  main:
+    privileged: true
+    build:
+      additional_contexts:
+        publishing-common: ../../../common
+        bingo-source: ${MSBENCH_PUBLISHING_SOURCE_CONTEXT:-https://github.com/sebastienros/aspire-bench.git#baacba3e17181491c9a4d419db7d0e6763c3d363:msbench/bingo/common/raw-app}
