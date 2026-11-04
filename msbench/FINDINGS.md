@@ -219,6 +219,21 @@ infrastructure improvement, without silently changing comparison treatments.
 is not implemented by this finding. These events do not establish an Aspire
 runtime or model-reasoning failure.
 
+**Full-roadmap execution follow-up:** Concurrent local source/scenario work
+encountered a shared-host storage/engine failure: host disk reached 100% capacity
+(parent observation 2.8 GiB available; builder minimum 1.2 GiB), native compilation
+and containerd metadata reported I/O/read-only failures, and independent Docker
+`version`/`ps` requests each timed out after 12 seconds.
+[Blocker evidence](execution-blockers/2026-11-04-docker-storage.json) separates
+observations from a suspected nested-cgroup/freezer contribution; the exact
+cause across concurrent workloads is not established.
+
+Stop new launches, preserve task-owned evidence, and require owner-controlled
+engine/storage recovery followed by sequential final-task runtime validation.
+Do not prune/restart shared Docker or submit unvalidated task drafts to obtain
+apparently complete model results. Static tests and an older oracle pass do not
+validate a subsequently modified final image/grader.
+
 ## F07: Broader skill availability need not add startup discovery churn
 
 **Evidence:** The [orchestration-availability comparison](aspire-startup/README.md#observed-orchestration-availability-results)

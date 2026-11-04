@@ -1,0 +1,50 @@
+{
+  "date": "2026-11-04",
+  "status": "blocked-shared-host",
+  "observed": {
+    "host_volume_size_gib": 926,
+    "host_volume_used_gib": 901,
+    "host_available_gib_parent_observation": 2.8,
+    "host_reported_capacity_percent": 100,
+    "source_builder_minimum_reported_available_gib": 1.2,
+    "docker_version_deadline_seconds": 12,
+    "docker_version_result": "timeout",
+    "docker_ps_deadline_seconds": 12,
+    "docker_ps_result": "timeout",
+    "source_build_failures": [
+      "Missing clang on first full bundle attempt; resolved in a private builder",
+      "Native Dashboard object emission input/output errors",
+      "Read-only temporary paths",
+      "containerd metadata database input/output error"
+    ],
+    "publishing_image_failures": [
+      "docker-buildx file read input/output error",
+      "dpkg sync failure",
+      "containerd overlay metadata write input/output error"
+    ],
+    "diagnosis_fixture_failures": [
+      "Nested Docker cgroup memory limit rejected",
+      "Docker API became unresponsive around nested pause fault setup"
+    ]
+  },
+  "causality_limits": [
+    "Concurrent local source/image/scenario work was in progress",
+    "Exact attribution of disk exhaustion across concurrent workloads was not established",
+    "A nested cgroup/freezer contribution was suspected but not proved",
+    "No model failure or Aspire runtime regression can be inferred from these infrastructure events"
+  ],
+  "safe_actions": [
+    "Parent stopped exact owned shell sessions 270 and 279",
+    "Coordinated children to stop exact owned runner commands and preserve evidence",
+    "No shared Docker prune, restart, Docker.raw edits, or unrelated process termination",
+    "Source builder authorized to remove only newly downloaded package-version directories excluded from preserved baseline dependencies",
+    "All unvalidated model submissions withheld"
+  ],
+  "remaining_prerequisites": [
+    "Owner-controlled host/Docker storage recovery and responsive Docker API",
+    "Inspect task-owned container/volume leftovers by recorded exact IDs after recovery",
+    "Sequential final-task Docker builds and actual positive/negative runtime oracles",
+    "Adequate disk headroom before any full native bundle build",
+    "Only then pin final validated tasks and submit unique low-budget model conditions"
+  ]
+}

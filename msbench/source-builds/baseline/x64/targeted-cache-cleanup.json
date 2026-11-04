@@ -1,0 +1,179 @@
+{
+  "startedAtUtc": "2026-11-04T23:51:35.520997+00:00",
+  "manifest": "/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-upgraded-couscous/artifacts/agentic-baseline-x64/logs/new-cache-candidates.json",
+  "preservedBaselinePackageCount": 137,
+  "deleted": [
+    {
+      "path": "/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-upgraded-couscous/artifacts/agentic-baseline/nuget/microsoft.netcore.app.runtime.linux-x64/10.0.13",
+      "allocatedBytes": 141225984
+    },
+    {
+      "path": "/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-upgraded-couscous/artifacts/agentic-baseline/nuget/microsoft.netcore.app.runtime.nativeaot.win-x64/11.0.0-rc.2.26504.105",
+      "allocatedBytes": 121819136
+    },
+    {
+      "path": "/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-upgraded-couscous/artifacts/agentic-baseline/nuget/microsoft.netcore.app.runtime.nativeaot.win-arm64/11.0.0-rc.2.26504.105",
+      "allocatedBytes": 119578624
+    },
+    {
+      "path": "/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-upgraded-couscous/artifacts/agentic-baseline/nuget/microsoft.netcore.app.runtime.nativeaot.osx-x64/11.0.0-rc.2.26504.105",
+      "allocatedBytes": 109182976
+    },
+    {
+      "path": "/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-upgraded-couscous/artifacts/agentic-baseline/nuget/microsoft.netcore.app.runtime.nativeaot.osx-arm64/11.0.0-rc.2.26504.105",
+      "allocatedBytes": 106831872
+    },
+    {
+      "path": "/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-upgraded-couscous/artifacts/agentic-baseline/nuget/microsoft.netcore.app.runtime.nativeaot.linux-x64/11.0.0-rc.2.26504.105",
+      "allocatedBytes": 103223296
+    },
+    {
+      "path": "/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-upgraded-couscous/artifacts/agentic-baseline/nuget/microsoft.netcore.app.runtime.nativeaot.linux-musl-x64/11.0.0-rc.2.26504.105",
+      "allocatedBytes": 102547456
+    },
+    {
+      "path": "/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-upgraded-couscous/artifacts/agentic-baseline/nuget/microsoft.netcore.app.runtime.nativeaot.linux-arm64/11.0.0-rc.2.26504.105",
+      "allocatedBytes": 101871616
+    },
+    {
+      "path": "/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-upgraded-couscous/artifacts/agentic-baseline/nuget/sqlite/3.53.4",
+      "allocatedBytes": 82538496
+    },
+    {
+      "path": "/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-upgraded-couscous/artifacts/agentic-baseline/nuget/runtime.linux-x64.microsoft.dotnet.ilcompiler/11.0.0-rc.2.26504.105",
+      "allocatedBytes": 49917952
+    },
+    {
+      "path": "/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-upgraded-couscous/artifacts/agentic-baseline/nuget/runtime.linux-musl-x64.microsoft.dotnet.ilcompiler/11.0.0-rc.2.26504.105",
+      "allocatedBytes": 49909760
+    },
+    {
+      "path": "/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-upgraded-couscous/artifacts/agentic-baseline/nuget/runtime.osx-x64.microsoft.dotnet.ilcompiler/11.0.0-rc.2.26504.105",
+      "allocatedBytes": 48975872
+    },
+    {
+      "path": "/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-upgraded-couscous/artifacts/agentic-baseline/nuget/runtime.linux-arm64.microsoft.dotnet.ilcompiler/11.0.0-rc.2.26504.105",
+      "allocatedBytes": 48566272
+    },
+    {
+      "path": "/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-upgraded-couscous/artifacts/agentic-baseline/nuget/runtime.win-arm64.microsoft.dotnet.ilcompiler/11.0.0-rc.2.26504.105",
+      "allocatedBytes": 45686784
+    },
+    {
+      "path": "/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-upgraded-couscous/artifacts/agentic-baseline/nuget/runtime.osx-arm64.microsoft.dotnet.ilcompiler/11.0.0-rc.2.26504.105",
+      "allocatedBytes": 45334528
+    },
+    {
+      "path": "/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-upgraded-couscous/artifacts/agentic-baseline/nuget/runtime.win-x64.microsoft.dotnet.ilcompiler/11.0.0-rc.2.26504.105",
+      "allocatedBytes": 45174784
+    },
+    {
+      "path": "/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-upgraded-couscous/artifacts/agentic-baseline/nuget/microsoft.aspnetcore.app.runtime.linux-x64/10.0.13",
+      "allocatedBytes": 40476672
+    },
+    {
+      "path": "/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-upgraded-couscous/artifacts/agentic-baseline/nuget/microsoft.fluentui.aspnetcore.components.icons/5.0.1",
+      "allocatedBytes": 26189824
+    },
+    {
+      "path": "/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-upgraded-couscous/artifacts/agentic-baseline/nuget/microsoft.netcore.app.host.linux-x64/10.0.13",
+      "allocatedBytes": 19079168
+    },
+    {
+      "path": "/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-upgraded-couscous/artifacts/agentic-baseline/nuget/microsoft.netcore.app.host.linux-arm64/11.0.0-rc.2.26504.105",
+      "allocatedBytes": 15642624
+    },
+    {
+      "path": "/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-upgraded-couscous/artifacts/agentic-baseline/nuget/microsoft.fluentui.aspnetcore.components/5.0.1",
+      "allocatedBytes": 11280384
+    },
+    {
+      "path": "/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-upgraded-couscous/artifacts/agentic-baseline/nuget/dapper.aot/1.1.0",
+      "allocatedBytes": 10797056
+    },
+    {
+      "path": "/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-upgraded-couscous/artifacts/agentic-baseline/nuget/microsoft.net.illink.tasks/11.0.0-rc.2.26504.105",
+      "allocatedBytes": 5505024
+    },
+    {
+      "path": "/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-upgraded-couscous/artifacts/agentic-baseline/nuget/humanizer.core/3.0.10",
+      "allocatedBytes": 4853760
+    },
+    {
+      "path": "/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-upgraded-couscous/artifacts/agentic-baseline/nuget/microsoft.identitymodel.tokens/8.19.2",
+      "allocatedBytes": 4292608
+    },
+    {
+      "path": "/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-upgraded-couscous/artifacts/agentic-baseline/nuget/microsoft.aspnetcore.app.internal.assets/11.0.0-rc.2.26504.105",
+      "allocatedBytes": 3280896
+    },
+    {
+      "path": "/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-upgraded-couscous/artifacts/agentic-baseline/nuget/microsoft.identitymodel.jsonwebtokens/8.19.2",
+      "allocatedBytes": 1810432
+    },
+    {
+      "path": "/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-upgraded-couscous/artifacts/agentic-baseline/nuget/dapper/2.1.86",
+      "allocatedBytes": 1601536
+    },
+    {
+      "path": "/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-upgraded-couscous/artifacts/agentic-baseline/nuget/microsoft.identitymodel.protocols.openidconnect/8.19.2",
+      "allocatedBytes": 1449984
+    },
+    {
+      "path": "/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-upgraded-couscous/artifacts/agentic-baseline/nuget/system.identitymodel.tokens.jwt/8.19.2",
+      "allocatedBytes": 1101824
+    },
+    {
+      "path": "/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-upgraded-couscous/artifacts/agentic-baseline/nuget/microsoft.identitymodel.protocols/8.19.2",
+      "allocatedBytes": 700416
+    },
+    {
+      "path": "/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-upgraded-couscous/artifacts/agentic-baseline/nuget/microsoft.identitymodel.logging/8.19.2",
+      "allocatedBytes": 536576
+    },
+    {
+      "path": "/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-upgraded-couscous/artifacts/agentic-baseline/nuget/microsoft.dotnet.ilcompiler/11.0.0-rc.2.26504.105",
+      "allocatedBytes": 503808
+    },
+    {
+      "path": "/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-upgraded-couscous/artifacts/agentic-baseline/nuget/opentelemetry.instrumentation.aspnetcore/1.18.0",
+      "allocatedBytes": 466944
+    },
+    {
+      "path": "/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-upgraded-couscous/artifacts/agentic-baseline/nuget/microsoft.data.sqlite.core/11.0.0-rc.1.26425.128",
+      "allocatedBytes": 348160
+    },
+    {
+      "path": "/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-upgraded-couscous/artifacts/agentic-baseline/nuget/microsoft.aspnetcore.authentication.openidconnect/11.0.0-rc.1.26425.128",
+      "allocatedBytes": 344064
+    },
+    {
+      "path": "/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-upgraded-couscous/artifacts/agentic-baseline/nuget/microsoft.identitymodel.abstractions/8.19.2",
+      "allocatedBytes": 323584
+    },
+    {
+      "path": "/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-upgraded-couscous/artifacts/agentic-baseline/nuget/sqlitepclraw.provider.e_sqlite3/3.0.5",
+      "allocatedBytes": 270336
+    },
+    {
+      "path": "/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-upgraded-couscous/artifacts/agentic-baseline/nuget/microsoft.aspnetcore.authentication.certificate/11.0.0-rc.1.26425.128",
+      "allocatedBytes": 217088
+    },
+    {
+      "path": "/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-upgraded-couscous/artifacts/agentic-baseline/nuget/sqlitepclraw.core/3.0.5",
+      "allocatedBytes": 200704
+    },
+    {
+      "path": "/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-upgraded-couscous/artifacts/agentic-baseline/nuget/sqlitepclraw.config.e_sqlite3/3.0.5",
+      "allocatedBytes": 114688
+    },
+    {
+      "path": "/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-upgraded-couscous/artifacts/agentic-baseline/nuget/sqlitepclraw.bundle_e_sqlite3/3.0.5",
+      "allocatedBytes": 49152
+    }
+  ],
+  "dfBefore": "Filesystem      Size    Used   Avail Capacity iused ifree %iused  Mounted on\n/dev/disk3s5   926Gi   901Gi   2.8Gi   100%     14M   29M   33%   /System/Volumes/Data\n",
+  "deletedAllocatedBytes": 1473822720,
+  "finishedAtUtc": "2026-11-04T23:51:36.516177+00:00",
+  "dfAfter": "Filesystem      Size    Used   Avail Capacity iused ifree %iused  Mounted on\n/dev/disk3s5   926Gi   900Gi   4.0Gi   100%     14M   41M   25%   /System/Volumes/Data\n"
+}

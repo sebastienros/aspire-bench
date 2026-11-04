@@ -282,3 +282,50 @@ do not manufacture evidence or assert a general benefit.
 No child submits models or pushes upstream; parent integrates local commits and
 records every custom branch/artifact and measured result. The source-build
 workstream must not substitute old prebuilt PR packages into a custom-build claim.
+
+### 2026-11-04: shared-host execution gate failed
+
+The full source build reached Dashboard native compilation after resolving a
+missing-clang prerequisite in a private builder. It then reported object/temp
+I/O and read-only failures, followed by containerd metadata I/O failures. Host
+disk dropped to 1.2 GiB in the builder's observation; parent independently
+measured 100% capacity / 2.8 GiB available. Parent's bounded `docker version`
+and `docker ps` both timed out after 12 seconds. P01 image builds reported
+BuildKit/dpkg/metadata I/O too. A nested-cgroup/freezer contribution near a
+diagnostic fault attempt is also suspected, not proved.
+
+All workstreams were told to stop new Docker/model launches, stop only exact
+owned commands, and preserve evidence. Parent stopped its own final-adoption
+and tools-image sessions; shared engine/container state remains unverifiable.
+No shared restart/prune or unrelated process termination is authorized or claimed.
+The [blocker manifest](execution-blockers/2026-11-04-docker-storage.json) lists
+observations and prerequisites. This is not an Aspire/model performance result.
+
+Independent work still established that the installed host CLI can generate
+seven embedded project-local skills (40 files) and complete a real MCP
+initialize/tools-list handshake (13 tools), without Docker or inference.
+[Preflight evidence](agent-surface-preflight/README.md) records the exact
+host 17.0 preview version. This is not matched 13.6 capability verification or a
+factorial efficiency result; do not silently install those assets into old arms.
+
+Remaining inference is blocked until each final task passes local Docker
+validation. No I01/startup/health run was repeated, and no new MSBench spending
+was incurred during this blocked execution stage. Local drafts/evidence and
+branch ledgers are retained so recovery does not require rediscovering the work.
+
+#### Evidence required to finish after recovery
+
+| Question/stage | Current answer | Next proof required |
+|---|---|---|
+| Minimum adoption | Raw Bingo can be orchestrated without changing business code; first A01 oracle passed | Final grader/image pass after added port/secret guards, then one unique Terra adoption pilot |
+| Diagnosis/false health/target safety | New held-out-name diagnostic fixture being prepared; no runtime recovery pass established | Safe Redis-protocol fault, both final Docker oracles/negatives, then unique raw/Aspire pilots |
+| Feature/schema evolution | Drafts and partial local evidence being preserved | Both final arms pass independent behavior/data-preservation oracles before inference |
+| Local deployment | Production-serving paired drafts, no running deployment validated | Actual 13.6 publish/prepare/build/run + functional/auth/catalog checks in both arms |
+| Skills/MCP efficiency | Host generation/transport exists; matched live capability and use unknown | Matched D01 readiness, then natural-choice factorial and observed tool use |
+| Complete custom source build | ARM64 contract proof exists; full x64 attempt blocked | Complete payload on task architecture and actual Bingo lifecycle before substitution |
+| Continuation | Prior pinned-runner probes did not prove resumed conversations | A genuinely changed runner/session contract; do not rerun identical known-broken conditions |
+| Transfer/general claim | Bingo still represents the next scenarios; eShop conversion not yet justified | Held-out-name/fault runtime passes; independent app/model replication only if a claim warrants its cost |
+
+After recovery serialize local image/native builds and check host/engine headroom
+before starting expensive work. The roadmap is not declared complete while
+these gates remain blocked.
