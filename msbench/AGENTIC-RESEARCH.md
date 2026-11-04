@@ -137,14 +137,14 @@ Fresh conversations and verified resumed conversations are separate strata.
 | ID / priority | Task and Bingo basis | External proof | State |
 |---|---|---|---|
 | I01 / first | Repair/extend player-origin producer API routing in the already-running Vue app | Real frontend -> admin -> database/Redis call/status/clear round trip; preserve prior data and version/SignalR behavior | [Completed Terra pilot](bingo-iteration/README.md#completed-terra-pilot): both pass, no demonstrated Aspire advantage; do not repeat identical conditions |
-| D01 / next | Diagnose distributed failure with a healthy process but failed operation | Broken fixture fails, correct targeted repair passes; random fault instance; logs/trace evidence | Planned |
-| H01 / next | Reject misleading readiness or stale endpoint evidence | Functional negative probe fails even if process/resource is green | Planned |
-| F01 | Add a cross-service capability/cache behavior | Hidden fresh data, both positive and negative contracts | Planned |
-| M01 | Migrate schema without losing existing data | Pre/post record identity and contents, new behavior | Planned |
-| S01 | Two similar running apps/worktrees | Exact-target repair, other app and data unchanged | Planned |
+| D01 / next | Diagnose distributed failure with a healthy process but failed operation | Broken fixture fails, correct targeted repair passes; random fault instance; logs/trace evidence | Diagnostic draft awaiting final integration; runtime gate blocked by shared Docker failure |
+| H01 / next | Reject misleading readiness or stale endpoint evidence | Functional negative probe fails even if process/resource is green | Combined diagnostic draft; real false-health behavior not yet verified |
+| F01 | Add a cross-service capability/cache behavior | Hidden fresh data, both positive and negative contracts | [Implemented](bingo-evolution/README.md); initial raw oracle/7 negative checks passed, final paired validation blocked |
+| M01 | Migrate schema without losing existing data | Pre/post record identity and contents, new behavior | [Implemented draft](bingo-evolution/README.md); raw oracle began but no completed grade; final pair blocked |
+| S01 | Two similar running apps/worktrees | Exact-target repair, other app and data unchanged | Diagnostic draft includes a decoy/ownership checks; full two-app equivalence not claimed; runtime gate blocked |
 | A01 | Add a dependency or adopt Aspire | Functional wiring, no hardcoded ports/secrets; setup cost included | [Cold adoption task](bingo-adoption/README.md) implemented; first oracle passed, later final-grader validation blocked by host storage/Docker failure; no inference |
-| P01 | Publish and run isolated local deployment | Deployed functional checks, no dev-runtime assumptions | Planned |
-| X01 | Transfer to eShop / TypeScript / polyglot | Unseen topology/names, instrumentation parity and functional equivalence | Deferred until Bingo limits are demonstrated |
+| P01 | Publish and run isolated local deployment | Deployed functional checks, no dev-runtime assumptions | [Paired draft](bingo-publishing/README.md); both environment builds failed with I/O errors; no deployed-app proof |
+| X01 | Transfer to eShop / TypeScript / polyglot | Unseen topology/names, instrumentation parity and functional equivalence | Held-out-name coverage drafted in D01; runtime blocked. eShop remains conditional, not justified by a demonstrated Bingo limit |
 
 Existing startup/health experiments remain regression controls, not replacements
 for development scenarios. Generated project-local skills are a treatment to test,
@@ -282,6 +282,11 @@ do not manufacture evidence or assert a general benefit.
 No child submits models or pushes upstream; parent integrates local commits and
 records every custom branch/artifact and measured result. The source-build
 workstream must not substitute old prebuilt PR packages into a custom-build claim.
+
+Integrated draft commits: P01 child `72c958b8` as coordinator `7bdc746`;
+F01/M01 child `276b240f` as coordinator `1788f1c`. Both child branches remain
+local, origin-backed and clean at handoff; neither is a model-ready task set.
+Their READMEs/manifests retain exact partial/failed validation receipts.
 
 ### 2026-11-04: shared-host execution gate failed
 

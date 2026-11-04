@@ -46,5 +46,16 @@
     "Sequential final-task Docker builds and actual positive/negative runtime oracles",
     "Adequate disk headroom before any full native bundle build",
     "Only then pin final validated tasks and submit unique low-budget model conditions"
-  ]
+  ],
+  "targeted_cleanup": {
+    "scope": "42 phase-new package/version directories in the source-builder's isolated cache; none referenced by the preserved ARM64 baseline",
+    "allocated_bytes_removed": 1473822720,
+    "baseline_package_directories_preserved": 137,
+    "post_cleanup_available_gib": 4.0,
+    "post_cleanup_reported_capacity_percent": 100,
+    "manifest": "msbench/source-builds/baseline/x64/targeted-cache-cleanup.json",
+    "manifest_sha256": "774c06dd6f6f4832837e36340725a2306cf6b0fade9832f062ed9b540e113dd4",
+    "original_artifacts_reverified": true,
+    "docker_recovery_verified": false
+  }
 }
