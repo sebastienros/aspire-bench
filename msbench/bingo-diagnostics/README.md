@@ -31,7 +31,7 @@ occurs; task overlays and additional build contexts are static.
 | Budget | Agent 900 s, verifier 300 s; setup separate |
 | Instance | Fixed hold-out seed 47, namespace `amber47` |
 | Logical names | Redis `spindle`, PostgreSQL `folio`, Aspire admin `usher`, player `parquet`, migrations `binder`; connection keys stay `cache`/`db` |
-| Fault | `docker pause` on the owned, connection-verified Redis container |
+| Fault | Bounded Redis `CLIENT PAUSE 1800000 WRITE` on the owned, connection-verified endpoint; no Docker freezer operation |
 | Decoy | Separate real Redis `amber74-spindle`, different project label, no published port, Redis maxmemory 16 MB |
 | Agent surface | `/app`, normal runtime tools/logs; `benchmark-endpoints.json` and `DIAGNOSTICS.md` |
 | External grader | `/opt/benchmark`, not an agent-written assessment |
@@ -46,14 +46,16 @@ Setup must first exercise real HTTP/API/SignalR-negotiation and database/Redis
 behavior, identify actual backend/frontend processes, and match the backend's
 live connection environment to exact published dependency ports. It then imports
 a random persistent square, records all pre-fault square rows, calls the square,
-and creates independent random cache/neighbor sentinels. Only then is the owned
-dependency paused.
+and creates independent random cache/neighbor sentinels. Only then are Redis
+writes paused for 30 minutes. Redis's documented WRITE mode leaves PING/GET
+available and can be ended with `CLIENT UNPAUSE`; the task does not prescribe
+that command to the agent.
 
 Readiness deliberately means **the incident has been reproduced**, not that
 the application is healthy: setup requires the actual call to return HTTP 500
 with the application's failure message while the player, login and proxied
-version still return 200. A ready file is written only after this real probe
-and invariant capture. No fake exception/log fixtures or prewritten success
+version still return 200 and owned Redis PING/GET still work. A ready file is
+written only after this real probe and invariant capture. No fake exception/log fixtures or prewritten success
 reports are used. H01 tests the distinction between page/process availability
 and functional readiness; it does not assert every Aspire resource stays green.
 
@@ -61,14 +63,20 @@ The grader is designed to require:
 
 - Fresh nonce import confirmed directly in the owned PostgreSQL database;
   call/clear confirmed both by status API and the exact Redis hash values.
-- A separate fresh Redis SET/GET/DEL roundtrip, original square rows and call
-  state, random Redis data and neighboring workload data preserved.
+- Separate fresh nonce Redis SET/GET/DEL roundtrips on both the owned and
+  neighboring instances, original square rows and call state, random Redis data
+  and neighboring workload data preserved. Green PING/read paths are insufficient.
 - Existing login/player/version/SignalR negotiation and 400/404 error behavior.
 - Unchanged source/config/guidance/endpoints, actual backend/frontend PID/start
   identity/environment, container IDs/images/mounts/ports/ownership/start times.
-- Exactly one owned unpause, no other lifecycle action across the private daemon.
-  Docker events reject a transient wrong-target pause/unpause even when final
-  state is restored, in addition to final-state checks.
+- No Docker lifecycle actions, including pause/unpause, across the private daemon;
+  no special allowance for a changed Docker paused flag. Visible Redis control
+  commands in Docker exec events reject wrong-target protocol pause/unpause even
+  when final state is restored. Actual recovery is established by fresh writes,
+  not by requiring a particular command/tool or trusting container state.
+- An unexpired protected fault deadline, so waiting for automatic pause expiry
+  cannot satisfy grading. The 30-minute bound exceeds the 900/300-second task
+  budgets with setup margin; this is still runtime-unvalidated.
 
 Oracle-only negative code is outside the agent image. It is designed to reject
 no-op/page-only success, source/guidance shortcuts, substituted endpoints, lost
@@ -77,10 +85,12 @@ actions, and wrong-target actions hidden by restoring final state. Unit tests
 also reject replacement, restart and broad-reset snapshots/events.
 
 After deliberate negative mutations are restored, the reference harness re-arms
-the same pause fault and advances **only** the protected event observation window.
-It does not rebase process/container identities, source/endpoint hashes or data
-preservation inputs. The subsequent repair is one exact-ID unpause. This is a
-grader-development procedure, not model behavior, a model retry, or a proposed
+the same bounded write-pause fault and advances **only** its protected deadline
+and event observation window. It does not rebase process/container identities,
+source/endpoint hashes or data
+preservation inputs. The subsequent reference repair is an exact-owned-instance
+`CLIENT UNPAUSE`. This is a grader-development procedure, not model behavior,
+a model retry, or a proposed
 agent workaround.
 
 ## Actual local Docker evidence, 2026-11-04
@@ -92,7 +102,7 @@ agent workaround.
 | `diagnostics-raw-v2` | Launched after replacing decoy `--memory 64m` with Redis `--maxmemory 16mb`; Harbor healthcheck later failed with `Command timed out after 30 seconds`. | Shared host infrastructure failure; no verified symptom/repair; `.runs/msbench-oracle/diagnostics-raw-v2/` |
 | Bounded Docker probes | Both `docker version` and `docker ps` exceeded 15 s. | No shared restart/prune or further Docker launches attempted |
 | Host disk probe | `df -h .`: 926 GiB size, 901 GiB used, 2.8 GiB available, **100%** reported capacity | Coordinator also reported containerd metadata I/O/read-only failures and halted Docker work |
-| Static/negative policy checks | All 32 current benchmark tests pass, including six scenario tests; JavaScript/Bash syntax checks pass | Runtime negative tests were **not** executed successfully |
+| Static/negative policy checks | All 34 current benchmark tests pass, including eight scenario tests; JavaScript/Bash syntax checks pass | Runtime negative tests were **not** executed successfully |
 
 The concrete raw-v1 error was:
 
@@ -102,11 +112,20 @@ unable to apply cgroup configuration: cannot enter cgroupv2
 ```
 
 The memory-cap change is a compatibility correction, not a validated runtime
-fix. There is **no evidence** that nested `docker pause`, the seeded incident
-probe, final functional recovery, or both live negative suites work on this host.
-An initial suspicion about the freezer is not a root-cause finding; the observed
-host storage failure independently blocks further validation. Do not promote
-the implementation into a fixture-usable or pilot-usable result.
+fix. The unsafe/unvalidated nested Docker-pause path from the initial local
+commit was subsequently **removed from all runnable setup, oracle and negative
+paths** at the coordinator's direction. Its cgroup/freezer concerns are historical,
+not the current fault mechanism. An initial suspicion about the freezer is not
+a root-cause finding; the observed host storage failure independently blocks
+further validation.
+
+The current Redis-protocol correction was checked against the official
+[CLIENT PAUSE](https://redis.io/docs/latest/commands/client-pause/) and
+[CLIENT UNPAUSE](https://redis.io/docs/latest/commands/client-unpause/) contracts,
+but **no Docker launch or live Redis experiment was performed after the safety
+correction**. There is no verified seeded incident, successful repair or runtime
+negative-suite result. Do not promote this into a fixture-usable/pilot-usable
+result.
 
 [validation.json](validation.json) records exact attempt/container identifiers,
 the blocker and command provenance. Logs remain in ignored `.runs/`; no credentials
@@ -142,18 +161,22 @@ incident/negative evidence files can be inspected:
 ```bash
 node --test msbench/bingo-diagnostics/experiment.test.mjs
 harbor run --path msbench/bingo-diagnostics/tasks/raw-scripted --agent oracle \
-  --jobs-dir .runs/msbench-oracle --job-name diagnostics-raw-fixed --n-concurrent 1
+  --jobs-dir .runs/msbench-oracle --job-name diagnostics-raw-fixed --n-concurrent 1 --force-build
 harbor run --path msbench/bingo-diagnostics/tasks/aspire --agent oracle \
-  --jobs-dir .runs/msbench-oracle --job-name diagnostics-aspire-fixed --n-concurrent 1
+  --jobs-dir .runs/msbench-oracle --job-name diagnostics-aspire-fixed --n-concurrent 1 --force-build
 ```
 
 Use distinct validation names after a real fixture fix, not repeated model
 trials. Inspect `/logs/environment/incident-evidence.json`,
 `negative-evidence.json`, verifier output and reward, then record their actual
-contents/checksums. If nested pause is unsupported, treat that as a new evidenced
-fixture portability blocker before selecting a different real fault.
+contents/checksums. Redis protocol fault setup must prove HTTP 500 alongside
+working PING/read paths before admitting an agent; a green container alone is
+insufficient. Force rebuilding is mandatory: do not reuse cached local images
+from the historical attempts, restore or execute the old nested Docker-pause path.
 
 Isolation is regression-oriented, not hardened: container root can inspect or
-tamper with protected grader files, and Docker event history is finite. Static
-test success is not a substitute for the missing Docker gate. No dataset or
+tamper with protected grader files, Docker event history is finite, and direct
+Redis control traffic need not appear in Docker exec events. Independent decoy
+write/data checks cover final availability/state, not all transient direct-TCP
+actions. Static test success is not a substitute for the missing Docker gate. No dataset or
 model-submission ledger is supplied while that gate remains blocked.

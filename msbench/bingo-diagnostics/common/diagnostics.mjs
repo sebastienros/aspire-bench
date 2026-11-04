@@ -6,7 +6,9 @@ import { hashes } from "./hashes.mjs";
 import { endpoints, verifyHttp } from "./http.mjs";
 import { command } from "./process.mjs";
 import { redisPingArgs } from "./redis.mjs";
-import { snapshot, verifyContainers, verifyEvents } from "./policy.mjs";
+import {
+    pauseDurationMs, snapshot, verifyContainers, verifyEvents, verifyFaultWindow, verifyRedisWrites,
+} from "./policy.mjs";
 
 export const stateFile = "/opt/benchmark/diagnostics-state.json";
 const digest = text => createHash("sha256").update(text).digest("hex");
@@ -30,9 +32,9 @@ export async function containers() {
     return JSON.parse((await command("docker", ["inspect", ...ids])).stdout);
 }
 
-export async function redis(row, args) {
+export async function redis(row, args, timeout = 15_000) {
     return (await command("docker", ["exec", row.Id, "redis-cli", "--raw",
-        ...redisPingArgs(row.Config), ...args], { timeout: 15_000 })).stdout.trim();
+        ...redisPingArgs(row.Config), ...args], { timeout })).stdout.trim();
 }
 
 export async function sql(row, query) {
@@ -122,6 +124,11 @@ async function preserved(state, rows) {
 }
 
 async function functional(urls, state, rows) {
+    const target = rows.find(row => row.Id === state.target);
+    const decoy = rows.find(row => row.Id === state.decoy);
+    for (const row of [target, decoy]) {
+        await verifyRedisWrites(args => redis(row, args, 8_000), `fresh-${nonce()}`, nonce());
+    }
     await verifyHttp(urls);
     const id = `diagnostic-${nonce()}`;
     const label = `Fresh functional probe ${nonce()}`;
@@ -131,8 +138,6 @@ async function functional(urls, state, rows) {
     const stored = JSON.parse(await sql(database,
         `SELECT row_to_json(s) FROM "BingoSquares" s WHERE "Id" = '${id}';`));
     assert.equal(stored.Label, label, "Fresh HTTP import must reach owned PostgreSQL");
-    const target = rows.find(row => row.Id === state.target);
-    const decoy = rows.find(row => row.Id === state.decoy);
     for (const [value, expected] of [[true, "True"], [false, "False"]]) {
         const called = await (await request(urls.admin,
             `/api/demo/producer/squares/${id}/state/${value}`, { method: "POST" })).json();
@@ -146,11 +151,6 @@ async function functional(urls, state, rows) {
         assert.equal(status.calledSquares.includes(id), value, "Actual status must reflect fresh state");
         assert(status.calledSquares.includes(state.square), "Prior call must remain visible");
     }
-    const key = `fresh-${nonce()}`;
-    const value = nonce();
-    assert.equal(await redis(target, ["SET", key, value]), "OK");
-    assert.equal(await redis(target, ["GET", key]), value, "Fresh Redis protocol roundtrip required");
-    assert.equal(await redis(target, ["DEL", key]), "1");
     await request(urls.admin, "/api/demo/producer/squares/import", post([]), 400);
     await request(urls.admin, `/api/demo/producer/squares/missing-${nonce()}/state/true`,
         { method: "POST" }, 404);
@@ -164,18 +164,20 @@ export async function eventsSince(since) {
 
 export async function verify() {
     const state = JSON.parse(await readFile(stateFile, "utf8"));
+    verifyFaultWindow(state.faultExpiresAt);
     const text = await readFile("/app/benchmark-endpoints.json", "utf8");
     assert.equal(digest(text), state.endpoints, "Endpoint metadata changed");
     assert.deepEqual(await hashes("/app"), state.inputs, "Source or configuration changed");
     assert.deepEqual(await processes(), state.processes, "Application process restarted or reconfigured");
     const rows = await containers();
-    verifyContainers(state.containers, rows.map(snapshot), state.target);
+    verifyContainers(state.containers, rows.map(snapshot));
     verifyEvents(await eventsSince(state.eventsSince), state.target);
     await preserved(state, rows);
     await functional(endpoints(JSON.parse(text)), state, rows);
     await preserved(state, rows);
-    verifyContainers(state.containers, (await containers()).map(snapshot), state.target);
+    verifyContainers(state.containers, (await containers()).map(snapshot));
     verifyEvents(await eventsSince(state.eventsSince), state.target);
+    verifyFaultWindow(state.faultExpiresAt);
     console.log("Verified fresh PostgreSQL/Redis call/clear/status, prior data and exact-target in-place recovery.");
 }
 
@@ -216,7 +218,12 @@ async function setup() {
     assert.equal(await redis(target, ["SET", state.cacheKey, state.cacheValue]), "OK");
     assert.equal(await redis(decoy, ["SET", state.decoyKey, state.decoyValue]), "OK");
     await preserved(state, await containers());
-    await command("docker", ["pause", target.Id]);
+    state.pauseDurationMs = pauseDurationMs;
+    state.faultExpiresAt = Date.now() + pauseDurationMs;
+    assert.equal(await redis(target, ["CLIENT", "PAUSE", String(pauseDurationMs), "WRITE"]), "OK");
+    assert.equal(await redis(target, ["PING"]), "PONG", "PING must remain green during the write incident");
+    assert.equal(await redis(target, ["GET", state.cacheKey]), state.cacheValue,
+        "Read path must remain available during the write incident");
     const started = Date.now();
     const failure = await request(urls.admin,
         `/api/demo/producer/squares/${square}/state/true`, { method: "POST" }, 500);
@@ -227,18 +234,21 @@ async function setup() {
     await request(urls.admin, "/login");
     await request(urls.frontend, "/api/version-info");
     state.containers = (await containers()).map(snapshot);
-    assert(state.containers.find(row => row.id === state.target).paused);
+    assert(state.containers.every(row => row.running && !row.paused),
+        "Protocol fault must not pause or stop any Docker container");
     assert.deepEqual(await processes(), processRows, "Fault must not kill or restart application processes");
     await sleep(1100);
     state.eventsSince = new Date().toISOString();
+    verifyFaultWindow(state.faultExpiresAt);
     await writeFile(stateFile, JSON.stringify(state, null, 2));
     await writeFile("/logs/environment/incident-evidence.json", JSON.stringify({
         seed: state.seed, target: target.Name, targetId: target.Id,
         decoy: decoy.Name, decoyId, backend: processRows.find(row => row.role === "backend"),
         actualCallStatus: failure.status, actualCallBody: body, failedCallMs: Date.now() - started,
         frontendStatus: frontend.status, frontendVersionStatus: 200, adminLoginStatus: 200,
-        readiness: "Healthy startup and seeded state, then real HTTP 500 with player/login/version still serving",
-        topology: state.containers, fault: "docker pause on connection-verified owned Redis",
+        readiness: "Real HTTP 500 with player/login/version and Redis PING/GET still serving",
+        topology: state.containers, fault: "Redis CLIENT PAUSE WRITE on connection-verified owned endpoint",
+        pauseDurationMs, faultExpiresAt: state.faultExpiresAt, pingDuringIncident: "PONG",
     }, null, 2));
     console.log("Live incident confirmed: HTTP 500 calling a square; player/login/version still return 200.");
 }

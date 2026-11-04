@@ -14,12 +14,28 @@
   "runtime_negative_suite_verified": false,
   "static_validation": {
     "command": "node --test msbench/*.test.mjs msbench/*/*.test.mjs",
-    "total_passed": 32,
-    "scenario_passed": 6,
+    "total_passed": 34,
+    "scenario_passed": 8,
     "failed": 0,
     "javascript_syntax_checked": true,
     "shell_syntax_checked": true,
     "runtime_gate_satisfied": false
+  },
+  "current_fault": {
+    "mechanism": "Redis CLIENT PAUSE 1800000 WRITE",
+    "reference_recovery": "Redis CLIENT UNPAUSE on exact owned connection-verified instance",
+    "duration_ms": 1800000,
+    "grading_requires_unexpired_fault_deadline": true,
+    "grading_requires_fresh_owned_and_decoy_writes": true,
+    "docker_pause_runnable": false,
+    "force_rebuild_required_before_runtime_validation": true,
+    "container_state_must_remain_unchanged": true,
+    "runtime_validated": false,
+    "docker_launches_after_correction": 0,
+    "contract_sources": [
+      "https://redis.io/docs/latest/commands/client-pause/",
+      "https://redis.io/docs/latest/commands/client-unpause/"
+    ]
   },
   "commands": {
     "raw_v1": "harbor run --path msbench/bingo-diagnostics/tasks/raw-scripted --agent oracle --jobs-dir .runs/msbench-oracle --job-name diagnostics-raw-v1 --n-concurrent 1 --no-delete --force-build --quiet",
@@ -71,10 +87,10 @@
   },
   "limitations": [
     "No verified fault HTTP 500, successful runtime repair or Docker negative-suite execution",
-    "Current memory-cap and guidance corrections were made after the blocked attempts and have only static validation",
+    "Current Redis-protocol fault, memory-cap and guidance corrections were made after the blocked attempts and have only static validation",
     "Single deterministic non-obvious naming seed; no randomized transfer claim",
     "S01 covers a neighboring resource, not a complete second application",
-    "Container root and finite Docker event history are not adversarial isolation",
+    "Container root, finite Docker events and invisible direct Redis traffic are not adversarial isolation",
     "No inference, repeated benchmark, push or PR"
   ]
 }

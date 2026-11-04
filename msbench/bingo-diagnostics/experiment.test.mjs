@@ -1,37 +1,70 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
-import { snapshot, verifyContainers, verifyEvents } from "./common/policy.mjs";
+import {
+    pauseDurationMs, snapshot, verifyContainers, verifyEvents, verifyFaultWindow, verifyRedisWrites,
+} from "./common/policy.mjs";
 
 const root = new URL("./", import.meta.url);
 const read = file => readFile(new URL(file, root), "utf8");
-const target = { id: "owned", name: "/amber47-spindle", paused: true, running: true,
+const target = { id: "owned", name: "/amber47-spindle", paused: false, running: true,
     startedAt: "original", restarts: 0 };
 const neighbor = { id: "neighbor", name: "/amber74-spindle", paused: false, running: true,
     startedAt: "original", restarts: 0 };
-const recovered = { ...target, paused: false };
 const event = (Action, id = target.id) => ({ Action, Actor: { ID: id } });
 
-test("container contract accepts only in-place owned recovery", () => {
-    verifyContainers([target, neighbor], [recovered, neighbor], target.id);
+test("protocol recovery preserves all container identities without relying on Docker paused state", () => {
+    verifyContainers([target, neighbor], [target, neighbor]);
     for (const [label, rows] of [
-        ["no-op", [target, neighbor]],
-        ["replacement", [{ ...recovered, id: "replacement" }, neighbor]],
-        ["restart", [{ ...recovered, startedAt: "new" }, neighbor]],
-        ["broad reset", [{ ...recovered, restarts: 1 }, neighbor]],
-        ["wrong target", [recovered, { ...neighbor, paused: true }]],
-        ["additional instance", [recovered, neighbor, { ...neighbor, id: "extra" }]],
-    ]) assert.throws(() => verifyContainers([target, neighbor], rows, target.id), undefined, label);
+        ["replacement", [{ ...target, id: "replacement" }, neighbor]],
+        ["restart", [{ ...target, startedAt: "new" }, neighbor]],
+        ["broad reset", [{ ...target, restarts: 1 }, neighbor]],
+        ["Docker pause", [{ ...target, paused: true }, neighbor]],
+        ["wrong target", [target, { ...neighbor, paused: true }]],
+        ["additional instance", [target, neighbor, { ...neighbor, id: "extra" }]],
+    ]) assert.throws(() => verifyContainers([target, neighbor], rows), undefined, label);
 });
 
 test("Docker events reject transient wrong-target changes and broad lifecycle shortcuts", () => {
-    verifyEvents([event("exec_create: redis-cli PING"), event("unpause"), event("exec_die")], target.id);
+    verifyEvents([], target.id);
+    verifyEvents([event("exec_create: redis-cli PING"),
+        event("exec_create: redis-cli --tls CLIENT UNPAUSE"), event("exec_die")], target.id);
     for (const rows of [
-        [], [event("unpause", neighbor.id)], [event("unpause"), event("unpause")],
-        [event("unpause"), event("pause", neighbor.id), event("unpause", neighbor.id)],
-        ...["restart", "stop", "kill", "destroy", "create", "start", "die", "pause"]
-            .map(action => [event("unpause"), event(action)]),
+        [event("exec_create: redis-cli CLIENT UNPAUSE", neighbor.id)],
+        [event("exec_create: redis-cli CLIENT PAUSE 60000 WRITE", neighbor.id),
+            event("exec_create: redis-cli CLIENT UNPAUSE", neighbor.id)],
+        ...["restart", "stop", "kill", "destroy", "create", "start", "die", "pause", "unpause"]
+            .map(action => [event(action)]),
     ]) assert.throws(() => verifyEvents(rows, target.id));
+});
+
+test("healthy PING/read paths do not satisfy the fresh functional Redis write contract", async () => {
+    const calls = [];
+    await verifyRedisWrites(async args => {
+        calls.push(args);
+        return { SET: "OK", GET: "nonce-value", DEL: "1" }[args[0]];
+    }, "nonce-key", "nonce-value");
+    assert.deepEqual(calls, [
+        ["SET", "nonce-key", "nonce-value", "PX", "30000"],
+        ["GET", "nonce-key"], ["DEL", "nonce-key"],
+    ]);
+    await assert.rejects(() => verifyRedisWrites(async args => {
+        if (args[0] === "SET") throw new Error("Write blocked despite PONG and working reads");
+        return "PONG";
+    }, "nonce-key", "nonce-value"), /Write blocked/);
+    for (const replies of [
+        { SET: "PONG", GET: "nonce-value", DEL: "1" },
+        { SET: "OK", GET: "stale-value", DEL: "1" },
+        { SET: "OK", GET: "nonce-value", DEL: "0" },
+    ]) await assert.rejects(() => verifyRedisWrites(async args => replies[args[0]], "nonce-key", "nonce-value"));
+});
+
+test("bounded fault cannot expire into a successful no-op within the grading contract", () => {
+    assert(pauseDurationMs > (900 + 300) * 1000, "Pause must outlast the declared agent and verifier budgets");
+    verifyFaultWindow(1000 + pauseDurationMs, 1000);
+    for (const expiry of [0, NaN, undefined, "later", 1000]) {
+        assert.throws(() => verifyFaultWindow(expiry, 1000), /automatic expiry must not count as repair/);
+    }
 });
 
 test("snapshot includes ownership, immutable identities, ports, mounts and runtime state", () => {
@@ -84,7 +117,8 @@ test("held-out names match real ownership and retain application connection keys
 test("external grader requires actual incident, fresh effects, preservation and negative contracts", async () => {
     const source = await read("common/diagnostics.mjs");
     for (const proof of [
-        '["pause", target.Id]', 'method: "POST" }, 500', "The square could not be updated",
+        '["CLIENT", "PAUSE", String(pauseDurationMs), "WRITE"]', 'method: "POST" }, 500',
+        "The square could not be updated", '["PING"]', "verifyRedisWrites", "verifyFaultWindow",
         "verifyConnectionOwnership", "ConnectionStrings__cache", "row_to_json(s)", "randomBytes(10)",
         '"HGET"', '"True"', '"False"', "state.databaseRows", "state.decoyKey",
         "state.inputs", "state.endpoints", "state.processes", "verifyEvents",
@@ -96,4 +130,8 @@ test("external grader requires actual incident, fresh effects, preservation and 
     assert.match(negatives, /wrong-target action hidden by restoring final state/);
     assert.match(negatives, /changed pre-fault database data/);
     assert.match(negatives, /lost pre-fault called-square state/);
+    for (const runnable of [source, negatives, await read("tasks/aspire/solution/solve.sh")]) {
+        assert.doesNotMatch(runnable, /docker (?:pause|unpause)|\["(?:pause|unpause)",/i,
+            "Nested Docker freezer commands must not remain runnable");
+    }
 });

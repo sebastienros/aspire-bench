@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import { readFile, writeFile } from "node:fs/promises";
 import { setTimeout as sleep } from "node:timers/promises";
-import { command } from "/opt/benchmark/process.mjs";
 import { containers, redis, sql, stateFile, verify } from "/opt/benchmark/diagnostics.mjs";
 
 const state = JSON.parse(await readFile(stateFile, "utf8"));
@@ -16,8 +15,8 @@ async function reject(name, pattern) {
     console.log(`Rejected ${name}`);
 }
 
-await reject("no-op despite healthy player/login/version", /Container changed outside targeted recovery/);
-await command("docker", ["unpause", state.target]);
+await reject("no-op despite healthy player/login/version/PING", /docker timed out after 8000ms/);
+assert.equal(await redis(target, ["CLIENT", "UNPAUSE"]), "OK");
 await verify();
 
 const sourceFile = "/app/DIAGNOSTICS.md";
@@ -48,19 +47,22 @@ await redis(decoy, ["SET", state.decoyKey, "changed"]);
 await reject("neighboring workload data modification", /Neighboring workload data changed/);
 await redis(decoy, ["SET", state.decoyKey, state.decoyValue]);
 
-await command("docker", ["pause", state.decoy]);
-await reject("wrong-target runtime action", /Container changed outside targeted recovery/);
-await command("docker", ["unpause", state.decoy]);
-await reject("wrong-target action hidden by restoring final state", /Forbidden Docker action/);
+assert.equal(await redis(decoy, ["CLIENT", "PAUSE", "60000", "WRITE"]), "OK");
+await reject("wrong-target runtime action", /Wrong-target Redis control command/);
+assert.equal(await redis(decoy, ["CLIENT", "UNPAUSE"]), "OK");
+await reject("wrong-target action hidden by restoring final state", /Wrong-target Redis control command/);
 
 // Oracle-only tests deliberately mutate and restore the live fixture. Re-arm
-// the same fault and begin a new event window for the actual reference repair.
+// the same protocol fault and begin a new event window for the reference repair.
 // No data, identities, process/source hashes or preservation inputs are rebased.
-await command("docker", ["pause", state.target]);
+const faultExpiresAt = Date.now() + state.pauseDurationMs;
+assert.equal(await redis(target, ["CLIENT", "PAUSE", String(state.pauseDurationMs), "WRITE"]), "OK");
 await sleep(1100);
-await writeFile(stateFile, JSON.stringify({ ...state, eventsSince: new Date().toISOString() }, null, 2));
-await reject("re-armed no-op", /Container changed outside targeted recovery/);
+await writeFile(stateFile, JSON.stringify({
+    ...state, faultExpiresAt, eventsSince: new Date().toISOString(),
+}, null, 2));
+await reject("re-armed no-op", /docker timed out after 8000ms/);
 await writeFile("/logs/environment/negative-evidence.json", JSON.stringify({
     rejected, sameTarget: state.target, sameDecoy: state.decoy,
-    oracleOnlyRearm: "Same pause fault; only Docker event observation window advanced after restoring test mutations",
+    oracleOnlyRearm: "Same bounded write-pause fault; only fault deadline/event window advanced after restoring test mutations",
 }, null, 2));

@@ -432,7 +432,7 @@ shared host is healthy; withhold cloud datasets/submissions until that gate.
 
 **Actual evidence:** The new [D01/H01 Bingo diagnosis fixtures](bingo-diagnostics/README.md)
 were implemented as matched static raw-scripted/Aspire tasks designed to pause
-the owned Redis, with held-out logical names, a tiny separately owned neighboring Redis,
+the owned Redis's writes, with held-out logical names, a tiny separately owned neighboring Redis,
 and external functional/data/identity/event grading. The raw Docker build and
 healthy application checks reached decoy creation, where nested Docker rejected
 the original cgroup memory limit with a threaded-cgroup error. The decoy now uses
@@ -448,9 +448,20 @@ or new model submission was attempted.
 **Improvement candidate:** Keep warm runtime-diagnosis and wrong-instance safety
 grading separate from explicit-file frontend iteration. Require a reproduced
 functional incident, fresh owned PostgreSQL/Redis effects, pre-fault data/process
-preservation and lifecycle-event checks before evaluating an agent. Page or
-process availability alone is not functional recovery. The six passing structural/
+preservation and lifecycle-event checks before evaluating an agent. Page,
+process, Redis PING or read availability alone is not write recovery. The eight passing structural/
 negative-policy tests establish only the grader's static contract.
+
+**Safety correction, still unvalidated:** The initial nested Docker-pause
+implementation was removed from every runnable setup/oracle/negative path.
+Current setup uses Redis's documented bounded `CLIENT PAUSE 1800000 WRITE`;
+reference repair uses `CLIENT UNPAUSE`. Fresh SET/GET/DEL on the owned and
+neighboring instances proves intended write recovery without requiring a tool
+choice or a Docker paused-state change. All container start times/identities
+must remain unchanged, Docker lifecycle events are forbidden, and an expired
+fault deadline cannot count as repair. Visible wrong-target Redis controls
+are rejected, but direct Redis traffic is not guaranteed observable in Docker
+events. No new Docker launch was attempted after the correction.
 
 **Limits / status:** **Runtime-unvalidated, infrastructure-blocked. Neither
 Docker oracle passed and no actual seeded fault/recovery or live negative-suite
