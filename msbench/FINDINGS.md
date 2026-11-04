@@ -261,6 +261,43 @@ resource names, and timing artifacts, so it is not yet a drop-in upstream
 skill. Startup success alone does not validate editor ownership, ambiguous
 targets, worktree isolation across hosts, or stop/restart behavior.
 
+## F08: Running-app changes need behavioral and preservation checks
+
+**Evidence:** The new [Bingo player API routing scenario](bingo-iteration/README.md)
+starts each app before the agent and requests a frontend routing change. Both
+raw-scripted and Aspire local Docker oracles passed. Both graders rejected
+unchanged routing, an out-of-scope change, invalid endpoints, and lost preexisting
+called-state before accepting the correct repair. Fresh cross-origin requests
+exercise actual database/Redis effects and backend error passthrough. No agent
+JSON assessment is used.
+
+**Improvement candidate:** Measure supported running-app iteration and targeted
+verification, rather than assuming a green process/resource proves development
+success. Use runtime behavior plus data/process preservation as promotion gates.
+
+**Limits / status:** Fixture/grader validation only, not a model performance
+result. The prompt names the editable frontend config; this is not a distributed
+root-cause localization benchmark. MCP is disabled in this first scenario.
+GPT 6.1 Terra availability remains unverified because MSBench model discovery
+returned HTTP 403 on both default and staging indexes; no inference was submitted.
+
+## F09: Successful empty CLI observations need a consistent JSON contract
+
+**Evidence:** The [local source baseline](source-builds/aspire-baseline.json)
+at `d698a4f9` builds/runs in an isolated Linux ARM64 container.
+`aspire ps --format json` returns `[]`, whereas non-follow
+`aspire describe --format json --non-interactive --nologo` with no running
+AppHost returns exit 0 and zero stdout bytes, with a diagnostic on stderr.
+
+**Improvement candidate:** Emit the normal empty resources JSON wrapper for the
+specific successful no-AppHost snapshot case. Preserve actual errors and
+table/Mermaid/stream behavior; do not convert failures into successful empty data.
+
+**Limits / status:** Baseline binary observation, not an agent-efficiency result.
+A separate matched-base treatment branch is being tested; no adoption claim.
+The source build is managed, unbundled Linux ARM64 and has not run Bingo, so it
+must not replace the validated Harbor toolchain yet.
+
 ## Recording future findings
 
 Give each finding a stable ID and include evidence links, exact observed

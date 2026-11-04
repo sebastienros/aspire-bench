@@ -1,0 +1,56 @@
+{
+  "repository": "microsoft/aspire",
+  "origin": "https://github.com/microsoft/aspire.git",
+  "worktree": "/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-upgraded-couscous",
+  "branch": "sebros/agentic-build-baseline",
+  "base_sha": "d698a4f9cb800649791da2b3d81c5850330072c1",
+  "source_sha": "d698a4f9cb800649791da2b3d81c5850330072c1",
+  "dirty_before": false,
+  "dirty_after": false,
+  "source_archive_sha256": "03ce952b043901e099e05a14a9df03dec8b76714f41df0ec3c2c036da1f313da",
+  "sdk": "11.0.100-rc.2.26504.105",
+  "build_image": "mcr.microsoft.com/dotnet/sdk:11.0.100-rc.2",
+  "build_image_id": "sha256:e2438fd800a09d2d761aefe4edd30675c8f1db8958e4423c0844cc9a0240e60f",
+  "rid": "linux-arm64",
+  "configuration": "Release",
+  "publish_aot": false,
+  "self_contained": true,
+  "bundled": false,
+  "actual_cli_version": "17.0.0-baseline.gd698a4f9cb80",
+  "artifact_root": "/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-upgraded-couscous/artifacts/agentic-baseline-linux",
+  "archive": {
+    "name": "aspire-agentic-baseline-linux-arm64.tar.gz",
+    "size_bytes": 54049491,
+    "sha256": "a166a9f469a90931b36ea53f9bed568f577fc46f19e2d4fba5bc64f7fbceee6e"
+  },
+  "checksums": {
+    "cli/aspire": "3a80602e141af72f27131073ebf656c5e16ec54e71e716a1a2c821500ae64c73",
+    "packages/Aspire.Hosting.17.0.0-baseline.gd698a4f9cb80.nupkg": "f408b5f542a1aa8e1740800185bc079e11b06bdda218d1985fdd38c0d610c759",
+    "packages/Aspire.Hosting.AppHost.17.0.0-baseline.gd698a4f9cb80.nupkg": "c50a764ac1995c246e1020275a16b02f898274a07e26572256e795e47fcfae54",
+    "packages/Aspire.Hosting.Dotnet.17.0.0-baseline.gd698a4f9cb80.nupkg": "3f979620c0a4833e1fa84b7c6cd5c7d3413e177b3731c75ee99a24cca74db7bb"
+  },
+  "evidence_directory": "/Users/sebastienros/.copilot/session-state/31a2bfab-2c9d-4125-985d-e85f4fa77709/files/baseline",
+  "report": "/Users/sebastienros/.copilot/session-state/31a2bfab-2c9d-4125-985d-e85f4fa77709/files/baseline/baseline-report.md",
+  "validated": [
+    "CLI version/help",
+    "offline ps JSON",
+    "fresh offline archive extraction/checksums/version/ps",
+    "out-of-tree exact-version Hosting model build",
+    "all package repository/version/commit metadata"
+  ],
+  "not_validated": [
+    "NativeAOT",
+    "Linux x64",
+    "older glibc",
+    "complete CLI bundle",
+    "Bingo lifecycle",
+    "Harbor model task"
+  ],
+  "candidate_observation": {
+    "command": "aspire describe --format json --non-interactive --nologo",
+    "condition": "offline environment with no running AppHost",
+    "exit_code": 0,
+    "stdout_bytes": 0,
+    "stderr": "Scanning for running AppHosts; no running AppHost found"
+  }
+}
