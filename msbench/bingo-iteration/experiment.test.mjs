@@ -28,6 +28,18 @@ test("iteration dataset is immutable and pilot does not imply accessible models 
         assert.equal(ledger.model_access_verified, false);
         assert.deepEqual(ledger.model_runs, []);
     }
+    if (ledger.status === "completed") {
+        const results = JSON.parse(await read(ledger.results));
+        assert.equal(ledger.model_access_verified, true);
+        assert.equal(ledger.model_runs.length, 2);
+        assert.equal(new Set(ledger.model_runs.map(run => run.run_id)).size, 2);
+        assert.equal(results.sample_size_per_arm, 1);
+        for (const run of ledger.model_runs) {
+            assert.equal(run.actual_model_verified, true);
+            assert.equal(run.model, ledger.requested_model);
+            assert(results.results.some(result => result.run_id === run.run_id && result.reward === run.reward));
+        }
+    }
 });
 
 test("iteration arms match user outcomes, grader, solution and budgets", async () => {

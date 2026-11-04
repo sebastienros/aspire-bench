@@ -1,9 +1,10 @@
 {
   "scenario": "I01",
   "task_commit": "5f441f92c526cb3e2ca77a395ac85bfdb4d0a89b",
-  "status": "submitted-runtime-unverified",
+  "status": "completed",
   "requested_model": "gpt-6.1-terra",
-  "model_access_verified": false,
+  "model_access_verified": true,
+  "results": "pilot-results.json",
   "msbench_version": "0.3.67",
   "submission_plugin": "msbench-agent-github-copilot-cli==0.0.28",
   "harbor_local_version": "0.20.0",
@@ -22,7 +23,8 @@
       "run_id": "2026110483094426",
       "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110483094426",
       "condition_fingerprint": "7ebe5f2880741942ef35d3fb37dabcdfe0d22529ba7fce065e3051e79d92dcde",
-      "actual_model_verified": false,
+      "actual_model_verified": true,
+      "reward": 1,
       "submission_log": ".runs/agentic-research/terra-raw-submission.log"
     },
     {
@@ -31,7 +33,8 @@
       "run_id": "2026110483115812",
       "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110483115812",
       "condition_fingerprint": "af5289033555f86f823120db8678e7a3b6c17ab8fee2d7903291396e4041a1a8",
-      "actual_model_verified": false,
+      "actual_model_verified": true,
+      "reward": 1,
       "submission_log": ".runs/agentic-research/terra-aspire-submission.log"
     }
   ],

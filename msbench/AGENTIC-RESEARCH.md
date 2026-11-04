@@ -17,7 +17,7 @@ general claim that Aspire beats well-supported raw development. See
 
 | Question | Existing evidence | Missing proof / next experiment |
 |---|---|---|
-| Does Aspire improve real development? | Original startup/assessment runs did not establish a speed advantage | Functional change/repair tasks against raw-scripted, with hidden behavioral grading |
+| Does Aspire improve real development? | Original startup/assessment runs did not establish a speed advantage; I01 both passed with no Aspire tool use or advantage shown | Runtime diagnosis and broader change/repair tasks against raw-scripted, with hidden behavioral grading |
 | Do focused skills help? | Specific health guidance reduced within-Aspire health sum from 145.3 to 41.3 s (three trials/arm) | Same knowledge/recipe, varied trigger only; unseen names/apps |
 | Must the router/general skills be removed? | Startup remained directly selected with the full bundle available | Routing and safety coverage outside startup; no removal justified |
 | Is the CLI itself slow? | Health `describe` commands took 0.09-0.14 s; generic workflow was slower overall | Hold observations constant and vary known-target/reporting guidance separately |
@@ -136,7 +136,7 @@ Fresh conversations and verified resumed conversations are separate strata.
 
 | ID / priority | Task and Bingo basis | External proof | State |
 |---|---|---|---|
-| I01 / first | Repair/extend player-origin producer API routing in the already-running Vue app | Real frontend -> admin -> database/Redis call/status/clear round trip; preserve prior data and version/SignalR behavior | [Implemented and Docker-validated](bingo-iteration/README.md); two new Terra pilot runs submitted, results pending |
+| I01 / first | Repair/extend player-origin producer API routing in the already-running Vue app | Real frontend -> admin -> database/Redis call/status/clear round trip; preserve prior data and version/SignalR behavior | [Completed Terra pilot](bingo-iteration/README.md#completed-terra-pilot): both pass, no demonstrated Aspire advantage; do not repeat identical conditions |
 | D01 / next | Diagnose distributed failure with a healthy process but failed operation | Broken fixture fails, correct targeted repair passes; random fault instance; logs/trace evidence | Planned |
 | H01 / next | Reject misleading readiness or stale endpoint evidence | Functional negative probe fails even if process/resource is green | Planned |
 | F01 | Add a cross-service capability/cache behavior | Hidden fresh data, both positive and negative contracts | Planned |
@@ -179,7 +179,7 @@ not presumed equivalent to handcrafted benchmark-specific guidance.
   [new dataset](bingo-iteration/dataset.jsonl) pins both arms to that exact source.
   The [pilot ledger](bingo-iteration/pilot-ledger.json) records the failed
   discovery paths, two subsequently admitted explicit-model submissions, and
-  unique condition fingerprints; it does not yet claim runtime model verification.
+  unique condition fingerprints, and subsequently verified runtime results.
 - Source baseline build succeeded from an exact clean `git archive` of
   `d698a4f9`, using a Docker-managed Linux filesystem after a macOS bind-mount
   NuGet enumeration failure. No product changes were needed. Portable archive
@@ -218,7 +218,7 @@ not presumed equivalent to handcrafted benchmark-specific guidance.
   and Aspire
   [2026110483115812](https://msbenchapp.azurewebsites.net/run-analysis/2026110483115812).
   Same historical runner package/vendor CLI, new Terra model, no repeat flag,
-  no comparison with historical Luna timings. Results/provenance pending.
+  no comparison with historical Luna timings. Results/provenance verified below.
 - Local product change committed only on Aspire trial branch at `fafe6482`.
   Same-base binaries: JSON empty snapshot stdout changes from 0 to 22 bytes,
   valid `{"resources":[]}`, with identical stderr and exit 0. Invalid-path
@@ -234,9 +234,30 @@ not presumed equivalent to handcrafted benchmark-specific guidance.
 
 ## Next actions / unresolved decisions
 
-Retrieve the two existing Terra pilot runs; do not resubmit matching conditions.
-Verify actual model/vendor/skills/runtime and hidden grader results, then record
-the conclusion even if there is no Aspire benefit.
+### 2026-11-04: Terra pilot completion
+
+Both original I01 runs passed the protected grader, no trial exceptions or
+replacements. All 9 raw / 13 Aspire model-call start and final-result events
+identify `gpt-6.1-terra`, all successful; CLI provenance resolves 1.0.99-0.
+Native agent elapsed was 74.5/80.7 seconds, tool calls 20/24, estimated cost
+USD 0.05016/0.06658 (approximately USD 0.117 total, not a billing audit).
+Both made the same proxy addition, with data/process preservation verified.
+
+All eight Aspire skills were advertised, but neither trial loaded any skill
+or used Aspire CLI. This constrained frontend task did not naturally exercise
+runtime orchestration/observability. The result establishes feasibility, not
+an Aspire advantage or a causal cost of metadata. Preserve it; do not rerun
+identical conditions. [Report](bingo-iteration/README.md#completed-terra-pilot)
+and [machine results](bingo-iteration/pilot-results.json) retain the evidence.
+
+The old client lacked a model catalog and used default capabilities; actual
+model IDs were unchanged. Optional report analysis later rejected unavailable
+`claude-sonnet-4.6` because resume commands omitted the disable-analysis variable.
+This is not a benchmark failure or a Terra substitution. Set the variable on
+every future submission/resume/report/extract command.
+
+### Next actions
+
 Complete matching Linux x64/full payload+Bingo smoke before inserting custom
 source builds into Harbor. Build D01 next, then test generated project-local
 skills and natural MCP use on meaningful diagnosis work. Larger sweeps and

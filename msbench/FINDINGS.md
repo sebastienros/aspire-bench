@@ -177,6 +177,13 @@ Availability is not consumption; no startup MCP speed benefit was established.
 The shared app contains MCP configuration, so no-MCP images must explicitly
 remove it to avoid treatment contamination.
 
+**Development-task follow-up:** In the [Terra I01 pilot](bingo-iteration/README.md#completed-terra-pilot),
+all eight Aspire skills were advertised, but the agent loaded none and called
+no Aspire CLI command. Both arms repaired the frontend with the same patch.
+A successful Aspire-app task does not demonstrate skill/MCP value when the
+agent uses ordinary code/HTTP tools; choose runtime diagnosis next rather
+than force tool calls into an irrelevant task.
+
 ## F05: Multi-step session continuity is a runner contract, not workspace reuse
 
 **Evidence:** The [Copilot continuation probe](aspire-startup/README.md#continuation-retry-with-msbench-0367)
@@ -275,12 +282,19 @@ JSON assessment is used.
 verification, rather than assuming a green process/resource proves development
 success. Use runtime behavior plus data/process preservation as promotion gates.
 
-**Limits / status:** Fixture/grader validation only, not a model performance
-result. The prompt names the editable frontend config; this is not a distributed
-root-cause localization benchmark. MCP is disabled in this first scenario.
-MSBench model discovery returned HTTP 403 on both default and staging indexes,
-but explicit submission with user-confirmed `gpt-6.1-terra` succeeded. Exactly one
-new run per arm was submitted; runtime model/provenance and results are pending.
+**Completed model pilot:** Exactly one original `gpt-6.1-terra` attempt per arm
+passed, with native call events confirming the model and CLI provenance
+confirming 1.0.99-0. Raw/Aspire native agent time was 74.5/80.7 seconds,
+tool calls 20/24, and runner-reported costs USD 0.05016/0.06658. Both made
+the same proxy addition. Neither loaded a skill or used Aspire CLI.
+
+**Limits / status:** No demonstrated Aspire advantage; one sample per arm is
+not a causal estimate or significance result. The prompt names the editable
+frontend config; this is not a distributed root-cause localization benchmark.
+MCP is disabled. Preserve this negative result and build D01, rather than rerun
+identical conditions to seek a win. Discovery HTTP 403 did not prevent explicit
+Terra execution. The pinned client used default capability metadata when its
+model catalog was unavailable; all model-call IDs remained Terra.
 
 ## F09: Successful empty CLI observations need a consistent JSON contract
 
