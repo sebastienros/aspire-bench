@@ -8,6 +8,15 @@ The [Bingo running-app iteration scenario](bingo-iteration/README.md) adds a
 functional frontend-to-backend routing repair with data/process preservation
 checks, separate from the historical startup/health tasks.
 
+The expanded roadmap also has [runtime diagnosis/false-health/scope drafts](bingo-diagnostics/README.md),
+[feature and schema evolution drafts](bingo-evolution/README.md),
+[cold adoption](bingo-adoption/README.md), and
+[local production publishing drafts](bingo-publishing/README.md).
+These final task sets are **not model-ready**: shared Docker/storage failures
+interrupted their local validation gates. Their reports distinguish partial
+oracle evidence from static checks and intended behavior. No cloud dataset or
+inference result is implied by a task directory's presence.
+
 This is a separate, ready-configured Harbor benchmark. The application
 sources, Dockerfiles, prompts, skills/MCP configuration and graders live
 under `msbench/bingo/`. They are maintained independently of the Vally

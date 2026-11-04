@@ -57,5 +57,12 @@
     "manifest_sha256": "774c06dd6f6f4832837e36340725a2306cf6b0fade9832f062ed9b540e113dd4",
     "original_artifacts_reverified": true,
     "docker_recovery_verified": false
+  },
+  "latest_parent_probe": {
+    "available_gib": 9.7,
+    "reported_capacity_percent": 99,
+    "docker_version_deadline_seconds": 12,
+    "docker_version_result": "timeout",
+    "free_space_change_attribution": "Not established; do not attribute all additional headroom to targeted cache cleanup"
   }
 }

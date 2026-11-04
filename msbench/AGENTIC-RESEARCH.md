@@ -4,6 +4,13 @@ Living protocol, worktree/artifact ledger, execution log, and decision register.
 Started 2026-11-04. This document distinguishes planned experiments from executed
 evidence; pending work is not a product improvement or a positive result.
 
+**Execution status:** Blocked on the shared Docker engine after storage/native
+build I/O failures. All scenario branches/drafts are integrated, and 44
+structural/negative unit tests pass; final Docker pair gates and additional
+model experiments do not. Targeted phase-owned cleanup preserved prior
+artifacts, but a later bounded Docker probe still timed out. No unvalidated
+task was submitted to MSBench. See the latest execution/recovery ledger below.
+
 ## Objective and current answer
 
 Determine when Aspire increases independently verified task completion within a
@@ -137,11 +144,11 @@ Fresh conversations and verified resumed conversations are separate strata.
 | ID / priority | Task and Bingo basis | External proof | State |
 |---|---|---|---|
 | I01 / first | Repair/extend player-origin producer API routing in the already-running Vue app | Real frontend -> admin -> database/Redis call/status/clear round trip; preserve prior data and version/SignalR behavior | [Completed Terra pilot](bingo-iteration/README.md#completed-terra-pilot): both pass, no demonstrated Aspire advantage; do not repeat identical conditions |
-| D01 / next | Diagnose distributed failure with a healthy process but failed operation | Broken fixture fails, correct targeted repair passes; random fault instance; logs/trace evidence | Diagnostic draft awaiting final integration; runtime gate blocked by shared Docker failure |
-| H01 / next | Reject misleading readiness or stale endpoint evidence | Functional negative probe fails even if process/resource is green | Combined diagnostic draft; real false-health behavior not yet verified |
+| D01 / next | Diagnose distributed failure with a healthy process but failed operation | Broken fixture fails, correct targeted repair passes; random fault instance; logs/trace evidence | [Integrated diagnostic draft](bingo-diagnostics/README.md), safe Redis-protocol write fault; runtime gate blocked |
+| H01 / next | Reject misleading readiness or stale endpoint evidence | Functional negative probe fails even if process/resource is green | Combined D01 draft leaves PING/reads available while writes pause; actual false-health/recovery behavior not yet verified |
 | F01 | Add a cross-service capability/cache behavior | Hidden fresh data, both positive and negative contracts | [Implemented](bingo-evolution/README.md); initial raw oracle/7 negative checks passed, final paired validation blocked |
 | M01 | Migrate schema without losing existing data | Pre/post record identity and contents, new behavior | [Implemented draft](bingo-evolution/README.md); raw oracle began but no completed grade; final pair blocked |
-| S01 | Two similar running apps/worktrees | Exact-target repair, other app and data unchanged | Diagnostic draft includes a decoy/ownership checks; full two-app equivalence not claimed; runtime gate blocked |
+| S01 | Two similar running apps/worktrees | Exact-target repair, other app and data unchanged | D01 includes a decoy/resource-scoped safety draft; this is not yet a full two-app/worktree test, and runtime validation is blocked |
 | A01 | Add a dependency or adopt Aspire | Functional wiring, no hardcoded ports/secrets; setup cost included | [Cold adoption task](bingo-adoption/README.md) implemented; first oracle passed, later final-grader validation blocked by host storage/Docker failure; no inference |
 | P01 | Publish and run isolated local deployment | Deployed functional checks, no dev-runtime assumptions | [Paired draft](bingo-publishing/README.md); both environment builds failed with I/O errors; no deployed-app proof |
 | X01 | Transfer to eShop / TypeScript / polyglot | Unseen topology/names, instrumentation parity and functional equivalence | Held-out-name coverage drafted in D01; runtime blocked. eShop remains conditional, not justified by a demonstrated Bingo limit |
@@ -287,6 +294,11 @@ Integrated draft commits: P01 child `72c958b8` as coordinator `7bdc746`;
 F01/M01 child `276b240f` as coordinator `1788f1c`. Both child branches remain
 local, origin-backed and clean at handoff; neither is a model-ready task set.
 Their READMEs/manifests retain exact partial/failed validation receipts.
+Diagnosis child commits `e1f68c18` and mandatory safety correction `195b99d3`
+were integrated together as `5bc6b05` and `802dfd5`; do not restore only the
+first revision. The final default uses bounded Redis `CLIENT PAUSE ... WRITE`
+and protocol unpause, not a nested Docker freezer. All corrected Docker
+oracles require `--force-build` after recovery to avoid historical unsafe images.
 
 ### 2026-11-04: shared-host execution gate failed
 
@@ -305,6 +317,21 @@ and tools-image sessions; shared engine/container state remains unverifiable.
 No shared restart/prune or unrelated process termination is authorized or claimed.
 The [blocker manifest](execution-blockers/2026-11-04-docker-storage.json) lists
 observations and prerequisites. This is not an Aspire/model performance result.
+
+Source-builder cleanup removed only 42 new isolated-cache package/version
+directories absent from all preserved baseline dependency assets, freeing
+1,473,822,720 allocated bytes. All 137 original baseline package directories and
+the original CLI/archive/checksums were reverified. Exact
+[cleanup receipt](source-builds/baseline/x64/targeted-cache-cleanup.json) and
+[complete-build report](source-builds/baseline/x64/report.md) are committed.
+Source, SDK/image refs, commands, failed build stages and candidate fixture-only
+version/source overlay are retained. The overlay has not compiled or run Bingo.
+
+A later parent observation found 9.7 GiB available / 99% capacity, but a fresh
+12-second `docker version` request still timed out. Additional free space was
+not attributed wholly to the targeted cleanup. Engine recovery remains unproved,
+and container/volume stop/removal receipts remain unknown. No shared restart or
+prune was used to force progress.
 
 Independent work still established that the installed host CLI can generate
 seven embedded project-local skills (40 files) and complete a real MCP
@@ -334,3 +361,9 @@ branch ledgers are retained so recovery does not require rediscovering the work.
 After recovery serialize local image/native builds and check host/engine headroom
 before starting expensive work. The roadmap is not declared complete while
 these gates remain blocked.
+
+All integrated static suites now pass 44 tests:
+`node --test msbench/benchmark.test.mjs msbench/*/*.test.mjs`.
+This includes diagnostic policy/negative assertions, not a claim that the
+unexecuted live recovery scenarios passed. No additional inference was performed
+after the completed I01 pair.
