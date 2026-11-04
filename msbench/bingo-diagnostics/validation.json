@@ -1,0 +1,80 @@
+{
+  "date": "2026-11-04",
+  "status": "blocked-runtime-unvalidated",
+  "repository": "https://github.com/sebastienros/aspire-bench.git",
+  "branch": "sebros/bingo-runtime-diagnosis",
+  "workspace": "/Users/sebastienros/.copilot/copilot-worktrees/aspire-bench/sebros-super-funicular",
+  "baseline_commit": "80365e57f03e1c37e507f5673ed03bc31b83608e",
+  "application_commit": "baacba3e17181491c9a4d419db7d0e6763c3d363",
+  "skills_commit": "1fcca7e91c89716f0e4a8bf7324da13a39f70c66",
+  "fault_seed": 47,
+  "model_runs": [],
+  "both_oracles_passed": false,
+  "actual_fault_reproduced": false,
+  "runtime_negative_suite_verified": false,
+  "static_validation": {
+    "command": "node --test msbench/*.test.mjs msbench/*/*.test.mjs",
+    "total_passed": 32,
+    "scenario_passed": 6,
+    "failed": 0,
+    "javascript_syntax_checked": true,
+    "shell_syntax_checked": true,
+    "runtime_gate_satisfied": false
+  },
+  "commands": {
+    "raw_v1": "harbor run --path msbench/bingo-diagnostics/tasks/raw-scripted --agent oracle --jobs-dir .runs/msbench-oracle --job-name diagnostics-raw-v1 --n-concurrent 1 --no-delete --force-build --quiet",
+    "aspire_v1": "harbor run --path msbench/bingo-diagnostics/tasks/aspire --agent oracle --jobs-dir .runs/msbench-oracle --job-name diagnostics-aspire-v1 --n-concurrent 1 --no-delete --force-build --quiet",
+    "raw_v2": "harbor run --path msbench/bingo-diagnostics/tasks/raw-scripted --agent oracle --jobs-dir .runs/msbench-oracle --job-name diagnostics-raw-v2 --n-concurrent 1 --no-delete --force-build --quiet"
+  },
+  "attempts": [
+    {
+      "job": "diagnostics-raw-v1",
+      "trial": "raw-scripted__rZLx2jn",
+      "outer_container": "fc35a9e3586e",
+      "image": "hb__2f7b550e1eaa94c2f4351be69c607788",
+      "stage": "healthy raw application checked; decoy creation failed before fault",
+      "error": "unable to apply cgroup configuration: cannot enter cgroupv2 \"/sys/fs/cgroup/docker\" with domain controllers -- it is in threaded mode",
+      "fix": "Remove decoy Docker --memory 64m; use redis-server --maxmemory 16mb --maxmemory-policy noeviction",
+      "reward": null,
+      "runner_stopped_by_owner": true
+    },
+    {
+      "job": "diagnostics-aspire-v1",
+      "trial": "aspire__8jsagdy",
+      "outer_container": "84f2f47abda2",
+      "image": "hb__5d27916de208e1cb8a619e244a25bcc5",
+      "stage": "Aspire start returned AppHost PID 545 and CLI PID 279; waiting for usher",
+      "reward": null,
+      "runner_stopped_by_owner": true
+    },
+    {
+      "job": "diagnostics-raw-v2",
+      "trial": "raw-scripted__XzTcPNd",
+      "stage": "Docker environment healthcheck failed; Command timed out after 30 seconds",
+      "reward": null,
+      "runner_stopped_by_owner": true
+    }
+  ],
+  "blocker": {
+    "docker_version_timeout_seconds": 15,
+    "docker_ps_timeout_seconds": 15,
+    "disk_probe": "df -h .",
+    "filesystem": "/dev/disk3s5",
+    "size_gib": 926,
+    "used_gib": 901,
+    "available_gib": 2.8,
+    "reported_capacity_percent": 100,
+    "coordinator_report": "Shared host full disk; containerd metadata I/O and read-only failures; stop new Docker/model work",
+    "shared_daemon_restarted": false,
+    "shared_resources_pruned": false,
+    "remaining_owned_containers": "Exited or inaccessible; not removed because Docker API is unavailable. Exact owned IDs retained above."
+  },
+  "limitations": [
+    "No verified fault HTTP 500, successful runtime repair or Docker negative-suite execution",
+    "Current memory-cap and guidance corrections were made after the blocked attempts and have only static validation",
+    "Single deterministic non-obvious naming seed; no randomized transfer claim",
+    "S01 covers a neighboring resource, not a complete second application",
+    "Container root and finite Docker event history are not adversarial isolation",
+    "No inference, repeated benchmark, push or PR"
+  ]
+}

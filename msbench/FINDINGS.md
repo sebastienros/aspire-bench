@@ -428,6 +428,38 @@ through HTTP plus SQL/Redis. This mechanism has partial local proof, not an
 adopted product change. Complete both exact final Docker oracles only after the
 shared host is healthy; withhold cloud datasets/submissions until that gate.
 
+## F10: Runtime diagnosis fixtures must pass the infrastructure gate first
+
+**Actual evidence:** The new [D01/H01 Bingo diagnosis fixtures](bingo-diagnostics/README.md)
+were implemented as matched static raw-scripted/Aspire tasks designed to pause
+the owned Redis, with held-out logical names, a tiny separately owned neighboring Redis,
+and external functional/data/identity/event grading. The raw Docker build and
+healthy application checks reached decoy creation, where nested Docker rejected
+the original cgroup memory limit with a threaded-cgroup error. The decoy now uses
+Redis's own 16 MB maxmemory rather than a Docker cgroup memory limit; that
+correction has **not** passed a Docker oracle.
+
+Further validation was blocked by the shared host: Docker version/ps each
+exceeded bounded 15-second probes, `df -h .` reported 100% capacity and 2.8 GiB
+available, and the coordinator reported containerd metadata I/O/read-only
+failures. Owned runner commands were stopped; no shared Docker restart/prune
+or new model submission was attempted.
+
+**Improvement candidate:** Keep warm runtime-diagnosis and wrong-instance safety
+grading separate from explicit-file frontend iteration. Require a reproduced
+functional incident, fresh owned PostgreSQL/Redis effects, pre-fault data/process
+preservation and lifecycle-event checks before evaluating an agent. Page or
+process availability alone is not functional recovery. The six passing structural/
+negative-policy tests establish only the grader's static contract.
+
+**Limits / status:** **Runtime-unvalidated, infrastructure-blocked. Neither
+Docker oracle passed and no actual seeded fault/recovery or live negative-suite
+success was obtained.** This is not evidence that Aspire helps diagnosis, that
+the selected pause is portable, or that wrong-instance repair is solved. The
+neighbor is one resource, not a full second app/worktree. Preserve the failed
+attempts and finish the Docker gate after infrastructure recovery; do not infer
+benchmark correctness from implemented checks or repeat model conditions.
+
 ## Recording future findings
 
 Give each finding a stable ID and include evidence links, exact observed
