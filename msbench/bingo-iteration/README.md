@@ -97,3 +97,10 @@ has been performed or assumed to resolve server access.
 Next: verify accessible model routing, then use the pinned dataset for the two
 new pilot conditions. Retrieve an existing matching condition rather than
 resubmit. Larger repeats require an explicit evidence/budget decision.
+
+[dataset.jsonl](dataset.jsonl) pins both arms to task source
+`5f441f92c526cb3e2ca77a395ac85bfdb4d0a89b`.
+[pilot-ledger.json](pilot-ledger.json) explicitly records zero model runs,
+the access preflights, and the fields required for duplicate-condition checking.
+Agent/package/model remain unselected until accessibility is verified; do not
+treat a requested model name as an available endpoint or a completed run.

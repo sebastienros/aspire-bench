@@ -288,6 +288,9 @@ at `d698a4f9` builds/runs in an isolated Linux ARM64 container.
 `aspire ps --format json` returns `[]`, whereas non-follow
 `aspire describe --format json --non-interactive --nologo` with no running
 AppHost returns exit 0 and zero stdout bytes, with a diagnostic on stderr.
+The [source-build report and exact commands](source-builds/baseline/report.md)
+are committed alongside the manifest; large binaries/logs remain at the recorded
+local artifact paths.
 
 **Improvement candidate:** Emit the normal empty resources JSON wrapper for the
 specific successful no-AppHost snapshot case. Preserve actual errors and

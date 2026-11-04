@@ -1,0 +1,43 @@
+{
+  "scenario": "I01",
+  "task_commit": "5f441f92c526cb3e2ca77a395ac85bfdb4d0a89b",
+  "status": "blocked-model-discovery",
+  "requested_model": "gpt-6.1-terra",
+  "model_access_verified": false,
+  "msbench_version": "0.3.67",
+  "max_original_model_attempts": 2,
+  "automatic_repeats": false,
+  "model_runs": [],
+  "proposed_conditions": [
+    { "variant": "raw-scripted", "agent": null, "model": null, "fingerprint": null },
+    { "variant": "aspire", "agent": null, "model": null, "fingerprint": null }
+  ],
+  "fingerprint_fields_before_submission": [
+    "task_commit", "scenario", "variant", "fault_seed", "toolchain_manifest",
+    "skill_manifest", "mcp_configuration", "agent", "agent_runtime_version",
+    "agent_package_version", "model", "reasoning_effort", "time_token_budgets",
+    "conversation_mode"
+  ],
+  "preflight_evidence": [
+    {
+      "operation": "agent-registry",
+      "backend": "ces-staging",
+      "result": "success",
+      "log": ".runs/agentic-research/agents.json"
+    },
+    {
+      "operation": "model-discovery",
+      "index": "msbench-default-index",
+      "endpoint": "https://ces-dev1.azurewebsites.net/api/copilot",
+      "result": "HTTP 403",
+      "log": ".runs/agentic-research/model-discovery.log"
+    },
+    {
+      "operation": "model-discovery",
+      "index": "agentic-staging",
+      "endpoint": "https://ces-staging.azurewebsites.net/api/copilot",
+      "result": "HTTP 403",
+      "log": ".runs/agentic-research/staging-discovery.log"
+    }
+  ]
+}

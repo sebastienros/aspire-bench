@@ -175,6 +175,11 @@ not presumed equivalent to handcrafted benchmark-specific guidance.
 ### 2026-11-04: first reproducible artifacts and scenario
 
 - Published initial protocol milestone `df973b5` directly to origin/main.
+- Published I01 task/build-evidence milestone `5f441f9`; the
+  [new dataset](bingo-iteration/dataset.jsonl) pins both arms to that exact source.
+  The [pilot ledger](bingo-iteration/pilot-ledger.json) records zero model runs,
+  the two failed discovery paths, and the condition fields to check before
+  spending on inference.
 - Source baseline build succeeded from an exact clean `git archive` of
   `d698a4f9`, using a Docker-managed Linux filesystem after a macOS bind-mount
   NuGet enumeration failure. No product changes were needed. Portable archive
@@ -182,6 +187,9 @@ not presumed equivalent to handcrafted benchmark-specific guidance.
   `a166a9f469a90931b36ea53f9bed568f577fc46f19e2d4fba5bc64f7fbceee6e`.
   Full paths, checksums, version `17.0.0-baseline.gd698a4f9cb80`, and limitations
   are in the [manifest](source-builds/aspire-baseline.json).
+  The [full build report](source-builds/baseline/report.md) and exact successful
+  shell commands are also committed; these record the actual local paths and
+  retained source-volume/cache rather than pretending to be portable installers.
 - Verified offline extraction/checksums/version/`ps` plus an out-of-tree Hosting
   application-model smoke. This does not start DCP or prove Bingo compatibility.
 - Reproduced a bounded contract gap: no-AppHost `describe --format json` exits
@@ -192,7 +200,7 @@ not presumed equivalent to handcrafted benchmark-specific guidance.
   edit, invalid endpoint file, and lost prior state were rejected. Correct repair
   then passed real frontend/admin/SQL/Redis behavior and error checks. Raw logs:
   `.runs/msbench-oracle/bingo-iteration-{raw,aspire}-{v1,negatives}/`.
-- All 25 current benchmark structural/negative unit tests passed. No model trial
+- All 26 current benchmark structural/negative unit tests passed. No model trial
   has run; oracle durations are not agent-performance results.
 - Accessible staging Agent Registry queried. Model discovery returned HTTP 403
   through both the built-in dev1 index and an explicit staging index, using the

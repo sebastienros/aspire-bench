@@ -31,6 +31,11 @@
   },
   "evidence_directory": "/Users/sebastienros/.copilot/session-state/31a2bfab-2c9d-4125-985d-e85f4fa77709/files/baseline",
   "report": "/Users/sebastienros/.copilot/session-state/31a2bfab-2c9d-4125-985d-e85f4fa77709/files/baseline/baseline-report.md",
+  "committed_report": "msbench/source-builds/baseline/report.md",
+  "committed_build_commands": [
+    "msbench/source-builds/baseline/build-linux.sh",
+    "msbench/source-builds/baseline/run-container.sh"
+  ],
   "validated": [
     "CLI version/help",
     "offline ps JSON",

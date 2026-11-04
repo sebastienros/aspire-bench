@@ -8,6 +8,28 @@ import { hashes } from "../bingo/tasks/aspire/tests/hashes.js";
 const root = path.dirname(fileURLToPath(import.meta.url));
 const read = file => readFile(path.join(root, file), "utf8");
 
+test("iteration dataset is immutable and pilot does not imply accessible models or repeat runs", async () => {
+    const rows = (await read("dataset.jsonl")).trim().split("\n").map(JSON.parse);
+    assert.deepEqual(rows.map(row => row.benchmark_variant), ["raw-scripted", "aspire"]);
+    assert.equal(new Set(rows.map(row => row.task_repo_commit)).size, 1);
+    for (const row of rows) {
+        assert.match(row.task_repo_commit, /^[a-f0-9]{40}$/);
+        assert.equal(row.task_path, `msbench/bingo-iteration/tasks/${row.benchmark_variant}`);
+        assert.equal(row.task_repo, "https://github.com/sebastienros/aspire-bench");
+        assert.equal(row.variant_of_benchmark, "bingo-player-api-routing");
+        assert.equal(row.task_style, "harbor-native");
+        assert.equal(row.run_platform, "linux_container");
+    }
+    const ledger = JSON.parse(await read("pilot-ledger.json"));
+    assert.equal(ledger.task_commit, rows[0].task_repo_commit);
+    assert.equal(ledger.automatic_repeats, false);
+    assert.equal(ledger.max_original_model_attempts, 2);
+    if (ledger.status === "blocked-model-discovery") {
+        assert.equal(ledger.model_access_verified, false);
+        assert.deepEqual(ledger.model_runs, []);
+    }
+});
+
 test("iteration arms match user outcomes, grader, solution and budgets", async () => {
     for (const file of ["instruction.md", "environment/iteration.mjs",
         "environment/entrypoint.sh", "solution/solve.sh"]) {
