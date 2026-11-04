@@ -1,5 +1,9 @@
 # MSBench / Harbor
 
+The [agentic-development research program](AGENTIC-RESEARCH.md) tracks the
+evaluation protocol, scenario roadmap, local Aspire worktrees/branches/builds,
+execution evidence, and unresolved questions.
+
 This is a separate, ready-configured Harbor benchmark. The application
 sources, Dockerfiles, prompts, skills/MCP configuration and graders live
 under `msbench/bingo/`. They are maintained independently of the Vally

@@ -8,6 +8,10 @@ Distinguish observed behavior from proposed improvements. A benchmark finding
 is not an upstream fix, a general performance guarantee, or proof of causation.
 Update an existing entry when new evidence strengthens or contradicts it.
 
+The [agentic-development research program](AGENTIC-RESEARCH.md) records the
+prospective protocol, local source-build inventory, new scenario roadmap, and
+evidence gates. Planned experiments there are not additional empirical findings.
+
 ## F01: A directly discoverable startup skill avoids repository discovery
 
 **Evidence:** In the [recipe-location comparison](aspire-startup/README.md#observed-recipe-location-results),
