@@ -328,6 +328,27 @@ unbundled Linux ARM64 and have not run Bingo, so they must not replace the
 validated Harbor toolchain yet. Connected/error command cases use existing
 repository test services; offline binaries verify the empty/error format cases.
 
+## F13: Orchestration adoption can preserve existing business code
+
+**Evidence:** The [A01 local adoption fixture](bingo-adoption/README.md) starts
+from raw Bingo with no AppHost. Its reference solution adds only an AppHost and
+CLI configuration, then runs the real admin/frontend, migrations, PostgreSQL,
+Redis and SignalR under Aspire. Existing source and guidance remain unchanged.
+The first Docker oracle passed and rejected absent orchestration/unrelated edits.
+
+**Improvement candidate:** Make project-local adoption guidance distinguish the
+minimum working resource graph from optional telemetry/ServiceDefaults work.
+Grade runtime behavior and connections rather than generated code or framework
+version labels.
+
+**Limits / status:** Local fixture/reference proof, not an autonomous agent
+success or measured adoption benefit. A01 has one adoption arm, not a trivial
+raw-launcher comparison. Source immutability makes this a bounded adoption
+scenario, not permission to skip instrumentation in scenarios requiring traces.
+The first oracle predates added fixed-port/secret guards; final-task Docker
+validation was interrupted by the shared host failure. No model run is eligible
+until the final task is validated; static tests are not a substitute.
+
 ## Recording future findings
 
 Give each finding a stable ID and include evidence links, exact observed

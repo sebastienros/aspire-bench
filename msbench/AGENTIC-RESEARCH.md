@@ -142,7 +142,7 @@ Fresh conversations and verified resumed conversations are separate strata.
 | F01 | Add a cross-service capability/cache behavior | Hidden fresh data, both positive and negative contracts | Planned |
 | M01 | Migrate schema without losing existing data | Pre/post record identity and contents, new behavior | Planned |
 | S01 | Two similar running apps/worktrees | Exact-target repair, other app and data unchanged | Planned |
-| A01 | Add a dependency or adopt Aspire | Functional wiring, no hardcoded ports/secrets; setup cost included | Planned |
+| A01 | Add a dependency or adopt Aspire | Functional wiring, no hardcoded ports/secrets; setup cost included | [Cold adoption task](bingo-adoption/README.md) implemented; first oracle passed, later final-grader validation blocked by host storage/Docker failure; no inference |
 | P01 | Publish and run isolated local deployment | Deployed functional checks, no dev-runtime assumptions | Planned |
 | X01 | Transfer to eShop / TypeScript / polyglot | Unseen topology/names, instrumentation parity and functional equivalence | Deferred until Bingo limits are demonstrated |
 
@@ -262,3 +262,23 @@ Complete matching Linux x64/full payload+Bingo smoke before inserting custom
 source builds into Harbor. Build D01 next, then test generated project-local
 skills and natural MCP use on meaningful diagnosis work. Larger sweeps and
 eShop conversion are not yet run.
+
+### 2026-11-04: full roadmap execution authorized
+
+User directed execution through the rest of the plan in autopilot. Continue
+one original Terra attempt per new condition, not repeated I01/startup/health
+submissions. Skills/MCP comparisons need verified capabilities, not forced calls.
+Roadmap entries may terminate as concretely blocked or empirically inconclusive;
+do not manufacture evidence or assert a general benefit.
+
+| Workstream | Origin-backed worktree / branch | Responsibility |
+|---|---|---|
+| D01/H01/S01 | `/Users/sebastienros/.copilot/copilot-worktrees/aspire-bench/sebros-super-funicular`, `sebros/bingo-runtime-diagnosis` | Real runtime faults and wrong-target safety, private Docker proof |
+| F01/M01 | `/Users/sebastienros/.copilot/copilot-worktrees/aspire-bench/sebros-friendly-memory`, `sebros/bingo-feature-and-migration` | Cross-layer feature and existing-data evolution |
+| P01 | `/Users/sebastienros/.copilot/copilot-worktrees/aspire-bench/sebros-jubilant-enigma`, `sebros/bingo-local-publishing` | Real local container publishing, not AppHost/Vite-as-production |
+| Complete source build | Existing `sebros/agentic-build-baseline` worktree, base unchanged | Documented x64/full payload compatibility and actual Bingo lifecycle, or evidenced prerequisite |
+| A01 and trial coordination | This coordinator worktree/branch | Cold adoption task, provenance, immutable datasets, low-budget pilot ledger and final synthesis |
+
+No child submits models or pushes upstream; parent integrates local commits and
+records every custom branch/artifact and measured result. The source-build
+workstream must not substitute old prebuilt PR packages into a custom-build claim.

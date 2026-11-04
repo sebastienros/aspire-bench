@@ -1,0 +1,364 @@
+[
+  {
+    "result": {
+      "protocolVersion": "2024-11-05",
+      "capabilities": {
+        "logging": {},
+        "tools": {}
+      },
+      "serverInfo": {
+        "name": "aspire-mcp-server",
+        "version": "17.0.0-preview.1.26530.1",
+        "icons": [
+          {
+            "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAtFBMVEUAAABRKNdQKtVQKdZQKM9RK9RTLdRSKdZQKtRRKtRQK9RRKNRQIM9VMNRRKtVQLNZRLNRVMNVwT9xvT9tiQNh0Vd1iP9hyUtx2WN2DZ+BmRdlZNtaXgOWVfeR2V95ZNdaOdeKJb+JrStprS9p8X99dOtfKv/LIvPG5qu6wn+uSeuSWf+Tc1fba0vW9r++jj+h0VdzTyvS3p+2ZguanlenDt/GolOmFauDLwPKxn+yOdeNRK9SrhWTUAAAAEXRSTlMAP39vIO/vH5/fv18Q709v73l7fxUAAAABb3JOVAHPoneaAAAAmklEQVQY013NVxKCQBAE0AFESYZVRgyrGBF1zVnufy8bKcvV/ptXXT1ERQyDfmIKYel3yW62yhUNnJC57WgFETFH4jvjdrrM3PM+t9+XgyEk9os7cEdSjgETOyheTiUyg8zN92KcLNI0XQJX1fy1s1abLWQH2WO3FiqlDoDjCZXYIPcMUBfIFZWbR/Y9hwTwADwzqmd6Ghb95wWQoBLFYC9h/AAAAABJRU5ErkJggg==",
+            "mimeType": "image/png",
+            "sizes": [
+              "16"
+            ]
+          },
+          {
+            "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAABCFBMVEUAAABRKNdQKtRQKdRRKNRQKtVRKtVRKtRQK9RQKdZQKM9RK9RQIM9SKdZQKtVQK9RQKtRRK9lRK9VQK9VQLNZRK9dRK9RRK9RTLdViP9hkQtliQNh0Vd1VMNVyUtxnRdlrStpbONdZNdZwT9xtTdteOtdgPNd8YN58X997Xd6XgOVkQthZNtaOdeOBZd+DZ+BrS9qVfeR2V96OdeKFauFvT9tzVdx4Wt6fiubc1fbMwfK5qu6fiud8X97BtPC0pOzCte/Xz/W7rO+lkeiFauCEauHKv/K3p+2Zgua9r++pl+mWf+TTyvR0VdzFufGwn+uSeuSnlena0vXDt/CsmuqWgOW3qO2hjeigYDtKAAAAF3RSTlMAP5+PX39P389vIO8QH6+/3y/fz29fz/XWNskAAAABb3JOVAHPoneaAAABQklEQVQ4y5WTaVeCQBiFRwShTCvLruZgZvukttg2bZaVbbZv//+fNMCLGg2e4/16n/NyHw4wNloSRtIc1ltQseL7FArF+QISsYCNEudFOHG9CZdzXnYxpu/HbSwogFeQntACBha5nyqS2gPAUgAsAxkNkMUKp6xiUrtwbZ2Ask7VxoYQIbGJqehOCzUhRD18iBt9n0qxoQCxRcA/VQPbXi92drlWVSk2fUDsEbD/d6eDA0E5JKI4qGqi1gyBel81NaB4JI9PKKdEnvVVLZSklOcEtMJbpVBVLbxQwGWbiCsCrpHOkOKN9NIh4PaOiAqyXj8NdHxA3hPxQEDT9VVtPAa97EZ3Pnmqpr8wyDMBLwS8VtXX5+CtB7y3IycasBkg+/kg4DNUBVgOX72+SzO/f3ojZtgshibPWH4uvs7F/CEj5Re3C1iWt0vbaAAAAABJRU5ErkJggg==",
+            "mimeType": "image/png",
+            "sizes": [
+              "32"
+            ]
+          },
+          {
+            "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAMAAABg3Am1AAABSlBMVEUAAABRKNdQK9RRK9RRKNRQK9VQKdRQKtVQKdZQKM9RKtRQIM9QKtRQK9RQKtRSKdZQKtVRK9lQK9RRJtlQKdNRLddSKd5QKNdSKtVRLNRRK9RQLNNRK9RgPddyUtxvT9tdOtdVMNV0Vd1pSNlrStpeOtdZNdZwT9xTLdViQNhiP9hnRdlkQthtTdt4Wt52V95bONeKcOKXgOWVfeSAZOBzVdxZNtaHbOF8YN56XN5pR9leO9eOdeOOdeJ8X99rS9qSeuRgPNeFauF4Wt2Jb+LPxfLc1fbMwfK5qu6wn+vKv/Kjj+iEauHa0vW9r++0pOyZguZvUNvTyvSolOmnlenDt/G3p+2bhebXz/W7rO+unOqwoOufiueFauC/se+lkeiWf+TIvPF0Vdx8X96mkujCtvDX0PWjkOjLwPLVzfW/su+3qO2ql+qKcOGdXWSwAAAAHHRSTlMAP7/vX5+Pf28g3xCfz98fry+PL28/HyCv779A/yVD4QAAAAFvck5UAc+id5oAAAH3SURBVEjHzZXXWxpBFMVX0CiKsSRq1CtmsRDsGXuwJZiJDQuW2DXRVPX/f/XOsgNn14WdPJnzxMd3DnfPb+4slvU8qopEo5Fqc38NOXph6q8lV3Vm/lg9UU+i9y1RtMEoECeykyzb8KFi/Cx9KtDPH6oMAo1EA0lHg0SRcH81/26qEOh9RxTOlhunk66GiF6G9WakdkoHEjyiNrzxcLKoEUbbZIRUi3s3V/K38IBRDISh5cYDY+OYmKiIViF9LyanIKDQll0ptUTTQohJnDFUYaVaiWaE0iwEEnZZtArpnBMQ85D4wF8Ho2WkmYJfLPjQBvZWjRfdgFgyQMuNl7VfrGDvj7xSgQNmigOE+IS9g9AqpNmSPxxtXCPVWsXeT28rIC3X+5Un0Mxn/Fl+WQOtYzrtQ6uQbkgpNzCxCYFFH1puvMV+mduGwM4uJPY8t5XvZVoNkDKPI/YhsIIrFYsSHciCDiFw9BUSWUDLSNOuXx6fQOIUe2eI4iWkZzrgJXUOgYtib93Y1WUYWo1Uy9P7CtHazouwgQdcS9Q37I1ovztoX3PjvCeQw95P0TaWkAb2RrQ3RPUWN/D5ZQ4DtziCzRYf2g9f4CcGfkFggQ/PivDN/O3x//lbst/dg/8ho960bfRPaoc/WRM5+9fxptPM3dnVbf2PegShju2YyBYF3AAAAABJRU5ErkJggg==",
+            "mimeType": "image/png",
+            "sizes": [
+              "48"
+            ]
+          },
+          {
+            "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAMAAACdt4HsAAABZVBMVEUAAABSKdZRKNdRJtlRKNRQK9RQKtRQK9VQKdRQK9RRK9lRKtRQK9RQKdZQKM9RK9RQIM9QKtVQKtRRKtVQKtVRLddRK9VQK9VQMM9RLNRSKd5RK9dQLNZQKNdRK9RRK9RXMtVZNdZVMNVwT9x0Vd1vT9ttTdtrStpeOtddOtdTLdViQNhiP9hyUtxnRdlpR9lXM9VgPNdkQtmHbOKTe+SOdeN8X9+OdeKXgOV6XN5vUNtZNtZ+YuB8YN6SeuR2V95kQtiFauGVfeR4Wt5rS9qMcuJzVdyDZ+BmRdmwoOvY0PXc1fbOxPO7rO+5qu6fiueWf+TRx/O0pOx0VdzBtPClkeinlenXz/W3p+2ZguaFauDKv/Kpl+na0vW9r++dh+aJb+GEauHTyvSwn+vFufGfiuZ4Wt3MwfKolOmsmurIvPGNdeKjj+jTy/TMwvOgiueWgOXAsu+0peyfi+fUy/SxoOybhebDUpFGAAAAH3RSTlMAHz8vX8/fn4+PL9+/byDvEH+fT68/388Q7x9fbyDPWOTWwgAAAAFvck5UAc+id5oAAAKXSURBVFjD5ZXpV9NAFMVDDSAC3VAUt0BJXai4FomgRdwldaPuFRX3fde/33kvSyd3Jm2SfvEc7wcI53Bv3tzfZMYw/nEN5HJb+rCbg5bQkJnVP2z52prNP2JZfSVsY+v0DP/KZQgYFb7KrG1XK+JhLEOB9OIDttBBehpP68/TAIds1mHxWChmaXDWC6jOiedSygHIX7N9HaG/BlIFlKnBwG/Pp+5xgl55NAywj6VFSQ0etyXRbhhK7jelBj2lQykjDHQiDcqyvwdlzc8l/yQY4UkbxCiTnQ3bIwhDJUZpAsJIj0lQUoO1U/WF05jAKHv3WKIXLTpCZyCgaiX5JPIF8V9L5HcWcIREKAnhMg/gOGchgFGWEyA85/mdxgoknO/dIzW47ARaxUVM90LJCFfDgAsXdSi7XBNFGuCS09HllCg7CAPhZuh+unGDV2S/ipI+iULc6cYI65EA56oOZUyPO2SEYY+I8lo8yijCWJQzcSOYSoNdUGpOtzwijO0x5qKiq6hyfc1t3rgJugWJjYoOJSO87QrdwYB1nKmlu6gIYc1l3cWEeziCpkdu8L4X8AAX8fARJDxWUVKDLddXG0d4gouo4UU1TpHtIGDjKSY8g4DncLoxwk031AsMeIkjLEVRcoPtToD7KhHK8KJihK8lv7uBPa5jj2/kHsc6CAO9xRHe4SIklDLCULgZ9CgnQoSb4Fd7fK9FWQzOsTYGuB969bjoo+Sr6KPiV3tUULY8lArCQE0c4ZP+qxzUNKjvUUFJI4watJLP2oBmrxYa5O0S8AUDvmoDJsWPb9qA7+D/gS3SbtzpUfz5S7GvIcfff6L2Oh9MI8augtWHpnYbxp5+Avh435t5hin/pt83vD+LfbKkXg7/p/4CyhXJ5XaR4ksAAAAASUVORK5CYII=",
+            "mimeType": "image/png",
+            "sizes": [
+              "64"
+            ]
+          },
+          {
+            "src": "data:image/png;base64,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",
+            "mimeType": "image/png",
+            "sizes": [
+              "256"
+            ]
+          }
+        ]
+      }
+    },
+    "id": 1,
+    "jsonrpc": "2.0"
+  },
+  {
+    "result": {
+      "tools": [
+        {
+          "name": "list_resources",
+          "description": "List the application resources for the selected AppHost. Includes runtime information such as resource type, state, source, endpoints, health status, relationships, and API-visible command metadata without current or default argument values. Returns up to 64 resources ordered by runtime name; use offset and limit to page through all visible resources.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "offset": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 2147483647,
+                "default": 0,
+                "description": "Zero-based offset in the visible resources ordered by runtime name. Use next_offset from the previous response to continue."
+              },
+              "limit": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 64,
+                "default": 64,
+                "description": "Maximum number of resources to return in this page."
+              }
+            },
+            "additionalProperties": false
+          },
+          "annotations": {
+            "destructiveHint": false,
+            "readOnlyHint": true
+          }
+        },
+        {
+          "name": "wait_for_resources",
+          "description": "Wait for selected application resources to reach a healthy, up, or down state.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "resourceNames": {
+                "type": "array",
+                "maxItems": 100,
+                "items": {
+                  "type": "string",
+                  "maxLength": 256
+                }
+              },
+              "targetState": {
+                "type": "string",
+                "enum": [
+                  "healthy",
+                  "up",
+                  "down"
+                ],
+                "default": "healthy"
+              },
+              "timeoutSeconds": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 3600,
+                "default": 120
+              }
+            },
+            "additionalProperties": false
+          },
+          "annotations": {
+            "destructiveHint": false,
+            "readOnlyHint": true
+          }
+        },
+        {
+          "name": "list_console_logs",
+          "description": "List console logs for a resource. The console logs includes standard output from resources and resource commands. Known resource commands are 'start', 'stop' and 'restart' which are used to start and stop resources. Don't print the full console logs in the response to the user. Console logs should be examined when determining why a resource isn't running.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "resourceName": {
+                "type": "string",
+                "description": "The resource name."
+              },
+              "search": {
+                "type": "string",
+                "description": "Full-text search to filter log content."
+              }
+            },
+            "required": [
+              "resourceName"
+            ]
+          },
+          "annotations": {
+            "destructiveHint": false,
+            "readOnlyHint": true
+          }
+        },
+        {
+          "name": "execute_resource_command",
+          "description": "Executes a command on a resource. If a resource needs to be restarted and is currently stopped, use the start command instead.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "resourceName": {
+                "type": "string",
+                "description": "The resource name"
+              },
+              "commandName": {
+                "type": "string",
+                "description": "The command name"
+              },
+              "arguments": {
+                "type": "object",
+                "description": "Optional invocation arguments to pass to the resource command",
+                "additionalProperties": {
+                  "type": [
+                    "string",
+                    "number",
+                    "boolean",
+                    "null"
+                  ],
+                  "description": "Argument values must be strings, numbers, booleans, or null."
+                }
+              }
+            },
+            "required": [
+              "resourceName",
+              "commandName"
+            ]
+          },
+          "annotations": {
+            "destructiveHint": true,
+            "readOnlyHint": false
+          }
+        },
+        {
+          "name": "list_structured_logs",
+          "description": "List structured logs for resources.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "resourceName": {
+                "type": "string",
+                "description": "The resource name. This limits logs returned to the specified resource. If no resource name is specified then structured logs for all resources are returned."
+              },
+              "search": {
+                "type": "string",
+                "description": "Full-text search to filter logs. Searches across log text, attribute values, names, source, IDs, and other fields."
+              }
+            }
+          },
+          "annotations": {
+            "destructiveHint": false,
+            "readOnlyHint": true
+          }
+        },
+        {
+          "name": "list_traces",
+          "description": "List distributed traces for resources. A distributed trace is used to track operations. A distributed trace can span multiple resources across a distributed system. Includes a list of distributed traces with their IDs, resources in the trace, duration and whether an error occurred in the trace.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "resourceName": {
+                "type": "string",
+                "description": "The resource name. This limits traces returned to the specified resource. If no resource name is specified then distributed traces for all resources are returned."
+              },
+              "search": {
+                "type": "string",
+                "description": "Full-text search to filter traces. Searches across span names, attribute values, IDs, and other fields."
+              }
+            }
+          },
+          "annotations": {
+            "destructiveHint": false,
+            "readOnlyHint": true
+          }
+        },
+        {
+          "name": "list_trace_structured_logs",
+          "description": "List structured logs for a distributed trace. Logs for a distributed trace each belong to a span identified by 'span_id'. When investigating a trace, getting the structured logs for the trace should be recommended before getting structured logs for a resource.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "traceId": {
+                "type": "string",
+                "description": "The trace id of the distributed trace."
+              },
+              "search": {
+                "type": "string",
+                "description": "Full-text search to filter logs. Searches across log text, attribute values, names, source, IDs, and other fields."
+              }
+            },
+            "required": [
+              "traceId"
+            ]
+          },
+          "annotations": {
+            "destructiveHint": false,
+            "readOnlyHint": true
+          }
+        },
+        {
+          "name": "list_integrations",
+          "description": "List available Aspire hosting integrations. These are NuGet packages that can be added to an Aspire AppHost project to integrate with various services like databases, message brokers, and cloud services. Use 'aspire add <integration-name>' to add an integration to your AppHost project. Use the 'get_integration_docs' tool to get detailed documentation for a specific integration. This tool does not require a running AppHost.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": false,
+            "description": "This tool takes no input parameters. It returns a list of available Aspire hosting integrations with their short name, full package ID, and version."
+          },
+          "annotations": {
+            "destructiveHint": false,
+            "readOnlyHint": true
+          }
+        },
+        {
+          "name": "doctor",
+          "description": "Diagnose Aspire environment issues by performing comprehensive checks. Returns detailed information about each check including status (pass/warning/fail), messages, and actionable fix suggestions. Use this to identify and resolve environment problems before running Aspire applications. This tool does not require a running AppHost.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": false,
+            "description": "This tool takes no input parameters. It performs comprehensive environment checks and returns detailed results for each check."
+          },
+          "annotations": {
+            "destructiveHint": false,
+            "readOnlyHint": true
+          }
+        },
+        {
+          "name": "refresh_tools",
+          "description": "Requests the server to emit a tools list changed notification so clients can re-fetch the available tools.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {}
+          },
+          "annotations": {
+            "destructiveHint": false,
+            "readOnlyHint": true
+          }
+        },
+        {
+          "name": "list_docs",
+          "description": "Lists all available Aspire documentation pages from aspire.dev.\nReturns page titles, URL slugs, and brief summaries.\nUse this to browse the documentation catalog and discover available topics.\nPass a slug to the get_doc tool to retrieve full page content.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false,
+            "description": "Lists all available Aspire documentation pages. No parameters required."
+          },
+          "annotations": {
+            "destructiveHint": false,
+            "readOnlyHint": true
+          }
+        },
+        {
+          "name": "search_docs",
+          "description": "Searches the aspire.dev documentation using keyword-based lexical search.\nReturns ranked results based on weighted matching across titles, headings, code identifiers, and body text.\nUse this tool to find specific information about Aspire features, APIs, integrations, or concepts.\nFor best results, include relevant terms like API names, configuration keys, or feature names.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "query": {
+                "type": "string",
+                "description": "The search query. Use natural language to describe what you're looking for."
+              },
+              "topK": {
+                "type": "integer",
+                "description": "The number of results to return (default: 5, max: 10).",
+                "minimum": 1,
+                "maximum": 10
+              }
+            },
+            "required": [
+              "query"
+            ],
+            "additionalProperties": false,
+            "description": "Searches aspire.dev documentation for relevant content."
+          },
+          "annotations": {
+            "destructiveHint": false,
+            "readOnlyHint": true
+          }
+        },
+        {
+          "name": "get_doc",
+          "description": "Retrieves the full content of a specific Aspire documentation page by its slug.\nOptionally filter to a specific section by providing a section heading.\nUse list_docs to browse available pages, or search_docs to find relevant content by keyword.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "slug": {
+                "type": "string",
+                "description": "The slug of the documentation page to retrieve (e.g., 'redis-integration', 'getting-started')."
+              },
+              "section": {
+                "type": "string",
+                "description": "Optional. The heading of a specific section to return. If omitted, returns the entire page."
+              }
+            },
+            "required": [
+              "slug"
+            ],
+            "additionalProperties": false,
+            "description": "Retrieves documentation content by slug, optionally filtered to a specific section."
+          },
+          "annotations": {
+            "destructiveHint": false,
+            "readOnlyHint": true
+          }
+        }
+      ]
+    },
+    "id": 2,
+    "jsonrpc": "2.0"
+  }
+]
