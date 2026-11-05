@@ -4,16 +4,25 @@ import { hashes, unchanged } from "./hashes.js";
 import { verifyHttp } from "./http.js";
 import { command } from "./process.js";
 import { redisPingArgs } from "./redis.js";
+import { preservesPackageConfiguration, databaseFromConnectionString } from "./package-contract.mjs";
 
 const state = "/opt/benchmark/adoption-inputs.json";
 const mode = process.argv[2];
 if (mode === "setup") {
     await assert.rejects(readFile("/app/apphost.cs"), { code: "ENOENT" });
-    await writeFile(state, JSON.stringify(await hashes("/app")));
+    await writeFile(state, JSON.stringify({
+        hashes: await hashes("/app"),
+        packages: await readFile("/app/Directory.Packages.props", "utf8"),
+    }));
 } else {
     assert.equal(mode, "verify");
     const before = JSON.parse(await readFile(state, "utf8"));
-    assert(unchanged(before, await hashes("/app")), "Existing application or supplied guidance changed");
+    const protectedHashes = { ...before.hashes };
+    delete protectedHashes["Directory.Packages.props"];
+    assert(unchanged(protectedHashes, await hashes("/app")), "Existing application or supplied guidance changed");
+    assert(preservesPackageConfiguration(before.packages,
+        await readFile("/app/Directory.Packages.props", "utf8")),
+    "Existing package configuration changed beyond compatible Aspire orchestration additions");
     const result = await command("aspire", ["describe", "--apphost", "/app/apphost.cs",
         "--format", "Json", "--non-interactive", "--nologo"]);
     const { resources } = JSON.parse(result.stdout);
@@ -43,8 +52,19 @@ if (mode === "setup") {
     const postgres = owned.find(item => item.Name === `/${id}-postgres`);
     const redis = owned.find(item => item.Name === `/${id}-redis`);
     assert(postgres?.State.Running && redis?.State.Running);
+    const listeners = (await command("lsof", ["-t", `-iTCP:${new URL(urls.admin).port}`, "-sTCP:LISTEN"]))
+        .stdout.trim().split(/\s+/);
+    const backendPid = [...new Set(listeners)];
+    assert.equal(backendPid.length, 1, "Exactly one actual backend listener required");
+    const environment = Object.fromEntries((await readFile(`/proc/${backendPid[0]}/environ`, "utf8"))
+        .split("\0").filter(Boolean).map(entry => {
+            const split = entry.indexOf("=");
+            return [entry.slice(0, split), entry.slice(split + 1)];
+        }));
+    assert(environment.ConnectionStrings__db, "Actual backend database connection required");
+    const database = databaseFromConnectionString(environment.ConnectionStrings__db);
     const seeded = await command("docker", ["exec", postgres.Id, "sh", "-c",
-        'PGPASSWORD="$POSTGRES_PASSWORD" psql "$@"', "psql", "-U", "postgres", "-d", "db",
+        'PGPASSWORD="$POSTGRES_PASSWORD" psql "$@"', "psql", "-U", "postgres", "-d", database,
         "-At", "-v", "ON_ERROR_STOP=1", "-c",
         `SELECT EXISTS (SELECT 1 FROM "AspNetUsers" WHERE "UserName" = 'admin') AND EXISTS (SELECT 1 FROM "BingoSquares");`]);
     assert.equal(seeded.stdout.trim(), "t", "Actual migrated and seeded database required");

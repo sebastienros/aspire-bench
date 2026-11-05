@@ -530,3 +530,12 @@ both origins and the baseline frontend lacked write proxying.
 score. A narrow grader correction plus exact-source no-model replay is being
 prepared; no solution rewrite or repeated model attempt. Corrected success is
 not yet asserted. This is a new empirical evaluation-quality finding (F15).
+
+Both A01 original grades also stopped at an overly broad central-package
+immutability check: the models registered the same three compatible Aspire
+13.6 packages without changing original dependencies/business code. A second
+grader assumption confused logical resource/key `db` with physical database
+name. [Adoption review](bingo-adoption/PILOT.md) preserves original 0 scores,
+exact model patches and the narrow semantic correction; fresh no-model replays
+remain pending. A reference solution passing is not sufficient proof that a
+grader admits every valid implementation.

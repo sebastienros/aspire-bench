@@ -1,0 +1,38 @@
+{
+  "status": "exact-source-replay-pending",
+  "reason": "Original immutable-file rule rejected compatible additive central package metadata; hardcoded physical db name exceeded logical connection-name task contract",
+  "correction": [
+    "Preserve every original dependency/property and permit only the three required Aspire.Hosting13.6.0 package additions",
+    "Discover physical database from the actual backend connection, not its logical resource name"
+  ],
+  "originals": [
+    {
+      "variant": "aspire",
+      "original_reward": 0.0,
+      "patch": "msbench/bingo-adoption/evidence/model-patches/aspire.patch",
+      "patch_sha256": "b1ca912f01af2acaee3a0440e7ec72067c7cbb200580180464e1b03890260e12",
+      "files": [
+        ".gitignore",
+        "Directory.Packages.props",
+        "apphost.cs",
+        "apphost.run.json",
+        "aspire.config.json"
+      ],
+      "original_result_sha256": "767d150a67f05eb71ec2a5b0c334dc504438cbda7a97ac00d524a8f7eee5aa69"
+    },
+    {
+      "variant": "generated-skills",
+      "original_reward": 0.0,
+      "patch": "msbench/bingo-adoption/evidence/model-patches/generated-skills.patch",
+      "patch_sha256": "f268e1433296accbe934639f5e0ae3df7dbc14bacedf6fd12f5e7c338e6cb99c",
+      "files": [
+        "Directory.Packages.props",
+        "apphost.cs",
+        "apphost.run.json",
+        "aspire.config.json"
+      ],
+      "original_result_sha256": "7c7d568d1b29d0a2d642b22ec6abd2b9fb0e1a089e12129523ea4488054fd1a1"
+    }
+  ],
+  "model_reruns": 0
+}

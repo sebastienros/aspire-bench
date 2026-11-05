@@ -599,6 +599,14 @@ can hide overgrading if its implementation does more than the user requested.
 Require explicit baseline/prompt/grade alignment checks in addition to
 no-op and cheating negatives.
 
+**Adoption follow-up:** Both A01 original grades also stopped at a byte-level
+central-package immutability rule. Both solutions only added compatible
+orchestration package registrations without changing original dependencies.
+The [review](bingo-adoption/PILOT.md) narrows that restriction semantically and
+separates logical connection key `db` from a valid physical database name.
+Original 0 scores/patches are preserved; exact-source no-model replays remain
+required before corrected completion is claimed.
+
 ## Recording future findings
 
 Give each finding a stable ID and include evidence links, exact observed

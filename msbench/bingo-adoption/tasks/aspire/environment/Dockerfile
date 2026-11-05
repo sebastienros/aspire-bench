@@ -51,7 +51,7 @@ COPY skills/ /opt/aspire-skills/
 COPY --from=aspire-skills / /opt/aspire-skills/
 COPY --from=aspire-skills / /app/.github/skills/
 COPY input-hashes.json /opt/benchmark/input-hashes.json
-COPY adoption.mjs /opt/benchmark/
+COPY adoption.mjs package-contract.mjs /opt/benchmark/
 COPY --from=adoption-tests / /opt/benchmark/
 COPY entrypoint.sh /opt/benchmark/entrypoint.sh
 ENTRYPOINT ["tini", "--", "bash", "/opt/benchmark/entrypoint.sh"]

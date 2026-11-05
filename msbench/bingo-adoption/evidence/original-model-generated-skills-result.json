@@ -1,0 +1,162 @@
+{
+    "id": "a4edf88a-ed1a-408c-9c8a-8fc1f6dd44c5",
+    "task_name": "generated-skills",
+    "trial_name": "generated-skills__aogo8LD",
+    "trial_uri": "file:///mnt/tmp/harbor-results/jobs/2026-11-05__15-59-00/generated-skills__aogo8LD",
+    "task_id": {
+        "path": "/tmp/a/t/msbench/bingo-adoption/tasks/generated-skills"
+    },
+    "source": null,
+    "task_checksum": "***REDACTED***",
+    "config": {
+        "task": {
+            "path": "/tmp/a/t/msbench/bingo-adoption/tasks/generated-skills",
+            "git_url": null,
+            "git_commit_id": null,
+            "name": null,
+            "ref": null,
+            "overwrite": false,
+            "download_dir": null,
+            "source": null
+        },
+        "trial_name": "generated-skills__aogo8LD",
+        "trials_dir": "/mnt/tmp/harbor-results/jobs/2026-11-05__15-59-00",
+        "install_only": false,
+        "timeout_multiplier": 1.0,
+        "agent_timeout_multiplier": null,
+        "verifier_timeout_multiplier": null,
+        "agent_setup_timeout_multiplier": null,
+        "environment_build_timeout_multiplier": null,
+        "agent": {
+            "name": "native_harbor.msbench_adapter_agent:MSBenchAdapterAgent",
+            "import_path": null,
+            "model_name": null,
+            "n_concurrent": null,
+            "concurrency_group": null,
+            "skills": [],
+            "override_timeout_sec": null,
+            "override_setup_timeout_sec": null,
+            "max_timeout_sec": null,
+            "resume_trajectory": false,
+            "load_trajectory": null,
+            "extra_allowed_hosts": [],
+            "kwargs": {
+                "msbench_instance_id": "bingo-aspire-adoption"
+            },
+            "env": {
+                "runId": "${runId}",
+                "instanceId": "${instanceId}",
+                "MSBENCH_INSTANCE_CORRELATION_ID": "${MSBENCH_INSTANCE_CORRELATION_ID}"
+            },
+            "mcp_servers": []
+        },
+        "user_agent": null,
+        "environment": {
+            "type": "docker",
+            "import_path": null,
+            "force_build": false,
+            "delete": false,
+            "cpu_enforcement_policy": "auto",
+            "memory_enforcement_policy": "auto",
+            "override_cpus": null,
+            "override_memory_mb": null,
+            "override_storage_mb": null,
+            "override_gpus": null,
+            "override_tpu": null,
+            "mounts": [
+                {
+                    "type": "bind",
+                    "source": "/home/runner/.azure",
+                    "target": "/root/.azure-host",
+                    "read_only": true
+                }
+            ],
+            "extra_docker_compose": [],
+            "kwargs": {
+                "keep_containers": true
+            },
+            "extra_allowed_hosts": []
+        },
+        "verifier": {
+            "override_timeout_sec": null,
+            "max_timeout_sec": null,
+            "disable": false
+        },
+        "artifacts": [],
+        "extra_instruction_paths": [],
+        "extra_instructions": [],
+        "job_id": "a0b4dd1e-fd9b-41a9-8099-506961c09c82",
+        "source_trial": null
+    },
+    "agent_info": {
+        "name": "msbench-proxy",
+        "version": "0.3.0",
+        "model_info": null
+    },
+    "agent_result": {
+        "n_input_tokens": 2218723,
+        "n_cache_tokens": 2136531,
+        "n_output_tokens": 9612,
+        "cost_usd": 0.25759730000000003,
+        "model_usage": {
+            "gpt-6.1-terra": {
+                "n_input_tokens": 2218723,
+                "n_cache_tokens": 2136531,
+                "n_output_tokens": 9612,
+                "cost_usd": 0.25759730000000003
+            }
+        },
+        "rollout_details": null,
+        "metadata": {
+            "return_code": 0,
+            "runner_exit_code": 0,
+            "exec_return_code": 0,
+            "instance_id": "bingo-aspire-adoption",
+            "mode": "normal",
+            "is_windows": false,
+            "execution_location": "container",
+            "is_harbor_task": true,
+            "is_harbor_native_task": true,
+            "is_harbor_multistep": false,
+            "harbor_step": {
+                "name": null,
+                "current_step": 1,
+                "total_steps": 1,
+                "is_final": true,
+                "resume_trajectory": false
+            },
+            "environment_variables": {
+                "AGENT_DIR": "/agent",
+                "TESTBED_DIR": "/app",
+                "OUTPUT_DIR": "/output",
+                "METADATA_PATH": "/drop/metadata.json"
+            }
+        }
+    },
+    "verifier_result": {
+        "rewards": {
+            "reward": 0.0
+        }
+    },
+    "verifier_environment_mode": "shared",
+    "exception_info": null,
+    "started_at": "2026-11-05T15:59:00.335798Z",
+    "finished_at": "2026-11-05T16:09:38.489224Z",
+    "environment_setup": {
+        "started_at": "2026-11-05T15:59:00.609376Z",
+        "finished_at": "2026-11-05T16:00:15.521173Z"
+    },
+    "agent_setup": {
+        "started_at": "2026-11-05T16:00:15.636955Z",
+        "finished_at": "2026-11-05T16:00:36.204550Z"
+    },
+    "agent_execution": {
+        "started_at": "2026-11-05T16:00:36.204690Z",
+        "finished_at": "2026-11-05T16:09:31.870668Z"
+    },
+    "verifier": {
+        "started_at": "2026-11-05T16:09:37.283523Z",
+        "finished_at": "2026-11-05T16:09:37.590610Z"
+    },
+    "step_results": null
+}

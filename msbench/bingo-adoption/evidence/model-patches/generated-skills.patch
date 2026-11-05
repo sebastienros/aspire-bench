@@ -1,0 +1,142 @@
+diff --git a/Directory.Packages.props b/Directory.Packages.props
+index c606ddc..cf00de7 100644
+--- a/Directory.Packages.props
++++ b/Directory.Packages.props
+@@ -3,6 +3,9 @@
+     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+   </PropertyGroup>
+   <ItemGroup>
++    <PackageVersion Include="Aspire.Hosting.JavaScript" Version="13.6.0" />
++    <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="13.6.0" />
++    <PackageVersion Include="Aspire.Hosting.Redis" Version="13.6.0" />
+     <PackageVersion Include="Azure.Identity" Version="1.21.0" />
+     <PackageVersion Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.12" />
+     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.12" />
+diff --git a/apphost.cs b/apphost.cs
+new file mode 100644
+index 0000000..e3ba6dd
+--- /dev/null
++++ b/apphost.cs
+@@ -0,0 +1,55 @@
++﻿#:package Aspire.Hosting.JavaScript
++#:package Aspire.Hosting.PostgreSQL
++#:package Aspire.Hosting.Redis
++#:sdk Aspire.AppHost.Sdk@13.6.0
++#:property AspireUseCliBundle=true
++
++var builder = DistributedApplication.CreateBuilder(args);
++
++var runId = Environment.GetEnvironmentVariable("BENCH_RUN_ID");
++if (string.IsNullOrWhiteSpace(runId))
++{
++    throw new InvalidOperationException("BENCH_RUN_ID is required to scope dependency containers.");
++}
++
++var adminPassword = Environment.GetEnvironmentVariable("Authentication__AdminPassword");
++if (string.IsNullOrWhiteSpace(adminPassword))
++{
++    throw new InvalidOperationException("Authentication__AdminPassword is required for the admin seed.");
++}
++var adminPasswordParameter = builder.AddParameter("admin-password", () => adminPassword, secret: true);
++
++var postgres = builder.AddPostgres("postgres")
++    .WithImageTag("18.3")
++    .WithContainerName($"{runId}-postgres");
++var db = postgres.AddDatabase("db", "bingo");
++#pragma warning disable ASPIRECERTIFICATES001
++var cache = builder.AddRedis("cache")
++    .WithImageTag("8.6")
++    .WithoutHttpsCertificate()
++    .WithContainerName($"{runId}-redis");
++#pragma warning restore ASPIRECERTIFICATES001
++
++var migrations = builder.AddProject("migrations", "./src/BingoBoard.MigrationService/BingoBoard.MigrationService.csproj", launchProfileName: null)
++    .WithReference(db)
++    .WithEnvironment("Authentication__AdminPassword", adminPasswordParameter)
++    .WaitFor(db);
++
++var admin = builder.AddProject("boardadmin", "./src/BingoBoard.Admin/BingoBoard.Admin.csproj", launchProfileName: null)
++    .WithHttpEndpoint()
++    .WithEnvironment("ASPNETCORE_ENVIRONMENT", "Development")
++    .WithReference(db)
++    .WithReference(cache)
++    .WaitFor(db)
++    .WaitFor(cache)
++    .WaitForCompletion(migrations)
++    .WithHttpHealthCheck("/login")
++    .WithExternalHttpEndpoints();
++
++builder.AddViteApp("bingoboard", "./src/bingo-board")
++    .WithNpm(installCommand: "ci")
++    .WithEnvironment("BINGO_ADMIN_URL", admin.GetEndpoint("http"))
++    .WaitFor(admin)
++    .WithExternalHttpEndpoints();
++
++builder.Build().Run();
+\ No newline at end of file
+diff --git a/apphost.run.json b/apphost.run.json
+new file mode 100644
+index 0000000..53b4301
+--- /dev/null
++++ b/apphost.run.json
+@@ -0,0 +1,30 @@
++{
++  "$schema": "https://json.schemastore.org/launchsettings.json",
++  "profiles": {
++    "https": {
++      "commandName": "Project",
++      "dotnetRunMessages": true,
++      "launchBrowser": true,
++      "applicationUrl": "https://localhost:17216;http://localhost:15015",
++      "environmentVariables": {
++        "ASPNETCORE_ENVIRONMENT": "Development",
++        "DOTNET_ENVIRONMENT": "Development",
++        "ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL": "https://localhost:21220",
++        "ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL": "https://localhost:22267"
++      }
++    },
++    "http": {
++      "commandName": "Project",
++      "dotnetRunMessages": true,
++      "launchBrowser": true,
++      "applicationUrl": "http://localhost:15015",
++      "environmentVariables": {
++        "ASPNETCORE_ENVIRONMENT": "Development",
++        "DOTNET_ENVIRONMENT": "Development",
++        "ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL": "http://localhost:19138",
++        "ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL": "http://localhost:20014",
++        "ASPIRE_ALLOW_UNSECURED_TRANSPORT": "true"
++      }
++    }
++  }
++}
+\ No newline at end of file
+diff --git a/aspire.config.json b/aspire.config.json
+new file mode 100644
+index 0000000..f615fa0
+--- /dev/null
++++ b/aspire.config.json
+@@ -0,0 +1,22 @@
++{
++  "appHost": {
++    "path": "apphost.cs"
++  },
++  "profiles": {
++    "https": {
++      "applicationUrl": "https://localhost:17216;http://localhost:15015",
++      "environmentVariables": {
++        "ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL": "https://localhost:21220",
++        "ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL": "https://localhost:22267"
++      }
++    },
++    "http": {
++      "applicationUrl": "http://localhost:15015",
++      "environmentVariables": {
++        "ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL": "http://localhost:19138",
++        "ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL": "http://localhost:20014",
++        "ASPIRE_ALLOW_UNSECURED_TRANSPORT": "true"
++      }
++    }
++  }
++}
+\ No newline at end of file
