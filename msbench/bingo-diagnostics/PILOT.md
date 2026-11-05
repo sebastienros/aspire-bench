@@ -71,6 +71,10 @@ All successful agents recovered the true failed-write operation while preserving
 target/neighbor data and identities. Healthy pages/PING/read results alone were
 not accepted. The grader's positive/negative proof remains independent of agent
 reports and tool preference.
+An audit of all tool-start arguments found no access to `/opt/benchmark`,
+`/solution`, protected diagnostic state or verifier paths. Recovery was not
+obtained by reading the oracle. This strengthens the ordinary-agent evidence
+but does not make root-container grading tamper-proof.
 
 ## Trace integrity and limitations
 

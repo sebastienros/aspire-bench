@@ -1,5 +1,5 @@
 {
-  "status": "ready-local-runtime-and-remote-graph-passed",
+  "status": "submitted",
   "task_commit": "25947262cabcae9efb3aacb502e8007a52bbbaa5",
   "model": "gpt-6.1-terra",
   "automatic_repeats": false,
@@ -170,5 +170,54 @@
       ]
     }
   ],
-  "model_runs": []
+  "model_runs": [
+    {
+      "benchmark": "bingo-live-catalog",
+      "variant": "raw-scripted",
+      "task_directory": "f01-raw-scripted",
+      "fingerprint": "14da47aed8e9f2fb8c5dd3180020ce17a6f8b698e03fa796263ecd0f23e041c0",
+      "run_id": "2026110557440610",
+      "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110557440610",
+      "status": "submitted",
+      "attempt_role": "original",
+      "actual_model_verified": false,
+      "submission_log": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/logs/bingo-evolution-submit-f01-raw-scripted.log"
+    },
+    {
+      "benchmark": "bingo-live-catalog",
+      "variant": "aspire",
+      "task_directory": "f01-aspire",
+      "fingerprint": "0bc522e05d471f908bcc52c6340d22c453b1629237928b7bcdbde637b5e54965",
+      "run_id": "2026110557444836",
+      "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110557444836",
+      "status": "submitted",
+      "attempt_role": "original",
+      "actual_model_verified": false,
+      "submission_log": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/logs/bingo-evolution-submit-f01-aspire.log"
+    },
+    {
+      "benchmark": "bingo-description-migration",
+      "variant": "raw-scripted",
+      "task_directory": "m01-raw-scripted",
+      "fingerprint": "b97db5f3fae7c5905b4bf7273965d2fbd433514b26b22d2492a41c151b47fc20",
+      "run_id": "2026110557449044",
+      "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110557449044",
+      "status": "submitted",
+      "attempt_role": "original",
+      "actual_model_verified": false,
+      "submission_log": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/logs/bingo-evolution-submit-m01-raw-scripted.log"
+    },
+    {
+      "benchmark": "bingo-description-migration",
+      "variant": "aspire",
+      "task_directory": "m01-aspire",
+      "fingerprint": "303fcbc51bf5a7b59f86236678c89edcc1381cc0476f067381d33cd2a7305e95",
+      "run_id": "2026110557453174",
+      "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110557453174",
+      "status": "submitted",
+      "attempt_role": "original",
+      "actual_model_verified": false,
+      "submission_log": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/logs/bingo-evolution-submit-m01-aspire.log"
+    }
+  ]
 }

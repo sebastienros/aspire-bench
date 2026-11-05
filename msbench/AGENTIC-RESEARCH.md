@@ -4,9 +4,10 @@ Living protocol, worktree/artifact ledger, execution log, and decision register.
 Started 2026-11-04. This document distinguishes planned experiments from executed
 evidence; pending work is not a product improvement or a positive result.
 
-**Execution status:** Running after targeted Docker Desktop recovery. Existing
-scenario drafts and prior evidence are integrated; remaining runtime gates
-are being resumed sequentially. No unvalidated task is submitted to MSBench.
+**Execution status:** Running after targeted Docker Desktop recovery. D01's
+seven valid Terra conditions and full source-built Bingo baseline are complete;
+F01/M01 and A01 local/remote oracle gates pass and six new pilots are running.
+P01/X01 are completing final serialized runtime gates. No unvalidated task is submitted to MSBench.
 See the latest execution/recovery ledger below; the earlier storage block is
 retained as history, not the current engine status.
 
@@ -145,11 +146,11 @@ Fresh conversations and verified resumed conversations are separate strata.
 | I01 / first | Repair/extend player-origin producer API routing in the already-running Vue app | Real frontend -> admin -> database/Redis call/status/clear round trip; preserve prior data and version/SignalR behavior | [Completed Terra pilot](bingo-iteration/README.md#completed-terra-pilot): both pass, no demonstrated Aspire advantage; do not repeat identical conditions |
 | D01 / next | Diagnose distributed failure with a healthy process but failed operation | Broken fixture fails, correct targeted repair passes; random fault instance; logs/trace evidence | [All seven final local cells passed](bingo-diagnostics/README.md#recovered-final-local-gate); unique Terra pilot conditions next |
 | H01 / next | Reject misleading readiness or stale endpoint evidence | Functional negative probe fails even if process/resource is green | Combined D01 actually verified HTTP500 with pages/PING/reads serving; no-op/page-only and stale-endpoint cases rejected |
-| F01 | Add a cross-service capability/cache behavior | Hidden fresh data, both positive and negative contracts | [Implemented](bingo-evolution/README.md); initial raw oracle/7 negative checks passed, final paired validation blocked |
-| M01 | Migrate schema without losing existing data | Pre/post record identity and contents, new behavior | [Implemented draft](bingo-evolution/README.md); raw oracle began but no completed grade; final pair blocked |
+| F01 | Add a cross-service capability/cache behavior | Hidden fresh data, both positive and negative contracts | Both final local oracles and remote no-model gate pass; unique Terra pair submitted |
+| M01 | Migrate schema without losing existing data | Pre/post record identity and contents, new behavior | Both final local oracles prove additive 280-character schema/43 legacy rows preserved; remote gate passed and unique Terra pair submitted |
 | S01 | Two similar running apps/worktrees | Exact-target repair, other app and data unchanged | D01 resource-scoped neighbor/identity checks actually passed; full two-app/worktree equivalence remains outside this narrow proof |
-| A01 | Add a dependency or adopt Aspire | Functional wiring, no hardcoded ports/secrets; setup cost included | [Cold adoption task](bingo-adoption/README.md) implemented; first oracle passed, later final-grader validation blocked by host storage/Docker failure; no inference |
-| P01 | Publish and run isolated local deployment | Deployed functional checks, no dev-runtime assumptions | [Paired draft](bingo-publishing/README.md); both environment builds failed with I/O errors; no deployed-app proof |
+| A01 | Add a dependency or adopt Aspire | Functional wiring, no hardcoded ports/secrets; setup cost included | Original/generated skill final oracles and remote gate passed; two distinct Terra adoption conditions submitted |
+| P01 | Publish and run isolated local deployment | Deployed functional checks, no dev-runtime assumptions | Actual local production .NET/nginx deployments pass; final default-Git-context pair in progress before models |
 | X01 | Transfer to eShop / TypeScript / polyglot | Unseen topology/names, instrumentation parity and functional equivalence | Held-out-name coverage drafted in D01; runtime blocked. eShop remains conditional, not justified by a demonstrated Bingo limit |
 
 Existing startup/health experiments remain regression controls, not replacements
@@ -492,3 +493,25 @@ F01/M01 both final local pairs now also passed after correcting actual restart,
 credential and HTTP error-body contracts; portable public-Git graph proof and
 their model pilots are next. P01 and X01 still own/await the serialized local
 runtime slot; no unvalidated cell is submitted to a model.
+
+### 2026-11-05: evolution/adoption model pilots
+
+Representative remote no-model gates 2026110507252286 (both evolution Aspire
+scenarios) and 2026110507371146 (generated adoption) passed reward 1 without
+exceptions. Published fixed task revision `25947262` in portable datasets.
+Six original, distinct Terra pilots then submitted without repeat flags:
+
+| Condition | Run |
+|---|---|
+| F01 raw | [2026110557440610](https://msbenchapp.azurewebsites.net/run-analysis/2026110557440610) |
+| F01 Aspire | [2026110557444836](https://msbenchapp.azurewebsites.net/run-analysis/2026110557444836) |
+| M01 raw | [2026110557449044](https://msbenchapp.azurewebsites.net/run-analysis/2026110557449044) |
+| M01 Aspire | [2026110557453174](https://msbenchapp.azurewebsites.net/run-analysis/2026110557453174) |
+| A01 original skills | [2026110557457266](https://msbenchapp.azurewebsites.net/run-analysis/2026110557457266) |
+| A01 generated skills | [2026110557461446](https://msbenchapp.azurewebsites.net/run-analysis/2026110557461446) |
+
+These are new task/skill conditions, not repeated I01 or health runs. Actual
+model/cost/grade verification remains pending; submission is not success.
+Production P01 runtime fixes from child `3421ee85` were integrated as public
+`1f9f9614`; the child is validating both exact public-context images before
+handing the sole local Docker slot to X01.

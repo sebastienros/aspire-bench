@@ -1,5 +1,5 @@
 {
-  "status": "ready-local-runtime-and-remote-graph-passed",
+  "status": "submitted",
   "task_commit": "25947262cabcae9efb3aacb502e8007a52bbbaa5",
   "model": "gpt-6.1-terra",
   "automatic_repeats": false,
@@ -107,5 +107,30 @@
       ]
     }
   ],
-  "model_runs": []
+  "model_runs": [
+    {
+      "benchmark": "bingo-aspire-adoption",
+      "variant": "aspire",
+      "task_directory": "aspire",
+      "fingerprint": "cf6f9e4c593456bd941a620bfe0e1b9bd59e7d33b9d2a0f7c4588971c90533ad",
+      "run_id": "2026110557457266",
+      "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110557457266",
+      "status": "submitted",
+      "attempt_role": "original",
+      "actual_model_verified": false,
+      "submission_log": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/logs/bingo-adoption-submit-aspire.log"
+    },
+    {
+      "benchmark": "bingo-aspire-adoption",
+      "variant": "generated-skills",
+      "task_directory": "generated-skills",
+      "fingerprint": "643800c6bf65bd95f96a67be299c0369d2a74f8767ab6a2369a8037346d64aa3",
+      "run_id": "2026110557461446",
+      "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110557461446",
+      "status": "submitted",
+      "attempt_role": "original",
+      "actual_model_verified": false,
+      "submission_log": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/logs/bingo-adoption-submit-generated-skills.log"
+    }
+  ]
 }
