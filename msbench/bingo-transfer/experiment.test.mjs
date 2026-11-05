@@ -64,6 +64,8 @@ test("original raw nopass and Aspire authenticated/TLS states are verified, not 
 test("the grade rejects healthy reads, no-op and password/ACL resets despite possible HTTP availability", async () => {
     verifyAclRecovery(rawAcl, rawAcl);
     verifyAclRecovery(authAcl, authAcl);
+    verifyAclRecovery(rawAcl, rawAcl.map(line => `${line} +@write`));
+    verifyAclRecovery(authAcl, authAcl.map(line => `${line} +@write +publish`));
     for (const after of [deniedAcl, rawAcl, ["user default on nopass ~* &* +@read"],
         authAcl.map(line => line.replace(/#[a-f0-9]+/, `#${digest("replacement")}`))]) {
         assert.throws(() => verifyAclRecovery(authAcl, after), /Original Redis ACL/);
@@ -172,4 +174,27 @@ test("F14 is reserved for this narrow new condition without a model result or ge
     assert.equal(evidence.source.task_base, "d3694ec111609a79073dcba35bc1f1b1c9517d8f");
     assert.equal(evidence.inference.independent_app, false);
     assert.equal(evidence.inference.statistical_generalization, false);
+});
+
+test("runtime receipts require both actual gates and bind the validated payload, without claiming native Harbor or models", async () => {
+    const evidence = JSON.parse(await read("evidence/local-runtime.json"));
+    assert.equal(evidence.mode, "direct-docker-runtime-not-native-harbor");
+    assert.equal(evidence.native_harbor_pass, false);
+    assert.deepEqual(evidence.model_runs, []);
+    assert.equal(evidence.records.length, 2);
+    for (const record of evidence.records) {
+        assert.equal(record.reward, 1);
+        assert.equal(record.exception, null);
+        assert.equal(record.resource_limits.nano_cpus, 4_000_000_000);
+        assert.equal(record.resource_limits.memory, 8 * 1024 ** 3);
+        assert.equal(record.incident.actualCallStatus, 500);
+        assert.equal(record.incident.originalCredentialsVerified, true);
+        assert.equal(record.incident.backendTls, record.job.includes("aspire"));
+        assert.equal(record.negatives.rejected.length, 12);
+        assert.equal(record.negatives.originalSecurityRestoredBeforeRearm, true);
+        assert(record.verifier_output.startsWith("Verified X01:"));
+    }
+    for (const [file, hash] of Object.entries(evidence.validated_source_sha256)) {
+        assert.equal(digest(await readFile(new URL(`../../${file}`, root))), hash, file);
+    }
 });

@@ -1,10 +1,14 @@
 # Bingo held-out fault/name transfer: X01 / reserved F14
 
-**Status: static implementation checked; both Docker gates pending.**
-Only this new directory is changed. Historical D01 tasks and their seven passing
+**Status: both local direct-Docker oracle/verifier gates passed; native Harbor,
+cloud and model gates remain separate.**
+Historical D01 tasks and their seven passing
 local oracles remain untouched and are not rerun. No model run, PR or push is
 performed by this child. The parent owns task pinning and at most one original
 `gpt-6.1-terra` attempt per new arm after both local gates.
+
+The later parent-directed S01 pair lives separately in
+[`../bingo-isolation`](../bingo-isolation); it does not change this X01 condition.
 
 X01 reuses original Bingo, not eShop. There is no demonstrated Bingo limitation
 that requires a second application for this bounded question. Both static Harbor
@@ -48,6 +52,10 @@ administrative permission on the same default user, without an added control
 credential. The operation remains target-scoped even though it denies the write
 category for all clients of that one resource. Original ACL users, password
 hashes, flags, key/channel selectors and server config must be restored exactly.
+Redis 8.6 retains redundant positive grants after `+@write` (for example
+`+@all +@write`); ACL comparison canonicalizes only that fully unrestricted,
+positive-only command set to `+@all`. It does not ignore denials, new users,
+credentials, flags, key/channel selectors or transport/configuration differences.
 
 The grader does not trust an agent-written report or the hidden setup receipt.
 It requires fresh nonce SQL import, actual Redis SET/GET/DEL plus app call/clear
@@ -91,8 +99,15 @@ After shared source edits regenerate both snapshots with standard-library tar
 packaging (USTAR, sorted names, uid/gid/mtime 0); rerun the focused archive test.
 This is static build packaging, not runtime task/source conversion.
 
-**Do not run Docker until the parent explicitly grants the sole local slot.**
-After that grant, run each new arm once, sequentially, with no model agents:
+The explicit sole-slot grant was received before any Docker launch. Native
+Harbor 0.20.0 created job/trial metadata but no image/container/build or execution
+output; that run was stopped rather than leaving a stale loop. The parent
+authorized direct Docker fallback: immutable Git build contexts, actual normal
+entrypoint, 4 CPU/8 GiB limits, oracle timeout 900 s, external verifier timeout
+300 s, same task solution/tests and actual reward file. No global
+Harbor upgrade/edit or model invocation occurred.
+
+Native Harbor reproduction commands, for a separately repaired runner:
 
 ```bash
 harbor run --path msbench/bingo-transfer/tasks/raw-scripted --agent oracle \
@@ -108,6 +123,29 @@ or artifacts. Inspect reward, actual incident/negative receipts and verifier
 output. Stop after the two verified local arms/negatives or a concrete blocked
 prerequisite. A real fixture correction may justify another local validation
 attempt; identical-condition model reruns are forbidden.
+
+### Actual local runtime gate, 2026-11-05
+
+| Arm / attempt | Observed result |
+|---|---|
+| Native raw `x01-raw-v1` | Metadata-only wrapper anomaly stopped; no image/container/runtime result |
+| Direct raw `x01-raw-direct-v1` | Real NOPERM/HTTP500 incident confirmed; oracle exposed redundant positive ACL grant comparison issue, no verifier pass |
+| Direct raw `x01-raw-direct-v2` | Corrected ACL canonicalization; all 12 negatives rejected; oracle and external verifier reward 1 |
+| Direct Aspire `x01-aspire-direct-v1` | Original generated credential/TLS verified; all 12 negatives rejected; oracle and external verifier reward 1 |
+
+[Runtime receipts](evidence/local-runtime.json) record exact image/container IDs,
+Git contexts, resource limits, source/payload hashes, actual incident/negative
+evidence, verifier output and log checksums. Direct runner script:
+`/Users/sebastienros/.copilot/session-state/1526d9f0-55be-4ead-a2e3-c0ade15b900f/files/direct_oracle.py`;
+its SHA-256 is recorded alongside the full retained job paths. Reproduction:
+`python3 <runner> msbench/bingo-transfer/tasks/<arm> <unique-job-name>`.
+This builds the declared portable Git contexts, starts the actual entrypoint,
+checks real readiness/container liveness, copies the task solution/tests, executes
+them with the declared bounds, reads the external reward and removes only its
+owned runner. Both successful gates ran on Linux ARM64, host Docker 29.9.2.
+All owned runners were stopped/removed and the sole slot was returned.
+These are fixture/grader proofs, not native Harbor/cloud/model results or
+agent-performance timings.
 
 [F14.json](evidence/F14.json) is the reserved evidence entry and provenance
 record. It has no model results. This condition tests one new held-out
@@ -131,7 +169,7 @@ are inherited, with raw dependency lookup names overlaid at image build time.
 There is no runtime task/source conversion or application behavior edit.
 
 Image tags/installers/transitive restore follow the original pinned-version
-workflow, not newly locked image digests. Local Linux ARM64 Docker evidence, if
-obtained, is not itself cloud AMD64 or model compatibility proof. The parent must
+workflow, not newly locked image digests. Local Linux ARM64 Docker evidence
+is not itself cloud AMD64 or model compatibility proof. The parent must
 record task commit, actual runner/model pins and unique fingerprints before
 submission; no mutable task reference or provisional dataset is created here.

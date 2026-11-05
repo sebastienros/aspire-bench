@@ -1,6 +1,6 @@
 {
   "id": "F14",
-  "status": "reserved-local-gates-pending",
+  "status": "paired-direct-docker-runtime-passed-model-pending",
   "scenario": "X01",
   "fault": "redis-acl-write-denial-v1",
   "namespace": "cedar83",
@@ -45,15 +45,39 @@
     "repeated_identical_conditions": false
   },
   "local_validation": {
-    "docker_slot": "waiting for explicit parent grant; no Docker commands issued",
+    "docker_slot": "explicit parent grant received; paired X01/S01 gates complete; all owned runners removed and slot returned",
     "static": {
-      "focused_tests": 10,
-      "focused_tests_passed": 10,
+      "focused_tests": 11,
+      "focused_tests_passed": 11,
       "syntax": "all new Bash and JavaScript files",
       "harbor_print_config": "both static oracle tasks accepted without Docker",
       "portable_build_contexts": "environment-local deterministic archive plus immutable public Git dependencies; no outside-environment fs.read grant"
     },
-    "oracles": [],
+    "oracles": [
+      {
+        "arm": "raw-scripted",
+        "job": "x01-raw-direct-v2",
+        "mode": "direct-docker-runtime-not-native-harbor",
+        "reward": 1,
+        "runtime_negative_rejections": 12,
+        "actual_call_status_during_incident": 500,
+        "original_credentials_verified": true,
+        "original_backend_tls": false
+      },
+      {
+        "arm": "aspire",
+        "job": "x01-aspire-direct-v1",
+        "mode": "direct-docker-runtime-not-native-harbor",
+        "reward": 1,
+        "runtime_negative_rejections": 12,
+        "actual_call_status_during_incident": 500,
+        "original_credentials_verified": true,
+        "original_backend_tls": true
+      }
+    ],
+    "receipts": "local-runtime.json",
+    "native_harbor": "not passed; metadata-only no-image/no-container/no-output wrapper anomaly stopped before direct fallback",
+    "fixture_correction": "First raw direct oracle exposed Redis 8.6 redundant +@all +@write command grants. Canonicalize only fully unrestricted positive-only command sets, preserving credentials, flags, selectors, denials and server config.",
     "negative_contracts": [
       "no-op/read-only health",
       "wrong-neighbor repair and restored-final-ACL event",

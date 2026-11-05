@@ -5,6 +5,7 @@ import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { copyWorkspaceEntry, instanceEnvironment, instances } from "./common/bootstrap.mjs";
 import { owned } from "./common/isolation.mjs";
+import { digest } from "../bingo-transfer/common/acl.mjs";
 
 const root = new URL("./", import.meta.url);
 const read = file => readFile(new URL(file, root), "utf8");
@@ -113,5 +114,31 @@ test("grade probes actual SQL/Redis/status flows for both apps, preserves both p
         "other application's existing SQL data changed", "other application's existing call state changed",
         "wrong-app action hidden by restoring final ACL", "assert.rejects(verify"]) {
         assert(negative.includes(proof), proof);
+    }
+});
+
+test("actual paired runtime receipts bind all four app identities/origins and unchanged validated payload", async () => {
+    const evidence = JSON.parse(await read("evidence/local-runtime.json"));
+    assert.equal(evidence.mode, "direct-docker-runtime-not-native-harbor");
+    assert.equal(evidence.native_harbor_pass, false);
+    assert.deepEqual(evidence.model_runs, []);
+    assert.equal(evidence.records.length, 2);
+    for (const record of evidence.records) {
+        assert.equal(record.reward, 1);
+        assert.equal(record.exception, null);
+        assert.equal(record.resource_limits.nano_cpus, 4_000_000_000);
+        assert.equal(record.resource_limits.memory, 8 * 1024 ** 3);
+        assert.equal(record.incident.targetCallStatus, 500);
+        assert.equal(record.incident.neighborFreshFunctionalRoundtrip, true);
+        const apps = record.incident.actualApplications;
+        assert.deepEqual(apps.map(app => app.root), ["/app", "/neighbor-app"]);
+        assert.equal(new Set(apps.flatMap(app => app.processes.map(process => process.pid))).size, 4);
+        assert.equal(new Set(apps.flatMap(app => Object.values(app.urls))).size, 4);
+        assert.equal(record.negatives.rejected.length, 12);
+        assert.equal(record.negatives.originalSecurityRestoredBeforeRearm, true);
+        assert(record.verifier_output.startsWith("Verified S01:"));
+    }
+    for (const [file, hash] of Object.entries(evidence.validated_source_sha256)) {
+        assert.equal(digest(await readFile(new URL(`../../${file}`, root))), hash, file);
     }
 });

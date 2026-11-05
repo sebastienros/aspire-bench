@@ -1,10 +1,10 @@
 # S01: two actual Bingo applications in sibling workspaces
 
-**Status: static-ready draft; seven focused tests and both Harbor configuration
-checks pass. No runtime validation or model result.** X01 remains the
-priority runtime gate. Do not start Docker until the parent explicitly grants
-the sole local slot after X01. This new directory is separate from unchanged
-D01 and X01 conditions.
+**Status: both direct-Docker oracle/verifier gates passed, after priority X01.
+No native Harbor/cloud/model result is claimed.** The explicit parent sole-slot
+grant preceded runtime work; all owned runners were removed and the slot
+returned after the four X01/S01 gates. This new directory is separate from
+historical D01 and the X01 fault/name condition.
 
 The original S01 resource-scoped Redis decoy was not two-app proof. This pair
 starts **two complete original Bingo applications** in `/app` and
@@ -47,8 +47,8 @@ Hidden negative/oracle code is excluded from environment archives.
 
 ## What this does and does not establish
 
-If both runtime oracles pass, this is two **actual application instances in
-sibling workspace directories** under one private Harbor runner, not two
+Both runtime oracles passed with two **actual application instances in
+sibling workspace directories** under one private Docker runner, not two
 editor-owned app sessions, two host-managed git worktrees, two Docker daemons or
 two physical hosts. Those ownership boundaries cannot be reproduced honestly by
 calling a Redis-only decoy a second app; editor/process-host ownership needs a
@@ -59,8 +59,8 @@ Success is not independent-app/domain transfer or statistical generalization.
 Raw startup reuses restored binaries/packages but still performs the existing
 normal incremental build and `npm ci`; the shared npm/NuGet cache avoids a new
 dependency download path. Aspire independently starts each AppHost, retaining
-normal source-build and `npm ci` semantics. Setup must actually pass within the
-declared resource budget; static feasibility is not a runtime result.
+normal source-build and `npm ci` semantics. Both setups and grades actually
+passed under 4 CPU/8 GiB limits; this is not inferred from static feasibility.
 
 ## Static validation and packaging
 
@@ -70,18 +70,19 @@ node --test msbench/bingo-isolation/experiment.test.mjs
 ```
 
 The deterministic USTAR archive is local to each task `environment` and contains
-only these readable runtime sources plus the unchanged X01 ACL/native-adapter
+only these readable runtime sources plus the shared X01 ACL/native-adapter
 modules. Tests enforce byte-for-byte source equivalence and exclude extra
 members/solutions. All other build contexts are immutable public Git sources:
 `d3694ec111609a79073dcba35bc1f1b1c9517d8f` for original Bingo, corrected diagnostics
 adapters and useful raw workflow; `1fcca7e91c89716f0e4a8bf7324da13a39f70c66` for
 the original seven skills. No outside-environment Bake fs.read grant is needed.
-Changing X01 is not required: this draft imports and snapshots its read-only
-adapters, never its fixed X01 setup/condition.
+This fixture imports and snapshots shared adapters, never X01's fixed
+setup/condition. The observed Redis 8.6 redundant-positive-grant canonicalization
+correction is included in both snapshots; denials, credentials, flags,
+key/channel selectors and server configuration remain strict.
 
-After the explicit grant, and **only after priority X01 has finished**, run the
-new raw and Aspire oracle gates sequentially, with unique job names and logs
-under this child's session files:
+Native Harbor reproduction commands, for a separately repaired runner
+and only while holding an explicitly granted sole slot:
 
 ```bash
 harbor run --path msbench/bingo-isolation/tasks/raw-scripted --agent oracle \
@@ -100,3 +101,27 @@ only after the actual paired local gate.
 
 [validation.json](validation.json) records the current static/runtime distinction,
 source provenance and exact scope boundaries.
+
+## Actual local runtime gate, 2026-11-05
+
+| Arm / job | Actual result |
+|---|---|
+| Raw `s01-raw-direct-v1` | Two real admin/player pairs, four HTTP origins and four dependencies; 12 negatives rejected; oracle and external verifier reward 1 |
+| Aspire `s01-aspire-direct-v1` | Two independently allocated AppHosts, actual backend proxy/credential/TLS ownership; 12 negatives rejected; oracle and external verifier reward 1 |
+
+After X01 exposed the native Harbor 0.20.0 no-image/no-container/no-output
+wrapper anomaly, the parent-authorized direct runner built the exact portable
+Git contexts, ran the normal entrypoint at 4 CPU/8 GiB, required actual two-app
+readiness, ran the task solution under 900 s and the external verifier under
+300 s, and checked the real reward file. No global Harbor edit/upgrade occurred.
+[Runtime receipts](evidence/local-runtime.json) retain exact source/payload
+checksums, image/container identities, all four real process identities/origins,
+incident and negative evidence, verifier output and raw-log checksums/paths.
+Runtime source and deterministic archive hashes are checked by the focused tests.
+
+Reproduction uses the session-owned script recorded with SHA-256 in those
+receipts:
+`python3 /Users/sebastienros/.copilot/session-state/1526d9f0-55be-4ead-a2e3-c0ade15b900f/files/direct_oracle.py msbench/bingo-isolation/tasks/<arm> <unique-job-name>`.
+No model runs, push, PR or shared cleanup occurred. The evidence supports the
+bounded two-real-app resource-selection/preservation question, not editor/host
+ownership, remote AMD64 equivalence or generalized superiority.

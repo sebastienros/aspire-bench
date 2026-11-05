@@ -1,0 +1,505 @@
+{
+  "mode": "direct-docker-runtime-not-native-harbor",
+  "validated_at_utc": "2026-11-05",
+  "host_docker_server": "29.9.2 linux/arm64",
+  "host_harbor": "0.20.0",
+  "docker_slot": "explicit parent grant; all four gates complete; all owned runners removed; slot returned",
+  "resource_limits": {
+    "cpus": 4,
+    "memory_bytes": 8589934592
+  },
+  "timeouts_seconds": {
+    "oracle": 900,
+    "verifier": 300
+  },
+  "runner_path": "/Users/sebastienros/.copilot/session-state/1526d9f0-55be-4ead-a2e3-c0ade15b900f/files/direct_oracle.py",
+  "runner_sha256": "5fb5fa05a07fc8d1f201e8d9728fef23afb268b9f1711eb70d10ffaa563642a5",
+  "validated_source_sha256": {
+    "msbench/bingo-transfer/common/acl.mjs": "9684a5a417bc79759be26fa9277a7e82ec9348122f19b9f9182a0a62fa5f0b5d",
+    "msbench/bingo-transfer/common/bootstrap-aspire.sh": "2bd5cd289a481ce8fde7f46aab83955d1308cdb411101cfbd84b8de570c72a42",
+    "msbench/bingo-transfer/common/entrypoint.sh": "dc7eb95f175e6f4771b7a32fafdeda5a8c8342b392d1427e067d9c79e2551ad0",
+    "msbench/bingo-transfer/common/transfer.mjs": "72be81e6974b5b72fffeca092f3a13410750a058debc4660b7322328dae70367",
+    "msbench/bingo-transfer/tasks/aspire/environment/Dockerfile": "a6ac4d9b3822ae32113bf7da7e6827b450508a9508058bf4779a82c8914106b7",
+    "msbench/bingo-transfer/tasks/aspire/environment/app/apphost.cs": "ccbbc939dcde6bc21ee50f948a2a339408525498a91c8ec3f3cb4a63312b6444",
+    "msbench/bingo-transfer/tasks/aspire/environment/docker-compose.yaml": "70e917a07e1c1fe27136f1a2e46a879ba4bc9aae36307c0c5d87b0b04b6de9ff",
+    "msbench/bingo-transfer/tasks/aspire/environment/transfer-common.tar": "6e690a08c716314d158217cfac84779d0a577c0f5f165a2b18d9ba97d3b7cc7f",
+    "msbench/bingo-transfer/tasks/aspire/instruction.md": "1f212ae9742c0f06d575508c01e0535f9b786e6252481f32368e165b5019e7d4",
+    "msbench/bingo-transfer/tasks/aspire/solution/negative.mjs": "6d9d0b9225f76cb5e4453c14e23ee5ab030b38ffcc2420878325dd0aea68ee26",
+    "msbench/bingo-transfer/tasks/aspire/solution/solve.sh": "16189693a7d491b4a1c4ac30dcb3960f2716448130349d975b2eb6d8b1c242e5",
+    "msbench/bingo-transfer/tasks/aspire/task.toml": "e203473e097947490572bfb737a905642d31debee709fb18d86dca80c231f6c9",
+    "msbench/bingo-transfer/tasks/aspire/tests/test.sh": "90fbdaedb21b8fd7397fa8b2a315f39fcb186c9aca35ed779816bada8d976e6c",
+    "msbench/bingo-transfer/tasks/raw-scripted/environment/Dockerfile": "eeff13a18589ef49a4c8f5a5e1a25d146215a79471f485db2a42ea7740abdb91",
+    "msbench/bingo-transfer/tasks/raw-scripted/environment/app/compose.yaml": "bce0d7a99f36412d262efc7be5ce5f0939b18c9f10810bdfb52a2ae6cb7ffef8",
+    "msbench/bingo-transfer/tasks/raw-scripted/environment/app/scripts/common.sh": "6d7106216bf507f180658b92f47d46bc121a329cac209eae060ad30bab7bd7d4",
+    "msbench/bingo-transfer/tasks/raw-scripted/environment/docker-compose.yaml": "8f4e29714071710c5f47c4a1b15439157fe7580291f84a2f9750e12761217f46",
+    "msbench/bingo-transfer/tasks/raw-scripted/environment/transfer-common.tar": "6e690a08c716314d158217cfac84779d0a577c0f5f165a2b18d9ba97d3b7cc7f",
+    "msbench/bingo-transfer/tasks/raw-scripted/instruction.md": "1f212ae9742c0f06d575508c01e0535f9b786e6252481f32368e165b5019e7d4",
+    "msbench/bingo-transfer/tasks/raw-scripted/solution/negative.mjs": "6d9d0b9225f76cb5e4453c14e23ee5ab030b38ffcc2420878325dd0aea68ee26",
+    "msbench/bingo-transfer/tasks/raw-scripted/solution/solve.sh": "16189693a7d491b4a1c4ac30dcb3960f2716448130349d975b2eb6d8b1c242e5",
+    "msbench/bingo-transfer/tasks/raw-scripted/task.toml": "3e743aa372b073a94a99d2e6b2dbc9efc30f09ec5d479bd2f0b96aec86401a6b",
+    "msbench/bingo-transfer/tasks/raw-scripted/tests/test.sh": "90fbdaedb21b8fd7397fa8b2a315f39fcb186c9aca35ed779816bada8d976e6c"
+  },
+  "records": [
+    {
+      "mode": "direct-docker-runtime-not-native-harbor",
+      "task": "/Users/sebastienros/.copilot/copilot-worktrees/aspire-bench/sebros-vigilant-pancake/msbench/bingo-transfer/tasks/raw-scripted",
+      "job": "x01-raw-direct-v2",
+      "image": "x01-raw-direct-v2:local",
+      "cpus": 4,
+      "memory_bytes": 8589934592,
+      "agent_timeout_seconds": 900,
+      "verifier_timeout_seconds": 300,
+      "started_at": "2026-11-05T16:13:14Z",
+      "build_contexts": [
+        "--build-context",
+        "diagnostics-common=https://github.com/sebastienros/aspire-bench.git#d3694ec111609a79073dcba35bc1f1b1c9517d8f:msbench/bingo-diagnostics/common",
+        "--build-context",
+        "raw-workflow=https://github.com/sebastienros/aspire-bench.git#d3694ec111609a79073dcba35bc1f1b1c9517d8f:msbench/bingo-diagnostics/tasks/raw-scripted/environment/app",
+        "--build-context",
+        "raw-app=https://github.com/sebastienros/aspire-bench.git#d3694ec111609a79073dcba35bc1f1b1c9517d8f:msbench/bingo/common/raw-app"
+      ],
+      "image_id": "sha256:b4121846f9d7755a47a610ac0fef6b238d99236e022c65de6e75e4ecfc4dc7d6",
+      "container_id": "5a182515813a2f8447ab6212479ecafc659f204d3f8122b8e8255667175f8596",
+      "resource_limits": {
+        "nano_cpus": 4000000000,
+        "memory": 8589934592
+      },
+      "oracle_seconds": 5.750519374967553,
+      "verifier_seconds": 0.9258594589773566,
+      "reward": 1,
+      "exception": null,
+      "finished_at": "2026-11-05T16:13:57Z",
+      "receipts": {
+        "environment/application-setup.log": {
+          "bytes": 20795,
+          "sha256": "b6f53f1b002a29088da2c7f0bdebb7c4a0e44a66dbc424d8e654912e14bc915a"
+        },
+        "environment/docker.log": {
+          "bytes": 12706,
+          "sha256": "52060162c9ef9ab6c7e1589b8284b74b804c25ea980fb6d2ad7078359998f148"
+        },
+        "environment/fault-setup.log": {
+          "bytes": 99,
+          "sha256": "1a480c6650e383f87711b16e5cfa775e79a236b7f2d89a8ead19122b97c6821e"
+        },
+        "environment/incident-evidence.json": {
+          "bytes": 4360,
+          "sha256": "fd946716757c5c4d03c20c015f0db28ff40c4bccf9f54e20ce8b2f43e3c07f26"
+        },
+        "environment/negative-evidence.json": {
+          "bytes": 818,
+          "sha256": "4d04d0a79e4914a7149214e91a0a18903ffd3ee1949cddc855df8b8ad1e7f9f6"
+        },
+        "verifier/reward.txt": {
+          "bytes": 2,
+          "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+        }
+      },
+      "incident": {
+        "fault": "redis-acl-write-denial-v1",
+        "seed": 83,
+        "namespace": "cedar83",
+        "target": "/cedar83-quill-1",
+        "targetId": "96354f69421de67757100ff959feebb125f10971e59ddab59e6216ef5292e4be",
+        "neighbor": "/cedar38-quill",
+        "neighborId": "fb07ca473723efa00e67c3f2995b75f4c727b8d25cc87ccacf03799adc54ab1b",
+        "actualCallStatus": 500,
+        "redisWriteError": "NOPERM User default has no permissions to run the 'set' command",
+        "ping": "PONG",
+        "sentinelReadPreserved": true,
+        "statusReadPreserved": true,
+        "playerLoginVersionHttp": 200,
+        "targetAclBeforeDigest": "f86da7784ef8c5900b21e2cab173763321bd3df85ce2d050cf328c20f878b3f0",
+        "targetAclFaultDigest": "a48112b1001d5f747d65e50344b35cd7daef07fd3c9bf0c1db9ae29997bd4af1",
+        "originalSecurityConfigDigest": "a3a72405a6b02ad7664719ccaa73ea6471ee23bbbc180f16666b6fd5e9b35814",
+        "originalCredentialsVerified": true,
+        "backendTls": false,
+        "containers": [
+          {
+            "id": "fb07ca473723efa00e67c3f2995b75f4c727b8d25cc87ccacf03799adc54ab1b",
+            "name": "/cedar38-quill",
+            "image": "sha256:fe236f689152ead100ee467039ba95769307b37f7c5559bc91a1a0ebfc26abee",
+            "startedAt": "2026-11-05T16:13:45.948662217Z",
+            "restarts": 0,
+            "running": true,
+            "paused": false,
+            "labels": {
+              "com.docker.compose.project": "cedar38",
+              "com.docker.compose.service": "quill"
+            },
+            "mounts": [],
+            "ports": {},
+            "configuration": "3e2174e7aba4fe837c8f6947dd1fee871d833d77f2228d05e5faa29c3d74f6c4"
+          },
+          {
+            "id": "96354f69421de67757100ff959feebb125f10971e59ddab59e6216ef5292e4be",
+            "name": "/cedar83-quill-1",
+            "image": "sha256:fe236f689152ead100ee467039ba95769307b37f7c5559bc91a1a0ebfc26abee",
+            "startedAt": "2026-11-05T16:13:39.485580922Z",
+            "restarts": 0,
+            "running": true,
+            "paused": false,
+            "labels": {
+              "com.docker.compose.config-hash": "a7dd55b34327ee09133e9ed3872555ddb000c30b4f856d4ea1132c7dc3d15ed2",
+              "com.docker.compose.container-number": "1",
+              "com.docker.compose.depends_on": "",
+              "com.docker.compose.image": "sha256:fe236f689152ead100ee467039ba95769307b37f7c5559bc91a1a0ebfc26abee",
+              "com.docker.compose.oneoff": "False",
+              "com.docker.compose.project": "cedar83",
+              "com.docker.compose.project.config_files": "/app/compose.yaml",
+              "com.docker.compose.project.working_dir": "/app",
+              "com.docker.compose.service": "quill",
+              "com.docker.compose.version": "2.35.0"
+            },
+            "mounts": [],
+            "ports": {
+              "6379/tcp": [
+                {
+                  "HostIp": "127.0.0.1",
+                  "HostPort": "63790"
+                }
+              ]
+            },
+            "configuration": "e9d3ea39a76d2f43832dc28f9fb1fcd0d908966372567e5e7d9bd250a81a5d3d"
+          },
+          {
+            "id": "1e62ca5c2c8775b92a5355eb2b8b8e722e613c5ae4ea6bc43dce50942056f6d3",
+            "name": "/cedar83-ledger-1",
+            "image": "sha256:0e44620f2c3720714a21ef0761baee9326fcb32851ccf1278fa96d895e766e89",
+            "startedAt": "2026-11-05T16:13:39.485803172Z",
+            "restarts": 0,
+            "running": true,
+            "paused": false,
+            "labels": {
+              "com.docker.compose.config-hash": "740ce522979509a53c21b6bbf70b58ef670e499044829cfc6226c451900b4a77",
+              "com.docker.compose.container-number": "1",
+              "com.docker.compose.depends_on": "",
+              "com.docker.compose.image": "sha256:0e44620f2c3720714a21ef0761baee9326fcb32851ccf1278fa96d895e766e89",
+              "com.docker.compose.oneoff": "False",
+              "com.docker.compose.project": "cedar83",
+              "com.docker.compose.project.config_files": "/app/compose.yaml",
+              "com.docker.compose.project.working_dir": "/app",
+              "com.docker.compose.service": "ledger",
+              "com.docker.compose.version": "2.35.0"
+            },
+            "mounts": [
+              {
+                "Type": "volume",
+                "Name": "cedar83_bingo-postgres-data",
+                "Source": "/var/lib/docker/volumes/cedar83_bingo-postgres-data/_data",
+                "Destination": "/var/lib/postgresql",
+                "Driver": "local",
+                "Mode": "z",
+                "RW": true,
+                "Propagation": ""
+              }
+            ],
+            "ports": {
+              "5432/tcp": [
+                {
+                  "HostIp": "127.0.0.1",
+                  "HostPort": "54320"
+                }
+              ]
+            },
+            "configuration": "caeaa90e19f0de6341cc19d4541d6387a6c146887914b5024dcd7c4f24f81398"
+          }
+        ]
+      },
+      "negatives": {
+        "rejected": [
+          "no-op/read-only health",
+          "wrong-neighbor repair while target writes remain denied",
+          "source/guidance shortcut",
+          "substituted endpoints",
+          "lost original cache data",
+          "lost original called state",
+          "changed original SQL data",
+          "neighbor data modification",
+          "incomplete original permission recovery",
+          "wrong-neighbor ACL denial",
+          "wrong-neighbor action hidden by restoring final ACL",
+          "re-armed unchanged fault"
+        ],
+        "targetId": "96354f69421de67757100ff959feebb125f10971e59ddab59e6216ef5292e4be",
+        "neighborId": "fb07ca473723efa00e67c3f2995b75f4c727b8d25cc87ccacf03799adc54ab1b",
+        "originalSecurityRestoredBeforeRearm": true,
+        "oracleOnlyRearm": "Same persistent ACL denial; only event window advances after restoring deliberate negative mutations"
+      },
+      "verifier_output": "Verified X01: actual HTTP/SQL/Redis effects, exact original ACL/credentials/TLS/data and in-place target recovery.",
+      "log_directory": "/Users/sebastienros/.copilot/session-state/1526d9f0-55be-4ead-a2e3-c0ade15b900f/files/direct-jobs/x01-raw-direct-v2",
+      "oracle_log_sha256": "31ba4bc02a1954c978d31d129526ac822fb4638825839b44a1213492766cb00e",
+      "verifier_log_sha256": "6c01cc39367b86a973355f6ab3513b028433553deaff2f323d15ed0c45930764",
+      "build_log_sha256": "551a5dbe9d2b58e033a4c093839b4b5ae382df15a2fdf43bc80b78f85e9c1794"
+    },
+    {
+      "mode": "direct-docker-runtime-not-native-harbor",
+      "task": "/Users/sebastienros/.copilot/copilot-worktrees/aspire-bench/sebros-vigilant-pancake/msbench/bingo-transfer/tasks/aspire",
+      "job": "x01-aspire-direct-v1",
+      "image": "x01-aspire-direct-v1:local",
+      "cpus": 4,
+      "memory_bytes": 8589934592,
+      "agent_timeout_seconds": 900,
+      "verifier_timeout_seconds": 300,
+      "started_at": "2026-11-05T16:14:01Z",
+      "build_contexts": [
+        "--build-context",
+        "diagnostics-common=https://github.com/sebastienros/aspire-bench.git#d3694ec111609a79073dcba35bc1f1b1c9517d8f:msbench/bingo-diagnostics/common",
+        "--build-context",
+        "aspire-app=https://github.com/sebastienros/aspire-bench.git#d3694ec111609a79073dcba35bc1f1b1c9517d8f:msbench/bingo/common/aspire-app",
+        "--build-context",
+        "aspire-skills=https://github.com/sebastienros/aspire-bench.git#1fcca7e91c89716f0e4a8bf7324da13a39f70c66:msbench/bingo/tasks/aspire/environment/skills"
+      ],
+      "image_id": "sha256:07a51ecfffd5a39c1b4857c17f8f58e26b196bc4172ddcd77beb7bc1ff07f881",
+      "container_id": "9c03900500105f93e9473441a244fb697bf97c7fbf9546150b6a0eb81054bad7",
+      "resource_limits": {
+        "nano_cpus": 4000000000,
+        "memory": 8589934592
+      },
+      "oracle_seconds": 6.390091917011887,
+      "verifier_seconds": 1.0923091670265421,
+      "reward": 1,
+      "exception": null,
+      "finished_at": "2026-11-05T16:14:50Z",
+      "receipts": {
+        "environment/application-setup.log": {
+          "bytes": 493,
+          "sha256": "b0233a4ee2b7be2289ff453f9e67c274196e78fd84783eb796766208428c916e"
+        },
+        "environment/docker.log": {
+          "bytes": 12706,
+          "sha256": "b33ad9d6b9ce4fcd25fcc70b14135d6dafda6ca81e97d5654913fe539af16962"
+        },
+        "environment/fault-setup.log": {
+          "bytes": 99,
+          "sha256": "1a480c6650e383f87711b16e5cfa775e79a236b7f2d89a8ead19122b97c6821e"
+        },
+        "environment/incident-evidence.json": {
+          "bytes": 5375,
+          "sha256": "216753b985ed7278b9b4395268403b3cb3af072eb56031e954734f4df9b5ce45"
+        },
+        "environment/negative-evidence.json": {
+          "bytes": 818,
+          "sha256": "74ee92d9b829963e7d057e2b5f3ccb7e77d6874ef4db54752a1e283f01fa1b2b"
+        },
+        "verifier/reward.txt": {
+          "bytes": 2,
+          "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+        }
+      },
+      "incident": {
+        "fault": "redis-acl-write-denial-v1",
+        "seed": 83,
+        "namespace": "cedar83",
+        "target": "/cedar83-quill",
+        "targetId": "56521dd5eab5b990a1e093a37417a9255bbf9c1a063659128a1ea93169ee6a2a",
+        "neighbor": "/cedar38-quill",
+        "neighborId": "bc3110accd8906759d79ad84ba522094c10ed816255cf64d415663346f40090f",
+        "actualCallStatus": 500,
+        "redisWriteError": "NOPERM User default has no permissions to run the 'set' command",
+        "ping": "PONG",
+        "sentinelReadPreserved": true,
+        "statusReadPreserved": true,
+        "playerLoginVersionHttp": 200,
+        "targetAclBeforeDigest": "81fd1e1d800763547d6805c7b9c8a634db011fe5d0c3fda4962bb840b85b9cef",
+        "targetAclFaultDigest": "b853e06c18bbdab9dc908815c1ea093e2ff4d9aacf5414290490137d64646db6",
+        "originalSecurityConfigDigest": "f59dce071ca2ca4b0dbc40561d5c90ef107d2dc890c9c5d59907ff1af33da18c",
+        "originalCredentialsVerified": true,
+        "backendTls": true,
+        "containers": [
+          {
+            "id": "bc3110accd8906759d79ad84ba522094c10ed816255cf64d415663346f40090f",
+            "name": "/cedar38-quill",
+            "image": "sha256:fe236f689152ead100ee467039ba95769307b37f7c5559bc91a1a0ebfc26abee",
+            "startedAt": "2026-11-05T16:14:37.042585712Z",
+            "restarts": 0,
+            "running": true,
+            "paused": false,
+            "labels": {
+              "com.docker.compose.project": "cedar38",
+              "com.docker.compose.service": "quill"
+            },
+            "mounts": [],
+            "ports": {},
+            "configuration": "33954f6ba0ca4f2a2850c00da0d44abd498c8d00690dd1627f6c4b6b9ffbc4f3"
+          },
+          {
+            "id": "9bd7ba19ba0162a04e52ac9be4190551c7feda62bb9689406c0e448149f3f33f",
+            "name": "/cedar83-ledger",
+            "image": "sha256:0e44620f2c3720714a21ef0761baee9326fcb32851ccf1278fa96d895e766e89",
+            "startedAt": "2026-11-05T16:14:28.686734083Z",
+            "restarts": 0,
+            "running": true,
+            "paused": false,
+            "labels": {
+              "com.microsoft.developer.usvc-dev.build": "0.26.4",
+              "com.microsoft.developer.usvc-dev.createFiles": "f02b9085e55e282bb39235f323d4d174fdfa78ed08c3bbea23b653b58308a925",
+              "com.microsoft.developer.usvc-dev.creatorProcessId": "500",
+              "com.microsoft.developer.usvc-dev.creatorProcessStartTime": "0001-01-01T00:15:18.990Z",
+              "com.microsoft.developer.usvc-dev.env": "POSTGRES_HOST_AUTH_METHOD\nPOSTGRES_INITDB_ARGS\nPOSTGRES_USER\nPOSTGRES_PASSWORD\nSSL_CERT_DIR",
+              "com.microsoft.developer.usvc-dev.group-version": "usvc-dev.developer.microsoft.com/v1",
+              "com.microsoft.developer.usvc-dev.lifecycle-key": "d62ae21bcfbe8727b32055d888dc5c34",
+              "com.microsoft.developer.usvc-dev.mountsLabel": "type=volume,src=cedar83-data",
+              "com.microsoft.developer.usvc-dev.name": "cedar83-ledger",
+              "com.microsoft.developer.usvc-dev.pemCertificates": "315b9722d1844ffa397ee620d226e79c9a8d8821890779e77cc120ef7cf395b5",
+              "com.microsoft.developer.usvc-dev.persistent": "false",
+              "com.microsoft.developer.usvc-dev.ports": "5432/tcp",
+              "com.microsoft.developer.usvc-dev.uid": "d6d743bd-7332-4fc0-b6f7-d7e631f2a229"
+            },
+            "mounts": [
+              {
+                "Type": "volume",
+                "Name": "cedar83-data",
+                "Source": "/var/lib/docker/volumes/cedar83-data/_data",
+                "Destination": "/var/lib/postgresql",
+                "Driver": "local",
+                "Mode": "z",
+                "RW": true,
+                "Propagation": ""
+              }
+            ],
+            "ports": {
+              "5432/tcp": [
+                {
+                  "HostIp": "127.0.0.1",
+                  "HostPort": ""
+                }
+              ]
+            },
+            "configuration": "5d478301006e5bbc1a176e34af253af61b646623e44ef71130ea63c1e6c78e45"
+          },
+          {
+            "id": "56521dd5eab5b990a1e093a37417a9255bbf9c1a063659128a1ea93169ee6a2a",
+            "name": "/cedar83-quill",
+            "image": "sha256:fe236f689152ead100ee467039ba95769307b37f7c5559bc91a1a0ebfc26abee",
+            "startedAt": "2026-11-05T16:14:27.325929222Z",
+            "restarts": 0,
+            "running": true,
+            "paused": false,
+            "labels": {
+              "com.microsoft.developer.usvc-dev.build": "0.26.4",
+              "com.microsoft.developer.usvc-dev.createFiles": "7e0e468a7e055b2e4876a5c83b44abc4c97471d89998786675ec207b83aec28f",
+              "com.microsoft.developer.usvc-dev.creatorProcessId": "500",
+              "com.microsoft.developer.usvc-dev.creatorProcessStartTime": "0001-01-01T00:15:18.990Z",
+              "com.microsoft.developer.usvc-dev.env": "REDIS_PASSWORD\nSSL_CERT_DIR",
+              "com.microsoft.developer.usvc-dev.group-version": "usvc-dev.developer.microsoft.com/v1",
+              "com.microsoft.developer.usvc-dev.lifecycle-key": "4a2aea358cba1d37a21e1ba81447b402",
+              "com.microsoft.developer.usvc-dev.name": "cedar83-quill",
+              "com.microsoft.developer.usvc-dev.pemCertificates": "315b9722d1844ffa397ee620d226e79c9a8d8821890779e77cc120ef7cf395b5",
+              "com.microsoft.developer.usvc-dev.persistent": "false",
+              "com.microsoft.developer.usvc-dev.ports": "6380/tcp\n6379/tcp",
+              "com.microsoft.developer.usvc-dev.uid": "671d6366-5fa3-4491-9c8b-ef3663670fd8"
+            },
+            "mounts": [],
+            "ports": {
+              "6379/tcp": [
+                {
+                  "HostIp": "127.0.0.1",
+                  "HostPort": ""
+                }
+              ],
+              "6380/tcp": [
+                {
+                  "HostIp": "127.0.0.1",
+                  "HostPort": ""
+                }
+              ]
+            },
+            "configuration": "26fea45dce10d873bc7613e7c3426983cd18f2ee89621b07542c7c7a737f836a"
+          }
+        ]
+      },
+      "negatives": {
+        "rejected": [
+          "no-op/read-only health",
+          "wrong-neighbor repair while target writes remain denied",
+          "source/guidance shortcut",
+          "substituted endpoints",
+          "lost original cache data",
+          "lost original called state",
+          "changed original SQL data",
+          "neighbor data modification",
+          "incomplete original permission recovery",
+          "wrong-neighbor ACL denial",
+          "wrong-neighbor action hidden by restoring final ACL",
+          "re-armed unchanged fault"
+        ],
+        "targetId": "56521dd5eab5b990a1e093a37417a9255bbf9c1a063659128a1ea93169ee6a2a",
+        "neighborId": "bc3110accd8906759d79ad84ba522094c10ed816255cf64d415663346f40090f",
+        "originalSecurityRestoredBeforeRearm": true,
+        "oracleOnlyRearm": "Same persistent ACL denial; only event window advances after restoring deliberate negative mutations"
+      },
+      "verifier_output": "Verified X01: actual HTTP/SQL/Redis effects, exact original ACL/credentials/TLS/data and in-place target recovery.",
+      "log_directory": "/Users/sebastienros/.copilot/session-state/1526d9f0-55be-4ead-a2e3-c0ade15b900f/files/direct-jobs/x01-aspire-direct-v1",
+      "oracle_log_sha256": "31ba4bc02a1954c978d31d129526ac822fb4638825839b44a1213492766cb00e",
+      "verifier_log_sha256": "6c01cc39367b86a973355f6ab3513b028433553deaff2f323d15ed0c45930764",
+      "build_log_sha256": "b80bf70ddcf2b143698105317e741f01d946ae6020112eb6656386c1757d8a00"
+    }
+  ],
+  "model_runs": [],
+  "native_harbor_pass": false,
+  "scope": "actual fixture/negative/oracle/verifier runtime proof, not native Harbor or remote/cloud/model proof",
+  "prior_attempts": [
+    {
+      "job": "x01-raw-v1",
+      "mode": "native-harbor",
+      "status": "stopped-wrapper-anomaly",
+      "observation": "job/trial metadata created but no image, container, build or execution output; stopped without modifying/upgrading global Harbor",
+      "job_directory": "/Users/sebastienros/.copilot/session-state/1526d9f0-55be-4ead-a2e3-c0ade15b900f/files/jobs/x01-raw-v1"
+    },
+    {
+      "job": "x01-raw-direct-v1",
+      "mode": "direct-docker",
+      "status": "real-incident-reproduced-oracle-rejected-redundant-positive-acl-representation",
+      "original_result": {
+        "mode": "direct-docker-runtime-not-native-harbor",
+        "task": "/Users/sebastienros/.copilot/copilot-worktrees/aspire-bench/sebros-vigilant-pancake/msbench/bingo-transfer/tasks/raw-scripted",
+        "job": "x01-raw-direct-v1",
+        "image": "x01-raw-direct-v1:local",
+        "cpus": 4,
+        "memory_bytes": 8589934592,
+        "agent_timeout_seconds": 900,
+        "verifier_timeout_seconds": 300,
+        "started_at": "2026-11-05T16:11:53Z",
+        "build_contexts": [
+          "--build-context",
+          "diagnostics-common=https://github.com/sebastienros/aspire-bench.git#d3694ec111609a79073dcba35bc1f1b1c9517d8f:msbench/bingo-diagnostics/common",
+          "--build-context",
+          "raw-workflow=https://github.com/sebastienros/aspire-bench.git#d3694ec111609a79073dcba35bc1f1b1c9517d8f:msbench/bingo-diagnostics/tasks/raw-scripted/environment/app",
+          "--build-context",
+          "raw-app=https://github.com/sebastienros/aspire-bench.git#d3694ec111609a79073dcba35bc1f1b1c9517d8f:msbench/bingo/common/raw-app"
+        ],
+        "image_id": "sha256:1b11b0f311a72df8e3f4bdbc8449fe6cc016257ad81b63afc76413cedc19407b",
+        "container_id": "857facecbba633bba6b651ccc9aeb4f00ccf59e739394e91b0d61f405f75bda2",
+        "resource_limits": {
+          "nano_cpus": 4000000000,
+          "memory": 8589934592
+        },
+        "reward": null,
+        "exception": "RuntimeError: docker failed with 1; see /Users/sebastienros/.copilot/session-state/1526d9f0-55be-4ead-a2e3-c0ade15b900f/files/direct-jobs/x01-raw-direct-v1/oracle.log",
+        "finished_at": "2026-11-05T16:12:41Z",
+        "receipts": {
+          "environment/application-setup.log": {
+            "bytes": 19546,
+            "sha256": "1959f40a1cd10ed07931b43303ca25596e5cf3608d2aa0d00036d8d92f648eda"
+          },
+          "environment/docker.log": {
+            "bytes": 12706,
+            "sha256": "e01ce0e86b82f1726aa3bec814f60dc8b8502f0d9c77f09a10db8d4630f0e04b"
+          },
+          "environment/fault-setup.log": {
+            "bytes": 99,
+            "sha256": "1a480c6650e383f87711b16e5cfa775e79a236b7f2d89a8ead19122b97c6821e"
+          },
+          "environment/incident-evidence.json": {
+            "bytes": 4359,
+            "sha256": "a35873346dbcd10eca3e463205433c153fa007177d4170ef090c9d28a61fe095"
+          }
+        }
+      },
+      "oracle_log_sha256": "3bced195d6e9b2051985475d34f85d3d7373b9b0363ce0d38fd28d3f9acd2767",
+      "correction": "Canonicalize only +@all command sets with no denials; Redis 8.6 preserves redundant +@write after recovery. Keep flags/credentials/key/channel restrictions and server config exact.",
+      "model_retry": false
+    }
+  ]
+}

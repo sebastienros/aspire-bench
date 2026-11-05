@@ -8,7 +8,15 @@ export const restoreWrites = ["ACL", "SETUSER", "default", "+@write"];
 export function normalizeAcl(lines) {
     assert(Array.isArray(lines) && lines.every(line => typeof line === "string"),
         "Actual Redis ACL LIST required");
-    return [...lines].sort();
+    return lines.map(line => {
+        const tokens = line.split(" ");
+        const commands = tokens.filter(token => /^[+-]/.test(token));
+        // Redis 8.6 retains redundant positive grants after category recovery.
+        if (commands.includes("+@all") && commands.every(token => token.startsWith("+"))) {
+            return [...tokens.filter(token => !/^[+-]/.test(token)), "+@all"].join(" ");
+        }
+        return line;
+    }).sort();
 }
 
 export function defaultAcl(lines) {

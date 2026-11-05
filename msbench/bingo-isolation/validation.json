@@ -1,14 +1,15 @@
 {
   "scenario": "s01-two-real-apps-v1",
-  "status": "static-ready-runtime-pending",
-  "priority": "after X01 paired local oracle gates",
+  "status": "paired-direct-docker-runtime-passed-model-pending",
+  "priority": "executed after both priority X01 local gates passed",
   "source": {
     "repository": "sebastienros/aspire-bench",
     "origin": "https://github.com/sebastienros/aspire-bench.git",
     "branch": "sebros/bingo-held-out-fault-transfer",
     "workspace": "/Users/sebastienros/.copilot/copilot-worktrees/aspire-bench/sebros-vigilant-pancake",
     "parent_base": "a2c88ccb6abb426d5fb4d4c93862971f085d7058",
-    "read_only_x01_adapter_commit": "ad8528f2607bbfabc07838881df69445789b52a0",
+    "initial_x01_adapter_commit": "ad8528f2607bbfabc07838881df69445789b52a0",
+    "validated_adapter_blobs": "evidence/local-runtime.json; includes observed Redis redundant-positive-grant canonicalization correction",
     "application_diagnostics_workflow": "d3694ec111609a79073dcba35bc1f1b1c9517d8f",
     "original_seven_skills": "1fcca7e91c89716f0e4a8bf7324da13a39f70c66"
   },
@@ -24,20 +25,25 @@
     "redis_containers": 2
   },
   "static_validation": {
-    "focused_tests_passed": 7,
-    "focused_tests_total": 7,
+    "focused_tests_passed": 8,
+    "focused_tests_total": 8,
     "bash_javascript_syntax": "passed",
     "harbor_print_config": "both arms accepted without Docker",
     "build_contexts": "environment-local deterministic archive; immutable public Git sources; no broad filesystem grant"
   },
-  "docker_slot": "no grant yet; no Docker calls made",
-  "local_oracles": [],
+  "docker_slot": "explicit parent grant; both X01 then both S01 gates complete; all owned runners removed; slot returned",
+  "local_oracles": [
+    { "arm": "raw-scripted", "job": "s01-raw-direct-v1", "reward": 1, "runtime_negative_rejections": 12 },
+    { "arm": "aspire", "job": "s01-aspire-direct-v1", "reward": 1, "runtime_negative_rejections": 12 }
+  ],
+  "runtime_mode": "direct-docker-runtime-not-native-harbor",
+  "receipts": "evidence/local-runtime.json",
   "model_runs": [],
   "claims": {
     "resource_decoy_is_two_app_proof": false,
-    "runtime_two_app_proof_obtained": false,
+    "runtime_two_app_proof_obtained": true,
     "independent_application_domain": false,
     "editor_owned_or_host_managed_git_worktree_proof": false,
-    "scope": "two actual Bingo app instances in sibling source workspace directories inside one private Harbor runner, pending live proof"
+    "scope": "two actual Bingo app instances in sibling source workspace directories inside one private Docker runner; both oracle and external verifier passed, not native Harbor/cloud/model/editor-owned-worktree proof"
   }
 }
