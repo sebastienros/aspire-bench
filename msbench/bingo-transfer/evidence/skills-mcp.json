@@ -1,0 +1,71 @@
+{
+  "scenario": "X01",
+  "variant": "skills-mcp",
+  "status": "static-checked-local-live-gate-pending",
+  "condition": "original-seven-skills-plus-native-and-Harbor-MCP",
+  "fault": "redis-acl-write-denial-v1",
+  "fault_seed": 83,
+  "namespace": "cedar83",
+  "comparison": "one additional unique combined-mechanism cell; no repeat of the original raw-scripted or skills-only conditions",
+  "source": {
+    "origin": "https://github.com/sebastienros/aspire-bench.git",
+    "branch": "sebros/bingo-held-out-fault-transfer",
+    "local_base": "acfec6e528d7929178c096157a6b206f0b3fd1f1",
+    "validated_x01_public_commit": "67f2ac195c653009972508203f84900368912fee",
+    "existing_archive_sha256": "6e690a08c716314d158217cfac84779d0a577c0f5f165a2b18d9ba97d3b7cc7f",
+    "existing_apphost_sha256": "ccbbc939dcde6bc21ee50f948a2a339408525498a91c8ec3f3cb4a63312b6444",
+    "native_mcp_config_sha256": "63ad757e80e8bfd5568ce0293e6632d44432fce82cba21fee18eed73c77d20ad",
+    "public_byte_identity": "GitHub contents at exact public revision checked against local archive, AppHost and native MCP config",
+    "application_diagnostics_workflow": "d3694ec111609a79073dcba35bc1f1b1c9517d8f",
+    "original_seven_skills": "1fcca7e91c89716f0e4a8bf7324da13a39f70c66",
+    "existing_common_archives_receipts": "unchanged"
+  },
+  "treatment": {
+    "native": "/app/.github/mcp.json retained from original app source",
+    "harbor": "environment.mcp_servers stdio aspire agent mcp --non-interactive --nologo",
+    "skills": "original seven unchanged general skills in native and declared Harbor locations",
+    "model_tool_use_required": false,
+    "prompt_grade_fault_ownership_budgets": "identical to original X01 Aspire arm"
+  },
+  "oracle_preflight": {
+    "location": "tasks/skills-mcp/solution/mcp-probe.mjs",
+    "copied_into_agent_image": false,
+    "runtime_evidence_path": "/logs/environment/mcp-preflight-evidence.json",
+    "requires": [
+      "live MCP initialize/tools/list",
+      "actual /app/apphost.cs discovery and successful exact selection",
+      "actual cedar83-quill, cedar83-ledger, steward and mosaic resources",
+      "actual steward NOPERM console logs before oracle permission recovery"
+    ],
+    "generic_redis_timeout_or_schema_only_sufficient": false,
+    "receipts": "tool names, response lengths/digests and booleans; no raw credential-bearing responses",
+    "live_result": "pending explicit Docker slot and parent remote oracle"
+  },
+  "budget": {
+    "agent_seconds": 900,
+    "verifier_seconds": 300,
+    "planned_model": "gpt-6.1-terra",
+    "maximum_original_model_attempts": 1,
+    "submission_owner": "parent only after local and remote oracle gates"
+  },
+  "static_validation": {
+    "existing_checks_passed_unchanged": 19,
+    "new_combined_cell_checks_passed": 4,
+    "total_checks_passed": 23,
+    "protocol_tests": "mock stdio only; no live Aspire/Docker or MCP availability claim",
+    "harbor_print_config": "new task accepted without Docker",
+    "javascript_bash_syntax": "passed",
+    "existing_common_archives_receipt_hashes": "unchanged; existing runtime-bound checks pass"
+  },
+  "docker_calls": 0,
+  "local_oracles": [],
+  "remote_oracles": [],
+  "model_runs": [],
+  "inference": {
+    "mechanism_transfer_proven": false,
+    "mcp_available_or_used_proven": false,
+    "aspire_advantage": "not established",
+    "independent_application_domain": false,
+    "statistical_generalization": false
+  }
+}
