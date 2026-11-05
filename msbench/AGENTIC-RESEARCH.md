@@ -19,6 +19,14 @@ Earlier storage/setup blocks and pending-language execution entries are retained
 as dated history, not current state. Genuine conversation continuation and
 cross-application/model generalization remain explicitly unmeasured.
 
+**User-directed comparison correction:** The historical P01 fixture was not
+deployment-ready and charged the agent for adding the deployment model.
+Its timings cannot isolate operation of two already configured apps.
+The separate [preconfigured pair](bingo-publishing/CONFIGURED.md) supplies the
+complete AppHost and equivalent raw Compose before the agent starts, with
+identical outcome-only prompts. Both native local oracles pass; no additional
+model condition has been run or added to the 22-condition accounting.
+
 ## Objective and current answer
 
 Determine when Aspire increases independently verified task completion within a
@@ -47,7 +55,7 @@ infrastructure/setup/oracle/replay durations are excluded.
 | [A01 cold adoption](bingo-adoption/PILOT.md) | 2 | Not a raw comparison | Original/generated skills 412.8/535.7; both original native zeros preserved, unchanged sources pass corrected local grading |
 | [X01 held-out ACL fault](bingo-transfer/PILOT.md) | 3 | 49.5 | Original skills 82.4, combined 98.6; all native passes, combined genuinely uses nine MCP calls |
 | [S01 two complete apps](bingo-isolation/PILOT.md) | 2 | 56.4 | 68.4; both native passes and preserve the other app |
-| [P01 production publishing](bingo-publishing/PILOT.md) | 2 | 144.4 | 324.5; both native passes with real Production .NET/nginx/SignalR/SQL/Redis |
+| [P01 production publishing](bingo-publishing/PILOT.md) | 2 | 144.4 | 324.5; both native passes, but includes unequal deployment-model preparation rather than two preconfigured apps |
 
 There are **19 native reward-1 records and three grader-invalid native zeros**.
 The three exact-source successful replays are separate local ARM64 adjudication
@@ -80,7 +88,7 @@ without an observed Aspire correctness advantage on the matched pairs.
 | Emit valid empty JSON for a successful empty resource snapshot | [Local source fix](source-builds/empty-json/report.md), branch `sebros/agentic-empty-json`, change `fafe6482`: 66 focused Debug/Release cases and matched binary proof, 0 to 22 stdout bytes; no upstream merge or measured agent speed claim |
 | Make the complete known-target workflow directly discoverable | Startup/specific health recipes reduce discovery in their original experiments; generic CLI health guidance was slower. Keep routing/safety coverage, avoid mandatory broad discovery/reporting, and use exact version-matched endpoint/resource schemas |
 | Offer operation-aware, bounded MCP diagnosis rather than forcing more tool calls | D01 and X01 actually consume MCP/logs. X01's nine successful calls exposed NOPERM but cost more time; installed/advertised/reachable/used/useful/faster remain separate facts |
-| Provide a complete version-matched production publishing recipe | P01 exposes 60 versus 36 tools and substantial API discovery. Explicit image tags, `.env.Production`, dashboard/topology and external ownership conventions are locally/remote validated; a recipe speed improvement itself has not been measured |
+| Start operational comparisons with complete, matched deployment models | Original P01 included unequal model authoring, so its 60 versus 36 tools cannot establish an operational efficiency difference. New preconfigured AppHost/raw Compose plus deployment command pass native local oracles with unchanged models; no new model measurement |
 | Grade requested behavior and semantic configuration, not reference text | Corrected F01 origins and A01 additive dependency/actual physical-DB checks; original zeros, exact patches, one transport-only final-LF normalization and all unchanged-source replay provenance retained |
 
 The [complete managed x64 source payload](source-builds/aspire-managed-baseline.json)

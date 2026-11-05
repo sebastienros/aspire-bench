@@ -23,6 +23,11 @@ was slower with Aspire; [combined ACL diagnosis](bingo-transfer/PILOT.md)
 used MCP successfully but did not transfer D01's small timing edge.
 The [current conclusions and result index](AGENTIC-RESEARCH.md#completed-pilot-result-index)
 separate observations, implemented fixes and remaining generalization limits.
+For publishing already configured apps, the separate
+[preconfigured pair](bingo-publishing/CONFIGURED.md) supplies complete matching
+deployment models and identical outcome-only prompts. Both native local oracles
+pass; no new model trial has been submitted. Historical P01 times include
+deployment-model authoring and do not isolate operational efficiency.
 Earlier Docker/storage failures are
 retained as historical infrastructure evidence, not the current engine state.
 

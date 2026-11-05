@@ -491,6 +491,16 @@ The [model report](bingo-publishing/PILOT.md) retains exact native timing,
 cost/token/hash provenance and the adverse observation: no speed/cost advantage
 in this pair, n=1 per arm. Oracle/setup timings are not pooled with agent time.
 
+**Comparison-design correction:** The original Aspire fixture omitted its
+complete deployment target/frontend, leaving that wiring to the agent.
+The raw arm also authored Compose, but the preparation work was not equivalent.
+Those measurements therefore do not isolate operation of two already
+configured apps. User-directed [preconfigured variants](bingo-publishing/CONFIGURED.md)
+now provide the complete AppHost and matching raw Compose plus a deployment
+command before the agent starts, with identical outcome-only prompts.
+Existing model results remain unchanged; new fixture validation is not a new
+model sample or retroactive evidence of a speed difference.
+
 ## F11: Feature/data-evolution correctness needs real state, not readiness
 
 **Evidence:** The [bounded F01/M01 tasks](bingo-evolution/README.md#local-outcomes-2026-11-04)

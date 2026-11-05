@@ -1,5 +1,12 @@
 # P01: Bingo isolated local publishing
 
+**For comparisons of already configured apps, use the
+[preconfigured pair](CONFIGURED.md).** Both contain complete production models
+and a supplied deployment command; the prompts are identical and outcome-only.
+Both native local oracles pass, with no new model run. The historical P01
+results below include unequal deployment-model preparation and must not be
+treated as an isolated comparison of operating configured Aspire/raw apps.
+
 **Both original Terra production-publishing runs passed.**
 Raw observed 144.4 s/36 tools/USD 0.09848; Aspire 324.5 s/60 tools/USD 0.14063.
 There is no observed Aspire speed or cost advantage in this one-sample pair.

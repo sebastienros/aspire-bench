@@ -1,0 +1,81 @@
+{
+  "status": "native-local-oracle-validated-no-model",
+  "common_commit": "8255977f24d4bf0ff272ed72b3205f81d66d7367",
+  "business_commit": "baacba3e17181491c9a4d419db7d0e6763c3d363",
+  "prompt_sha256": "e3fa6b849851b3e5934c223b4128c586bc21d443877914549153451bbb5a57c3",
+  "model_runs": [],
+  "method": "native-harbor-oracle-force-build",
+  "harbor_version": "0.20.0",
+  "platform": "linux-arm64",
+  "declared_limits": {
+    "cpus": 4,
+    "memory_mb": 8192,
+    "agent_seconds": 900,
+    "verifier_seconds": 300
+  },
+  "live_resource_inspection": {
+    "variant": "aspire-configured",
+    "container_id": "cf6158c923547d029d940bbae56a88798be4c44498d07341ebd7ba799630e15d",
+    "nano_cpus": 4000000000,
+    "memory_bytes": 8589934592,
+    "image_id": "sha256:150088b429db9e955f8e8f7002310ee2f171b9bc431f7359f6d37ddd9669db6b"
+  },
+  "owned_containers_removed": true,
+  "unrelated_workloads_modified": false,
+  "remote_model_submission_eligible": false,
+  "remote_gate": "Independent native cloud oracle required before any new model submission.",
+  "runs": [
+    {
+      "variant": "raw-configured",
+      "job": "p01-raw-preconfigured-v1",
+      "trial": "raw-configured__nYzDxGf",
+      "native_task_checksum": "94b1e4f1f6ada2ce90697daea46a0de39593cf07bafb999000de2e0256ca1aa0",
+      "reward": 1,
+      "exception": null,
+      "result_sha256": "61ab93ecc66c10454740cbf54d0659ffac87f1e0a67c461c6c1095b6c74f54e8",
+      "oracle_sha256": "38141e4b0fb3695d95ff8513c2768a61efaf7c46d96681942c7977367cc76a40",
+      "verifier_sha256": "8eb741c14b370a195981f03a9fa171493bd33cd6a6c55a3ac9b8b9eeeb5bf2f3",
+      "checks_sha256": "f62403e69a13d8160f0454d9baeca4ecf37bbb84619a51c5fdb324e53ea2497f",
+      "original_model_sha256": "65997c70d624ea9f7c69d1ae8996c79b6479fa6ddeccbbaa80aead7c32ed2942",
+      "retained_model_sha256": "65997c70d624ea9f7c69d1ae8996c79b6479fa6ddeccbbaa80aead7c32ed2942",
+      "model_unchanged": true,
+      "oracle_seconds": 27.565779,
+      "negative_cases_rejected": [
+        "no-op deployment",
+        "editing the supplied deployment model",
+        "immutable input edit",
+        "lost prior Redis state",
+        "nonrunning deployment",
+        "live Vite development server"
+      ],
+      "durable_job_root": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/configured-oracles/p01-raw-preconfigured-v1"
+    },
+    {
+      "variant": "aspire-configured",
+      "job": "p01-aspire-preconfigured-v1",
+      "trial": "aspire-configured__jVofcYw",
+      "native_task_checksum": "2f44cecbd35627fafade5c7b40e4ee1a994e2a6c47bb8d787a08a12b85fcf4de",
+      "reward": 1,
+      "exception": null,
+      "result_sha256": "ddc203b7bb05c8446d83e656cdcab370f67f1dce62379e386295544718d0ae8f",
+      "oracle_sha256": "a14545a61ffd1d7738e9e43032f3822d71c9e01d29fd2bfcfdf138677ddb87d6",
+      "verifier_sha256": "32723d3b5d7207019463e8062a4798c7a244c98ef42ece32f570e4b7f2c57b45",
+      "checks_sha256": "e128d5c460449636b357448f41c995090d821cb3db8c91758bbfaa14529bcadb",
+      "original_model_sha256": "5281fd26d55dd439bfcb49a966b233b6d9e7c0a11762539e26a83b3a199433f7",
+      "retained_model_sha256": "5281fd26d55dd439bfcb49a966b233b6d9e7c0a11762539e26a83b3a199433f7",
+      "model_unchanged": true,
+      "oracle_seconds": 73.353488,
+      "negative_cases_rejected": [
+        "no-op deployment",
+        "publish-only artifacts without deployment",
+        "editing the supplied deployment model",
+        "immutable input edit",
+        "lost prior Redis state",
+        "ejected fake YAML",
+        "nonrunning deployment",
+        "live Vite development server"
+      ],
+      "durable_job_root": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/configured-oracles/p01-aspire-preconfigured-v1"
+    }
+  ]
+}

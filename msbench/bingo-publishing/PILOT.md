@@ -15,6 +15,12 @@ timings. Aspire took 180.1 seconds longer (2.25 times the raw observation).
 One attempt per arm cannot establish a population effect, but this pair does
 not demonstrate an Aspire speed or cost advantage.
 
+**Design limitation:** This original pair included deployment-model authoring:
+the Aspire AppHost was not deployment-ready and the raw arm authored Compose.
+It does not isolate publishing from already complete raw/Aspire configurations.
+The user-directed [preconfigured correction](CONFIGURED.md) is a separate
+prospective task pair, not a relabeling or rerun of these measurements.
+
 ## What actually passed
 
 Both deployed real published .NET 10 Production and nginx/Vue containers.
