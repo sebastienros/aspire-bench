@@ -21,6 +21,13 @@ independent application sample or a rerun of the same condition.
 
 ## Independent proof
 
+Both final local conditions now passed their force-built Docker oracles after
+recovery, including source preservation, allocated ports, supplied-secret
+reference and functional SQL/Redis behavior. Their receipts are distinct from
+the earlier interrupted validation. Portable build contexts now use exact
+public Git snapshots for helpers and generated skills rather than sibling
+filesystem paths; this is a packaging correction with unchanged runtime inputs.
+
 The grader invokes the installed CLI against the newly created AppHost and
 discovers real running admin/frontend resources. It rejects missing orchestration,
 changed original source/guidance, reuse of raw fixed application ports, and an

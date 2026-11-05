@@ -24,11 +24,11 @@ general claim that Aspire beats well-supported raw development. See
 | Question | Existing evidence | Missing proof / next experiment |
 |---|---|---|
 | Does Aspire improve real development? | Original startup/assessment runs did not establish a speed advantage; I01 both passed with no Aspire tool use or advantage shown | Runtime diagnosis and broader change/repair tasks against raw-scripted, with hidden behavioral grading |
-| Do focused skills help? | Specific health guidance reduced within-Aspire health sum from 145.3 to 41.3 s (three trials/arm) | Same knowledge/recipe, varied trigger only; unseen names/apps |
+| Do focused skills help? | Specific health guidance reduced within-Aspire health sum from 145.3 to 41.3 s; D01 description-only case observed 81.5 vs 94.1 s with identical body | More fault/name transfer and replication; one metadata sample is not a causal latency estimate |
 | Must the router/general skills be removed? | Startup remained directly selected with the full bundle available | Routing and safety coverage outside startup; no removal justified |
 | Is the CLI itself slow? | Health `describe` commands took 0.09-0.14 s; generic workflow was slower overall | Hold observations constant and vary known-target/reporting guidance separately |
 | Do explicit integration names help agents? | PR 21279 local output exposes Redis/PostgreSQL and passes Docker oracles | Matched parent/treatment source builds, then randomized model trials |
-| Does MCP help? | Installation is not use; no startup advantage established | Natural CLI/MCP choice on scoped diagnosis/trace tasks, with verified availability/use |
+| Does MCP help? | D01 actually consumed MCP: combined skills/MCP observed 68.1 s, skills-only 94.1, raw 72.4; all passed | Different faults and task outcomes; do not generalize one sample or force irrelevant calls |
 | Does retained context help? | Prior runner probes did not prove conversation continuation | Validate runner/thread continuity first; fresh handoff remains separate |
 | Is Bingo sufficient? | Supports HTTP, Vue proxy/HMR, PostgreSQL, Redis and SignalR | Add iteration/diagnosis first; use eShop only for genuine topology/queue transfer needs |
 
@@ -460,3 +460,35 @@ origin-backed worktree:
 branch `sebros/bingo-held-out-fault-transfer`. It changes namespace/names and
 uses real Redis ACL write denial rather than the original pause fault.
 Static work is ready; no Docker/model execution before its serialized slot.
+
+### 2026-11-04: diagnostic model results
+
+All seven labeled replacement conditions actually ran `gpt-6.1-terra` with
+resolved CLI 1.0.99-0 and passed protected runtime/preservation grading.
+Original seven jobs had failed before any model execution and remain classified
+as infrastructure, not model failures. [Pilot report](bingo-diagnostics/PILOT.md)
+and [exact metrics](bingo-diagnostics/pilot-results.json) preserve both histories.
+
+| Condition | Native agent seconds | Actual tool use |
+|---|---:|---|
+| Raw scripted | 72.4 | 33 ordinary tool calls |
+| CLI/no guidance | 127.4 | 41 ordinary tool calls |
+| Original skills | 94.1 | Monitoring loaded, 33 calls |
+| MCP only | 120.5 | Seven MCP calls, 43 total |
+| Original skills + MCP | 68.1 | Monitoring + four MCP calls, 31 total |
+| Generated skills | 80.6 | Same unchanged monitoring body, 32 calls |
+| Description-only trigger | 81.5 | Same monitoring body, 33 calls |
+
+The combined run's 4.3-second edge over raw is not proof of product superiority.
+Within this case guidance plus tools is the promising observable mechanism.
+The generator changed router/init, not the loaded monitoring knowledge.
+One sample per cell, old client catalog behavior, uncontrolled scheduling/cache,
+and regression-oriented root-container isolation constrain interpretation.
+Seven malformed native tool-output JSONL lines were normalized only in memory
+as literal invalid-escape backslashes; no events or raw files were discarded.
+Runner cost estimates sum to approximately USD 0.698, not billing.
+
+F01/M01 both final local pairs now also passed after correcting actual restart,
+credential and HTTP error-body contracts; portable public-Git graph proof and
+their model pilots are next. P01 and X01 still own/await the serialized local
+runtime slot; no unvalidated cell is submitted to a model.

@@ -1,0 +1,320 @@
+{
+  "scenario": "D01/H01/resource-scoped S01",
+  "sample_size_per_condition": 1,
+  "results": [
+    {
+      "variant": "raw-scripted",
+      "run_id": "2026110505473298",
+      "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110505473298",
+      "attempt_role": "infrastructure-replacement",
+      "replaces_run_id": "2026110503794340",
+      "reward": 1,
+      "exception": null,
+      "actual_model": "gpt-6.1-terra",
+      "actual_vendor_cli": "1.0.99-0",
+      "native_agent_started_at": "2026-11-05T01:34:54.769003Z",
+      "native_agent_finished_at": "2026-11-05T01:36:07.173916Z",
+      "native_agent_seconds": 72.404913,
+      "input_tokens_including_cache": 397677,
+      "cache_tokens_subset": 356680,
+      "uncached_input_tokens": 40997,
+      "output_tokens": 3811,
+      "runner_reported_cost_usd": 0.0881255,
+      "tool_counts": {
+        "view": 12,
+        "bash": 15,
+        "rg": 5,
+        "read_bash": 1
+      },
+      "tool_calls": 33,
+      "mcp_tool_counts": {},
+      "mcp_calls": 0,
+      "loaded_skills": [],
+      "model_calls": 13,
+      "native_result_sha256": "c9db0534cc936e84c2d8daf7b51399dccd722dca82ebfe85454b10bd5a21634c",
+      "raw_trajectory_sha256": "6d9378f52fa1aefe0b3942d795b53324500d0ba4efa9dcc0fc9fe84c15f74144",
+      "trace_reader_normalizations": [],
+      "evidence_root": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/cloud/diagnostic-replacements/raw-scripted"
+    },
+    {
+      "variant": "mcp",
+      "run_id": "2026110505477300",
+      "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110505477300",
+      "attempt_role": "infrastructure-replacement",
+      "replaces_run_id": "2026110503798446",
+      "reward": 1,
+      "exception": null,
+      "actual_model": "gpt-6.1-terra",
+      "actual_vendor_cli": "1.0.99-0",
+      "native_agent_started_at": "2026-11-05T01:35:11.882897Z",
+      "native_agent_finished_at": "2026-11-05T01:37:12.363824Z",
+      "native_agent_seconds": 120.480927,
+      "input_tokens_including_cache": 595698,
+      "cache_tokens_subset": 547739,
+      "uncached_input_tokens": 47959,
+      "output_tokens": 4456,
+      "runner_reported_cost_usd": 0.10960295,
+      "tool_counts": {
+        "view": 12,
+        "bash": 18,
+        "aspire-list_resources": 1,
+        "aspire-list_apphosts": 1,
+        "rg": 4,
+        "aspire-list_console_logs": 3,
+        "aspire-list_structured_logs": 2,
+        "read_bash": 1,
+        "glob": 1
+      },
+      "tool_calls": 43,
+      "mcp_tool_counts": {
+        "aspire-list_resources": 1,
+        "aspire-list_apphosts": 1,
+        "aspire-list_console_logs": 3,
+        "aspire-list_structured_logs": 2
+      },
+      "mcp_calls": 7,
+      "loaded_skills": [],
+      "model_calls": 17,
+      "native_result_sha256": "abf6350d1c436aa87b6bba5df6f370a56b591b671621ad17b8cd9a258e73f619",
+      "raw_trajectory_sha256": "c5247df97013bf12db352172e3ed2698b65e3ce46d2668f174de97a5cf085695",
+      "trace_reader_normalizations": [
+        {
+          "line": 261,
+          "type": "tool.execution_complete",
+          "operation": "Interpret only invalid JSON escape as literal backslash; raw file unchanged"
+        }
+      ],
+      "evidence_root": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/cloud/diagnostic-replacements/mcp"
+    },
+    {
+      "variant": "skills-mcp",
+      "run_id": "2026110505481250",
+      "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110505481250",
+      "attempt_role": "infrastructure-replacement",
+      "replaces_run_id": "2026110503802628",
+      "reward": 1,
+      "exception": null,
+      "actual_model": "gpt-6.1-terra",
+      "actual_vendor_cli": "1.0.99-0",
+      "native_agent_started_at": "2026-11-05T01:35:45.261333Z",
+      "native_agent_finished_at": "2026-11-05T01:36:53.318642Z",
+      "native_agent_seconds": 68.057309,
+      "input_tokens_including_cache": 340399,
+      "cache_tokens_subset": 294222,
+      "uncached_input_tokens": 46177,
+      "output_tokens": 3145,
+      "runner_reported_cost_usd": 0.08814985,
+      "tool_counts": {
+        "view": 13,
+        "bash": 9,
+        "glob": 1,
+        "skill": 1,
+        "aspire-list_resources": 1,
+        "aspire-list_structured_logs": 1,
+        "aspire-list_console_logs": 2,
+        "rg": 3
+      },
+      "tool_calls": 31,
+      "mcp_tool_counts": {
+        "aspire-list_resources": 1,
+        "aspire-list_structured_logs": 1,
+        "aspire-list_console_logs": 2
+      },
+      "mcp_calls": 4,
+      "loaded_skills": [
+        "aspire-monitoring"
+      ],
+      "model_calls": 10,
+      "native_result_sha256": "6117297359c636b566c05b1e5a0def3c05513eb509811bfea43211016f12ac2f",
+      "raw_trajectory_sha256": "35d4ba61248fde67654e5cc3c58f363b505a2c6773cbb1d66bf87683c426360f",
+      "trace_reader_normalizations": [
+        {
+          "line": 415,
+          "type": "tool.execution_complete",
+          "operation": "Interpret only invalid JSON escape as literal backslash; raw file unchanged"
+        }
+      ],
+      "evidence_root": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/cloud/diagnostic-replacements/skills-mcp"
+    },
+    {
+      "variant": "cli",
+      "run_id": "2026110505485914",
+      "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110505485914",
+      "attempt_role": "infrastructure-replacement",
+      "replaces_run_id": "2026110503806572",
+      "reward": 1,
+      "exception": null,
+      "actual_model": "gpt-6.1-terra",
+      "actual_vendor_cli": "1.0.99-0",
+      "native_agent_started_at": "2026-11-05T01:35:25.439545Z",
+      "native_agent_finished_at": "2026-11-05T01:37:32.806714Z",
+      "native_agent_seconds": 127.367169,
+      "input_tokens_including_cache": 571690,
+      "cache_tokens_subset": 515720,
+      "uncached_input_tokens": 55970,
+      "output_tokens": 4409,
+      "runner_reported_cost_usd": 0.11778225,
+      "tool_counts": {
+        "view": 13,
+        "bash": 23,
+        "glob": 2,
+        "rg": 3
+      },
+      "tool_calls": 41,
+      "mcp_tool_counts": {},
+      "mcp_calls": 0,
+      "loaded_skills": [],
+      "model_calls": 15,
+      "native_result_sha256": "e07b29104f52d8eab1e2eba3a44de1dbc6c58df26f1d8f9309c710bbc2368331",
+      "raw_trajectory_sha256": "5fb29274345e558ea5830fcba53dfc5da1f1132edd8a2f6c93454ef85fba453d",
+      "trace_reader_normalizations": [
+        {
+          "line": 186,
+          "type": "tool.shell_output",
+          "operation": "Interpret only invalid JSON escape as literal backslash; raw file unchanged"
+        },
+        {
+          "line": 187,
+          "type": "tool.execution_partial_result",
+          "operation": "Interpret only invalid JSON escape as literal backslash; raw file unchanged"
+        },
+        {
+          "line": 221,
+          "type": "tool.execution_partial_result",
+          "operation": "Interpret only invalid JSON escape as literal backslash; raw file unchanged"
+        },
+        {
+          "line": 222,
+          "type": "tool.execution_partial_result",
+          "operation": "Interpret only invalid JSON escape as literal backslash; raw file unchanged"
+        },
+        {
+          "line": 233,
+          "type": "tool.execution_complete",
+          "operation": "Interpret only invalid JSON escape as literal backslash; raw file unchanged"
+        }
+      ],
+      "evidence_root": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/cloud/diagnostic-replacements/cli"
+    },
+    {
+      "variant": "aspire",
+      "run_id": "2026110505489912",
+      "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110505489912",
+      "attempt_role": "infrastructure-replacement",
+      "replaces_run_id": "2026110503810546",
+      "reward": 1,
+      "exception": null,
+      "actual_model": "gpt-6.1-terra",
+      "actual_vendor_cli": "1.0.99-0",
+      "native_agent_started_at": "2026-11-05T01:35:29.877731Z",
+      "native_agent_finished_at": "2026-11-05T01:37:03.968783Z",
+      "native_agent_seconds": 94.091052,
+      "input_tokens_including_cache": 460647,
+      "cache_tokens_subset": 414191,
+      "uncached_input_tokens": 46456,
+      "output_tokens": 4124,
+      "runner_reported_cost_usd": 0.09938905,
+      "tool_counts": {
+        "view": 11,
+        "bash": 17,
+        "skill": 1,
+        "rg": 4
+      },
+      "tool_calls": 33,
+      "mcp_tool_counts": {},
+      "mcp_calls": 0,
+      "loaded_skills": [
+        "aspire-monitoring"
+      ],
+      "model_calls": 14,
+      "native_result_sha256": "3827b46d8a10d5039442521f709d55e37bd64edde9d675f7b3e055f44af1ff1c",
+      "raw_trajectory_sha256": "8b66c3aaff7a4f629611812b8deadaa26b378ae03d48de2780dca20adaaba71a",
+      "trace_reader_normalizations": [],
+      "evidence_root": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/cloud/diagnostic-replacements/aspire"
+    },
+    {
+      "variant": "focused-trigger",
+      "run_id": "2026110505493918",
+      "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110505493918",
+      "attempt_role": "infrastructure-replacement",
+      "replaces_run_id": "2026110503816584",
+      "reward": 1,
+      "exception": null,
+      "actual_model": "gpt-6.1-terra",
+      "actual_vendor_cli": "1.0.99-0",
+      "native_agent_started_at": "2026-11-05T01:35:57.948324Z",
+      "native_agent_finished_at": "2026-11-05T01:37:19.415371Z",
+      "native_agent_seconds": 81.467047,
+      "input_tokens_including_cache": 411139,
+      "cache_tokens_subset": 361185,
+      "uncached_input_tokens": 49954,
+      "output_tokens": 3806,
+      "runner_reported_cost_usd": 0.09952275000000001,
+      "tool_counts": {
+        "view": 8,
+        "bash": 21,
+        "skill": 1,
+        "rg": 3
+      },
+      "tool_calls": 33,
+      "mcp_tool_counts": {},
+      "mcp_calls": 0,
+      "loaded_skills": [
+        "aspire-monitoring"
+      ],
+      "model_calls": 12,
+      "native_result_sha256": "5353662534d0f0c795164a4e352c523be88f8923f120f7223c2d2411d9747587",
+      "raw_trajectory_sha256": "2f398deca58ebfbc9d53b366661d5a4449e72bf4d478fbe682e4d94db6b4fb47",
+      "trace_reader_normalizations": [],
+      "evidence_root": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/cloud/diagnostic-replacements/focused-trigger"
+    },
+    {
+      "variant": "generated-skills",
+      "run_id": "2026110505497840",
+      "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110505497840",
+      "attempt_role": "infrastructure-replacement",
+      "replaces_run_id": "2026110503820562",
+      "reward": 1,
+      "exception": null,
+      "actual_model": "gpt-6.1-terra",
+      "actual_vendor_cli": "1.0.99-0",
+      "native_agent_started_at": "2026-11-05T01:36:08.539217Z",
+      "native_agent_finished_at": "2026-11-05T01:37:29.118556Z",
+      "native_agent_seconds": 80.579339,
+      "input_tokens_including_cache": 379385,
+      "cache_tokens_subset": 332694,
+      "uncached_input_tokens": 46691,
+      "output_tokens": 4026,
+      "runner_reported_cost_usd": 0.09511945000000001,
+      "tool_counts": {
+        "view": 10,
+        "bash": 17,
+        "skill": 1,
+        "rg": 3,
+        "glob": 1
+      },
+      "tool_calls": 32,
+      "mcp_tool_counts": {},
+      "mcp_calls": 0,
+      "loaded_skills": [
+        "aspire-monitoring"
+      ],
+      "model_calls": 12,
+      "native_result_sha256": "e07da6580551a6cc7244b6cf800f037a2c372e010ae22e56173a9b5c7d315301",
+      "raw_trajectory_sha256": "0e015cc0fcbecbdeb7a55756b699f8eb542fc2406954a62ed7cea7c52f006e1f",
+      "trace_reader_normalizations": [],
+      "evidence_root": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/cloud/diagnostic-replacements/generated-skills"
+    }
+  ],
+  "runner_reported_total_cost_usd": 0.6976918000000001,
+  "original_pre_model_failures": 7,
+  "labeled_replacements": 7,
+  "remote_oracle_validation": "2026110504832466",
+  "limits": [
+    "No significance or general Aspire advantage established",
+    "One fixture/fault seed, one model and runner",
+    "MCP+skills/metadata observations combine ordinary inference/scheduling variance",
+    "Raw evidence retained; only invalid tool-output JSON escapes normalized in memory",
+    "Costs are runner-reported estimates, not independent billing; infrastructure cost excluded"
+  ]
+}

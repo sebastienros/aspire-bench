@@ -195,6 +195,14 @@ list/selection; its server does not support host-17's `--apphost` switch.
 version distinctions. Live Docker backchannel and natural agent use remain
 unverified; no speed benefit is inferred from this preparation.
 
+**Actual diagnostic use:** The [D01 Terra pilot](bingo-diagnostics/PILOT.md)
+passed all seven valid conditions after separately labeled pre-model build
+failures. Monitoring plus MCP was actually consumed (four MCP calls, nine Bash
+calls), unlike I01. Its observed time was 68.1 s versus skills-only 94.1,
+MCP-only 120.5, CLI-only 127.4 and raw 72.4. One observation per condition is
+not a general gain or significance result; guidance/tool interaction is the
+promising mechanism, not mere MCP availability.
+
 ## F05: Multi-step session continuity is a runner contract, not workspace reuse
 
 **Evidence:** The [Copilot continuation probe](aspire-startup/README.md#continuation-retry-with-msbench-0367)
@@ -377,13 +385,19 @@ minimum working resource graph from optional telemetry/ServiceDefaults work.
 Grade runtime behavior and connections rather than generated code or framework
 version labels.
 
-**Limits / status:** Local fixture/reference proof, not an autonomous agent
+**Initial limits / status:** Local fixture/reference proof, not an autonomous agent
 success or measured adoption benefit. A01 has one adoption arm, not a trivial
 raw-launcher comparison. Source immutability makes this a bounded adoption
 scenario, not permission to skip instrumentation in scenarios requiring traces.
 The first oracle predates added fixed-port/secret guards; final-task Docker
 validation was interrupted by the shared host failure. No model run is eligible
 until the final task is validated; static tests are not a substitute.
+
+**Recovered adoption gate:** Final original and generated-skill adoption
+oracles both passed after engine recovery, including the final port/secret
+guards and source-preserving functional behavior. The two conditions differ
+only in the actual CLI-13.6-generated router/init knowledge. This is local
+setup/grader proof, not yet an autonomous-agent success or generator benefit.
 
 ## F12: Local publishing needs a production runtime gate; P01 remains blocked
 
@@ -470,6 +484,12 @@ not an adopted product change. Preserve useful raw scripts and supported Aspire
 recipes explicitly, including one-shot completion and restart semantics.
 Withhold cloud datasets/submissions until the independent portable-build gate.
 
+**Portable graph preparation:** The parent now references public
+`2842205e02055cfe4b47e06bf2f5bbfa28f5dca8` for the exact final common contents,
+with no outside-environment local filesystem context. Runtime hashes still
+match the verified snapshot; representative remote execution is the next
+gate before model submissions.
+
 ## F10: Runtime diagnosis fixtures must pass the infrastructure gate first
 
 **Actual evidence:** The new [D01/H01 Bingo diagnosis fixtures](bingo-diagnostics/README.md)
@@ -525,6 +545,14 @@ proxy ports, database names, credentials and TLS. Correct adapters preserve
 native security and match actual resource identities/URLs, rather than weakening
 the checks. This is fixture/capability proof, not model efficiency or universal
 Aspire benefit. Initial failed attempts are not relabeled.
+
+**Completed model pilot:** All seven actual Terra conditions recovered the
+operation and passed preservation/negative grading. The combined skills/MCP
+run was fastest in this observation, but only 4.3 s faster than raw. The
+description-only trigger and generator conditions also loaded monitoring;
+generated monitoring knowledge was unchanged. Preserve these conditional
+results and test the different fault/name transfer rather than rerunning
+identical conditions or declaring Aspire universally faster.
 
 ## Recording future findings
 

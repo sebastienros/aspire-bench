@@ -53,5 +53,8 @@ test("generator adoption treatment changes only the selected skill content", asy
     assert.equal(await readFile(path.join(generated, "task.toml"), "utf8"),
         (await read("task.toml")).replace('variant = "aspire"', 'variant = "generated-skills"'));
     assert.match(await readFile(path.join(generated, "environment/docker-compose.yaml"), "utf8"),
-        /aspire-skills: \.\.\/\.\.\/\.\.\/\.\.\/bingo-diagnostics\/generated-skills/);
+        /aspire-skills: https:\/\/github\.com\/sebastienros\/aspire-bench\.git#[a-f0-9]{40}:msbench\/bingo-diagnostics\/generated-skills/);
+    for (const directory of [task, generated]) {
+        assert.doesNotMatch(await readFile(path.join(directory, "environment/docker-compose.yaml"), "utf8"), /:\s+\.\.\//);
+    }
 });

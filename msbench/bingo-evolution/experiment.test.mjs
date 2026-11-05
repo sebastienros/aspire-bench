@@ -40,6 +40,8 @@ test("four static tasks have matched neutral prompts, real oracles and fixed bud
             assert.match(compose, new RegExp(`BENCH_SCENARIO: ${scenario}`));
             assert.match(compose, /#baacba3e17181491c9a4d419db7d0e6763c3d363:/);
             assert.doesNotMatch(compose, /volumes:|ports:/);
+            assert.doesNotMatch(compose, /:\s+\.\.\//);
+            assert.match(compose, /evolution-common: https:\/\/github\.com\/sebastienros\/aspire-bench\.git#[a-f0-9]{40}:msbench\/bingo-evolution\/common/);
             if (arm === "aspire") {
                 assert.match(config, /skills_dir = "\/opt\/aspire-skills"/);
                 assert.match(compose, /#1fcca7e91c89716f0e4a8bf7324da13a39f70c66:/);

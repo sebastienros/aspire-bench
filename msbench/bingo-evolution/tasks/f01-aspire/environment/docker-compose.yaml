@@ -5,6 +5,6 @@ services:
       BENCH_SCENARIO: f01
     build:
       additional_contexts:
-        evolution-common: ../../../common
+        evolution-common: https://github.com/sebastienros/aspire-bench.git#2842205e02055cfe4b47e06bf2f5bbfa28f5dca8:msbench/bingo-evolution/common
         aspire-app: ${MSBENCH_ASPIRE_APP_CONTEXT:-https://github.com/sebastienros/aspire-bench.git#baacba3e17181491c9a4d419db7d0e6763c3d363:msbench/bingo/common/aspire-app}
         aspire-skills: https://github.com/sebastienros/aspire-bench.git#1fcca7e91c89716f0e4a8bf7324da13a39f70c66:msbench/bingo/tasks/aspire/environment/skills

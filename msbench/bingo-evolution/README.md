@@ -6,6 +6,13 @@ reward 1, no exceptions and seven rejected negative cases each. Earlier setup,
 reference-solution and shared-host failures remain recorded below. No model
 comparison or CES-ready publication is claimed.
 
+The parent portable-graph correction now pins `evolution-common` to public
+`2842205e02055cfe4b47e06bf2f5bbfa28f5dca8`, the exact recovered runtime source,
+rather than a repository-sibling filesystem context. Runtime input hashes
+remain unchanged. This avoids the newly observed remote Bake entitlement
+failure without broad filesystem grants; a representative remote oracle still
+must establish packaging/execution before first model submissions.
+
 Independent static Harbor task pairs for roadmap **F01** and **M01** in the
 [research protocol](../AGENTIC-RESEARCH.md). Historical Bingo/I01 fixtures are
 unchanged. No model evaluation, cloud submission, push, or PR is part of this
