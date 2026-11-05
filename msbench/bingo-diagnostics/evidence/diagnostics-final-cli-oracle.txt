@@ -1,0 +1,12 @@
+Rejected no-op despite healthy player/login/version/PING
+Verified fresh PostgreSQL/Redis call/clear/status, prior data and exact-target in-place recovery.
+Rejected source shortcut
+Rejected stale or substituted endpoints
+Rejected lost pre-fault cache data
+Rejected lost pre-fault called-square state
+Rejected changed pre-fault database data
+Rejected neighboring workload data modification
+Rejected wrong-target runtime action
+Rejected wrong-target action hidden by restoring final state
+Rejected re-armed no-op
+Verified fresh PostgreSQL/Redis call/clear/status, prior data and exact-target in-place recovery.

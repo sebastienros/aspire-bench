@@ -1,0 +1,102 @@
+{
+  "status": "all-seven-final-local-oracles-passed",
+  "model_runs": [],
+  "rows": [
+    {
+      "variant": "raw-scripted",
+      "job": "diagnostics-final-raw-scripted",
+      "trial": "raw-scripted__jptNKPE",
+      "reward": 1,
+      "exception": null,
+      "evidence": {
+        "diagnostics-final-raw-scripted-result.json": "b802529ae4589781c420a060456381a38d94394bfdb5778b04580a71e8a4448e",
+        "diagnostics-final-raw-scripted-oracle.txt": "eb9462cec9efb5899cacef2bdf52cec907bc26c294567332c4ba19acdef8e482",
+        "diagnostics-final-raw-scripted-verifier.txt": "84a2a78491dd80111b77f1c7ffdc09c04ed1f255f2993c03850fb9e73672cc59"
+      },
+      "durable_job_root": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/oracle/diagnostics-final-raw-scripted"
+    },
+    {
+      "variant": "aspire",
+      "job": "diagnostics-aspire-auth-fix",
+      "trial": "aspire__v6nVACa",
+      "reward": 1,
+      "exception": null,
+      "evidence": {
+        "diagnostics-aspire-auth-fix-result.json": "f26b05c5ebfde1b282e2920b5f732f0111e1ae56f874fcef00aae43b33639618",
+        "diagnostics-aspire-auth-fix-oracle.txt": "eb9462cec9efb5899cacef2bdf52cec907bc26c294567332c4ba19acdef8e482",
+        "diagnostics-aspire-auth-fix-verifier.txt": "84a2a78491dd80111b77f1c7ffdc09c04ed1f255f2993c03850fb9e73672cc59"
+      },
+      "durable_job_root": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/oracle/diagnostics-aspire-auth-fix"
+    },
+    {
+      "variant": "mcp",
+      "job": "diagnostics-mcp-live",
+      "trial": "mcp__DU6fXNm",
+      "reward": 1,
+      "exception": null,
+      "evidence": {
+        "diagnostics-mcp-live-result.json": "8bb516ff3304db1a93a3035961094df61087b2efdbdc8c4b3b39ccc867f262e4",
+        "diagnostics-mcp-live-oracle.txt": "1fe4e3539d5d36b31d0a9cb90bb25b37c33471a6e71a5ac1e06d55f90523354a",
+        "diagnostics-mcp-live-verifier.txt": "84a2a78491dd80111b77f1c7ffdc09c04ed1f255f2993c03850fb9e73672cc59"
+      },
+      "durable_job_root": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/oracle/diagnostics-mcp-live"
+    },
+    {
+      "variant": "cli",
+      "job": "diagnostics-final-cli",
+      "trial": "cli__ksrZzyV",
+      "reward": 1,
+      "exception": null,
+      "evidence": {
+        "diagnostics-final-cli-result.json": "728f900ef5335d02e5d5549d3a0821aa51525efd6b755868d9a9ed20347a5d89",
+        "diagnostics-final-cli-oracle.txt": "eb9462cec9efb5899cacef2bdf52cec907bc26c294567332c4ba19acdef8e482",
+        "diagnostics-final-cli-verifier.txt": "84a2a78491dd80111b77f1c7ffdc09c04ed1f255f2993c03850fb9e73672cc59"
+      },
+      "durable_job_root": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/oracle/diagnostics-final-cli"
+    },
+    {
+      "variant": "skills-mcp",
+      "job": "diagnostics-final-skills-mcp",
+      "trial": "skills-mcp__tRUdkqZ",
+      "reward": 1,
+      "exception": null,
+      "evidence": {
+        "diagnostics-final-skills-mcp-result.json": "25b362fb4991cfad4452a91f80aa76d1dcba52f35e865a5b42a4da1804055b28",
+        "diagnostics-final-skills-mcp-oracle.txt": "1fe4e3539d5d36b31d0a9cb90bb25b37c33471a6e71a5ac1e06d55f90523354a",
+        "diagnostics-final-skills-mcp-verifier.txt": "84a2a78491dd80111b77f1c7ffdc09c04ed1f255f2993c03850fb9e73672cc59"
+      },
+      "durable_job_root": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/oracle/diagnostics-final-skills-mcp"
+    },
+    {
+      "variant": "generated-skills",
+      "job": "diagnostics-final-generated-skills",
+      "trial": "generated-skills__tNgbaF6",
+      "reward": 1,
+      "exception": null,
+      "evidence": {
+        "diagnostics-final-generated-skills-result.json": "b16e64fa1882451b008d36abb0ff5b7cd4d38937a5166665131e2d6af8441803",
+        "diagnostics-final-generated-skills-oracle.txt": "eb9462cec9efb5899cacef2bdf52cec907bc26c294567332c4ba19acdef8e482",
+        "diagnostics-final-generated-skills-verifier.txt": "84a2a78491dd80111b77f1c7ffdc09c04ed1f255f2993c03850fb9e73672cc59"
+      },
+      "durable_job_root": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/oracle/diagnostics-final-generated-skills"
+    },
+    {
+      "variant": "focused-trigger",
+      "job": "diagnostics-final-focused-trigger",
+      "trial": "focused-trigger__sjSGUwP",
+      "reward": 1,
+      "exception": null,
+      "evidence": {
+        "diagnostics-final-focused-trigger-result.json": "e900225188d8d12133a2154d1bdbfc255b6f42b4556dee9b05929ec784a2203b",
+        "diagnostics-final-focused-trigger-oracle.txt": "eb9462cec9efb5899cacef2bdf52cec907bc26c294567332c4ba19acdef8e482",
+        "diagnostics-final-focused-trigger-verifier.txt": "84a2a78491dd80111b77f1c7ffdc09c04ed1f255f2993c03850fb9e73672cc59"
+      },
+      "durable_job_root": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/oracle/diagnostics-final-focused-trigger"
+    }
+  ],
+  "limits": [
+    "Local architecture is Linux ARM64; no new model success inferred from oracle validation",
+    "MCP preflight is oracle-only, not forced model tool usage",
+    "Data/process/neighbor integrity and genuine HTTP500-with-healthy-PING incident verified"
+  ]
+}

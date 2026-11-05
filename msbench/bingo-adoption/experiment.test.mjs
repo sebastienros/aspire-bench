@@ -39,3 +39,19 @@ test("adoption includes no-op/source-mutation rejection and a functional referen
     assert.match(prompt, /No written assessment or endpoint report is required/);
     assert.match(await read("task.toml"), /timeout_sec = 900/);
 });
+
+test("generator adoption treatment changes only the selected skill content", async () => {
+    const generated = path.join(root, "tasks/generated-skills");
+    for (const directory of ["environment/app", "solution", "tests"]) {
+        assert.deepEqual(await hashes(path.join(generated, directory)),
+            await hashes(path.join(task, directory)));
+    }
+    for (const file of ["instruction.md", "environment/Dockerfile", "environment/adoption.mjs",
+        "environment/entrypoint.sh", "environment/input-hashes.json"]) {
+        assert.equal(await readFile(path.join(generated, file), "utf8"), await read(file));
+    }
+    assert.equal(await readFile(path.join(generated, "task.toml"), "utf8"),
+        (await read("task.toml")).replace('variant = "aspire"', 'variant = "generated-skills"'));
+    assert.match(await readFile(path.join(generated, "environment/docker-compose.yaml"), "utf8"),
+        /aspire-skills: \.\.\/\.\.\/\.\.\/\.\.\/bingo-diagnostics\/generated-skills/);
+});

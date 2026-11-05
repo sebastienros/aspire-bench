@@ -32,14 +32,32 @@ export async function containers() {
     return JSON.parse((await command("docker", ["inspect", ...ids])).stdout);
 }
 
+export function redisExecArgs(row, args) {
+    const authenticated = row.Config.Env?.some(entry =>
+        entry.startsWith("REDIS_PASSWORD=") && entry.length > "REDIS_PASSWORD=".length);
+    const client = authenticated
+        ? ["sh", "-c", 'REDISCLI_AUTH="$REDIS_PASSWORD" redis-cli --raw "$@"', "redis-cli"]
+        : ["redis-cli", "--raw"];
+    return ["exec", row.Id, ...client, ...redisPingArgs(row.Config), ...args];
+}
+
 export async function redis(row, args, timeout = 15_000) {
-    return (await command("docker", ["exec", row.Id, "redis-cli", "--raw",
-        ...redisPingArgs(row.Config), ...args], { timeout })).stdout.trim();
+    return (await command("docker", redisExecArgs(row, args), { timeout })).stdout.trim();
+}
+
+export function databaseName(kind = process.env.BENCH_APP_KIND) {
+    assert(["compose", "aspire"].includes(kind), "Known application orchestration required");
+    return kind === "aspire" ? "db" : "bingo";
 }
 
 export async function sql(row, query) {
-    return (await command("docker", ["exec", row.Id, "psql", "-U", "postgres", "-d", "bingo",
-        "-At", "-v", "ON_ERROR_STOP=1", "-c", query], { timeout: 15_000 })).stdout.trim();
+    return (await command("docker", sqlExecArgs(row, query), { timeout: 15_000 })).stdout.trim();
+}
+
+export function sqlExecArgs(row, query, kind = process.env.BENCH_APP_KIND) {
+    return ["exec", row.Id, "sh", "-c", 'PGPASSWORD="$POSTGRES_PASSWORD" psql "$@"',
+        "psql", "-U", "postgres", "-d", databaseName(kind),
+        "-At", "-v", "ON_ERROR_STOP=1", "-c", query];
 }
 
 async function databaseRows(row) {
@@ -98,12 +116,51 @@ async function verifyConnectionOwnership(backend, target, database) {
     const cache = environment.ConnectionStrings__cache;
     const db = environment.ConnectionStrings__db;
     assert(cache && db, "Actual backend connection configuration required");
+    if (process.env.BENCH_APP_KIND === "aspire") {
+        const result = await command("aspire", ["describe", "--apphost", "/app/apphost.cs",
+            "--format", "Json", "--non-interactive", "--nologo"]);
+        const { resources } = JSON.parse(result.stdout);
+        const resource = row => {
+            const found = resources.filter(item => item.name === row.Name.slice(1));
+            assert.equal(found.length, 1, "Exactly one Aspire resource must identify the owned container");
+            return found[0];
+        };
+        assert(matchesProxyConnection(cache, "cache", resource(target)),
+            "Fault target must match the running backend cache proxy endpoint");
+        assert(matchesProxyConnection(db, "database", resource(database)),
+            "Database must match the running backend database proxy endpoint");
+        return;
+    }
     const ports = row => Object.values(row.NetworkSettings.Ports).flat().filter(Boolean)
         .map(binding => binding.HostPort);
     assert(ports(target).some(port => new RegExp(`(?:localhost|127\\.0\\.0\\.1|\\[::1\\]):${port}(?:,|$)`).test(cache)),
         "Fault target must match the running backend cache endpoint");
     assert(ports(database).some(port => new RegExp(`Port=${port}(?:;|$)`, "i").test(db)),
         "Database must match the running backend connection");
+}
+
+export function matchesProxyConnection(connection, kind, resource) {
+    let host, port;
+    if (kind === "cache") {
+        const endpoint = new URL(`tcp://${connection.split(",")[0].trim()}`);
+        host = endpoint.hostname;
+        port = endpoint.port;
+    } else {
+        assert.equal(kind, "database");
+        const fields = Object.fromEntries(connection.split(";").filter(Boolean).map(field => {
+            const split = field.indexOf("=");
+            return [field.slice(0, split).trim().toLowerCase(), field.slice(split + 1).trim()];
+        }));
+        host = fields.host;
+        port = fields.port;
+    }
+    assert(host && port, "Backend connection must provide a host and port");
+    const normalize = value => ["localhost", "127.0.0.1", "[::1]", "::1"].includes(value)
+        ? "loopback" : value;
+    return resource.urls?.some(item => {
+        const endpoint = new URL(item.url);
+        return normalize(endpoint.hostname) === normalize(host) && endpoint.port === port;
+    }) ?? false;
 }
 
 async function preserved(state, rows) {

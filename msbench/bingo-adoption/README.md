@@ -6,10 +6,18 @@ scripts/documentation, no AppHost, and no running application. The agent adds
 orchestration/configuration, starts through Aspire 13.6.0, and preserves existing
 business code. Seven original Aspire skills are available; MCP is disabled.
 
-This is deliberately **one adoption arm**, not an artificial raw-versus-Aspire
+This is deliberately **an adoption study**, not an artificial raw-versus-Aspire
 speed comparison: the raw app already has a working launcher, so pretending
 that running it is equivalent to adopting an orchestrator would be misleading.
 Measure this as setup cost and feasibility, alongside the paired runtime tasks.
+
+Two unique skill conditions are prepared: `aspire` uses the original pinned
+bundle, and `generated-skills` uses actual version-matched CLI-13.6 generation.
+Only four generator files differ (router/init and their references). Unlike
+the diagnostic task's unchanged monitoring body, this adoption task exercises
+the changed init/router intent. App, prompts, oracle, grader and budgets remain
+identical; no MCP or extra reporting requirement is added. This is not a second
+independent application sample or a rerun of the same condition.
 
 ## Independent proof
 

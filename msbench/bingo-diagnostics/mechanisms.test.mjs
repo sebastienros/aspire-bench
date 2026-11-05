@@ -12,10 +12,15 @@ const cells = ["aspire", "cli", "mcp", "skills-mcp", "generated-skills", "focuse
 test("diagnostic mechanism cells preserve actual fault, app, prompts, solution and grader", async () => {
     for (const cell of cells) {
         assert.equal(await read(`tasks/${cell}/instruction.md`), await read("tasks/aspire/instruction.md"));
-        for (const dir of ["solution", "tests", "environment/app"]) {
+        for (const dir of ["tests", "environment/app"]) {
             assert.deepEqual(await hashes(path.join(root, `tasks/${cell}/${dir}`)),
                 await hashes(path.join(root, `tasks/aspire/${dir}`)));
         }
+        const solution = await read(`tasks/${cell}/solution/solve.sh`);
+        assert.equal(solution.replace("node /solution/mcp-probe.mjs\n", ""),
+            await read("tasks/aspire/solution/solve.sh"));
+        assert.equal(await read(`tasks/${cell}/solution/negative.mjs`),
+            await read("tasks/aspire/solution/negative.mjs"));
         const config = await read(`tasks/${cell}/task.toml`);
         assert.match(config, new RegExp(`variant = "${cell}"`));
         assert.match(config, /fault_seed = 47/);

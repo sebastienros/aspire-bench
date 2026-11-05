@@ -71,3 +71,8 @@ Single samples are mechanism-feasibility evidence, not statistical proof.
 Local Docker work is serialized after recovery; inspect actual MCP schemas/
 backchannel and skill advertisement before inference. The original model/client
 pins and exact input/condition fingerprints must be recorded with each run.
+
+MCP-enabled reference oracles additionally run an oracle-only transport/
+backchannel/log probe against the actual incident before the unchanged repair
+recipe. It is not copied into model images, does not require a model to use MCP,
+and its time is not agent performance evidence.

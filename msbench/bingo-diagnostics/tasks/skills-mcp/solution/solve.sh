@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+node /solution/mcp-probe.mjs
 node /solution/negative.mjs
 # Only the external reference solution can use protected setup identity.
 node --input-type=module <<'JS'

@@ -43,7 +43,7 @@ not the benchmark baseline. Do not overwrite another session's changes.
 | Role | Repository / origin | Workspace | Branch / revision | State / artifacts |
 |---|---|---|---|---|
 | Program, scenarios, results | `sebastienros/aspire-bench`, `https://github.com/sebastienros/aspire-bench.git` | `/Users/sebastienros/.copilot/copilot-worktrees/aspire-bench/sebros-legendary-memory` | `sebros/msbench-benchmark-variants`; starting origin/main `3bd7aa49d82cc5b836455d9f9b5bf30bb7223f51` | Active coordinator; commits publish direct main, no PR |
-| Aspire source baseline | `microsoft/aspire`, verified `https://github.com/microsoft/aspire` | `/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-upgraded-couscous` | `sebros/agentic-build-baseline`; clean base `d698a4f9cb800649791da2b3d81c5850330072c1` | Verified managed Linux ARM64 CLI + 3 matching packages; [manifest](source-builds/aspire-baseline.json); not bundled/x64/Bingo-validated |
+| Aspire source baseline | `microsoft/aspire`, verified `https://github.com/microsoft/aspire` | `/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-upgraded-couscous` | `sebros/agentic-build-baseline`; clean base `d698a4f9cb800649791da2b3d81c5850330072c1` | [Complete managed x64 payload + 6 packages](source-builds/aspire-managed-baseline.json) verified through normal extraction and actual Bingo lifecycle; not shipping NativeAOT parity. Old ARM64 worktree paths disappeared; historical report retained |
 | Historical PR binary experiment | Public upstream PR artifacts, mirrored with approval | Harbor Docker tasks under `aspire-health/tasks/cli-pr21279` | `6676979b2bb4ed074568b84c84fb36a196d38f06`, version `17.0.0-pr.21279.g6676979b` | [Build manifest](aspire-health/pr21279-build.json); local validation only, not a matched causal control |
 | Empty-JSON CLI treatment | `microsoft/aspire` origin | `/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-glowing-spoon` | `sebros/agentic-empty-json`; base `d698a4f9`; change `fafe64823d80e8f34fa5fc773ac9d9d9ba64f375` | [Manifest](source-builds/aspire-empty-json.json), [proof/patch](source-builds/empty-json/report.md); 66 targeted cases pass in Debug and Release, offline matched binaries verified |
 | Future skill/MCP treatments | Origin-backed worktrees as needed | Not created | Not created | Do not label proposed branches as existing |
@@ -143,11 +143,11 @@ Fresh conversations and verified resumed conversations are separate strata.
 | ID / priority | Task and Bingo basis | External proof | State |
 |---|---|---|---|
 | I01 / first | Repair/extend player-origin producer API routing in the already-running Vue app | Real frontend -> admin -> database/Redis call/status/clear round trip; preserve prior data and version/SignalR behavior | [Completed Terra pilot](bingo-iteration/README.md#completed-terra-pilot): both pass, no demonstrated Aspire advantage; do not repeat identical conditions |
-| D01 / next | Diagnose distributed failure with a healthy process but failed operation | Broken fixture fails, correct targeted repair passes; random fault instance; logs/trace evidence | [Integrated diagnostic draft](bingo-diagnostics/README.md), safe Redis-protocol write fault; runtime gate blocked |
-| H01 / next | Reject misleading readiness or stale endpoint evidence | Functional negative probe fails even if process/resource is green | Combined D01 draft leaves PING/reads available while writes pause; actual false-health/recovery behavior not yet verified |
+| D01 / next | Diagnose distributed failure with a healthy process but failed operation | Broken fixture fails, correct targeted repair passes; random fault instance; logs/trace evidence | [All seven final local cells passed](bingo-diagnostics/README.md#recovered-final-local-gate); unique Terra pilot conditions next |
+| H01 / next | Reject misleading readiness or stale endpoint evidence | Functional negative probe fails even if process/resource is green | Combined D01 actually verified HTTP500 with pages/PING/reads serving; no-op/page-only and stale-endpoint cases rejected |
 | F01 | Add a cross-service capability/cache behavior | Hidden fresh data, both positive and negative contracts | [Implemented](bingo-evolution/README.md); initial raw oracle/7 negative checks passed, final paired validation blocked |
 | M01 | Migrate schema without losing existing data | Pre/post record identity and contents, new behavior | [Implemented draft](bingo-evolution/README.md); raw oracle began but no completed grade; final pair blocked |
-| S01 | Two similar running apps/worktrees | Exact-target repair, other app and data unchanged | D01 includes a decoy/resource-scoped safety draft; this is not yet a full two-app/worktree test, and runtime validation is blocked |
+| S01 | Two similar running apps/worktrees | Exact-target repair, other app and data unchanged | D01 resource-scoped neighbor/identity checks actually passed; full two-app/worktree equivalence remains outside this narrow proof |
 | A01 | Add a dependency or adopt Aspire | Functional wiring, no hardcoded ports/secrets; setup cost included | [Cold adoption task](bingo-adoption/README.md) implemented; first oracle passed, later final-grader validation blocked by host storage/Docker failure; no inference |
 | P01 | Publish and run isolated local deployment | Deployed functional checks, no dev-runtime assumptions | [Paired draft](bingo-publishing/README.md); both environment builds failed with I/O errors; no deployed-app proof |
 | X01 | Transfer to eShop / TypeScript / polyglot | Unseen topology/names, instrumentation parity and functional equivalence | Held-out-name coverage drafted in D01; runtime blocked. eShop remains conditional, not justified by a demonstrated Bingo limit |
@@ -404,3 +404,29 @@ from the pinned bundle, and monitoring knowledge is unchanged. Separately,
 focused-trigger changes only the monitoring discovery description while retaining
 its identity/body/references. A matched native 13.6 MCP handshake advertised
 14 tools. Docker backchannel and natural agent use remain to be verified.
+
+### 2026-11-04: full source baseline and diagnostic gates pass
+
+The lower-storage source configuration built every complete Linux x64 payload
+component, six matching packages and the embedded CLI from unchanged `d698a4f9`.
+Normal `aspire setup` extraction, legacy .NET 10 Bingo compilation/start,
+admin/player waits, resource snapshot, HTTP health, stop/empty-ps and private
+Docker cleanup passed. Only package versions/local source changed in the
+fixture; no whole AppHost rewrite or application SDK upgrade was needed.
+[Report](source-builds/baseline/managed/report.md),
+[manifest](source-builds/aspire-managed-baseline.json) and exact scripts are
+committed. Portable archive 312,642,722 bytes, SHA-256
+`ba7ac0f96774050cd82e969bae726233f556b138d1054899f1fa215a72613c14`.
+This is explicitly managed/untrimmed/nonshipping, not NativeAOT speed parity.
+
+After fixing raw-only proxy-port/database/authentication assumptions, all seven
+final D01 image/oracle cells passed with actual incident and negative evidence.
+MCP-only and combined oracles also proved real AppHost selection/resource/
+failure-log access. [Receipts](bingo-diagnostics/evidence/recovered-local-validation.json)
+retain actual rewards and checksums; these are not model results.
+
+The generator's four changed files are router/init-related; therefore a unique
+[generated-skill adoption condition](bingo-adoption/README.md) is also prepared
+to exercise that changed knowledge, rather than treating unchanged monitoring
+as a broad generator-effect test. Every pending adoption/evolution/deployment
+cell still needs its own final local gate. No duplicate model condition is run.

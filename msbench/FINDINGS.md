@@ -474,13 +474,26 @@ fault deadline cannot count as repair. Visible wrong-target Redis controls
 are rejected, but direct Redis traffic is not guaranteed observable in Docker
 events. No new Docker launch was attempted after the correction.
 
-**Limits / status:** **Runtime-unvalidated, infrastructure-blocked. Neither
+**Initial limits / status:** **Runtime-unvalidated, infrastructure-blocked. Neither
 Docker oracle passed and no actual seeded fault/recovery or live negative-suite
 success was obtained.** This is not evidence that Aspire helps diagnosis, that
 the selected pause is portable, or that wrong-instance repair is solved. The
 neighbor is one resource, not a full second app/worktree. Preserve the failed
 attempts and finish the Docker gate after infrastructure recovery; do not infer
 benchmark correctness from implemented checks or repeat model conditions.
+
+**Recovered final gate:** [All seven local cells passed](bingo-diagnostics/evidence/recovered-local-validation.json)
+after controlled engine recovery. Raw/Aspire/MCP faults were actually reproduced:
+HTTP 500 with pages/PING/read paths serving, then exact-target protocol recovery
+and fresh SQL/Redis effects passed. Wrong-target/data/source/endpoint/no-op
+negatives were rejected. MCP additionally selected the actual AppHost, read
+its held-out resources and observed failure logs.
+
+The first recovered Aspire validation caught raw-only probe assumptions about
+proxy ports, database names, credentials and TLS. Correct adapters preserve
+native security and match actual resource identities/URLs, rather than weakening
+the checks. This is fixture/capability proof, not model efficiency or universal
+Aspire benefit. Initial failed attempts are not relabeled.
 
 ## Recording future findings
 

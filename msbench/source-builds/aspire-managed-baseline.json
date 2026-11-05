@@ -1,0 +1,70 @@
+{
+  "status": "verified-source-build-and-bingo-lifecycle",
+  "repository": "microsoft/aspire",
+  "origin": "https://github.com/microsoft/aspire.git",
+  "worktree": "/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-upgraded-couscous",
+  "branch": "sebros/agentic-build-baseline",
+  "source_sha": "d698a4f9cb800649791da2b3d81c5850330072c1",
+  "dirty_before": false,
+  "dirty_after": false,
+  "configuration": "Release; managed self-contained untrimmed complete payload",
+  "shipping_native_aot": false,
+  "sdk": "11.0.100-rc.2.26504.105",
+  "rid": "linux-x64",
+  "build_image": "mcr.microsoft.com/dotnet/sdk@sha256:db7d1f28c0805ea69fe43f73e54cffd2a0689a0c637a6078328e27c5aab2314a",
+  "runtime_image_id": "sha256:00b2a7aa78deeaea0b03abbfade91a193f13f3bec8cf471e291e713999f0812a",
+  "actual_cli_version": "17.0.0-baseline.gd698a4f9cb80",
+  "artifact_root": "/Users/sebastienros/.copilot/session-state/31a2bfab-2c9d-4125-985d-e85f4fa77709/files/baseline/managed/output",
+  "committed_report": "msbench/source-builds/baseline/managed/report.md",
+  "archive": {
+    "name": "aspire-agentic-managed-linux-x64.tar.gz",
+    "size_bytes": 312642722,
+    "sha256": "ba7ac0f96774050cd82e969bae726233f556b138d1054899f1fa215a72613c14",
+    "manifest_files_verified": 134
+  },
+  "cli_sha256": "d7ab2f16d3a519e6da299c07e3e1f7b65495adec0552a02fa3001983413654c5",
+  "embedded_complete_payload": {
+    "size_bytes": 257589605,
+    "sha256": "95d96c68563c1c83801febbcba91152dcc1f051f20c17370393e4f63350b1533",
+    "files": 1244,
+    "uncompressed_bytes": 642884164
+  },
+  "matched_package_sha256": {
+    "Aspire.AppHost.Sdk": "b85a8bf135de181795599d05c4a771d18577fd886c1f97c31eda32a83f52d113",
+    "Aspire.Hosting": "8fe84f33769ec8cefbad2bdf661343632fbd395f21b4a633117b862cb95e123b",
+    "Aspire.Hosting.AppHost": "5d9c4000435d201c4710dd160b5ef171a504ff05205df183c75e9e6e2c1b0fa4",
+    "Aspire.Hosting.JavaScript": "30dcfb30ef3f214df5bacb455146182f5aba9aa90a7ced8bcbf76d01822f6112",
+    "Aspire.Hosting.PostgreSQL": "5e1dfbdf84a603fd6d03fb56b86b0e9598f7b594d7a57340876e70a62d2fb8a1",
+    "Aspire.Hosting.Redis": "d226047a194ece79e0cc3e100d95ab0168100bbe457166357c4d7dc0af6466a3"
+  },
+  "fixture": {
+    "source_commit": "baacba3e17181491c9a4d419db7d0e6763c3d363",
+    "overlay": ["AppHost SDK/three Hosting directive versions", "three central Hosting versions", "local Aspire package source"],
+    "app_model_changed": false,
+    "application_net10_targets_changed": false,
+    "global_sdk10_pin_changed": false
+  },
+  "runtime_proof": {
+    "started_at": "2026-11-05T00:18:32Z",
+    "finished_at": "2026-11-05T00:20:18Z",
+    "exit_code": 0,
+    "normal_bundle_setup_and_validation": true,
+    "bingo_start_isolated": true,
+    "boardadmin_and_bingoboard_wait_healthy": true,
+    "expected_resources_and_migration_exit0": true,
+    "admin_health_http_and_frontend_http": true,
+    "stop_success": true,
+    "post_stop_ps": [],
+    "running_inner_containers_after_stop": 0,
+    "outer_containers_removed": true,
+    "host_docker_socket_mounted": false,
+    "host_app_ports_published": false
+  },
+  "limits": [
+    "Nonshipping managed/non-NativeAOT configuration",
+    "Not a NativeAOT speed/signing/release-parity claim",
+    "Server v2 guests and TerminalHost interactions not independently exercised",
+    "Model-task functional grading remains a separate gate",
+    "Historical ARM64 worktree artifact paths disappeared; this new artifact is durable in session files"
+  ]
+}

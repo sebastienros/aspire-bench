@@ -1,10 +1,11 @@
 # Bingo runtime diagnosis: D01 / H01, resource-scoped S01
 
-**Status: implemented, runtime validation blocked. Do not submit model runs.**
-Neither Docker oracle passed. The current fixtures, real incident injection,
-runtime negative cases and final functional grader remain unverified end to end.
-No inference, replication, push or PR was performed. Historical tasks and
-`AGENTIC-RESEARCH.md` are unchanged.
+**Status: all seven final local Docker oracles passed after recovery.**
+Actual incident injection, positive recovery, preservation and negative cases
+are verified in raw, CLI, original skills, MCP, combined, generated-skill and
+focused-trigger cells. MCP-enabled oracles also verified the actual AppHost
+backchannel and failure logs. Model results remain separate; publish a fixed
+task commit before submitting each unique pilot condition.
 
 This is a new static Harbor scenario, not Vally conversion and not I01's
 explicit-file frontend edit. Its matched prompts name a user-visible symptom:
@@ -119,13 +120,12 @@ not the current fault mechanism. An initial suspicion about the freezer is not
 a root-cause finding; the observed host storage failure independently blocks
 further validation.
 
-The current Redis-protocol correction was checked against the official
+At the initial blocked handoff, the Redis-protocol correction was checked against the official
 [CLIENT PAUSE](https://redis.io/docs/latest/commands/client-pause/) and
 [CLIENT UNPAUSE](https://redis.io/docs/latest/commands/client-unpause/) contracts,
-but **no Docker launch or live Redis experiment was performed after the safety
-correction**. There is no verified seeded incident, successful repair or runtime
-negative-suite result. Do not promote this into a fixture-usable/pilot-usable
-result.
+but no Docker launch or live Redis experiment had yet passed after that
+correction. The recovered final validation below supersedes that blocked gate
+without relabeling any earlier failure as success.
 
 [validation.json](validation.json) records exact attempt/container identifiers,
 the blocker and command provenance. Logs remain in ignored `.runs/`; no credentials
@@ -155,7 +155,7 @@ AMD64/cloud compatibility proof. No source-built Aspire binary is substituted.
 
 ## Resume gate after shared infrastructure is healthy
 
-Do not submit a model run until **both** commands produce reward 1 and actual
+The gate requires **both** commands to produce reward 1 and actual
 incident/negative evidence files can be inspected:
 
 ```bash
@@ -174,9 +174,50 @@ working PING/read paths before admitting an agent; a green container alone is
 insufficient. Force rebuilding is mandatory: do not reuse cached local images
 from the historical attempts, restore or execute the old nested Docker-pause path.
 
+## Recovered final local gate
+
+[Recovered receipts](evidence/recovered-local-validation.json) preserve native
+reward/exception/checksum evidence for all seven cells. Every original local
+oracle in that final set returned reward 1, no exception, with no-op and
+integrity/wrong-target cases rejected before final positive verification.
+No model timing is inferred from these oracle executions.
+
+| Cell | Local job |
+|---|---|
+| Raw scripted | `diagnostics-final-raw-scripted` |
+| Original Aspire skills | `diagnostics-aspire-auth-fix` |
+| CLI only | `diagnostics-final-cli` |
+| MCP only | `diagnostics-mcp-live` |
+| Skills + MCP | `diagnostics-final-skills-mcp` |
+| Generated 13.6 skills | `diagnostics-final-generated-skills` |
+| Metadata-only focused trigger | `diagnostics-final-focused-trigger` |
+
+The first recovered Aspire setup exposed three raw-only grader assumptions:
+Docker published ports are not Aspire's application-facing proxy ports,
+the actual Aspire database is `db` rather than raw `bingo`, and native
+PostgreSQL/Redis probes must use the existing container credentials and TLS.
+Those adapters were corrected, not security disabled. Ownership now matches
+the exact Docker identity to the actual CLI resource and its declared proxy
+URLs, then compares the backend's real connection configuration. Added unit
+cases reject wrong ports/hosts and ensure passwords are referenced from the
+container environment rather than embedded or printed.
+
+The successful final oracles prove actual HTTP 500 while pages/PING/reads still
+work, exact-owned-instance protocol repair, fresh SQL/Redis call/clear/status,
+and preserved source, data, neighboring workload and runtime identities.
+MCP oracles selected `/app/apphost.cs`, returned the four held-out resources
+and exposed the actual Redis failure logs; the probe is oracle-only, not a
+forced model workflow.
+
+New raw evidence uses durable session storage under
+`.../session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/oracle/`
+because ignored worktree artifacts disappeared during the earlier recovery.
+The original failed/cancelled attempts remain historical evidence.
+
 Isolation is regression-oriented, not hardened: container root can inspect or
 tamper with protected grader files, Docker event history is finite, and direct
 Redis control traffic need not appear in Docker exec events. Independent decoy
 write/data checks cover final availability/state, not all transient direct-TCP
-actions. Static test success is not a substitute for the missing Docker gate. No dataset or
-model-submission ledger is supplied while that gate remains blocked.
+actions. Static tests alone are not a substitute for this runtime gate.
+[Mechanism definitions](MECHANISMS.md) explain unique treatments and the
+generator/description distinctions; model claims require actual run/usage evidence.

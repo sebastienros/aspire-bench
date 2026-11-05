@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
+import { databaseName, matchesProxyConnection, redisExecArgs, sqlExecArgs } from "./common/diagnostics.mjs";
 import {
     pauseDurationMs, snapshot, verifyContainers, verifyEvents, verifyFaultWindow, verifyRedisWrites,
 } from "./common/policy.mjs";
@@ -12,6 +13,38 @@ const target = { id: "owned", name: "/amber47-spindle", paused: false, running: 
 const neighbor = { id: "neighbor", name: "/amber74-spindle", paused: false, running: true,
     startedAt: "original", restarts: 0 };
 const event = (Action, id = target.id) => ({ Action, Actor: { ID: id } });
+
+test("Aspire ownership uses actual proxy URLs rather than unrelated Docker published ports", () => {
+    const resource = { urls: [{ url: "tcp://localhost:42000" }, { url: "rediss://localhost:42001" }] };
+    assert(matchesProxyConnection("localhost:42001,password=not-printed,ssl=True", "cache", resource));
+    assert(matchesProxyConnection("127.0.0.1:42000", "cache", resource));
+    assert(!matchesProxyConnection("localhost:43000", "cache", resource));
+    assert(!matchesProxyConnection("other-host:42001", "cache", resource));
+    assert(matchesProxyConnection("Host=localhost;Port=42000;Database=db;Password=not-printed", "database", resource));
+    assert(!matchesProxyConnection("Host=localhost;Port=43000", "database", resource));
+    assert.equal(databaseName("compose"), "bingo");
+    assert.equal(databaseName("aspire"), "db");
+    assert.throws(() => databaseName("unknown"));
+});
+
+test("Redis probes preserve TLS and authenticate without embedding or printing a password", () => {
+    const config = { Env: ["REDIS_PASSWORD=not-printed"], Cmd: ["--tls-port", "6380"] };
+    const args = redisExecArgs({ Id: "owned", Config: config }, ["CLIENT", "UNPAUSE"]);
+    assert(args.includes('REDISCLI_AUTH="$REDIS_PASSWORD" redis-cli --raw "$@"'));
+    assert(args.includes("--tls"));
+    assert(!args.join(" ").includes("not-printed"));
+    assert.deepEqual(redisExecArgs({ Id: "raw", Config: { Env: [] } }, ["PING"]),
+        ["exec", "raw", "redis-cli", "--raw", "PING"]);
+});
+
+test("SQL probes use container-owned credentials and the orchestration's actual database", () => {
+    const args = sqlExecArgs({ Id: "owned" }, "SELECT 1", "aspire");
+    assert(args.includes('PGPASSWORD="$POSTGRES_PASSWORD" psql "$@"'));
+    assert.equal(args[args.indexOf("-d") + 1], "db");
+    assert.equal(args.at(-1), "SELECT 1");
+    const raw = sqlExecArgs({ Id: "raw" }, "SELECT 1", "compose");
+    assert.equal(raw[raw.indexOf("-d") + 1], "bingo");
+});
 
 test("protocol recovery preserves all container identities without relying on Docker paused state", () => {
     verifyContainers([target, neighbor], [target, neighbor]);
