@@ -3,5 +3,5 @@ services:
     privileged: true
     build:
       additional_contexts:
-        publishing-common: ${MSBENCH_PUBLISHING_COMMON_CONTEXT:-https://github.com/sebastienros/aspire-bench.git#648f323ad0618d1f622964f4fc646af753750352:msbench/bingo-publishing/common}
+        publishing-common: ${MSBENCH_PUBLISHING_COMMON_CONTEXT:-https://github.com/sebastienros/aspire-bench.git#7420e30e0934b9ee77a550e9fe3ceffdaded769b:msbench/bingo-publishing/common}
         bingo-source: ${MSBENCH_PUBLISHING_SOURCE_CONTEXT:-https://github.com/sebastienros/aspire-bench.git#baacba3e17181491c9a4d419db7d0e6763c3d363:msbench/bingo/common/raw-app}

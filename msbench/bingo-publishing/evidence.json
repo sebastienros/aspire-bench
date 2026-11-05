@@ -236,7 +236,7 @@
     }
   ],
   "diagnostic_followup": {
-    "common_commit": "648f323ad0618d1f622964f4fc646af753750352",
+    "common_commit": "7420e30e0934b9ee77a550e9fe3ceffdaded769b",
     "parent_local_image_build_and_smoke_verified": true,
     "parent_local_image_tags": [
       "bingo-p01-diagnostic-raw-scripted:648f323",
