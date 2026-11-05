@@ -51,7 +51,7 @@ set -euo pipefail
 cd /app
 source deployment-inputs.env
 aspire do prepare-compose --apphost /app/apphost.cs --output-path /app/deployment --non-interactive
-docker compose -p p01-deploy -f deployment/docker-compose.yaml --env-file deployment/.env up -d
+docker compose -p p01-deploy -f deployment/docker-compose.yaml --env-file deployment/.env.Production up -d
 SH
 source deployment-inputs.env
 aspire publish --apphost /app/apphost.cs --output-path /app/deployment --non-interactive

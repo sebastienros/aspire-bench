@@ -413,6 +413,13 @@ publish/prepare behavior and both positive/negative runtime oracles. Only owned
 runner commands were stopped; no shared restart/prune, cloud provisioning,
 model submission, or repeat sweep. Historical tasks/tracker are untouched.
 
+**Portability/source follow-up:** Both common named contexts now default to the
+verified public Git snapshot `7bdc7464`, not a sibling-local `../../../common`
+requiring remote Bake filesystem permission. Exact 13.6 source inspection also
+corrected the oracle to apply prepare's `.env.Production`, rather than publish's
+placeholder `.env`. These are source/graph fixes, not successful Docker or remote
+deployment evidence; the runtime gate remains open.
+
 ## F11: Feature/data-evolution checks need real state; local pair gates remain blocked
 
 **Evidence:** The [bounded F01/M01 tasks](bingo-evolution/README.md#local-outcomes-2026-11-04)

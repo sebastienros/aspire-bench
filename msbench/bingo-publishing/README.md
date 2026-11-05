@@ -117,6 +117,27 @@ pipeline compatibility.
 
 ## Executed evidence and recovery prerequisite
 
+### Portable graph follow-up
+
+The coordinator reported that remote Docker Bake refused sibling-local named
+contexts in another scenario before agent execution. Both P01 tasks now default
+to the **public Git-pinned** common snapshot at
+`7bdc746445b887d1c61b228e9d6d59f378589fe8:msbench/bingo-publishing/common`,
+not `../../../common`. GitHub resolves that commit and local `git diff` proves
+its common tree matches this draft. This removes the known graph portability
+hazard; it is not a remote image-build or model-readiness result. Local fixture
+development can explicitly override `MSBENCH_PUBLISHING_COMMON_CONTEXT`.
+Any common-file change requires publishing and updating the public pin before
+portable validation. No broad Bake filesystem permission grant is used.
+
+Exact upstream tag `v13.6.0` (commit
+`56f3e9c0d216c0c7069dabb49dd0464e4827744f`) also confirms that `aspire do`
+accepts `--output-path` and Docker Compose prepare writes
+`.env.<IHostEnvironment.EnvironmentName>`, not the publish placeholder `.env`.
+The oracle therefore applies `.env.Production` with the supplied Production
+environment. This fixes a source-confirmed draft error before Docker execution;
+the final pipeline still requires runtime validation.
+
 `node --test msbench/bingo-publishing/experiment.test.mjs` passes all four
 structural tests. `node --check common/grade.mjs`, shell syntax checks and
 `git diff --check` pass. These are not substitutes for the runtime gate.

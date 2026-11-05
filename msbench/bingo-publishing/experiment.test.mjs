@@ -14,6 +14,8 @@ test("paired tasks use same immutable source, runtime oracle and budgets", async
         assert.match(task, /test -f \/opt\/benchmark\/ready/);
         const compose = await read(`tasks/${arm}/environment/docker-compose.yaml`);
         assert.match(compose, /#baacba3e17181491c9a4d419db7d0e6763c3d363:msbench\/bingo\/common\/raw-app/);
+        assert.match(compose, /publishing-common: .*https:\/\/github.com\/sebastienros\/aspire-bench.git#[a-f0-9]{40}:msbench\/bingo-publishing\/common/);
+        assert.doesNotMatch(compose, /\.\.\/\.\.\/\.\.\/common/);
         assert.match(compose, /privileged: true/);
         const dockerfile = await read(`tasks/${arm}/environment/Dockerfile`);
         assert.match(dockerfile, /COPY --from=publishing-common .*grade.mjs/);

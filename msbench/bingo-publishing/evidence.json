@@ -3,6 +3,14 @@
   "status": "blocked-shared-docker-storage-not-runtime-validated",
   "eligible_for_model_submission": false,
   "completed_deployment": false,
+  "portable_common_context": {
+    "repository": "https://github.com/sebastienros/aspire-bench",
+    "commit": "7bdc746445b887d1c61b228e9d6d59f378589fe8",
+    "path": "msbench/bingo-publishing/common",
+    "github_resolution_verified": true,
+    "local_common_tree_matches": true,
+    "docker_build_with_git_context_verified": false
+  },
   "model_runs": [],
   "application_source": {
     "repository": "https://github.com/sebastienros/aspire-bench",
