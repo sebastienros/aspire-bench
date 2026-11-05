@@ -23,6 +23,11 @@ test("diagnostic dataset pins every locally validated unique condition without a
     assert.equal(ledger.task_commit, rows[0].task_repo_commit);
     assert.equal(ledger.automatic_repeats, false);
     assert.equal(new Set(ledger.conditions.map(condition => condition.fingerprint)).size, 7);
+    if (ledger.portable_dataset) {
+        const portable = (await read(ledger.portable_dataset)).trim().split("\n").map(JSON.parse);
+        assert.deepEqual(portable.map(row => row.benchmark_variant), rows.map(row => row.benchmark_variant));
+        assert(portable.every(row => row.task_repo_commit === ledger.portable_task_commit));
+    }
 });
 
 test("diagnostic mechanism cells preserve actual fault, app, prompts, solution and grader", async () => {

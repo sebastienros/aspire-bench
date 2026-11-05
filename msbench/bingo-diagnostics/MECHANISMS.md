@@ -89,6 +89,13 @@ gate before at most one explicitly labeled infrastructure replacement per
 condition; do not silently replace the failed receipts or count replacements
 as independent model samples.
 
+The corrected [portable dataset](portable-dataset.jsonl) pins task revision
+`26720447747ed4d007f667775a76e0ad000c8605`; original failed conditions remain
+in the original dataset/ledger. One **oracle-only** remote validation,
+[2026110504832466](https://msbenchapp.azurewebsites.net/run-analysis/2026110504832466),
+was submitted to exercise the new graph before model replacements. It runs
+`fix_validation/no_model`, not Terra; its result is pending.
+
 Local Docker work is serialized after recovery; inspect actual MCP schemas/
 backchannel and skill advertisement before inference. The original model/client
 pins and exact input/condition fingerprints must be recorded with each run.

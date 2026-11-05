@@ -333,5 +333,16 @@
     "focused-trigger",
     "generated-skills"
   ],
-  "max_labeled_infrastructure_replacements_per_condition": 1
+  "max_labeled_infrastructure_replacements_per_condition": 1,
+  "portable_task_commit": "26720447747ed4d007f667775a76e0ad000c8605",
+  "portable_dataset": "portable-dataset.jsonl",
+  "remote_oracle_validation": {
+    "run_id": "2026110504832466",
+    "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110504832466",
+    "agent": "fix_validation",
+    "model": "no_model",
+    "variant": "generated-skills",
+    "task_commit": "26720447747ed4d007f667775a76e0ad000c8605",
+    "status": "submitted"
+  }
 }
