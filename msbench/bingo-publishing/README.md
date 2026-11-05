@@ -24,7 +24,9 @@ AppHost is a transient deployment producer, never a service in the deployed app.
 
 The private Docker environment supplies independently owned PostgreSQL/Redis
 containers, an external network, original seed data and randomized extra state.
-Their IDs/start times/configuration/mounts and prior contents must survive.
+Their IDs/start times/configuration/mounts/network attachments and prior contents
+must survive. Network and volume identity/configuration are snapshotted separately,
+excluding the network's legitimately changing application-container membership.
 Only the two application containers are deployment-owned. This is intentionally
 an application publishing task against provisioned dependencies, **not** a
 whole-environment provisioning task or demonstration of database deployment.
@@ -129,6 +131,8 @@ hazard; it is not a remote image-build or model-readiness result. Local fixture
 development can explicitly override `MSBENCH_PUBLISHING_COMMON_CONTEXT`.
 Any common-file change requires publishing and updating the public pin before
 portable validation. No broad Bake filesystem permission grant is used.
+The current in-progress ownership/package-family guard changes in `common/`
+are newer than that pin; a final public snapshot update remains required.
 
 Exact upstream tag `v13.6.0` (commit
 `56f3e9c0d216c0c7069dabb49dd0464e4827744f`) also confirms that `aspire do`

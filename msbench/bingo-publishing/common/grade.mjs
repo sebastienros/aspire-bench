@@ -33,7 +33,19 @@ const catalog = () => JSON.parse(sql(`SELECT json_agg(t) FROM
 function dependency(name) {
     const item = inspect(name);
     return { id: item.Id, startedAt: item.State.StartedAt,
-        restarts: item.RestartCount, config: item.Config, mounts: item.Mounts };
+        restarts: item.RestartCount, config: item.Config, mounts: item.Mounts,
+        networks: item.NetworkSettings.Networks };
+}
+function ownedInfrastructure() {
+    const network = JSON.parse(docker("network", "inspect", "p01-net"))[0];
+    const volume = JSON.parse(docker("volume", "inspect", "p01-data"))[0];
+    return {
+        network: { id: network.Id, name: network.Name, created: network.Created,
+            driver: network.Driver, internal: network.Internal, ipam: network.IPAM,
+            options: network.Options, labels: network.Labels },
+        volume: { name: volume.Name, created: volume.CreatedAt, driver: volume.Driver,
+            options: volume.Options, labels: volume.Labels, scope: volume.Scope },
+    };
 }
 async function response(origin, path, status = 200, init = {}) {
     const res = await fetch(new URL(path, origin), {
@@ -95,6 +107,7 @@ async function runtime(state) {
     for (const name of ["p01-db", "p01-cache"]) {
         assert.deepEqual(dependency(name), state.dependencies[name], `Environment ownership changed: ${name}`);
     }
+    assert.deepEqual(ownedInfrastructure(), state.infrastructure, "Environment-owned network or volume changed");
     assert.deepEqual(catalog(), state.catalog, "Existing seed data must survive unchanged");
     assert.equal(redis("GET", "p01-existing"), state.redis, "Existing Redis data must survive");
     const ids = docker("ps", "-aq", "--filter", "label=com.docker.compose.project=p01-deploy").split("\n").filter(Boolean);
@@ -197,13 +210,21 @@ if (process.argv[2] === "setup") {
     }
     const dependencies = Object.fromEntries(["p01-db", "p01-cache"].map(name => [name, dependency(name)]));
     writeFileSync(statePath, JSON.stringify({
-        inputs: inputs(), dependencies, catalog: catalog(), redis: nonce, active, inactive, assets,
+        inputs: inputs(), dependencies, infrastructure: ownedInfrastructure(),
+        catalog: catalog(), redis: nonce, active, inactive, assets,
     }, null, 2));
     console.log("Seeded and snapshotted owned inputs, original seed data and dependency identity");
 } else if (process.argv[2] === "verify") {
     const state = JSON.parse(readFileSync(statePath, "utf8"));
     if (process.env.BENCH_APP_KIND === "aspire" && !process.argv.includes("--runtime-only")) {
         const apphost = readFileSync("/app/apphost.cs", "utf8");
+        const directives = apphost.match(/^#:.*$/gm) ?? [];
+        assert(directives.includes("#:sdk Aspire.AppHost.Sdk@13.6.0"),
+            "AppHost SDK must preserve the supplied 13.6 release family");
+        const hostingPackages = directives.filter(line => /^#:package Aspire\.Hosting(?:\.|@)/.test(line));
+        assert(hostingPackages.includes("#:package Aspire.Hosting.Docker@13.6.0")
+            && hostingPackages.every(line => line.endsWith("@13.6.0")),
+            "Aspire Hosting packages must preserve the supplied 13.6 release family");
         assert(apphost.includes("AddDockerComposeEnvironment"), "Aspire environment must model deployment");
         assert(apphost.includes("AddDockerfile"), "Production resources must belong to AppHost");
         const out = "/tmp/p01-republished";

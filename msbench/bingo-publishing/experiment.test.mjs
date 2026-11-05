@@ -61,7 +61,8 @@ test("runtime oracle checks fresh data, real auth, SignalR and ownership", async
     for (const marker of ["randomBytes", "new WebSocket", "GetAllAvailableSquares",
         "RequestBingoSet", "P01MethodThatDoesNotExist", "HGET", "state.catalog",
         "state.inputs", "state.dependencies", "state.assets", "error=invalid",
-        ".AspNetCore.Identity.Application", "DOTNET_ENVIRONMENT", "Mounts.length"]) {
+        ".AspNetCore.Identity.Application", "DOTNET_ENVIRONMENT", "Mounts.length",
+        "state.infrastructure", "NetworkSettings.Networks", "hostingPackages.every"]) {
         assert(grader.includes(marker), marker);
     }
     assert.doesNotMatch(grader, /readFileSync\([^)]*report/);

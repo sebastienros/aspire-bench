@@ -8,7 +8,8 @@
     "commit": "7bdc746445b887d1c61b228e9d6d59f378589fe8",
     "path": "msbench/bingo-publishing/common",
     "github_resolution_verified": true,
-    "local_common_tree_matches": true,
+    "local_common_tree_matches": false,
+    "pending_update": "Current ownership and package-family guards must be published and pinned before final portable validation.",
     "docker_build_with_git_context_verified": false
   },
   "model_runs": [],
