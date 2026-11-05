@@ -1,7 +1,8 @@
 # One additional X01 condition: original skills plus MCP
 
 **Status: the single native Harbor local oracle passed, including live MCP.
-Remote/model gates remain pending.** The explicit parent sole-slot grant preceded
+The independent remote oracle also passed; the single model result is pending.**
+The explicit parent sole-slot grant preceded
 runtime work; Harbor removed its runner and the slot was returned. The parent
 owns the independent remote oracle and at most one new low-budget Terra
 submission. Do not rerun the original raw or skills-only conditions.
@@ -9,7 +10,13 @@ submission. Do not rerun the original raw or skills-only conditions.
 The published task is pinned at `ffed19f` in
 [combined-dataset.jsonl](combined-dataset.jsonl). Independent remote oracle
 [2026110561653346](https://msbenchapp.azurewebsites.net/run-analysis/2026110561653346)
-is running with `--variant skills-mcp`; only that new cell is selected.
+passed reward 1/no exception with `--variant skills-mcp`, including the actual
+live AppHost/resource/NOPERM MCP preflight. The
+[remote receipt](evidence/final-remote-oracle.json) preserves native result and
+stdout hashes; exported native task checksums are runner-redacted, not invented.
+Only that new cell is selected. Its single original Terra attempt is submitted as
+[2026110562064654](https://msbenchapp.azurewebsites.net/run-analysis/2026110562064654);
+actual model use and performance remain pending.
 The original raw/Aspire dataset rows are retained unchanged because MSBench
 requires the logical group's default variant to be represented. An initial
 dataset missing that row failed local validation before any run was submitted.

@@ -1,0 +1,42 @@
+{
+  "run_id": "2026110561495368",
+  "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110561495368",
+  "task_commit": "ffed19f2b2d4f82360125c1da40a8b302bfd5ba8",
+  "reward": 1,
+  "exception": null,
+  "agent": "oracle",
+  "model_executed": false,
+  "trial_name": "aspire__BqMs7Qs",
+  "native_task_checksum": "***REDACTED***",
+  "native_checksum_note": "MSBench export redacts task_checksum; exact source is bound by task commit and recorded per-file condition fingerprints.",
+  "native_result_sha256": "d62dae7dc3a862364fea552d0a4a088868e86274cae22f39d5f2b65f6a5ac1ae",
+  "evidence_root": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/cloud/p01-relay-oracle",
+  "artifact_sha256": {
+    "bingo-production-publishing-aspire.eval.x86_64.bingo-production-publishing-output/output/harbor_logs/jobs/2026-11-05__17-06-25/aspire__BqMs7Qs/agent/oracle.txt": "8e793df3dc60ce1d5b4cc44c7f4ad444dd082609e29f8cb903bd1596c9b33f69",
+    "bingo-production-publishing-aspire.eval.x86_64.bingo-production-publishing-output/output/harbor_logs/jobs/2026-11-05__17-06-25/aspire__BqMs7Qs/verifier/test-stdout.txt": "32723d3b5d7207019463e8062a4798c7a244c98ef42ece32f570e4b7f2c57b45",
+    "bingo-production-publishing-aspire.eval.x86_64.bingo-production-publishing-output/output/reward.txt": "d0ff5974b6aa52cf562bea5921840c032a860a91a3512f7fe8f768f6bbe005f6",
+    "bingo-production-publishing-aspire.eval.x86_64.bingo-production-publishing-output/output/harbor_logs/jobs/2026-11-05__17-06-25/aspire__BqMs7Qs/verifier/reward.txt": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+    "bingo-production-publishing-aspire.eval.x86_64.bingo-production-publishing-output/output/harbor_logs/jobs/2026-11-05__17-06-25/aspire__BqMs7Qs/artifacts/logs/environment/dns-plan.json": "0e5f46588cbc7c11babd8c96923342dd15f7f6da1d749a0afbd52ae783e1f6de",
+    "bingo-production-publishing-aspire.eval.x86_64.bingo-production-publishing-output/output/harbor_logs/jobs/2026-11-05__17-06-25/aspire__BqMs7Qs/artifacts/logs/environment/progress.log": "94e0624545776b18258bd47faa723994144800043f1e187fa38394222794569d",
+    "bingo-production-publishing-aspire.eval.x86_64.bingo-production-publishing-output/output/harbor_logs/jobs/2026-11-05__17-06-25/aspire__BqMs7Qs/artifacts/logs/environment/dns-relay-ready.json": "b818f020a68a18ad2fdb890f7c97543b6efa3e089d8e660d665542ab578e803a",
+    "bingo-production-publishing-aspire.eval.x86_64.bingo-production-publishing-output/output/harbor_logs/jobs/2026-11-05__17-06-25/aspire__BqMs7Qs/artifacts/logs/environment/dns-relay.log": "1926fc253076f55ab78b60a98e4c46a93832f0ff9cb8e8255e343542c9c10412"
+  },
+  "dns_plan": {
+    "mode": "loopback-relay",
+    "configured": [
+      "127.0.0.11"
+    ],
+    "upstreams": [
+      "127.0.0.11"
+    ],
+    "servers": [
+      "172.16.0.1"
+    ],
+    "bridge": {
+      "bip": "172.16.0.1/24",
+      "gateway": "172.16.0.1",
+      "pool": "172.16.1.0/24"
+    }
+  },
+  "setup_reached_ready": true
+}

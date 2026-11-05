@@ -8,15 +8,22 @@ pass: a native final attempt stalled in readiness without a task container.
 Earlier native Harbor fixture-development oracles also passed with an explicit
 local common override. No model run, push, PR or cloud provisioning was performed
 here. [evidence.json](evidence.json) separates all three evidence categories.
-**Native Harbor/CES execution remains a parent-owned gate before model submission.**
+**The final native remote oracle now passes.**
 Public-input passing receipts refer to snapshot `1f9f961`. Subsequent local DNS
 relay fixes also pass both production oracles, but use an explicit local common
 context. The coordinator has now published final common `7420e30`, locally built
 and smoke-checked both exact public-Git images, and pinned task graph `ffed19f`.
 Independent remote no-model gate
 [2026110561495368](https://msbenchapp.azurewebsites.net/run-analysis/2026110561495368)
-is running with [relay-dataset.jsonl](relay-dataset.jsonl). No model submission
-is authorized by a build/smoke check alone. Intermediate diagnostic builds at
+passed with reward 1/no exception using [relay-dataset.jsonl](relay-dataset.jsonl).
+Its exported DNS plan proves actual configured `127.0.0.11`, relayed through
+private `172.16.0.1`; progress reaches ready and the full production verifier passes.
+[Receipt](evidence/final-remote-oracle.json) binds native result/output hashes.
+The two original Terra conditions are now submitted: raw
+[2026110562064652](https://msbenchapp.azurewebsites.net/run-analysis/2026110562064652)
+and Aspire
+[2026110562064656](https://msbenchapp.azurewebsites.net/run-analysis/2026110562064656).
+Submission is not yet a model-execution or outcome claim. Intermediate diagnostic builds at
 `648f323`, earlier public production receipts at `1f9f961` and the new final
 relay image builds have separate entries in the evidence manifest.
 

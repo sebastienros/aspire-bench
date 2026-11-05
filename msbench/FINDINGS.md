@@ -470,9 +470,13 @@ states the project/service IDs already required by grading, prospectively
 avoiding hidden identity constraints; earlier receipts remain version-scoped.
 The final relay common snapshot `7420e30` is now public, both exact public-Git
 images have been locally built and smoke-checked, and task graph `ffed19f`
-is undergoing remote no-model gate `2026110561495368`. This is not a relabeling
+passed remote no-model gate `2026110561495368`, reward 1/no exception. The
+exported plan proves the actual remote configured resolver is `127.0.0.11`;
+private relay `172.16.0.1` preserves it and setup reaches ready before the
+full native production grade. This new remote evidence is not a relabeling
 of the older `1f9f961` production receipts or intermediate `648f323` diagnostic
-builds, and no P01 model condition has yet executed.
+builds. Only then were the two original prospective Terra conditions submitted,
+`2026110562064652` (raw) and `2026110562064656` (Aspire); outcomes are pending.
 
 ## F11: Feature/data-evolution correctness needs real state, not readiness
 
@@ -722,8 +726,10 @@ The [combined follow-up](bingo-transfer/SKILLS-MCP.md) has independently passed
 one actual native local Harbor oracle with exact live AppHost/resource/NOPERM
 MCP assertions, all 12 negatives and final external grade. Native stdout/results
 are retained; separately uncollected environment JSON is not claimed preserved.
-Its published graph is undergoing remote no-model gate `2026110561653346`
-before the single new model condition. The initial local dataset-selection
+Its published graph passed remote no-model gate `2026110561653346`, reward 1/
+no exception, with the same exact live MCP assertions. The single new Terra
+condition `2026110562064654` is submitted; actual model MCP use/outcome remain
+pending. The initial local dataset-selection
 error submitted no run; the default baseline rows remain present only for
 MSBench's variant validation and are not selected for re-execution.
 

@@ -191,12 +191,19 @@ test("runtime oracle checks fresh data, real auth, SignalR and ownership", async
         "nonrunning deployment", "live Vite development server"]) assert(negatives.includes(scenario), scenario);
 });
 
-test("executed passing oracle evidence satisfies exact budgets without claiming model runs", async () => {
+test("historical local and final native oracle evidence stay distinct from model outcomes", async () => {
     const evidence = JSON.parse(await read("evidence.json"));
-    assert.deepEqual(evidence.model_runs, []);
+    assert(Array.isArray(evidence.model_runs));
     assert.deepEqual(evidence.local_runtime_results.map(row => row.arm), arms);
     assert.deepEqual(evidence.public_runtime_results.map(row => row.arm), arms);
-    assert.equal(evidence.eligible_for_model_submission, false);
+    const remote = JSON.parse(await read(evidence.relay_public_image_build_and_smoke.remote_oracle_receipt));
+    assert.equal(remote.reward, 1);
+    assert.equal(remote.exception, null);
+    assert.equal(remote.agent, "oracle");
+    assert.equal(remote.model_executed, false);
+    assert.equal(remote.dns_plan.mode, "loopback-relay");
+    assert.deepEqual(remote.dns_plan.upstreams, ["127.0.0.11"]);
+    assert.equal(evidence.eligible_for_model_submission, true);
     assert.equal(evidence.portable_common_context.local_common_tree_matches, false);
     assert.equal(evidence.diagnostic_followup.runtime_validated, false);
     assert.equal(evidence.portable_common_context.native_harbor_final_graph_verified, false);

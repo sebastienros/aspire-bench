@@ -10,8 +10,9 @@ Three original native zeros are preserved alongside successful exact-source
 local regrades under corrected F01/A01 graders, not overwritten.
 The complete source-built managed Bingo baseline and empty-JSON contract fix
 are verified. P01's final public relay graph and one new X01 combined skills/MCP
-condition have passed local gates and are undergoing independent remote
-no-model validation before at most three new model submissions.
+condition have passed local and independent native remote no-model gates.
+Only the three remaining prospective model conditions are submitted and running;
+submission is not counted as verified model execution.
 See the latest execution/recovery ledger below; the earlier storage block is
 retained as history, not the current engine status.
 
@@ -153,10 +154,10 @@ Fresh conversations and verified resumed conversations are separate strata.
 | H01 / next | Reject misleading readiness or stale endpoint evidence | Functional negative probe fails even if process/resource is green | Combined D01 actually verified HTTP500 with pages/PING/reads serving; no-op/page-only and stale-endpoint cases rejected |
 | F01 | Add a cross-service capability/cache behavior | Hidden fresh data, both positive and negative contracts | [Original pair completed](bingo-evolution/PILOT.md); raw native pass, Aspire original zero separately corrected by unchanged-source local regrade; no model rerun |
 | M01 | Migrate schema without losing existing data | Pre/post record identity and contents, new behavior | [Both original model runs passed](bingo-evolution/PILOT.md); 43 legacy rows preserved, raw 145.1 s versus Aspire 271.9 s |
-| S01 | Two similar running apps/worktrees | Exact-target repair, other app and data unchanged | Separate two-full-Bingo sibling-workspace local gates passed (four processes/origins/dependencies); remote gate pending; editor/host-worktree ownership not claimed |
-| A01 | Add a dependency or adopt Aspire | Functional wiring, no hardcoded ports/secrets; setup cost included | Original/generated skill final oracles and remote gate passed; two distinct Terra adoption conditions submitted |
-| P01 | Publish and run isolated local deployment | Deployed functional checks, no dev-runtime assumptions | Actual local production .NET/nginx deployments pass; final default-Git-context pair in progress before models |
-| X01 | Transfer to eShop / TypeScript / polyglot | Unseen topology/names, instrumentation parity and functional equivalence | Different ACL fault family + held-out names on Bingo local gates passed; remote gate pending. eShop parity inspected but not assumed; no demonstrated Bingo limit requires conversion |
+| S01 | Two similar running apps/worktrees | Exact-target repair, other app and data unchanged | Both original native model runs passed with two full Bingo apps; raw 56.4 s versus Aspire 68.4 s. Editor/host-worktree ownership not claimed |
+| A01 | Add a dependency or adopt Aspire | Functional wiring, no hardcoded ports/secrets; setup cost included | Both original native zeros preserved; exact unchanged-source local regrades pass corrected semantic dependency/physical-DB contract. Generated plaintext choice preserved, no security-equivalence claim |
+| P01 | Publish and run isolated local deployment | Deployed functional checks, no dev-runtime assumptions | Both local production oracles and final native remote relay gate pass; two unique Terra models running |
+| X01 | Transfer to eShop / TypeScript / polyglot | Unseen topology/names, instrumentation parity and functional equivalence | ACL fault + held-out names: both original native model runs pass, raw 49.5 s versus Aspire 82.4 s. New combined skills/MCP local/remote gates pass and one unique model runs. eShop parity not assumed |
 
 Existing startup/health experiments remain regression controls, not replacements
 for development scenarios. Generated project-local skills are a treatment to test,

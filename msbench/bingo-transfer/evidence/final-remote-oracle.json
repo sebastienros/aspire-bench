@@ -1,0 +1,22 @@
+{
+  "run_id": "2026110561653346",
+  "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110561653346",
+  "task_commit": "ffed19f2b2d4f82360125c1da40a8b302bfd5ba8",
+  "reward": 1,
+  "exception": null,
+  "agent": "oracle",
+  "model_executed": false,
+  "trial_name": "skills-mcp__LcvhaBg",
+  "native_task_checksum": "***REDACTED***",
+  "native_checksum_note": "MSBench export redacts task_checksum; exact source is bound by task commit and recorded per-file condition fingerprints.",
+  "native_result_sha256": "db2b5e331de803147eac19b8bdc166b5a4657debfaf5a89eaebc3e44c006b180",
+  "evidence_root": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/cloud/x01-combined-oracle",
+  "artifact_sha256": {
+    "bingo-acl-fault-transfer-skills-mcp.eval.x86_64.bingo-acl-fault-transfer-output/output/harbor_logs/jobs/2026-11-05__17-08-54/skills-mcp__LcvhaBg/agent/oracle.txt": "3cc36f5efede9e7d8a375efa0069ffa65b997cff89d6e7dc565ea8aa2acd6ee5",
+    "bingo-acl-fault-transfer-skills-mcp.eval.x86_64.bingo-acl-fault-transfer-output/output/harbor_logs/jobs/2026-11-05__17-08-54/skills-mcp__LcvhaBg/verifier/test-stdout.txt": "6c01cc39367b86a973355f6ab3513b028433553deaff2f323d15ed0c45930764",
+    "bingo-acl-fault-transfer-skills-mcp.eval.x86_64.bingo-acl-fault-transfer-output/output/reward.txt": "d0ff5974b6aa52cf562bea5921840c032a860a91a3512f7fe8f768f6bbe005f6",
+    "bingo-acl-fault-transfer-skills-mcp.eval.x86_64.bingo-acl-fault-transfer-output/output/harbor_logs/jobs/2026-11-05__17-08-54/skills-mcp__LcvhaBg/verifier/reward.txt": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+  },
+  "live_mcp_preflight_passed": true,
+  "environment_json_retained": false
+}

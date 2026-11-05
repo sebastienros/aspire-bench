@@ -1,10 +1,10 @@
 {
   "scenario": "P01",
-  "status": "public-input-local-runtime-validated-native-runner-gate-open",
-  "eligible_for_model_submission": false,
-  "model_submission_gate": "Parent must verify native Harbor/CES execution of the final public-pinned task; direct local validation is not a native runner pass.",
+  "status": "final-relay-native-remote-oracle-passed-model-pilot-submitted",
+  "eligible_for_model_submission": true,
+  "model_submission_gate": "Final graph ffed19f passed native remote oracle 2026110561495368, reward 1/no exception. Only the two original prospective model conditions were then submitted.",
   "completed_deployment": true,
-  "completed_deployment_scope": "Recorded public snapshot 1f9f961 and later local-common DNS relay production oracles. Intermediate 648f323 diagnostic images were built/smoke-tested locally; the final relay snapshot still requires public repinning and remote validation.",
+  "completed_deployment_scope": "Recorded public snapshot 1f9f961 and later local-common DNS relay production oracles remain historical. Final relay source 7420e30/task ffed19f passed native CES/x64 oracle 2026110561495368; its actual loopback DNS plan and ready progress were exported.",
   "portable_common_context": {
     "repository": "https://github.com/sebastienros/aspire-bench",
     "commit": "1f9f96148571f1b7343a9989df7776ac8cb78951",
@@ -271,7 +271,8 @@
     "checks": "node --check dns.mjs/dns-relay.mjs; bash -n entrypoint.sh/setup.sh; nonempty application README",
     "scope": "Final immutable public-Git image builds and smoke checks, not another production oracle or a model result.",
     "remote_oracle_run_id": "2026110561495368",
-    "remote_oracle_status": "running",
+    "remote_oracle_status": "passed",
+    "remote_oracle_receipt": "evidence/final-remote-oracle.json",
     "logs_root": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/logs"
   },
   "dns_relay_followup": {

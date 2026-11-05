@@ -17,8 +17,9 @@ The expanded roadmap also has [runtime diagnosis/false-health/scope](bingo-diagn
 Nineteen unique Terra model conditions have executed across the current program.
 Three original native zeros remain preserved separately from successful
 unchanged-source regrades after grader corrections. Publishing and the new
-combined ACL skills/MCP condition are undergoing their final remote no-model
-gates; neither has a paid model result yet. Earlier Docker/storage failures are
+combined ACL skills/MCP condition passed their final native remote no-model
+gates; only their three new model conditions are submitted, with outcomes pending.
+Earlier Docker/storage failures are
 retained as historical infrastructure evidence, not the current engine state.
 
 This is a separate, ready-configured Harbor benchmark. The application
