@@ -236,7 +236,7 @@
     }
   ],
   "diagnostic_followup": {
-    "common_commit": "7420e30e0934b9ee77a550e9fe3ceffdaded769b",
+    "common_commit": "648f323ad0618d1f622964f4fc646af753750352",
     "parent_local_image_build_and_smoke_verified": true,
     "parent_local_image_tags": [
       "bingo-p01-diagnostic-raw-scripted:648f323",
@@ -257,6 +257,22 @@
     "redaction": "Bounded setup/dockerd/info tails, sensitive lines removed, fixture credentials and URL credentials/query redacted; no command or environment dump.",
     "next_action_owner": "coordinator",
     "next_action": "Publish/pin changed common files and run one no-model diagnostic oracle, retrieving sanitized container stderr/environment artifacts on setup failure."
+  },
+  "relay_public_image_build_and_smoke": {
+    "common_commit": "7420e30e0934b9ee77a550e9fe3ceffdaded769b",
+    "task_commit": "ffed19f2b2d4f82360125c1da40a8b302bfd5ba8",
+    "image_tags": [
+      "bingo-p01-relay-raw-scripted:7420e30",
+      "bingo-p01-relay-aspire:7420e30"
+    ],
+    "both_builds_passed": true,
+    "both_smoke_tests_passed": true,
+    "local_named_context_overrides": false,
+    "checks": "node --check dns.mjs/dns-relay.mjs; bash -n entrypoint.sh/setup.sh; nonempty application README",
+    "scope": "Final immutable public-Git image builds and smoke checks, not another production oracle or a model result.",
+    "remote_oracle_run_id": "2026110561495368",
+    "remote_oracle_status": "running",
+    "logs_root": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/logs"
   },
   "dns_relay_followup": {
     "remote_observation": "Diagnostic run 2026110559322086 failed during DNS discovery. A loopback-only nameserver without ExtServers is one previously unsupported configuration; remote resolver contents remain unknown.",

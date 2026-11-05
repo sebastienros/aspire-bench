@@ -6,6 +6,14 @@ runtime work; Harbor removed its runner and the slot was returned. The parent
 owns the independent remote oracle and at most one new low-budget Terra
 submission. Do not rerun the original raw or skills-only conditions.
 
+The published task is pinned at `ffed19f` in
+[combined-dataset.jsonl](combined-dataset.jsonl). Independent remote oracle
+[2026110561653346](https://msbenchapp.azurewebsites.net/run-analysis/2026110561653346)
+is running with `--variant skills-mcp`; only that new cell is selected.
+The original raw/Aspire dataset rows are retained unchanged because MSBench
+requires the logical group's default variant to be represented. An initial
+dataset missing that row failed local validation before any run was submitted.
+
 This follow-up asks whether the previously promising D01 **combined skills+MCP
 mechanism** transfers to X01's genuinely different ACL-denial fault/name instance.
 It is one new mechanism cell on the same task, not a new independent fault

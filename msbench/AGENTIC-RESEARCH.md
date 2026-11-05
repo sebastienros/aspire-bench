@@ -4,10 +4,14 @@ Living protocol, worktree/artifact ledger, execution log, and decision register.
 Started 2026-11-04. This document distinguishes planned experiments from executed
 evidence; pending work is not a product improvement or a positive result.
 
-**Execution status:** Running after targeted Docker Desktop recovery. D01's
-seven valid Terra conditions and full source-built Bingo baseline are complete;
-F01/M01 and A01 local/remote oracle gates pass and six new pilots are running.
-P01/X01 are completing final serialized runtime gates. No unvalidated task is submitted to MSBench.
+**Execution status:** Nineteen unique Terra model conditions have executed:
+I01 (2), D01 (7), F01/M01 (4), A01 (2), X01 (2), and S01 (2).
+Three original native zeros are preserved alongside successful exact-source
+local regrades under corrected F01/A01 graders, not overwritten.
+The complete source-built managed Bingo baseline and empty-JSON contract fix
+are verified. P01's final public relay graph and one new X01 combined skills/MCP
+condition have passed local gates and are undergoing independent remote
+no-model validation before at most three new model submissions.
 See the latest execution/recovery ledger below; the earlier storage block is
 retained as history, not the current engine status.
 
@@ -56,8 +60,9 @@ tests, actual executable version, and Linux Docker compatibility. Native macOS
 CLI success does not imply a usable Linux Harbor artifact. Preserve exact
 control/treatment binaries; never compare mutable branch names alone.
 
-Large logs and downloaded outputs stay in ignored `.runs/`; commit compact
-manifests and factual summaries. Cloud runs must record MSBench run IDs/URLs and
+Current large logs and downloaded outputs stay in persistent session
+`files/research-20261104/`, not the previously disappeared ignored `.runs/`.
+Commit compact manifests and factual summaries. Cloud runs must record MSBench run IDs/URLs and
 task/toolchain/agent/model pins. Never commit credentials or runtime login tokens.
 
 ## Evaluation protocol
@@ -144,10 +149,10 @@ Fresh conversations and verified resumed conversations are separate strata.
 | ID / priority | Task and Bingo basis | External proof | State |
 |---|---|---|---|
 | I01 / first | Repair/extend player-origin producer API routing in the already-running Vue app | Real frontend -> admin -> database/Redis call/status/clear round trip; preserve prior data and version/SignalR behavior | [Completed Terra pilot](bingo-iteration/README.md#completed-terra-pilot): both pass, no demonstrated Aspire advantage; do not repeat identical conditions |
-| D01 / next | Diagnose distributed failure with a healthy process but failed operation | Broken fixture fails, correct targeted repair passes; random fault instance; logs/trace evidence | [All seven final local cells passed](bingo-diagnostics/README.md#recovered-final-local-gate); unique Terra pilot conditions next |
+| D01 / next | Diagnose distributed failure with a healthy process but failed operation | Broken fixture fails, correct targeted repair passes; random fault instance; logs/trace evidence | [Seven unique Terra conditions completed](bingo-diagnostics/PILOT.md), all native passes; combined observed 68.1 s versus raw 72.4 s, n=1 per cell |
 | H01 / next | Reject misleading readiness or stale endpoint evidence | Functional negative probe fails even if process/resource is green | Combined D01 actually verified HTTP500 with pages/PING/reads serving; no-op/page-only and stale-endpoint cases rejected |
-| F01 | Add a cross-service capability/cache behavior | Hidden fresh data, both positive and negative contracts | Both final local oracles and remote no-model gate pass; unique Terra pair submitted |
-| M01 | Migrate schema without losing existing data | Pre/post record identity and contents, new behavior | Both final local oracles prove additive 280-character schema/43 legacy rows preserved; remote gate passed and unique Terra pair submitted |
+| F01 | Add a cross-service capability/cache behavior | Hidden fresh data, both positive and negative contracts | [Original pair completed](bingo-evolution/PILOT.md); raw native pass, Aspire original zero separately corrected by unchanged-source local regrade; no model rerun |
+| M01 | Migrate schema without losing existing data | Pre/post record identity and contents, new behavior | [Both original model runs passed](bingo-evolution/PILOT.md); 43 legacy rows preserved, raw 145.1 s versus Aspire 271.9 s |
 | S01 | Two similar running apps/worktrees | Exact-target repair, other app and data unchanged | Separate two-full-Bingo sibling-workspace local gates passed (four processes/origins/dependencies); remote gate pending; editor/host-worktree ownership not claimed |
 | A01 | Add a dependency or adopt Aspire | Functional wiring, no hardcoded ports/secrets; setup cost included | Original/generated skill final oracles and remote gate passed; two distinct Terra adoption conditions submitted |
 | P01 | Publish and run isolated local deployment | Deployed functional checks, no dev-runtime assumptions | Actual local production .NET/nginx deployments pass; final default-Git-context pair in progress before models |

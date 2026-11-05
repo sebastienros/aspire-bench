@@ -8,14 +8,18 @@ The [Bingo running-app iteration scenario](bingo-iteration/README.md) adds a
 functional frontend-to-backend routing repair with data/process preservation
 checks, separate from the historical startup/health tasks.
 
-The expanded roadmap also has [runtime diagnosis/false-health/scope drafts](bingo-diagnostics/README.md),
-[feature and schema evolution drafts](bingo-evolution/README.md),
+The expanded roadmap also has [runtime diagnosis/false-health/scope](bingo-diagnostics/PILOT.md),
+[feature and schema evolution](bingo-evolution/PILOT.md),
 [cold adoption](bingo-adoption/README.md), and
-[local production publishing drafts](bingo-publishing/README.md).
-These final task sets are **not model-ready**: shared Docker/storage failures
-interrupted their local validation gates. Their reports distinguish partial
-oracle evidence from static checks and intended behavior. No cloud dataset or
-inference result is implied by a task directory's presence.
+[local production publishing](bingo-publishing/README.md), plus
+[held-out ACL diagnosis](bingo-transfer/PILOT.md) and
+[two-app isolation](bingo-isolation/PILOT.md).
+Nineteen unique Terra model conditions have executed across the current program.
+Three original native zeros remain preserved separately from successful
+unchanged-source regrades after grader corrections. Publishing and the new
+combined ACL skills/MCP condition are undergoing their final remote no-model
+gates; neither has a paid model result yet. Earlier Docker/storage failures are
+retained as historical infrastructure evidence, not the current engine state.
 
 This is a separate, ready-configured Harbor benchmark. The application
 sources, Dockerfiles, prompts, skills/MCP configuration and graders live

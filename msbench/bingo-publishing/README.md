@@ -11,9 +11,16 @@ here. [evidence.json](evidence.json) separates all three evidence categories.
 **Native Harbor/CES execution remains a parent-owned gate before model submission.**
 Public-input passing receipts refer to snapshot `1f9f961`. Subsequent local DNS
 relay fixes also pass both production oracles, but use an explicit local common
-context; publish/repin them before the coordinator's remote no-model gate.
+context. The coordinator has now published final common `7420e30`, locally built
+and smoke-checked both exact public-Git images, and pinned task graph `ffed19f`.
+Independent remote no-model gate
+[2026110561495368](https://msbenchapp.azurewebsites.net/run-analysis/2026110561495368)
+is running with [relay-dataset.jsonl](relay-dataset.jsonl). No model submission
+is authorized by a build/smoke check alone. Intermediate diagnostic builds at
+`648f323`, earlier public production receipts at `1f9f961` and the new final
+relay image builds have separate entries in the evidence manifest.
 
-The parent published the exact final tasks at `a206e498adc445865f05a49546a5e085956de0dd`
+The parent initially published tasks at `a206e498adc445865f05a49546a5e085956de0dd`
 and submitted one representative **no-model** CES oracle,
 [2026110558453858](https://msbenchapp.azurewebsites.net/run-analysis/2026110558453858),
 to verify native remote execution before any model spending.
@@ -145,7 +152,7 @@ prepare pipeline. Newer static-site overloads were not assumed or used.
 
 The coordinator reported that remote Docker Bake refused sibling-local named
 contexts in another scenario before agent execution. Both P01 tasks now default
-to the **public Git-pinned** common snapshot at
+to the **public Git-pinned** common snapshot at the time of those receipts,
 `1f9f96148571f1b7343a9989df7776ac8cb78951:msbench/bingo-publishing/common`,
 not `../../../common`. GitHub resolution and exact common-tree equality were
 verified before final builds. Both final direct-Docker builds used this Git pin
@@ -154,6 +161,8 @@ no broad Bake filesystem permission grant. Local fixture development can still
 explicitly override `MSBENCH_PUBLISHING_COMMON_CONTEXT`; any common-file change
 requires publication and a new pin before final validation. These local Git
 builds prove portable input availability, not CES runner compatibility.
+The current relay dataset instead pins task `ffed19f` and common `7420e30`;
+historical dataset/receipt pins remain unchanged.
 
 Exact upstream tag `v13.6.0` (commit
 `56f3e9c0d216c0c7069dabb49dd0464e4827744f`) also confirms that `aspire do`

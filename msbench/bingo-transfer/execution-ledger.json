@@ -60,6 +60,35 @@
         "verifier_seconds": 300,
         "conversation_mode": "fresh-single-step"
       }
+    },
+    {
+      "variant": "skills-mcp",
+      "fingerprint": "5162bbf49e085c046cd6b64431e2b73c40d5b0c5d4ca208395d83d7b426373bb",
+      "condition": {
+        "scenario": "X01",
+        "variant": "skills-mcp",
+        "task_files": {
+          "environment/Dockerfile": "e7416b8df3a80745d4060c1bc82189e38edb3bbbc2f062c8648ebb757c96294a",
+          "environment/docker-compose.yaml": "a11054e36c4301076b925ea48c79eebbc860d8a84399205c982a13bca41c19c9",
+          "instruction.md": "1f212ae9742c0f06d575508c01e0535f9b786e6252481f32368e165b5019e7d4",
+          "solution/mcp-probe.mjs": "b79a3fba3b3043a8231430a7f19acc64f1fb03d3419025f94ce9a236c40deb25",
+          "solution/negative.mjs": "6d9d0b9225f76cb5e4453c14e23ee5ab030b38ffcc2420878325dd0aea68ee26",
+          "solution/solve.sh": "ab5ff3542996f4b90ae3e7d679aee48459b8580a4586e767b72fce809cfadb7d",
+          "task.toml": "6a9a10731f9d4e05af9e17eb30744a13d13e0b81177592083af63e36a75e8e3b",
+          "tests/test.sh": "90fbdaedb21b8fd7397fa8b2a315f39fcb186c9aca35ed779816bada8d976e6c"
+        },
+        "unchanged_control_source": "67f2ac195c653009972508203f84900368912fee",
+        "agent_package": "github-copilot-cli-pkg-main-20261014-215627",
+        "vendor_cli": "1.0.99-0",
+        "model": "gpt-6.1-terra",
+        "reasoning_effort": "runner-default",
+        "agent_seconds": 900,
+        "verifier_seconds": 300,
+        "conversation_mode": "fresh-single-step"
+      },
+      "task_commit": "ffed19f2b2d4f82360125c1da40a8b302bfd5ba8",
+      "dataset": "combined-dataset.jsonl",
+      "followup": "Declared after D01 to test the combined mechanism under a different ACL fault; do not resubmit old paired arms"
     }
   ],
   "remote_oracle_validations": [
@@ -102,5 +131,15 @@
       "actual_vendor_cli": "1.0.99-0",
       "reward": 1.0
     }
-  ]
+  ],
+  "combined_followup_remote_oracle": {
+    "run_id": "2026110561653346",
+    "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110561653346",
+    "variant": "skills-mcp",
+    "agent": "fix_validation",
+    "model": "no_model",
+    "status": "running",
+    "model_executed": false,
+    "task_commit": "ffed19f2b2d4f82360125c1da40a8b302bfd5ba8"
+  }
 }

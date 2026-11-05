@@ -401,7 +401,7 @@ setup/grader proof, not yet an autonomous-agent success or generator benefit.
 
 ## F12: Local publishing needs a production runtime and image-identity gate
 
-**Paired evidence:** The [P01 publishing draft](bingo-publishing/README.md)
+**Paired evidence:** The [P01 publishing scenario](bingo-publishing/README.md)
 and [manifest](bingo-publishing/evidence.json) retain the original paired
 shared-host image-build I/O failures and subsequent concrete fixture corrections.
 After owner-controlled engine recovery, raw `p01-raw-v5` and Aspire
@@ -468,6 +468,11 @@ root-cause or CES pass. The parent must publish/repin and inspect its remote
 no-model gate before any model submission. Shared guidance also now explicitly
 states the project/service IDs already required by grading, prospectively
 avoiding hidden identity constraints; earlier receipts remain version-scoped.
+The final relay common snapshot `7420e30` is now public, both exact public-Git
+images have been locally built and smoke-checked, and task graph `ffed19f`
+is undergoing remote no-model gate `2026110561495368`. This is not a relabeling
+of the older `1f9f961` production receipts or intermediate `648f323` diagnostic
+builds, and no P01 model condition has yet executed.
 
 ## F11: Feature/data-evolution correctness needs real state, not readiness
 
@@ -691,11 +696,12 @@ fresh SQL/Redis/HTTP effects and absence in the other app, plus both original
 identities/security/data and twelve negative cases. A Redis-only decoy was
 not relabeled as two-app proof.
 
-**Limits / status:** These are actual local functional gates, not native Harbor,
-CES or model-performance results. Native local Harbor stalled without creating
-an image/container; direct Docker used the exact published input graph, limits,
-entrypoint, oracle and verifier. A representative remote no-model gate is
-pending before four unique model pilots. Sibling workspaces in one private
+**Limits / status:** The original local direct-Docker gates are not native
+Harbor results. Native local Harbor stalled without creating an image/container;
+direct Docker used the exact published input graph, limits, entrypoint, oracle
+and verifier. Subsequent representative native remote no-model gate
+`2026110558919112` passed before the four completed unique model pilots below.
+Sibling workspaces in one private
 runner do not establish two editor-owned sessions, host-git worktree ownership,
 cross-host isolation, unrelated application transfer or statistical generalization.
 
@@ -711,6 +717,15 @@ neither accessed protected grader paths. This shows narrow transfer feasibility,
 not an Aspire speed gain. A single additional combined skills/MCP condition
 is declared to test D01's mechanism under this different fault; original
 conditions will not be repeated.
+
+The [combined follow-up](bingo-transfer/SKILLS-MCP.md) has independently passed
+one actual native local Harbor oracle with exact live AppHost/resource/NOPERM
+MCP assertions, all 12 negatives and final external grade. Native stdout/results
+are retained; separately uncollected environment JSON is not claimed preserved.
+Its published graph is undergoing remote no-model gate `2026110561653346`
+before the single new model condition. The initial local dataset-selection
+error submitted no run; the default baseline rows remain present only for
+MSBench's variant validation and are not selected for re-execution.
 
 **S01 model outcome:** Both actual two-app Terra solutions passed native
 functional, original-security and other-app preservation checks. Raw observed

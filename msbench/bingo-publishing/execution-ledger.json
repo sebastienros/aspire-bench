@@ -1,9 +1,35 @@
 {
-  "status": "diagnostic-remote-setup-validation-pending",
+  "status": "final-relay-remote-oracle-running",
   "task_commit": "a206e498adc445865f05a49546a5e085956de0dd",
   "model": "gpt-6.1-terra",
   "automatic_repeats": false,
-  "conditions": [
+  "remote_oracle_validations": [
+    {
+      "run_id": "2026110558453858",
+      "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110558453858",
+      "variant": "aspire",
+      "agent": "fix_validation",
+      "model": "no_model",
+      "status": "failed-before-agent",
+      "reward": null,
+      "model_executed": false,
+      "exception_class": "RuntimeError"
+    },
+    {
+      "run_id": "2026110561495368",
+      "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110561495368",
+      "variant": "aspire",
+      "agent": "fix_validation",
+      "model": "no_model",
+      "status": "running",
+      "model_executed": false,
+      "task_commit": "ffed19f2b2d4f82360125c1da40a8b302bfd5ba8"
+    }
+  ],
+  "model_runs": [],
+  "final_relay_task_commit": "ffed19f2b2d4f82360125c1da40a8b302bfd5ba8",
+  "final_relay_dataset": "relay-dataset.jsonl",
+  "historical_pre_relay_conditions": [
     {
       "variant": "raw-scripted",
       "fingerprint": "51e56127ff2ed4d01d279ef25a1172e21627afb6c24959d545e003452c7dff25",
@@ -55,18 +81,60 @@
       }
     }
   ],
-  "remote_oracle_validations": [
+  "conditions": [
     {
-      "run_id": "2026110558453858",
-      "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110558453858",
+      "variant": "raw-scripted",
+      "fingerprint": "ba50627bc5e03f463afbcf6eb758aa541916a9922df8f6873e4c31a1a33ae16b",
+      "condition": {
+        "scenario": "P01",
+        "variant": "raw-scripted",
+        "task_files": {
+          "environment/Dockerfile": "2a9ad97430a46395681fbec9d8dbad3d01e73b574c96945365de1d5acb167988",
+          "environment/docker-compose.yaml": "89988e2eb3413ff06115fd9755d4924f90ba675d4ec6b4421266cb1e515aed65",
+          "instruction.md": "a0c263f92f5e27bbbb4cdecf69da8eb166cc5732ed28b326c83fa4d05456ad22",
+          "solution/solve.sh": "79c0df6e14c13dce130c6c1860631f66fa4ddbcc228fd3effd307975bc39ac4a",
+          "task.toml": "aafd818896020f4b59b3208ab4f079de3768696c7992f8687c21206c64d35885",
+          "tests/test.sh": "2e7773b36203692e3888720797531ea11270e007667b01720ff126ff6af8e9c9"
+        },
+        "common_context": "7420e30e0934b9ee77a550e9fe3ceffdaded769b",
+        "business_context": "baacba3e17181491c9a4d419db7d0e6763c3d363",
+        "agent_package": "github-copilot-cli-pkg-main-20261014-215627",
+        "vendor_cli": "1.0.99-0",
+        "model": "gpt-6.1-terra",
+        "reasoning_effort": "runner-default",
+        "agent_seconds": 900,
+        "verifier_seconds": 300,
+        "conversation_mode": "fresh-single-step",
+        "shared_identity_contract": "README explicitly requires p01-deploy / boardadmin / bingoboard before any model submission"
+      },
+      "task_commit": "ffed19f2b2d4f82360125c1da40a8b302bfd5ba8"
+    },
+    {
       "variant": "aspire",
-      "agent": "fix_validation",
-      "model": "no_model",
-      "status": "failed-before-agent",
-      "reward": null,
-      "model_executed": false,
-      "exception_class": "RuntimeError"
+      "fingerprint": "61bcab0ea611f85e8f0e7a89074ed24b4bcd116ccc225e037eb8d4dc843afdc8",
+      "condition": {
+        "scenario": "P01",
+        "variant": "aspire",
+        "task_files": {
+          "environment/Dockerfile": "0ff80351f8847049a8ccc10606251a53615933d40e12c7869b270ee738c7f33b",
+          "environment/docker-compose.yaml": "89988e2eb3413ff06115fd9755d4924f90ba675d4ec6b4421266cb1e515aed65",
+          "instruction.md": "23fdeabcc42d457ed89c2513a062459321418455319747cf7c092cc90021ec88",
+          "solution/solve.sh": "6a1fcfb1b18e682e3f6a7a36fe6186ccaf97004695361dd2d999fb1f120ef4b9",
+          "task.toml": "2140de85130dacf761d1e3823eba727bdcee5e8629239c2a6a386a7ed926611b",
+          "tests/test.sh": "2e7773b36203692e3888720797531ea11270e007667b01720ff126ff6af8e9c9"
+        },
+        "common_context": "7420e30e0934b9ee77a550e9fe3ceffdaded769b",
+        "business_context": "baacba3e17181491c9a4d419db7d0e6763c3d363",
+        "agent_package": "github-copilot-cli-pkg-main-20261014-215627",
+        "vendor_cli": "1.0.99-0",
+        "model": "gpt-6.1-terra",
+        "reasoning_effort": "runner-default",
+        "agent_seconds": 900,
+        "verifier_seconds": 300,
+        "conversation_mode": "fresh-single-step",
+        "shared_identity_contract": "README explicitly requires p01-deploy / boardadmin / bingoboard before any model submission"
+      },
+      "task_commit": "ffed19f2b2d4f82360125c1da40a8b302bfd5ba8"
     }
-  ],
-  "model_runs": []
+  ]
 }

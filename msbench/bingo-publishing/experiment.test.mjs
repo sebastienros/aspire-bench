@@ -210,7 +210,7 @@ test("executed passing oracle evidence satisfies exact budgets without claiming 
         assert.equal(row.owned_container_removed, true);
         assert.equal(row.negative_cases_rejected.length, index === 0 ? 5 : 7);
         const compose = await read(`tasks/${row.arm}/environment/docker-compose.yaml`);
-        const selectedCommit = evidence.diagnostic_followup.common_commit ?? evidence.portable_common_context.commit;
+        const selectedCommit = evidence.relay_public_image_build_and_smoke.common_commit;
         assert(compose.includes(`#${selectedCommit}:msbench/bingo-publishing/common`));
     }
     assert.equal(evidence.dns_relay_followup.remote_resolver_parity_claimed, false);
