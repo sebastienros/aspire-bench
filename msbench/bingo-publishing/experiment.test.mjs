@@ -206,7 +206,8 @@ test("executed passing oracle evidence satisfies exact budgets without claiming 
         assert.equal(row.owned_container_removed, true);
         assert.equal(row.negative_cases_rejected.length, index === 0 ? 5 : 7);
         const compose = await read(`tasks/${row.arm}/environment/docker-compose.yaml`);
-        assert(compose.includes(`#${evidence.portable_common_context.commit}:msbench/bingo-publishing/common`));
+        const selectedCommit = evidence.diagnostic_followup.common_commit ?? evidence.portable_common_context.commit;
+        assert(compose.includes(`#${selectedCommit}:msbench/bingo-publishing/common`));
     }
     for (const row of [...evidence.local_runtime_results, ...(evidence.public_runtime_results ?? [])]) {
         assert.equal(row.reward, 1);

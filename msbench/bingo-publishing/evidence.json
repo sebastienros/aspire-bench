@@ -4,7 +4,7 @@
   "eligible_for_model_submission": false,
   "model_submission_gate": "Parent must verify native Harbor/CES execution of the final public-pinned task; direct local validation is not a native runner pass.",
   "completed_deployment": true,
-  "completed_deployment_scope": "Recorded public snapshot 1f9f961 only. The later setup-diagnostic changes are static-tested, not Docker/CES validated.",
+  "completed_deployment_scope": "Full production runtime proof remains the recorded public snapshot 1f9f961. Later 648f323 diagnostic images were built and smoke-tested locally; their full runtime/CES gate is separate.",
   "portable_common_context": {
     "repository": "https://github.com/sebastienros/aspire-bench",
     "commit": "1f9f96148571f1b7343a9989df7776ac8cb78951",
@@ -14,7 +14,7 @@
     "docker_build_with_git_context_verified": true,
     "both_arms_direct_docker_runtime_verified": true,
     "native_harbor_final_graph_verified": false,
-    "pending_update": "The parent must publish and pin the setup-diagnostic common changes before its single no-model diagnostic job. Existing passing receipts still refer to 1f9f961."
+    "pending_update": "Parent diagnostic graphs now pin 648f323 after actual local image builds/smoke checks; full runtime receipts still refer to 1f9f961."
   },
   "model_runs": [],
   "application_source": {
@@ -219,6 +219,12 @@
     }
   ],
   "diagnostic_followup": {
+    "common_commit": "648f323ad0618d1f622964f4fc646af753750352",
+    "parent_local_image_build_and_smoke_verified": true,
+    "parent_local_image_tags": [
+      "bingo-p01-diagnostic-raw-scripted:648f323",
+      "bingo-p01-diagnostic-aspire:648f323"
+    ],
     "scope": "Setup observability only; no speculative runtime fix or retry",
     "runtime_validated": false,
     "docker_invocations": 0,
