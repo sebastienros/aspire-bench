@@ -1,5 +1,5 @@
 {
-  "status": "submitted",
+  "status": "model-runs-completed-one-grader-scope-review-pending",
   "task_commit": "25947262cabcae9efb3aacb502e8007a52bbbaa5",
   "model": "gpt-6.1-terra",
   "automatic_repeats": false,
@@ -178,10 +178,13 @@
       "fingerprint": "14da47aed8e9f2fb8c5dd3180020ce17a6f8b698e03fa796263ecd0f23e041c0",
       "run_id": "2026110557440610",
       "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110557440610",
-      "status": "submitted",
+      "status": "completed",
       "attempt_role": "original",
-      "actual_model_verified": false,
-      "submission_log": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/logs/bingo-evolution-submit-f01-raw-scripted.log"
+      "actual_model_verified": true,
+      "submission_log": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/logs/bingo-evolution-submit-f01-raw-scripted.log",
+      "actual_vendor_cli": "1.0.99-0",
+      "original_reward": 1.0,
+      "assessment": "valid-pass"
     },
     {
       "benchmark": "bingo-live-catalog",
@@ -190,10 +193,13 @@
       "fingerprint": "0bc522e05d471f908bcc52c6340d22c453b1629237928b7bcdbde637b5e54965",
       "run_id": "2026110557444836",
       "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110557444836",
-      "status": "submitted",
+      "status": "completed",
       "attempt_role": "original",
-      "actual_model_verified": false,
-      "submission_log": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/logs/bingo-evolution-submit-f01-aspire.log"
+      "actual_model_verified": true,
+      "submission_log": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/logs/bingo-evolution-submit-f01-aspire.log",
+      "actual_vendor_cli": "1.0.99-0",
+      "original_reward": 0.0,
+      "assessment": "grader-scope-defect-pending-no-model-replay"
     },
     {
       "benchmark": "bingo-description-migration",
@@ -202,10 +208,13 @@
       "fingerprint": "b97db5f3fae7c5905b4bf7273965d2fbd433514b26b22d2492a41c151b47fc20",
       "run_id": "2026110557449044",
       "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110557449044",
-      "status": "submitted",
+      "status": "completed",
       "attempt_role": "original",
-      "actual_model_verified": false,
-      "submission_log": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/logs/bingo-evolution-submit-m01-raw-scripted.log"
+      "actual_model_verified": true,
+      "submission_log": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/logs/bingo-evolution-submit-m01-raw-scripted.log",
+      "actual_vendor_cli": "1.0.99-0",
+      "original_reward": 1.0,
+      "assessment": "valid-pass"
     },
     {
       "benchmark": "bingo-description-migration",
@@ -214,10 +223,13 @@
       "fingerprint": "303fcbc51bf5a7b59f86236678c89edcc1381cc0476f067381d33cd2a7305e95",
       "run_id": "2026110557453174",
       "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110557453174",
-      "status": "submitted",
+      "status": "completed",
       "attempt_role": "original",
-      "actual_model_verified": false,
-      "submission_log": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/logs/bingo-evolution-submit-m01-aspire.log"
+      "actual_model_verified": true,
+      "submission_log": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/logs/bingo-evolution-submit-m01-aspire.log",
+      "actual_vendor_cli": "1.0.99-0",
+      "original_reward": 1.0,
+      "assessment": "valid-pass"
     }
   ]
 }

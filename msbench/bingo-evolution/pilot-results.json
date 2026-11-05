@@ -1,0 +1,138 @@
+{
+  "sample_size_per_condition": 1,
+  "results": [
+    {
+      "scenario": "f01",
+      "variant": "raw-scripted",
+      "run_id": "2026110557440610",
+      "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110557440610",
+      "original_reward": 1.0,
+      "assessment": "valid-pass",
+      "actual_model": "gpt-6.1-terra",
+      "actual_vendor_cli": "1.0.99-0",
+      "exception": null,
+      "native_agent_seconds": 93.134458,
+      "input_tokens_including_cache": 311242,
+      "cache_tokens_subset": 274602,
+      "output_tokens": 5506,
+      "runner_reported_cost_usd": 0.08705109999999999,
+      "tool_calls": 35,
+      "tool_counts": {
+        "bash": 12,
+        "glob": 2,
+        "view": 19,
+        "rg": 1,
+        "apply_patch": 1
+      },
+      "loaded_skills": [],
+      "protected_path_access": [],
+      "raw_result_sha256": "1e8495568b20594ef9c606331a7124668b914229851e594ee7cd9e520e1e3fdc",
+      "raw_trajectory_sha256": "e997bf6d27741e9b09a307f90676be3c84db7bee45b76ae2d257d23b379e5ebd",
+      "invalid_escape_normalizations_in_memory": [],
+      "evidence_root": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/cloud/evolution-models/f01-raw-scripted"
+    },
+    {
+      "scenario": "f01",
+      "variant": "aspire",
+      "run_id": "2026110557444836",
+      "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110557444836",
+      "original_reward": 0.0,
+      "assessment": "grader-scope-defect-pending-no-model-replay",
+      "actual_model": "gpt-6.1-terra",
+      "actual_vendor_cli": "1.0.99-0",
+      "exception": null,
+      "native_agent_seconds": 107.399001,
+      "input_tokens_including_cache": 473944,
+      "cache_tokens_subset": 434057,
+      "output_tokens": 5632,
+      "runner_reported_cost_usd": 0.09971035,
+      "tool_calls": 33,
+      "tool_counts": {
+        "bash": 14,
+        "glob": 2,
+        "skill": 1,
+        "view": 14,
+        "rg": 1,
+        "apply_patch": 1
+      },
+      "loaded_skills": [
+        "aspire-orchestration"
+      ],
+      "protected_path_access": [],
+      "raw_result_sha256": "f91724fcb75df0e696a25ef0bf3f2be4091c76eae1690e617fb4541cdb73aa41",
+      "raw_trajectory_sha256": "91ae8718d073be862a6422ae19f9d811ca98e09b5cd4f2dff37096019a7dca2b",
+      "invalid_escape_normalizations_in_memory": [],
+      "evidence_root": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/cloud/evolution-models/f01-aspire"
+    },
+    {
+      "scenario": "m01",
+      "variant": "raw-scripted",
+      "run_id": "2026110557449044",
+      "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110557449044",
+      "original_reward": 1.0,
+      "assessment": "valid-pass",
+      "actual_model": "gpt-6.1-terra",
+      "actual_vendor_cli": "1.0.99-0",
+      "exception": null,
+      "native_agent_seconds": 145.095015,
+      "input_tokens_including_cache": 564323,
+      "cache_tokens_subset": 522117,
+      "output_tokens": 7728,
+      "runner_reported_cost_usd": 0.11748984999999999,
+      "tool_calls": 53,
+      "tool_counts": {
+        "bash": 25,
+        "glob": 3,
+        "rg": 1,
+        "view": 22,
+        "apply_patch": 2
+      },
+      "loaded_skills": [],
+      "protected_path_access": [],
+      "raw_result_sha256": "16d26f5771b8c5777d25c172aa5e6a89d7177a0cd3a79e7717d1c3a9f7a0dd51",
+      "raw_trajectory_sha256": "ee8668c0258da804733935cb735fa6cf86ce22a12f11db39be75a3125616ad62",
+      "invalid_escape_normalizations_in_memory": [],
+      "evidence_root": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/cloud/evolution-models/m01-raw-scripted"
+    },
+    {
+      "scenario": "m01",
+      "variant": "aspire",
+      "run_id": "2026110557453174",
+      "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110557453174",
+      "original_reward": 1.0,
+      "assessment": "valid-pass",
+      "actual_model": "gpt-6.1-terra",
+      "actual_vendor_cli": "1.0.99-0",
+      "exception": null,
+      "native_agent_seconds": 271.915048,
+      "input_tokens_including_cache": 1222889,
+      "cache_tokens_subset": 1170228,
+      "output_tokens": 12786,
+      "runner_reported_cost_usd": 0.18824365,
+      "tool_calls": 61,
+      "tool_counts": {
+        "bash": 29,
+        "glob": 4,
+        "skill": 1,
+        "view": 17,
+        "rg": 3,
+        "apply_patch": 7
+      },
+      "loaded_skills": [
+        "aspire-orchestration"
+      ],
+      "protected_path_access": [],
+      "raw_result_sha256": "c8b65e0bebdb972f547901db781c025d146c019956d9a55387c72cea63690e10",
+      "raw_trajectory_sha256": "aa5a07a621842d4c350a7ac62a741adab7b538ddbd955c653afbc211a1b8755c",
+      "invalid_escape_normalizations_in_memory": [],
+      "evidence_root": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/cloud/evolution-models/m01-aspire"
+    }
+  ],
+  "scope_defect": "F01 verifier requested frontend write-route error passthrough not required by catalog-only task; baseline frontend had no producer write proxy. Exact original model patch will be replayed against a narrow corrected grader without new inference. Preserve original reward0.",
+  "runner_reported_total_cost_usd": 0.49249495,
+  "limits": [
+    "One observed model attempt per condition; no causal timing/population claims",
+    "Do not count pending grader adjudication as a model failure or silently convert it into success",
+    "Raw evidence retained; invalid tool-output escapes interpreted only in memory"
+  ]
+}

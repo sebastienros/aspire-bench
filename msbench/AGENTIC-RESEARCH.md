@@ -515,3 +515,18 @@ model/cost/grade verification remains pending; submission is not success.
 Production P01 runtime fixes from child `3421ee85` were integrated as public
 `1f9f9614`; the child is validating both exact public-context images before
 handing the sole local Docker slot to X01.
+
+### 2026-11-05: evolution outcomes and grader review
+
+All four original evolution runs have completed with actual Terra/CLI identity.
+M01 raw and Aspire both passed real schema/data preservation; native agent times
+145.1/271.9 seconds. F01 raw passed at 93.1 seconds. F01 Aspire's original
+reward 0 at 107.4 seconds exposed an evaluation defect: the verifier demanded
+frontend proxying of unrelated producer writes, although only catalog needed
+both origins and the baseline frontend lacked write proxying.
+
+[Interim report](bingo-evolution/PILOT.md) and
+[original metrics](bingo-evolution/pilot-results.json) preserve that disputed
+score. A narrow grader correction plus exact-source no-model replay is being
+prepared; no solution rewrite or repeated model attempt. Corrected success is
+not yet asserted. This is a new empirical evaluation-quality finding (F15).

@@ -505,6 +505,16 @@ condition likewise passed remote oracle 2026110507371146. Exact native
 receipts are committed alongside execution ledgers; these are not model
 successes or additional independent samples.
 
+**Model migration follow-up:** Both M01 original Terra attempts passed the
+actual additive schema/data/default/error contract. Raw/Aspire native agent
+times were 145.1/271.9 seconds in this one-per-arm pilot. Visible Aspire detours
+included absent EF tooling/Python, password/quoting probes, EF snapshot integrity
+checks and HTTP 405/400 correction. Do not attribute this to slow CLI execution
+or claim existing orchestration guidance covers database migration efficiently.
+Available-tool/credential/schema/error-contract recipes are improvement
+candidates; Project-v2 migration is a different intent. No repeated run was
+submitted to improve this slower observation.
+
 ## F10: Runtime diagnosis fixtures must pass the infrastructure gate first
 
 **Actual evidence:** The new [D01/H01 Bingo diagnosis fixtures](bingo-diagnostics/README.md)
@@ -568,6 +578,26 @@ description-only trigger and generator conditions also loaded monitoring;
 generated monitoring knowledge was unchanged. Preserve these conditional
 results and test the different fault/name transfer rather than rerunning
 identical conditions or declaring Aspire universally faster.
+
+## F15: Independent graders must not expand the requested behavior
+
+**Observed evidence:** The [F01 Terra pilot](bingo-evolution/PILOT.md) produced
+an Aspire solution that passed actual catalog/data/filter/refresh checks but
+received reward 0 for not proxying unrelated producer writes through the
+frontend. The prompt requires the catalog at both origins and preserving
+existing producer behavior; original frontend write proxying did not exist.
+This is a grader-scope defect, not established agent failure.
+
+**Correction protocol:** Retain original reward/evidence, narrow legacy-write
+negative checks to their original admin origin, and replay the exact saved
+model patch against fresh external state without more inference. Do not
+silently convert 0 to 1 or alter the solution/prompt. The correction and
+replay remain pending; corrected success is not claimed yet.
+
+**Limits / status:** One concrete evaluation defect. A passing reference oracle
+can hide overgrading if its implementation does more than the user requested.
+Require explicit baseline/prompt/grade alignment checks in addition to
+no-op and cheating negatives.
 
 ## Recording future findings
 
