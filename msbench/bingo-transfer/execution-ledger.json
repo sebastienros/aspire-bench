@@ -1,0 +1,76 @@
+{
+  "status": "local-direct-runtime-verified-remote-oracle-pending",
+  "task_commit": "67f2ac195c653009972508203f84900368912fee",
+  "model": "gpt-6.1-terra",
+  "automatic_repeats": false,
+  "conditions": [
+    {
+      "variant": "raw-scripted",
+      "fingerprint": "17d68ed4dd9e19bcbb2f7e5661c78f2de1405b6cea799b21d32f50aa1775126e",
+      "condition": {
+        "scenario": "X01",
+        "variant": "raw-scripted",
+        "runtime_task_files": {
+          "environment/Dockerfile": "eeff13a18589ef49a4c8f5a5e1a25d146215a79471f485db2a42ea7740abdb91",
+          "environment/app/compose.yaml": "bce0d7a99f36412d262efc7be5ce5f0939b18c9f10810bdfb52a2ae6cb7ffef8",
+          "environment/app/scripts/common.sh": "6d7106216bf507f180658b92f47d46bc121a329cac209eae060ad30bab7bd7d4",
+          "environment/docker-compose.yaml": "8f4e29714071710c5f47c4a1b15439157fe7580291f84a2f9750e12761217f46",
+          "environment/transfer-common.tar": "6e690a08c716314d158217cfac84779d0a577c0f5f165a2b18d9ba97d3b7cc7f",
+          "instruction.md": "1f212ae9742c0f06d575508c01e0535f9b786e6252481f32368e165b5019e7d4",
+          "solution/negative.mjs": "6d9d0b9225f76cb5e4453c14e23ee5ab030b38ffcc2420878325dd0aea68ee26",
+          "solution/solve.sh": "16189693a7d491b4a1c4ac30dcb3960f2716448130349d975b2eb6d8b1c242e5",
+          "task.toml": "3e743aa372b073a94a99d2e6b2dbc9efc30f09ec5d479bd2f0b96aec86401a6b",
+          "tests/test.sh": "90fbdaedb21b8fd7397fa8b2a315f39fcb186c9aca35ed779816bada8d976e6c"
+        },
+        "source_context_commit": "d3694ec111609a79073dcba35bc1f1b1c9517d8f",
+        "application_context_commit": "baacba3e17181491c9a4d419db7d0e6763c3d363",
+        "agent_package": "github-copilot-cli-pkg-main-20261014-215627",
+        "vendor_cli": "1.0.99-0",
+        "model": "gpt-6.1-terra",
+        "reasoning_effort": "runner-default",
+        "agent_seconds": 900,
+        "verifier_seconds": 300,
+        "conversation_mode": "fresh-single-step"
+      }
+    },
+    {
+      "variant": "aspire",
+      "fingerprint": "decdc1dd1875967285000b3a60b07981f748399a2c9d09de44b02de093a2ce24",
+      "condition": {
+        "scenario": "X01",
+        "variant": "aspire",
+        "runtime_task_files": {
+          "environment/Dockerfile": "a6ac4d9b3822ae32113bf7da7e6827b450508a9508058bf4779a82c8914106b7",
+          "environment/app/apphost.cs": "ccbbc939dcde6bc21ee50f948a2a339408525498a91c8ec3f3cb4a63312b6444",
+          "environment/docker-compose.yaml": "70e917a07e1c1fe27136f1a2e46a879ba4bc9aae36307c0c5d87b0b04b6de9ff",
+          "environment/transfer-common.tar": "6e690a08c716314d158217cfac84779d0a577c0f5f165a2b18d9ba97d3b7cc7f",
+          "instruction.md": "1f212ae9742c0f06d575508c01e0535f9b786e6252481f32368e165b5019e7d4",
+          "solution/negative.mjs": "6d9d0b9225f76cb5e4453c14e23ee5ab030b38ffcc2420878325dd0aea68ee26",
+          "solution/solve.sh": "16189693a7d491b4a1c4ac30dcb3960f2716448130349d975b2eb6d8b1c242e5",
+          "task.toml": "e203473e097947490572bfb737a905642d31debee709fb18d86dca80c231f6c9",
+          "tests/test.sh": "90fbdaedb21b8fd7397fa8b2a315f39fcb186c9aca35ed779816bada8d976e6c"
+        },
+        "source_context_commit": "d3694ec111609a79073dcba35bc1f1b1c9517d8f",
+        "application_context_commit": "baacba3e17181491c9a4d419db7d0e6763c3d363",
+        "agent_package": "github-copilot-cli-pkg-main-20261014-215627",
+        "vendor_cli": "1.0.99-0",
+        "model": "gpt-6.1-terra",
+        "reasoning_effort": "runner-default",
+        "agent_seconds": 900,
+        "verifier_seconds": 300,
+        "conversation_mode": "fresh-single-step"
+      }
+    }
+  ],
+  "remote_oracle_validations": [
+    {
+      "run_id": "2026110558919112",
+      "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110558919112",
+      "variant": "aspire",
+      "agent": "fix_validation",
+      "model": "no_model",
+      "status": "submitted"
+    }
+  ],
+  "model_runs": []
+}

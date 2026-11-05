@@ -621,6 +621,36 @@ Both A01 actual Terra runs completed with no trial exception and measured
 was slower. Those metrics and original 0 scores remain recorded while replay
 is pending. No repeated inference is used to produce a preferred conclusion.
 
+## F14: Fault transfer and real two-app safety need distinct runtime proof
+
+**Evidence:** The [X01 ACL-denial case](bingo-transfer/README.md) changes both
+resource names and the real write-failure mechanism from D01. Both final local
+direct-Docker oracle/verifier gates passed with original passwords/TLS/config,
+data, target/neighbor identity and twelve negative checks preserved. Redis 8.6
+can retain redundant positive ACL grants after restoration; comparison
+canonicalizes only a universally granted positive-only command set, not
+credentials, denials, selectors or configuration.
+
+The separate [S01 case](bingo-isolation/README.md) actually starts two full
+Bingo applications with four app processes, four HTTP origins and four
+dependency containers. Both local direct-Docker gates passed target repair,
+fresh SQL/Redis/HTTP effects and absence in the other app, plus both original
+identities/security/data and twelve negative cases. A Redis-only decoy was
+not relabeled as two-app proof.
+
+**Limits / status:** These are actual local functional gates, not native Harbor,
+CES or model-performance results. Native local Harbor stalled without creating
+an image/container; direct Docker used the exact published input graph, limits,
+entrypoint, oracle and verifier. A representative remote no-model gate is
+pending before four unique model pilots. Sibling workspaces in one private
+runner do not establish two editor-owned sessions, host-git worktree ownership,
+cross-host isolation, unrelated application transfer or statistical generalization.
+
+**Improvement direction:** Keep stable AppHost/resource/connection identity in
+CLI/MCP, distinguish functional readiness from healthy reads, and require
+target-scoped repair plus unchanged other-workload evidence. Do not select by
+resource-name substring or normalize away authentication to simplify probes.
+
 ## Recording future findings
 
 Give each finding a stable ID and include evidence links, exact observed

@@ -148,10 +148,10 @@ Fresh conversations and verified resumed conversations are separate strata.
 | H01 / next | Reject misleading readiness or stale endpoint evidence | Functional negative probe fails even if process/resource is green | Combined D01 actually verified HTTP500 with pages/PING/reads serving; no-op/page-only and stale-endpoint cases rejected |
 | F01 | Add a cross-service capability/cache behavior | Hidden fresh data, both positive and negative contracts | Both final local oracles and remote no-model gate pass; unique Terra pair submitted |
 | M01 | Migrate schema without losing existing data | Pre/post record identity and contents, new behavior | Both final local oracles prove additive 280-character schema/43 legacy rows preserved; remote gate passed and unique Terra pair submitted |
-| S01 | Two similar running apps/worktrees | Exact-target repair, other app and data unchanged | D01 resource-scoped neighbor/identity checks actually passed; full two-app/worktree equivalence remains outside this narrow proof |
+| S01 | Two similar running apps/worktrees | Exact-target repair, other app and data unchanged | Separate two-full-Bingo sibling-workspace local gates passed (four processes/origins/dependencies); remote gate pending; editor/host-worktree ownership not claimed |
 | A01 | Add a dependency or adopt Aspire | Functional wiring, no hardcoded ports/secrets; setup cost included | Original/generated skill final oracles and remote gate passed; two distinct Terra adoption conditions submitted |
 | P01 | Publish and run isolated local deployment | Deployed functional checks, no dev-runtime assumptions | Actual local production .NET/nginx deployments pass; final default-Git-context pair in progress before models |
-| X01 | Transfer to eShop / TypeScript / polyglot | Unseen topology/names, instrumentation parity and functional equivalence | Held-out-name coverage drafted in D01; runtime blocked. eShop remains conditional, not justified by a demonstrated Bingo limit |
+| X01 | Transfer to eShop / TypeScript / polyglot | Unseen topology/names, instrumentation parity and functional equivalence | Different ACL fault family + held-out names on Bingo local gates passed; remote gate pending. eShop parity inspected but not assumed; no demonstrated Bingo limit requires conversion |
 
 Existing startup/health experiments remain regression controls, not replacements
 for development scenarios. Generated project-local skills are a treatment to test,
@@ -539,3 +539,29 @@ name. [Adoption review](bingo-adoption/PILOT.md) preserves original 0 scores,
 exact model patches and the narrow semantic correction; fresh no-model replays
 remain pending. A reference solution passing is not sufficient proof that a
 grader admits every valid implementation.
+
+### 2026-11-05: production, held-out and real two-app gates
+
+P01's final public-context direct-Docker gates both passed actual production
+.NET/nginx, correct/wrong login, original frontend hashes, WebSocket catalog,
+Redis and dependency/network/volume preservation. Native local Harbor had a
+metadata-only no-container stall; its source/module provenance is retained,
+and direct validation is not labeled native success. Remote no-model oracle
+2026110558453858 built its image but exited during setup before agent/grade;
+opaque setup diagnostics are being improved rather than paying for a blind
+model run.
+
+X01's distinct ACL-denial/name pair and S01's two-real-app pair both passed
+local direct runtime gates with twelve negative checks per arm. The same
+source code and limits were used; no model outcome is inferred. Child branch
+`sebros/bingo-held-out-fault-transfer` commits `ad8528f`, `3bcd6ff`, `acfec6e`
+were integrated as `ef10a2e`, `b0dc549`, `67f2ac1`. Portable environment-local
+archives plus immutable Git contexts avoid sibling filesystem entitlements.
+
+The representative native remote no-model gate
+[2026110558919112](https://msbenchapp.azurewebsites.net/run-analysis/2026110558919112)
+was submitted for both Aspire transfer/isolation cases at task source `67f2ac1`.
+It remains separate from any later Terra condition. Only after it passes can
+four new model conditions be submitted. See execution ledgers in each family.
+The [transfer/continuity review](TRANSFER-AND-CONTINUITY.md) records why eShop's
+raw parity is not presumed and genuine conversation continuation remains unmeasured.
