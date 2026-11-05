@@ -411,7 +411,11 @@ WebSocket SignalR/database catalog and fresh Redis boards, preserving existing
 data and environment-owned dependency/network/volume identity. No-op, immutable
 input edits, lost prior state, nonrunning workloads and a live Vite server are
 rejected; Aspire additionally rejects publish-only and ejected YAML artifacts.
-These passing development oracles explicitly used local common input overrides.
+Those passing development oracles used local common input overrides. Final
+public-Git-input direct Docker oracles subsequently pass both arms with reward 1,
+matching business-source and frontend hashes and all six resolved runtime/build
+image digests. Both enforce equal 900/300-second solution/verifier budgets;
+their different validation method is explicitly recorded.
 
 **Improvement candidate / design:** Evaluate published .NET + production-served
 Vue with real login, version routing, WebSocket SignalR/database catalog and
@@ -426,19 +430,24 @@ tags; the successful model pairs `WithImageTag("local")` with documented
 matched two-workload topology, and applies `.env.Production`. No YAML/env
 ejection or newer unsupported static-site API is used.
 
-**Limits / status:** Local runtime behavior passes, but not eligible for model
-submission until corrected common files are published/pinned and both default
-public-context oracles pass. Oracle timing is not an agent-efficiency result.
-No CES/x64/model or broader production architecture claim is made. The scenario
+**Limits / status:** Local production runtime and final public-input graph checks
+pass. A final native Harbor attempt instead looped in readiness with no task
+container visible; it was stopped, has null agent/verifier results and no reward.
+The coordinator-approved direct fallback built/ran the exact tasks without
+modifying global tools, but is not a native runner pass. Native Harbor/CES
+execution remains required before model submission. Oracle timing is not an
+agent-efficiency result. No CES/x64/model or broader production architecture
+claim is made. The scenario
 publishes application containers against supplied dependencies; it does not
 provision the whole environment. Root-local controls are not an adversarial
 sandbox. No shared restart/prune, cloud provisioning, model submission or repeat
 sweep was performed; historical tasks/tracker are untouched.
 
 **Portability/source follow-up:** Both common named contexts now default to the
-public Git snapshot `265fe63f`, not a sibling-local `../../../common` requiring
-remote Bake filesystem permission. Runtime fixes now require a newer public
-pin and final graph verification. Nested Docker also needed the established
+public Git snapshot `1f9f9614`, verified tree-equal before both final direct builds,
+not a sibling-local `../../../common` requiring remote Bake filesystem permission.
+No local named-context override or entitlement bypass was used for those runs.
+Nested Docker also needed the established
 `vfs` recipe and explicit inheritance of the task's actual upstream DNS; it must
 not guess public resolvers. Vue golden/published builds use identical version
 inputs, avoiding a false bundle-hash failure from the SDK's ambient environment.

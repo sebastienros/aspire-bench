@@ -1,13 +1,14 @@
 # P01: Bingo isolated local publishing
 
-**Both local deployment oracles pass; final public-context validation is pending.**
-Raw `p01-raw-v5` and Aspire `p01-aspire-v5` each earned reward 1 with real production
-containers and all applicable negative cases. Those fixture-development runs
-explicitly used the local common-context override. The corrected common snapshot
-must now be published, pinned and exercised through both default public Git
-graphs before model submission. No model run, push, PR or cloud provisioning was
-performed here. [evidence.json](evidence.json) retains failed attempts as well as
-passing results; the earlier shared-host disk failure is not erased.
+**Both final public-input local deployment oracles pass.** Raw and Aspire build
+from the same published common/business snapshots, run real production
+containers, and pass their behavioral and negative cases. The final validation
+used the coordinator-approved **direct Docker fallback**, not a native Harbor
+pass: a native final attempt stalled in readiness without a task container.
+Earlier native Harbor fixture-development oracles also passed with an explicit
+local common override. No model run, push, PR or cloud provisioning was performed
+here. [evidence.json](evidence.json) separates all three evidence categories.
+**Native Harbor/CES execution remains a parent-owned gate before model submission.**
 
 ## Bounded comparison
 
@@ -67,7 +68,7 @@ Aspire artifacts, immutable-input changes, lost existing Redis state, stopped
 deployment, a **live actual Vite dev server**, and ejected Aspire YAML. Both
 passing local oracles executed their applicable rejection cases and restored the
 correct deployment before final grading. Grader-produced `checks.json` receipts
-are retained with the native Harbor verifier logs; no agent report is trusted.
+are retained with each run's verifier logs; no agent report is trusted.
 
 Root inside a privileged task container can tamper with local controls. Protected
 paths and hashing are regression controls, not a hardened adversarial sandbox.
@@ -129,15 +130,14 @@ prepare pipeline. Newer static-site overloads were not assumed or used.
 The coordinator reported that remote Docker Bake refused sibling-local named
 contexts in another scenario before agent execution. Both P01 tasks now default
 to the **public Git-pinned** common snapshot at
-`265fe63f927c9c36bde3c7b85e9ba4be03365db0:msbench/bingo-publishing/common`,
-not `../../../common`. That public snapshot matched the pre-runtime guard
-changes and was exercised by raw `p01-raw-v2` through successful image build.
-It is now older than the runtime corrections below. Local fixture
-development can explicitly override `MSBENCH_PUBLISHING_COMMON_CONTEXT`.
-Any common-file change requires publishing and updating the public pin before
-portable validation. No broad Bake filesystem permission grant is used.
-Final public snapshot replacement and both default-context oracles remain
-required; a local tree build alone does not establish remote graph portability.
+`1f9f96148571f1b7343a9989df7776ac8cb78951:msbench/bingo-publishing/common`,
+not `../../../common`. GitHub resolution and exact common-tree equality were
+verified before final builds. Both final direct-Docker builds used this Git pin
+and the original business-source pin, with no local named-context override and
+no broad Bake filesystem permission grant. Local fixture development can still
+explicitly override `MSBENCH_PUBLISHING_COMMON_CONTEXT`; any common-file change
+requires publication and a new pin before final validation. These local Git
+builds prove portable input availability, not CES runner compatibility.
 
 Exact upstream tag `v13.6.0` (commit
 `56f3e9c0d216c0c7069dabb49dd0464e4827744f`) also confirms that `aspire do`
@@ -147,7 +147,7 @@ The oracle therefore applies `.env.Production` with the supplied Production
 environment. Actual local prepare and application deployment exercised that
 environment-file convention.
 
-`node --test msbench/bingo-publishing/experiment.test.mjs` passes all five
+`node --test msbench/bingo-publishing/experiment.test.mjs` passes all six
 structural tests. `node --check common/grade.mjs`, shell syntax checks and
 `git diff --check` pass. These are not substitutes for the runtime gate.
 
@@ -177,8 +177,73 @@ harbor run --path msbench/bingo-publishing/tasks/raw-scripted --agent oracle \
 ```
 
 Use the Aspire task path and job name for its arm. No broad Bake filesystem
-permission entitlement is applied. The final graph must instead use public
-named contexts with **no** local override.
+permission entitlement is applied. These native runs are retained separately
+from final public-input validation below.
+
+### Final public-input oracles, 2026-11-05
+
+| Job | Method | Reward | Outer build / setup seconds | Oracle / verifier seconds |
+|---|---|---:|---|---|
+| `p01-raw-scripted-public-direct-v1` | Direct Docker, exact task | 1 | 47.235 / 51.937 | 23.548 / 0.496 |
+| `p01-aspire-public-direct-v1` | Direct Docker, exact task | 1 | 39.526 / 49.795 | 69.591 / 1.616 |
+
+Both use the exact task Dockerfiles/entrypoint, 4 CPUs, 8192 MiB memory, the same
+read-only solution/test mounts and log paths, `timeout 900` for the solution and
+`timeout 300` for the verifier. Build and setup are outside the oracle budget.
+The host did not enforce the declared 20480 MiB task storage budget. No app is
+prestarted and no Docker socket from the host is mounted. Each task launches its
+own private Docker daemon; published workloads have no source/output bind mounts.
+The native Harbor agent/verifier wrapper itself was bypassed, so these results
+do not establish native runner behavior or agent timing.
+
+Both recorded the same business-input SHA-256:
+`71a1c09b07e3f3c3720fbe187bbe979bf7363773fded14484ebaccf7a688eb6e`.
+Their frontend bundle hash, .NET runtime, 42-row/41-active catalog, and resolved
+six dependency/build/runtime image digests also match. Each receipt records the
+deployed workload image IDs, loopback bindings and successful independent checks.
+Raw rejects all five common shortcut cases; Aspire rejects those plus publish-only
+and hand-ejected artifacts. The correct deployment is restored before grading.
+Both outer containers are stopped/removed and the sole local Docker slot was
+explicitly returned to the coordinator. No shared restart or prune was used.
+
+Exact commands, step exit codes/times and receipt hashes are in each durable
+`result.json`. The task-specific fallback runner is retained as
+`<durable-job-root>/run-public.mjs`, SHA-256
+`eca54b0c37924fdd8d737c0ea358a0e5c9e16215502ece8e852c736de9e3b174`.
+It was invoked sequentially from this worktree:
+
+```bash
+node <durable-job-root>/run-public.mjs raw-scripted
+node <durable-job-root>/run-public.mjs aspire
+```
+
+Its build shape is ordinary Docker with public named contexts:
+
+```bash
+docker build --progress=plain --tag <owned-image> \
+  --build-context publishing-common=https://github.com/sebastienros/aspire-bench.git#1f9f96148571f1b7343a9989df7776ac8cb78951:msbench/bingo-publishing/common \
+  --build-context bingo-source=https://github.com/sebastienros/aspire-bench.git#baacba3e17181491c9a4d419db7d0e6763c3d363:msbench/bingo/common/raw-app \
+  msbench/bingo-publishing/tasks/<arm>/environment
+```
+
+### Native runner boundary remains open
+
+The final native attempt used `env -u MSBENCH_PUBLISHING_COMMON_CONTEXT -u
+MSBENCH_PUBLISHING_SOURCE_CONTEXT harbor run ... --force-build`, job
+`p01-raw-public-v1`. Its log reports image OS inspection exit 1 for the expected
+content-addressed `hb__...` image, followed by failing healthchecks. Read-only
+Docker queries showed no task container; the readiness loop was stopped rather
+than allowed to run all 300 retries. The result is `CancelledError` with null
+agent/verifier results and no reward, **not** an application/oracle failure.
+
+Root cause is unresolved. Harbor reports `0.20.0`, MSBench CLI `0.3.67`, Docker
+Engine `28.0.4` and Compose `5.6.1` on `desktop-linux`. The actual Python path,
+Docker-environment module SHA-256 and mtime, result/trial-log hashes and exact
+observations are recorded in `evidence.json`. The coordinator reported no
+installation change; no causal claim about another actor or a version change is
+made. This session did not modify site-packages, Docker configuration or global
+tools. The direct fallback uses the same final task code but does not erase this
+runner limitation. No final Aspire native attempt was launched after it.
 
 ### Concrete failures corrected
 
@@ -220,7 +285,8 @@ slot. Corrected runs were sequential, with observed headroom remaining above
 10 GiB, and their owned outer containers were removed by Harbor. No unrelated
 containers were restarted/deleted and no shared engine prune/restart was used.
 
-**Remaining gate:** publish/pin the corrected common files and execute both
-final public-context oracles sequentially. No Linux x64/CES model execution has
-been established. The parent owns dataset registration, final task commit pins
-and model submissions; no submittable dataset is included here.
+**Remaining gate:** the parent must establish native Harbor/CES execution before
+model submission. Local production publishing/deployment and the final public
+input graphs are verified; no Linux x64/CES/model result is claimed. The parent
+owns dataset registration, final task commit pins and model submissions; no
+submittable dataset is included here.

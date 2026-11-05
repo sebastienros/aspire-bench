@@ -1,16 +1,18 @@
 {
   "scenario": "P01",
-  "status": "local-runtime-passed-awaiting-final-public-context-validation",
+  "status": "public-input-local-runtime-validated-native-runner-gate-open",
   "eligible_for_model_submission": false,
+  "model_submission_gate": "Parent must verify native Harbor/CES execution of the final public-pinned task; direct local validation is not a native runner pass.",
   "completed_deployment": true,
   "portable_common_context": {
     "repository": "https://github.com/sebastienros/aspire-bench",
-    "commit": "265fe63f927c9c36bde3c7b85e9ba4be03365db0",
+    "commit": "1f9f96148571f1b7343a9989df7776ac8cb78951",
     "path": "msbench/bingo-publishing/common",
     "github_resolution_verified": true,
-    "local_common_tree_matches": false,
+    "local_common_tree_matches": true,
     "docker_build_with_git_context_verified": true,
-    "pending_update": "Runtime corrections are newer than the public pin; publish/pin them and run both final default-context oracles."
+    "both_arms_direct_docker_runtime_verified": true,
+    "native_harbor_final_graph_verified": false
   },
   "model_runs": [],
   "application_source": {
@@ -58,7 +60,7 @@
   ],
   "static_validation": {
     "command": "node --test msbench/bingo-publishing/experiment.test.mjs",
-    "passed_tests": 5,
+    "passed_tests": 6,
     "runtime_evidence": false
   },
   "observed_base_image_digests_during_failed_builds": {
@@ -95,6 +97,106 @@
       "common_context": "explicit-local-override"
     }
   ],
+  "public_runtime_results": [
+    {
+      "arm": "raw-scripted",
+      "job": "p01-raw-scripted-public-direct-v1",
+      "method": "direct-docker-same-task",
+      "result_sha256": "580a612471975a47ef9a4afff3ffe127fb977bff4cdae3fd6dfcb278e73834b8",
+      "receipt_sha256": "63e61d2ab73761c8f7891cb3c3798fa347e64cb495ac7d97ccaaefdc985b0542",
+      "oracle_log_sha256": "f3bc33179467cdf71a5e4a51153b377cbfde426c12dad3e6c218ed13ad6f8bb3",
+      "reward": 1,
+      "build_seconds": 47.235,
+      "setup_seconds": 51.937,
+      "agent_oracle_seconds": 23.548,
+      "verifier_seconds": 0.496,
+      "common_context": "public-git-pin",
+      "owned_container_removed": true,
+      "business_inputs_sha256": "71a1c09b07e3f3c3720fbe187bbe979bf7363773fded14484ebaccf7a688eb6e",
+      "negative_cases_rejected": [
+        "no-op deployment",
+        "immutable input edit",
+        "lost prior Redis state",
+        "nonrunning deployment",
+        "live Vite development server"
+      ]
+    },
+    {
+      "arm": "aspire",
+      "job": "p01-aspire-public-direct-v1",
+      "method": "direct-docker-same-task",
+      "result_sha256": "b0ba3dee27788b3946839e50479ee4175ac75957ae2a34b67fc08d892c3ab6cf",
+      "receipt_sha256": "a0b2724092598166b02d9ada69c955ee34a960e649f45b795a7f3cb084f3340b",
+      "oracle_log_sha256": "a0f13656394d04f2137042432e4ad8c4d2a14b332bf4a15b4f8dca0ac7a4581e",
+      "reward": 1,
+      "build_seconds": 39.526,
+      "setup_seconds": 49.795,
+      "agent_oracle_seconds": 69.591,
+      "verifier_seconds": 1.616,
+      "common_context": "public-git-pin",
+      "owned_container_removed": true,
+      "business_inputs_sha256": "71a1c09b07e3f3c3720fbe187bbe979bf7363773fded14484ebaccf7a688eb6e",
+      "negative_cases_rejected": [
+        "no-op deployment",
+        "publish-only artifacts without deployment",
+        "immutable input edit",
+        "lost prior Redis state",
+        "ejected fake YAML",
+        "nonrunning deployment",
+        "live Vite development server"
+      ]
+    }
+  ],
+  "public_validation": {
+    "method": "direct-docker-same-task",
+    "runner_path": "run-public.mjs",
+    "runner_sha256": "eca54b0c37924fdd8d737c0ea358a0e5c9e16215502ece8e852c736de9e3b174",
+    "runner_location": "durable_job_root",
+    "same_task_dockerfiles_entrypoint_solutions_and_verifiers": true,
+    "local_named_context_overrides": false,
+    "bake_filesystem_entitlement_bypass": false,
+    "cpus": 4,
+    "memory_mb": 8192,
+    "agent_timeout_seconds": 900,
+    "verifier_timeout_seconds": 300,
+    "storage_mb_enforced": false,
+    "platform": "linux-arm64",
+    "docker_engine": "28.0.4",
+    "docker_compose": "5.6.1",
+    "setup_outside_agent_budget": true,
+    "matching_business_inputs_sha256": "71a1c09b07e3f3c3720fbe187bbe979bf7363773fded14484ebaccf7a688eb6e",
+    "frontend_asset": "/assets/index-BP5Eb6X6.js",
+    "frontend_asset_sha256": "61744bcce7106da6dcbf5becf3fb71eae6cfadc8170ab66a3c72494946618093",
+    "catalog_rows": 42,
+    "active_catalog_rows": 41,
+    "runtime_dotnet_version": "10.0.12"
+  },
+  "matching_runtime_image_pins": {
+    "postgres:18.3": "postgres@sha256:7e32e9833a6fb1c92c32552794cb6ed569d51b445a54907d35fc112ef39684db",
+    "redis:8.6": "redis@sha256:7e2de3b74f334048ac1de3db8e088c940043a10c47bcf48c6367992ac7007189",
+    "mcr.microsoft.com/dotnet/sdk:10.0.100-noble": "mcr.microsoft.com/dotnet/sdk@sha256:c7445f141c04f1a6b454181bd098dcfa606c61ba0bd213d0a702489e5bd4cd71",
+    "mcr.microsoft.com/dotnet/aspnet:10.0.12-noble": "mcr.microsoft.com/dotnet/aspnet@sha256:222759b391a1aaf241166672c8f99b2d4ada452e7b5319f3c6e8f265a37b5ad4",
+    "node:24.14.0-bookworm-slim": "node@sha256:d8e448a56fc63242f70026718378bd4b00f8c82e78d20eefb199224a4d8e33d8",
+    "nginxinc/nginx-unprivileged:1.28-alpine": "nginxinc/nginx-unprivileged@sha256:7377697a821c131a924a7105fafbe7414db4e9fcc77a6f08f776f33f141ec3f8"
+  },
+  "final_native_harbor_attempt": {
+    "job": "p01-raw-public-v1",
+    "trial": "raw-scripted__uHEm5ZZ",
+    "result_sha256": "11ed0310d54d43f81af65a984f0de469871f424e760ef2074d8548ca3bd96779",
+    "trial_log_sha256": "a45e6864a15c05934eb2dd6f1ef1c603356f8154646c3a4bde90f1b561143c47",
+    "exception": "CancelledError",
+    "agent_result": null,
+    "verifier_result": null,
+    "reward": null,
+    "observed_behavior": "Image OS inspect returned 1; healthchecks repeated without any task container visible in Docker. Stopped the readiness loop. Root cause unresolved; direct Docker validation is recorded separately.",
+    "harbor_version": "0.20.0",
+    "msbench_cli_version": "0.3.67",
+    "python_executable": "/Users/sebastienros/Library/Application Support/pipx/venvs/msbench-cli/bin/python",
+    "docker_module_sha256": "8afcb733fac3ff9d0df0d7e4c6c0583a59ae6c0df0be196094157af36c8ee22d",
+    "docker_module_mtime_utc": "2026-10-14T23:29:29.134Z",
+    "docker_context": "desktop-linux",
+    "site_packages_modified_by_this_session": false
+  },
   "durable_job_root": "/Users/sebastienros/.copilot/session-state/3efaa765-dfb1-4afd-b958-13b40879b4ec/files/p01-oracles",
   "fixture_failures_after_engine_recovery": [
     {
@@ -141,5 +243,5 @@
       "cause": "Experimental LocalImageTag build callback did not synchronize prepare references. Removed; model uses verified service Image customization plus WithImageTag."
     }
   ],
-  "remaining_prerequisite": "Publish/pin final common snapshot and run both default-public-context oracles sequentially. Local production/positive/negative behavior passes; no CES/x64/model validation is claimed."
+  "remaining_prerequisite": "The parent must establish native Harbor/CES execution before model submission. Both final public-input direct-Docker production and negative oracles pass; no CES/x64/model validation is claimed."
 }

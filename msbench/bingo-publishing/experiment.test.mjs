@@ -85,3 +85,34 @@ test("runtime oracle checks fresh data, real auth, SignalR and ownership", async
     for (const scenario of ["immutable input edit", "lost prior Redis state", "ejected fake YAML",
         "nonrunning deployment", "live Vite development server"]) assert(negatives.includes(scenario), scenario);
 });
+
+test("executed passing oracle evidence satisfies exact budgets without claiming model runs", async () => {
+    const evidence = JSON.parse(await read("evidence.json"));
+    assert.deepEqual(evidence.model_runs, []);
+    assert.deepEqual(evidence.local_runtime_results.map(row => row.arm), arms);
+    assert.deepEqual(evidence.public_runtime_results.map(row => row.arm), arms);
+    assert.equal(evidence.eligible_for_model_submission, false);
+    assert.equal(evidence.portable_common_context.local_common_tree_matches, true);
+    assert.equal(evidence.portable_common_context.native_harbor_final_graph_verified, false);
+    assert.equal(evidence.public_validation.local_named_context_overrides, false);
+    assert.equal(evidence.public_validation.bake_filesystem_entitlement_bypass, false);
+    assert.equal(evidence.final_native_harbor_attempt.reward, null);
+    assert.equal(new Set(evidence.public_runtime_results.map(row => row.business_inputs_sha256)).size, 1);
+    for (const [index, row] of evidence.public_runtime_results.entries()) {
+        assert.equal(row.method, "direct-docker-same-task");
+        assert.equal(row.common_context, "public-git-pin");
+        assert.equal(row.owned_container_removed, true);
+        assert.equal(row.negative_cases_rejected.length, index === 0 ? 5 : 7);
+        const compose = await read(`tasks/${row.arm}/environment/docker-compose.yaml`);
+        assert(compose.includes(`#${evidence.portable_common_context.commit}:msbench/bingo-publishing/common`));
+    }
+    for (const row of [...evidence.local_runtime_results, ...(evidence.public_runtime_results ?? [])]) {
+        assert.equal(row.reward, 1);
+        assert.match(row.result_sha256, /^[a-f0-9]{64}$/);
+        assert.match(row.receipt_sha256, /^[a-f0-9]{64}$/);
+        assert(Number.isFinite(row.agent_oracle_seconds) && row.agent_oracle_seconds >= 0
+            && row.agent_oracle_seconds <= evidence.budgets_seconds.agent);
+        assert(Number.isFinite(row.verifier_seconds) && row.verifier_seconds >= 0
+            && row.verifier_seconds <= evidence.budgets_seconds.verifier);
+    }
+});
