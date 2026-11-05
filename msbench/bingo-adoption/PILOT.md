@@ -5,6 +5,18 @@ Two original model conditions executed: original skills and actual generated
 Those scores and exact saved model patches are retained; neither is silently
 converted into success and no model retry is run.
 
+| Skill condition | Native agent seconds | Tool calls | Runner cost USD |
+|---|---:|---:|---:|
+| Original bundle | 412.8 | 86 | 0.2645 |
+| Generated 13.6 bundle | 535.7 | 60 | 0.2576 |
+
+Actual model-call events identify Terra and CLI provenance resolves 1.0.99-0
+in both. Original selected init/aspireify/orchestration; generated selected
+router/init/aspireify/orchestration/monitoring. No protected oracle/grader path
+access appears in tool-start arguments. These original execution metrics are
+preserved even while correctness adjudication is pending. Fewer calls did not
+mean less elapsed time; one observation does not establish a generator gain.
+
 The original grader treated **all bytes** of the existing central package
 configuration as immutable. Both models made the same compatible addition:
 three `Aspire.Hosting.*` entries at 13.6.0, preserving every existing dependency

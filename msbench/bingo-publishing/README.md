@@ -10,6 +10,15 @@ local common override. No model run, push, PR or cloud provisioning was performe
 here. [evidence.json](evidence.json) separates all three evidence categories.
 **Native Harbor/CES execution remains a parent-owned gate before model submission.**
 
+The parent published the exact final tasks at `a206e498adc445865f05a49546a5e085956de0dd`
+and submitted one representative **no-model** CES oracle,
+[2026110558453858](https://msbenchapp.azurewebsites.net/run-analysis/2026110558453858),
+to verify native remote execution before any model spending.
+[portable-dataset.jsonl](portable-dataset.jsonl) and
+[execution-ledger.json](execution-ledger.json) retain the immutable graph,
+two distinct conditions, and the gate's subsequent result. No model result is
+implied by local direct-Docker success.
+
 ## Bounded comparison
 
 | Arm | Supplied support | Required deployment |

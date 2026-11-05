@@ -616,6 +616,11 @@ separates logical connection key `db` from a valid physical database name.
 Original 0 scores/patches are preserved; exact-source no-model replays remain
 required before corrected completion is claimed.
 
+Both A01 actual Terra runs completed with no trial exception and measured
+412.8/535.7 seconds (original/generated); generated used fewer tool calls but
+was slower. Those metrics and original 0 scores remain recorded while replay
+is pending. No repeated inference is used to produce a preferred conclusion.
+
 ## Recording future findings
 
 Give each finding a stable ID and include evidence links, exact observed
