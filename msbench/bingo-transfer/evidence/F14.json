@@ -1,0 +1,74 @@
+{
+  "id": "F14",
+  "status": "reserved-local-gates-pending",
+  "scenario": "X01",
+  "fault": "redis-acl-write-denial-v1",
+  "namespace": "cedar83",
+  "fault_seed": 83,
+  "names": {
+    "redis": "quill",
+    "postgres": "ledger",
+    "migration": "scribe",
+    "admin": "steward",
+    "frontend": "mosaic",
+    "neighbor": "cedar38-quill"
+  },
+  "arms": ["raw-scripted", "aspire"],
+  "source": {
+    "repository": "sebastienros/aspire-bench",
+    "origin": "https://github.com/sebastienros/aspire-bench.git",
+    "branch": "sebros/bingo-held-out-fault-transfer",
+    "workspace": "/Users/sebastienros/.copilot/copilot-worktrees/aspire-bench/sebros-vigilant-pancake",
+    "parent_base": "a2c88ccb6abb426d5fb4d4c93862971f085d7058",
+    "task_base": "d3694ec111609a79073dcba35bc1f1b1c9517d8f",
+    "diagnostics_common_tree": "f51356d7ba97ba037485e18cb2ec8db20b406466",
+    "raw_workflow_tree": "48489ea052f9fbb453b8e52104312560824c5de1",
+    "original_general_skills": "1fcca7e91c89716f0e4a8bf7324da13a39f70c66",
+    "original_bingo_source": "sebastienros/aspireify-workshop@c902c52de9a11a7139602ec11264ec3e71a92c38"
+  },
+  "toolchain": {
+    "dotnet_sdk": "10.0.100-noble",
+    "node": "24.14.0",
+    "docker": "28.0.4",
+    "aspire_cli_hosting": "13.6.0",
+    "redis": "8.6",
+    "postgres": "18.3",
+    "mcp": false,
+    "aspire_skills": "seven original general skills; no application startup skill"
+  },
+  "budget": {
+    "agent_seconds": 900,
+    "verifier_seconds": 300,
+    "planned_model": "gpt-6.1-terra",
+    "maximum_original_model_attempts_per_arm": 1,
+    "model_submission_owner": "parent after both local gates",
+    "repeated_identical_conditions": false
+  },
+  "local_validation": {
+    "docker_slot": "waiting for explicit parent grant; no Docker commands issued",
+    "static": {
+      "focused_tests": 10,
+      "focused_tests_passed": 10,
+      "syntax": "all new Bash and JavaScript files",
+      "harbor_print_config": "both static oracle tasks accepted without Docker",
+      "portable_build_contexts": "environment-local deterministic archive plus immutable public Git dependencies; no outside-environment fs.read grant"
+    },
+    "oracles": [],
+    "negative_contracts": [
+      "no-op/read-only health",
+      "wrong-neighbor repair and restored-final-ACL event",
+      "source/config/endpoint shortcut",
+      "cache/called/SQL/neighbor data mutation",
+      "incomplete ACL or credential reset",
+      "container replacement/restart/broad lifecycle"
+    ]
+  },
+  "model_runs": [],
+  "inference": {
+    "scope": "one genuinely new fault-family/name instance in original Bingo; no product-value result yet",
+    "independent_app": false,
+    "statistical_generalization": false,
+    "aspire_advantage": "not established",
+    "eshop_required": false
+  }
+}

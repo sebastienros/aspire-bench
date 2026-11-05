@@ -1,0 +1,8 @@
+services:
+  main:
+    privileged: true
+    build:
+      additional_contexts:
+        diagnostics-common: ${MSBENCH_DIAGNOSTICS_CONTEXT:-https://github.com/sebastienros/aspire-bench.git#d3694ec111609a79073dcba35bc1f1b1c9517d8f:msbench/bingo-diagnostics/common}
+        raw-workflow: ${MSBENCH_RAW_WORKFLOW_CONTEXT:-https://github.com/sebastienros/aspire-bench.git#d3694ec111609a79073dcba35bc1f1b1c9517d8f:msbench/bingo-diagnostics/tasks/raw-scripted/environment/app}
+        raw-app: ${MSBENCH_RAW_APP_CONTEXT:-https://github.com/sebastienros/aspire-bench.git#d3694ec111609a79073dcba35bc1f1b1c9517d8f:msbench/bingo/common/raw-app}
