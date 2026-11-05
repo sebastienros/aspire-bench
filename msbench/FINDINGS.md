@@ -499,6 +499,12 @@ with no outside-environment local filesystem context. Runtime hashes still
 match the verified snapshot; representative remote execution is the next
 gate before model submissions.
 
+**Portable execution gate passed:** Remote no-model validation
+2026110507252286 passed both final F01/M01 Aspire cases. Adoption's generated
+condition likewise passed remote oracle 2026110507371146. Exact native
+receipts are committed alongside execution ledgers; these are not model
+successes or additional independent samples.
+
 ## F10: Runtime diagnosis fixtures must pass the infrastructure gate first
 
 **Actual evidence:** The new [D01/H01 Bingo diagnosis fixtures](bingo-diagnostics/README.md)

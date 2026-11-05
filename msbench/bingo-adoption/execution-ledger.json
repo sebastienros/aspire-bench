@@ -1,0 +1,111 @@
+{
+  "status": "ready-local-runtime-and-remote-graph-passed",
+  "task_commit": "25947262cabcae9efb3aacb502e8007a52bbbaa5",
+  "model": "gpt-6.1-terra",
+  "automatic_repeats": false,
+  "conditions": [
+    {
+      "benchmark": "bingo-aspire-adoption",
+      "variant": "aspire",
+      "task_directory": "aspire",
+      "fingerprint": "cf6f9e4c593456bd941a620bfe0e1b9bd59e7d33b9d2a0f7c4588971c90533ad",
+      "condition": {
+        "scenario": "A01",
+        "variant": "aspire",
+        "runtime_task_files": {
+          "environment/Dockerfile": "5a7da32452563b431bc16ea34b45868b7eacafde4c249b4bc5c55a306cec2dcb",
+          "environment/adoption.mjs": "5ff45e8b3e29393f7d6f7d3ad0a204a6e17b6da60c65784a838d904ecdef6bc9",
+          "environment/app/README.md": "d627f32eb8f3fd21a6413001ea08d9d1e5bae2f9f44c59ee1a1d09bd6c8935a0",
+          "environment/app/scripts/check.sh": "989ade7d964e41e1e1e969c0d03c9107faf2443156685ae2d4e20e5d4dab651b",
+          "environment/app/scripts/common.sh": "e87ac175a4b19fd468b09a95f0f213eaa14a16e3ca7b3f2dada4e3fecf29fb03",
+          "environment/app/scripts/launch.mjs": "cdb1288f25e8445c6d275772d3d51dfd7c931b4c213dd18518c2cb58f53490dc",
+          "environment/app/scripts/start.sh": "d7a77a57c63470c32275dac04879fa79512be0a2a7d5b02f3619437eaa945024",
+          "environment/docker-compose.yaml": "f8508e477989a21c611d0ef6428f33fc6ca08cf4745b96d2fff0dd56947863b1",
+          "environment/entrypoint.sh": "68b09d44da4b68567ac4393064d44af89d710887cb72379aae48059a94fdc307",
+          "environment/input-hashes.json": "9bc34eeaf06f04b66819ef335f9fa03038d53078aa6f8464c1aa400cf463b512",
+          "environment/skills/.gitkeep": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "instruction.md": "5ad8b31f40913772a0b5a2f05ffbc1b778255001a2e67901e64ef74d7df32ef3",
+          "solution/apphost.cs": "e9527048720d529c7c674b8d6dc8d4813882b373fdfd6b6b0e5378d00d33ff52",
+          "solution/aspire.config.json": "fc59e6127f80d6f0eb3dd51fea215c353a0b340b56eec5cc10786d132a154a73",
+          "solution/solve.sh": "ec93a733378b5cb7b89b9a1ddd47e709dfe398a5e091a697e55677f7391182b3",
+          "solution/start.sh": "029dfb5492025861ea7bdb1cc67afd3824aa0131d8ecc4fc2939313080d33c8f",
+          "task.toml": "0bef609f8a9233440df3d01394aba12b5503d963068d2b08fbdbe0be0e9f329e",
+          "tests/hashes.js": "a79aad71c8a69337ce2ddcdc359b0eb7aebb132736c1881996b517e3e739269b",
+          "tests/http.js": "938f87802eb4e29dcebd75a6d77731207ee9def90e5608aae5acac78c65b25e9",
+          "tests/process.js": "7ebac1394cdb607e2512ff89e66547db23f0a875440e9a6c7e32306ae577abc4",
+          "tests/redis.js": "871c68ccb7ecd70445430f61c22c2d039704e9050ffa19d6a4efebdefc114cf2",
+          "tests/test.sh": "206619d64515515127f77f29de7babfbc40aeb15637723288c4f0890622974da"
+        },
+        "application_context_commit": "baacba3e17181491c9a4d419db7d0e6763c3d363",
+        "agent_package": "github-copilot-cli-pkg-main-20261014-215627",
+        "vendor_cli": "1.0.99-0",
+        "model": "gpt-6.1-terra",
+        "reasoning_effort": "runner-default",
+        "agent_seconds": 900,
+        "verifier_seconds": 300,
+        "conversation_mode": "fresh-single-step"
+      }
+    },
+    {
+      "benchmark": "bingo-aspire-adoption",
+      "variant": "generated-skills",
+      "task_directory": "generated-skills",
+      "fingerprint": "643800c6bf65bd95f96a67be299c0369d2a74f8767ab6a2369a8037346d64aa3",
+      "condition": {
+        "scenario": "A01",
+        "variant": "generated-skills",
+        "runtime_task_files": {
+          "environment/Dockerfile": "5a7da32452563b431bc16ea34b45868b7eacafde4c249b4bc5c55a306cec2dcb",
+          "environment/adoption.mjs": "5ff45e8b3e29393f7d6f7d3ad0a204a6e17b6da60c65784a838d904ecdef6bc9",
+          "environment/app/README.md": "d627f32eb8f3fd21a6413001ea08d9d1e5bae2f9f44c59ee1a1d09bd6c8935a0",
+          "environment/app/scripts/check.sh": "989ade7d964e41e1e1e969c0d03c9107faf2443156685ae2d4e20e5d4dab651b",
+          "environment/app/scripts/common.sh": "e87ac175a4b19fd468b09a95f0f213eaa14a16e3ca7b3f2dada4e3fecf29fb03",
+          "environment/app/scripts/launch.mjs": "cdb1288f25e8445c6d275772d3d51dfd7c931b4c213dd18518c2cb58f53490dc",
+          "environment/app/scripts/start.sh": "d7a77a57c63470c32275dac04879fa79512be0a2a7d5b02f3619437eaa945024",
+          "environment/docker-compose.yaml": "f3c7af535624c3edb1b746aacb501d9803cdf3decc6596040dbb5e0d69f7549a",
+          "environment/entrypoint.sh": "68b09d44da4b68567ac4393064d44af89d710887cb72379aae48059a94fdc307",
+          "environment/input-hashes.json": "9bc34eeaf06f04b66819ef335f9fa03038d53078aa6f8464c1aa400cf463b512",
+          "environment/skills/.gitkeep": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "instruction.md": "5ad8b31f40913772a0b5a2f05ffbc1b778255001a2e67901e64ef74d7df32ef3",
+          "solution/apphost.cs": "e9527048720d529c7c674b8d6dc8d4813882b373fdfd6b6b0e5378d00d33ff52",
+          "solution/aspire.config.json": "fc59e6127f80d6f0eb3dd51fea215c353a0b340b56eec5cc10786d132a154a73",
+          "solution/solve.sh": "ec93a733378b5cb7b89b9a1ddd47e709dfe398a5e091a697e55677f7391182b3",
+          "solution/start.sh": "029dfb5492025861ea7bdb1cc67afd3824aa0131d8ecc4fc2939313080d33c8f",
+          "task.toml": "d623d591d1afa20e0f9c56fbdafeadbe887fa2171507d4c20da595f44b064188",
+          "tests/hashes.js": "a79aad71c8a69337ce2ddcdc359b0eb7aebb132736c1881996b517e3e739269b",
+          "tests/http.js": "938f87802eb4e29dcebd75a6d77731207ee9def90e5608aae5acac78c65b25e9",
+          "tests/process.js": "7ebac1394cdb607e2512ff89e66547db23f0a875440e9a6c7e32306ae577abc4",
+          "tests/redis.js": "871c68ccb7ecd70445430f61c22c2d039704e9050ffa19d6a4efebdefc114cf2",
+          "tests/test.sh": "206619d64515515127f77f29de7babfbc40aeb15637723288c4f0890622974da"
+        },
+        "application_context_commit": "baacba3e17181491c9a4d419db7d0e6763c3d363",
+        "agent_package": "github-copilot-cli-pkg-main-20261014-215627",
+        "vendor_cli": "1.0.99-0",
+        "model": "gpt-6.1-terra",
+        "reasoning_effort": "runner-default",
+        "agent_seconds": 900,
+        "verifier_seconds": 300,
+        "conversation_mode": "fresh-single-step"
+      }
+    }
+  ],
+  "remote_oracle_validations": [
+    {
+      "run_id": "2026110507371146",
+      "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110507371146",
+      "agent": "fix_validation",
+      "model": "no_model",
+      "status": "passed",
+      "results": [
+        {
+          "trial": "generated-skills__HnhRzps",
+          "reward": 1,
+          "exception": null,
+          "native_receipt": "msbench/bingo-adoption/evidence/remote-oracle-generated-skills__HnhRzps-result.json",
+          "sha256": "d20204c6d5b84c9632830c3b191a95d626f5aef3886b7ffbbe2731adde32389f"
+        }
+      ]
+    }
+  ],
+  "model_runs": []
+}

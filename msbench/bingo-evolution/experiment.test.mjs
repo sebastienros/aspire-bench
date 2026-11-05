@@ -56,7 +56,11 @@ test("application sources and guidance stay independent of historical fixtures",
     assert.equal(ledger.status, "blocked-local-docker-validation");
     assert.deepEqual(ledger.model_runs, []);
     assert(Object.values(ledger.pair_gates).every(status => status === "not-passed"));
-    assert(!(await readdir(root)).includes("dataset.jsonl"), "Do not publish an unvalidated pair as ready");
+    if ((await readdir(root)).includes("portable-dataset.jsonl")) {
+        const execution = JSON.parse(await read("execution-ledger.json"));
+        assert(execution.remote_oracle_validations.some(result => result.status === "passed"),
+            "Published execution requires a successful representative remote oracle");
+    }
     for (const [file, hash] of Object.entries(ledger.attempts[0].evidence)) {
         assert.equal(createHash("sha256").update(await readFile(path.join(root, "evidence", file))).digest("hex"), hash);
     }

@@ -62,7 +62,10 @@ harbor run --path msbench/bingo-adoption/tasks/aspire --agent oracle \
   --jobs-dir .runs/msbench-oracle --job-name bingo-adoption-validation --n-concurrent 1
 ```
 
-No model execution has been submitted. After owner-controlled Docker/storage
-recovery, validate the final image/oracle sequentially, then publish an immutable
-source pin and run at most one new Terra pilot with its condition fingerprint.
+The final two local oracle conditions and representative remote oracle
+[2026110507371146](https://msbenchapp.azurewebsites.net/run-analysis/2026110507371146)
+now pass reward 1 with no exception. The original interrupted attempt remains
+historical, not the current gate. The [portable dataset](portable-dataset.jsonl)
+pins exact source and the [execution ledger](execution-ledger.json) records
+unique original/generated-skill conditions and their subsequent model results.
 Do not compare this cold adoption task's elapsed time to warm I01 repair times.

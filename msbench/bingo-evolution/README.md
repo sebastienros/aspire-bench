@@ -1,17 +1,21 @@
 # Bingo bounded feature and schema evolution
 
-**Both local runtime pairs verified. Remote packaging remains pending.**
+**Both local runtime pairs and representative remote packaging verified.**
 All four exact final tasks passed sequential force-built Docker oracles with
 reward 1, no exceptions and seven rejected negative cases each. Earlier setup,
 reference-solution and shared-host failures remain recorded below. No model
-comparison or CES-ready publication is claimed.
+performance result is implied by these oracle receipts.
 
 The parent portable-graph correction now pins `evolution-common` to public
 `2842205e02055cfe4b47e06bf2f5bbfa28f5dca8`, the exact recovered runtime source,
 rather than a repository-sibling filesystem context. Runtime input hashes
 remain unchanged. This avoids the newly observed remote Bake entitlement
-failure without broad filesystem grants; a representative remote oracle still
-must establish packaging/execution before first model submissions.
+failure without broad filesystem grants. Remote oracle-only validation
+[2026110507252286](https://msbenchapp.azurewebsites.net/run-analysis/2026110507252286)
+then passed both final Aspire scenario cases with reward 1/no exception on the
+public-Git graph. [portable-dataset.jsonl](portable-dataset.jsonl) pins the final
+task revision, and [execution-ledger.json](execution-ledger.json) tracks unique
+conditions and all model submissions separately.
 
 Independent static Harbor task pairs for roadmap **F01** and **M01** in the
 [research protocol](../AGENTIC-RESEARCH.md). Historical Bingo/I01 fixtures are
