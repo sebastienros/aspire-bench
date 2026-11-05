@@ -1,0 +1,207 @@
+{
+  "status": "both-exact-model-patches-pass-v2-original-cloud0-preserved",
+  "date": "2026-11-05",
+  "source_grader_commit": "84654372213a4e13239163891bb96c7bfc6daf9b",
+  "original_model_patch_commit": "ac179f6e3b1a9f910b371130e3bf14ffea734c53",
+  "new_model_runs": 0,
+  "platform": {
+    "original_cloud": "Linux x86_64",
+    "local_replay": "Linux aarch64"
+  },
+  "method": "Fresh original source fixture and v2 protected setup state; exact saved original model patches; existing immutable startup helper only; full external semantic/package/DB/SQL/Redis/HTTP grader. No reference AppHost copied or model changes repaired.",
+  "runtime_limits": {
+    "agent_seconds": 900,
+    "verifier_seconds": 300,
+    "cpus": 4,
+    "memory_mb": 8192
+  },
+  "public_git_contexts": true,
+  "headroom": "At least 140GiB observed during A01, >10GiB guard each job.",
+  "cleanup": "All task-owned Harbor containers automatically removed; docker ps empty after three replays. No shared prune/restart.",
+  "results": [
+    {
+      "arm": "aspire",
+      "job": "a01-aspire-original-model-regrade-v2",
+      "trial": "a01-aspire__GgGC8xE",
+      "agent": "oracle (saved-patch applicator only)",
+      "reward": 1,
+      "exception": null,
+      "new_model_runs": 0,
+      "reference_AppHost_used": false,
+      "model_AppHost_or_credentials_modified": false,
+      "force_build": true,
+      "grader_commit": "84654372213a4e13239163891bb96c7bfc6daf9b",
+      "patch_sha256": "b1ca912f01af2acaee3a0440e7ec72067c7cbb200580180464e1b03890260e12",
+      "source_fidelity": {
+        ".gitignore": {
+          "sha256": "79810615b4063be5474618fd002df934762fe9ccebb448537ce74ce23b319202",
+          "git_blob": "59672943c32a52e16f76fa78c2c296786e6f37ca",
+          "cloud_patch_index_prefix": "5967294"
+        },
+        "Directory.Packages.props": {
+          "sha256": "541f74700e38e375adbb81e54b507764da5136a50b86c6a6583bb735750eb1e8",
+          "git_blob": "cf00de72f1a5f33222976f8d1c5843c8f49dc51c",
+          "cloud_patch_index_prefix": "cf00de7"
+        },
+        "apphost.cs": {
+          "sha256": "472c97ec2f0da9ad2316cde4cfbbf285b08962a4391e98f5d7728bd73a3444c3",
+          "git_blob": "e34947ec0658aacb8c024d52715ee443be34c22d",
+          "cloud_patch_index_prefix": "e34947e"
+        },
+        "apphost.run.json": {
+          "sha256": "6114cdee3e09286d4c5a4f7bf8e2b87144b91c503898aec00360793c97217a77",
+          "git_blob": "f507772c6431a3925e9edd6ed55b07d41490a841",
+          "cloud_patch_index_prefix": "f507772"
+        },
+        "aspire.config.json": {
+          "sha256": "cb94fc38504f6cd71133b2dcd1a240978ba3751ed4e66e548cd408f7cd213889",
+          "git_blob": "171757fabf9bf5c57e5f32e1ebee3731179911db",
+          "cloud_patch_index_prefix": "171757f"
+        }
+      },
+      "original_native_cloud_reward": 0,
+      "original_native_cloud_trial": "aspire__2c5iBzm",
+      "original_native_evidence": {
+        "result": {
+          "path": "msbench/bingo-adoption/evidence/original-model-aspire-result.json",
+          "sha256": "767d150a67f05eb71ec2a5b0c334dc504438cbda7a97ac00d524a8f7eee5aa69"
+        },
+        "verifier": {
+          "path": "msbench/bingo-adoption/evidence/original-model-aspire-verifier.txt",
+          "sha256": "e5636aa64fed8564016c705f2c8cc436812e9ad27fcc3afdfbe9b4fa39b2ea1b"
+        }
+      },
+      "native_evidence": {
+        "regrade-v2-aspire-result.json": "64127461f18dc9edb8c6095731fbad5276ead23ff1457b246670ea81fcbf7d9b",
+        "regrade-v2-aspire-verifier.txt": "b55946360d0ee6db9993e3bcf5a3a8f197659af6713d7dbc3bcfff833b978031",
+        "regrade-v2-aspire-oracle-redacted.txt": "5e8256f5f6cf470cf72ec88adbd74c0754ddbb8a2da097b3c96174adf3721355"
+      },
+      "native_oracle_unredacted_sha256": "f316578b8237cefd2b76013647bae000ad945348f55e99142aa1a5e1b7726ede",
+      "oracle_presentation_redaction": "Only ephemeral dashboard login query tokens replaced in a separately named copy. Native bytes remain in durable trial with recorded SHA256.",
+      "functional_verifier_output": "Verified real Aspire-orchestrated raw Bingo, functional SQL/Redis roundtrip and unchanged source.",
+      "physical_database": "bingo (selected from actual backend ConnectionStrings__db by immutable v2 grader, not logical resource name db)",
+      "package_contract": "Only three exact Aspire13.6.0 central PackageVersion additions; all original dependency/business/guidance inputs remain protected.",
+      "security_configuration": "Exact original model AppHost retains default Aspire Redis certificate handling; v2 grader chooses verified TLS/CA and auth flags from actual container configuration. No security alteration applied during replay.",
+      "security_limit": "Container launch details were not separately exported before standard Harbor cleanup; no independent production-security claim.",
+      "durable_trial_path": "/Users/sebastienros/.copilot/session-state/ab478c48-b1ee-44e3-8192-f23af9975dd4/files/bingo-evolution/a01-v2-regrade/jobs/a01-aspire-original-model-regrade-v2/a01-aspire__GgGC8xE",
+      "started_at": "2026-11-05T16:21:26.209960Z",
+      "finished_at": "2026-11-05T16:22:10.891062Z",
+      "task_checksum": "ec15d794b37d19b7395429744319e0fb6dd7cc60d77c25b74ed4cb0e72d59ed9",
+      "build_input_hashes": {
+        "environment/Dockerfile": "56c53b175c0c1d7c36d68cad95916a7eebc0b53880135de2785dc198ed4f4fdb",
+        "environment/adoption.mjs": "a9204393fb72fbde61e2fa8fde37757f90e55fb6df4f62941ce5fe847669377a",
+        "environment/app/README.md": "d627f32eb8f3fd21a6413001ea08d9d1e5bae2f9f44c59ee1a1d09bd6c8935a0",
+        "environment/app/scripts/check.sh": "989ade7d964e41e1e1e969c0d03c9107faf2443156685ae2d4e20e5d4dab651b",
+        "environment/app/scripts/common.sh": "e87ac175a4b19fd468b09a95f0f213eaa14a16e3ca7b3f2dada4e3fecf29fb03",
+        "environment/app/scripts/launch.mjs": "cdb1288f25e8445c6d275772d3d51dfd7c931b4c213dd18518c2cb58f53490dc",
+        "environment/app/scripts/start.sh": "d7a77a57c63470c32275dac04879fa79512be0a2a7d5b02f3619437eaa945024",
+        "environment/docker-compose.yaml": "f8508e477989a21c611d0ef6428f33fc6ca08cf4745b96d2fff0dd56947863b1",
+        "environment/entrypoint.sh": "68b09d44da4b68567ac4393064d44af89d710887cb72379aae48059a94fdc307",
+        "environment/input-hashes.json": "9bc34eeaf06f04b66819ef335f9fa03038d53078aa6f8464c1aa400cf463b512",
+        "environment/package-contract.mjs": "769779326315c72d8e9c64abf70cfc05659043e7edf1fd71acfb897d46a19033",
+        "environment/skills/.gitkeep": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "instruction.md": "5ad8b31f40913772a0b5a2f05ffbc1b778255001a2e67901e64ef74d7df32ef3",
+        "solution/original-model-source.patch": "b1ca912f01af2acaee3a0440e7ec72067c7cbb200580180464e1b03890260e12",
+        "solution/solve.sh": "36bd6c0d7e50f79efb0269b0a342bf47056863426b2617ac731fa75177ac4dba",
+        "solution/start.sh": "029dfb5492025861ea7bdb1cc67afd3824aa0131d8ecc4fc2939313080d33c8f",
+        "task.toml": "0bef609f8a9233440df3d01394aba12b5503d963068d2b08fbdbe0be0e9f329e",
+        "tests/hashes.js": "a79aad71c8a69337ce2ddcdc359b0eb7aebb132736c1881996b517e3e739269b",
+        "tests/http.js": "938f87802eb4e29dcebd75a6d77731207ee9def90e5608aae5acac78c65b25e9",
+        "tests/process.js": "7ebac1394cdb607e2512ff89e66547db23f0a875440e9a6c7e32306ae577abc4",
+        "tests/redis.js": "871c68ccb7ecd70445430f61c22c2d039704e9050ffa19d6a4efebdefc114cf2",
+        "tests/test.sh": "206619d64515515127f77f29de7babfbc40aeb15637723288c4f0890622974da"
+      },
+      "command": "harbor run --path /Users/sebastienros/.copilot/session-state/ab478c48-b1ee-44e3-8192-f23af9975dd4/files/bingo-evolution/a01-v2-regrade/a01-aspire --agent oracle --force-build --jobs-dir /Users/sebastienros/.copilot/session-state/ab478c48-b1ee-44e3-8192-f23af9975dd4/files/bingo-evolution/a01-v2-regrade/jobs --job-name a01-aspire-original-model-regrade-v2 --n-concurrent 1"
+    },
+    {
+      "arm": "generated-skills",
+      "job": "a01-generated-original-model-regrade-v2",
+      "trial": "a01-generated-skills__wYd5UPy",
+      "agent": "oracle (saved-patch applicator only)",
+      "reward": 1,
+      "exception": null,
+      "new_model_runs": 0,
+      "reference_AppHost_used": false,
+      "model_AppHost_or_credentials_modified": false,
+      "force_build": true,
+      "grader_commit": "84654372213a4e13239163891bb96c7bfc6daf9b",
+      "patch_sha256": "f268e1433296accbe934639f5e0ae3df7dbc14bacedf6fd12f5e7c338e6cb99c",
+      "source_fidelity": {
+        "Directory.Packages.props": {
+          "sha256": "541f74700e38e375adbb81e54b507764da5136a50b86c6a6583bb735750eb1e8",
+          "git_blob": "cf00de72f1a5f33222976f8d1c5843c8f49dc51c",
+          "cloud_patch_index_prefix": "cf00de7"
+        },
+        "apphost.cs": {
+          "sha256": "aafc0b673d09bdd25ae0a684ef49d9e76ea156d188b736f1a50a7aa5e088b58b",
+          "git_blob": "e3ba6dd2e626574ada45ca0570b9e8786776ca4f",
+          "cloud_patch_index_prefix": "e3ba6dd"
+        },
+        "apphost.run.json": {
+          "sha256": "92096c8ea7716309bcd035ad2f05f1afbabd649c204fe7bc6413185961e966a3",
+          "git_blob": "53b4301c4252046568ba4c56dcb1793700ad49bb",
+          "cloud_patch_index_prefix": "53b4301"
+        },
+        "aspire.config.json": {
+          "sha256": "ee163a9b6ed91c8c4507a47776a602e7aac13d06c494f1eea4ca9108905cdef2",
+          "git_blob": "f615fa0573cc156049799c5e92d6fa641183ff74",
+          "cloud_patch_index_prefix": "f615fa0"
+        }
+      },
+      "original_native_cloud_reward": 0,
+      "original_native_cloud_trial": "generated-skills__aogo8LD",
+      "original_native_evidence": {
+        "result": {
+          "path": "msbench/bingo-adoption/evidence/original-model-generated-skills-result.json",
+          "sha256": "7c7d568d1b29d0a2d642b22ec6abd2b9fb0e1a089e12129523ea4488054fd1a1"
+        },
+        "verifier": {
+          "path": "msbench/bingo-adoption/evidence/original-model-generated-skills-verifier.txt",
+          "sha256": "e5636aa64fed8564016c705f2c8cc436812e9ad27fcc3afdfbe9b4fa39b2ea1b"
+        }
+      },
+      "native_evidence": {
+        "regrade-v2-generated-skills-result.json": "deca446a68de8265f6a04ee1fae74b462f0a66354c38a24437b027587856a301",
+        "regrade-v2-generated-skills-verifier.txt": "b55946360d0ee6db9993e3bcf5a3a8f197659af6713d7dbc3bcfff833b978031",
+        "regrade-v2-generated-skills-oracle-redacted.txt": "b56ba2c8f7e5e46a8986a462bd80d85f2e85c9305a6c62677c280be3dc994466"
+      },
+      "native_oracle_unredacted_sha256": "cdd8d199914541ac5e521509e62a763842d1b0e3e6011994c5ffc8fce3d63663",
+      "oracle_presentation_redaction": "Only ephemeral dashboard login query tokens replaced in a separately named copy. Native bytes remain in durable trial with recorded SHA256.",
+      "functional_verifier_output": "Verified real Aspire-orchestrated raw Bingo, functional SQL/Redis roundtrip and unchanged source.",
+      "physical_database": "bingo (selected from actual backend ConnectionStrings__db by immutable v2 grader, not logical resource name db)",
+      "package_contract": "Only three exact Aspire13.6.0 central PackageVersion additions; all original dependency/business/guidance inputs remain protected.",
+      "security_configuration": "Exact original model AppHost explicitly uses Redis.WithoutHttpsCertificate(); retained as requested. Baseline Redis is plaintext; prompt did not mandate TLS. Grader protocol classifier uses actual container configuration. No hardening/security alteration applied during replay.",
+      "security_limit": "Container launch details were not separately exported before standard Harbor cleanup; no independent production-security claim.",
+      "durable_trial_path": "/Users/sebastienros/.copilot/session-state/ab478c48-b1ee-44e3-8192-f23af9975dd4/files/bingo-evolution/a01-v2-regrade/jobs/a01-generated-original-model-regrade-v2/a01-generated-skills__wYd5UPy",
+      "started_at": "2026-11-05T16:22:20.439605Z",
+      "finished_at": "2026-11-05T16:23:01.890789Z",
+      "task_checksum": "7a1dff8d36b3e0f0bf59e7b67a6c40407a65b6f63b3b00877122906e93d898da",
+      "build_input_hashes": {
+        "environment/Dockerfile": "56c53b175c0c1d7c36d68cad95916a7eebc0b53880135de2785dc198ed4f4fdb",
+        "environment/adoption.mjs": "a9204393fb72fbde61e2fa8fde37757f90e55fb6df4f62941ce5fe847669377a",
+        "environment/app/README.md": "d627f32eb8f3fd21a6413001ea08d9d1e5bae2f9f44c59ee1a1d09bd6c8935a0",
+        "environment/app/scripts/check.sh": "989ade7d964e41e1e1e969c0d03c9107faf2443156685ae2d4e20e5d4dab651b",
+        "environment/app/scripts/common.sh": "e87ac175a4b19fd468b09a95f0f213eaa14a16e3ca7b3f2dada4e3fecf29fb03",
+        "environment/app/scripts/launch.mjs": "cdb1288f25e8445c6d275772d3d51dfd7c931b4c213dd18518c2cb58f53490dc",
+        "environment/app/scripts/start.sh": "d7a77a57c63470c32275dac04879fa79512be0a2a7d5b02f3619437eaa945024",
+        "environment/docker-compose.yaml": "f3c7af535624c3edb1b746aacb501d9803cdf3decc6596040dbb5e0d69f7549a",
+        "environment/entrypoint.sh": "68b09d44da4b68567ac4393064d44af89d710887cb72379aae48059a94fdc307",
+        "environment/input-hashes.json": "9bc34eeaf06f04b66819ef335f9fa03038d53078aa6f8464c1aa400cf463b512",
+        "environment/package-contract.mjs": "769779326315c72d8e9c64abf70cfc05659043e7edf1fd71acfb897d46a19033",
+        "environment/skills/.gitkeep": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "instruction.md": "5ad8b31f40913772a0b5a2f05ffbc1b778255001a2e67901e64ef74d7df32ef3",
+        "solution/original-model-source.patch": "f268e1433296accbe934639f5e0ae3df7dbc14bacedf6fd12f5e7c338e6cb99c",
+        "solution/solve.sh": "6b0d67cd7ae09265a61f481b6f1b5da25e487ebaf0b2836dd5cfef5e014efd1b",
+        "solution/start.sh": "029dfb5492025861ea7bdb1cc67afd3824aa0131d8ecc4fc2939313080d33c8f",
+        "task.toml": "d623d591d1afa20e0f9c56fbdafeadbe887fa2171507d4c20da595f44b064188",
+        "tests/hashes.js": "a79aad71c8a69337ce2ddcdc359b0eb7aebb132736c1881996b517e3e739269b",
+        "tests/http.js": "938f87802eb4e29dcebd75a6d77731207ee9def90e5608aae5acac78c65b25e9",
+        "tests/process.js": "7ebac1394cdb607e2512ff89e66547db23f0a875440e9a6c7e32306ae577abc4",
+        "tests/redis.js": "871c68ccb7ecd70445430f61c22c2d039704e9050ffa19d6a4efebdefc114cf2",
+        "tests/test.sh": "206619d64515515127f77f29de7babfbc40aeb15637723288c4f0890622974da"
+      },
+      "command": "harbor run --path /Users/sebastienros/.copilot/session-state/ab478c48-b1ee-44e3-8192-f23af9975dd4/files/bingo-evolution/a01-v2-regrade/a01-generated-skills --agent oracle --force-build --jobs-dir /Users/sebastienros/.copilot/session-state/ab478c48-b1ee-44e3-8192-f23af9975dd4/files/bingo-evolution/a01-v2-regrade/jobs --job-name a01-generated-original-model-regrade-v2 --n-concurrent 1"
+    }
+  ],
+  "interpretation": "Regrades of the two original attempts, not independent samples, new model attempts, retries or pass@1 replications. Original native0 receipts are unchanged; parent may report grader-invalid outcomes plus corrected saved-patch regrade evidence."
+}

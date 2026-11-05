@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { hashes } from "../bingo/tasks/aspire/tests/hashes.js";
@@ -79,4 +80,25 @@ test("adoption permits only compatible additive package metadata, not dependency
     assert(isApplicationBackend(["/app/src/BingoBoard.Admin/bin/Debug/net10.0/BingoBoard.Admin"], "/app/src/BingoBoard.Admin"));
     assert(!isApplicationBackend(["dcp", "http-proxy"], "/app/src/BingoBoard.Admin"));
     assert(!isApplicationBackend(["dotnet", "BingoBoard.Admin.dll"], "/neighbor-app/src/BingoBoard.Admin"));
+});
+
+test("adoption corrected outcomes preserve native zero scores and exact saved source without model reruns", async () => {
+    const report = JSON.parse(await readFile(path.join(root, "evidence/a01-regrade-v2-report.json"), "utf8"));
+    assert.equal(report.new_model_runs, 0);
+    assert.equal(report.results.length, 2);
+    for (const result of report.results) {
+        assert.equal(result.original_native_cloud_reward, 0);
+        assert.equal(result.reward, 1);
+        assert.equal(result.exception, null);
+        assert.equal(result.reference_AppHost_used, false);
+        assert.equal(result.model_AppHost_or_credentials_modified, false);
+        const patch = await readFile(path.join(root, `evidence/model-patches/${result.arm}.patch`));
+        assert.equal(createHash("sha256").update(patch).digest("hex"), result.patch_sha256);
+        for (const [file, expected] of Object.entries(result.native_evidence)) {
+            assert.equal(createHash("sha256").update(await readFile(path.join(root, "evidence", file))).digest("hex"), expected);
+        }
+        for (const file of ["environment/adoption.mjs", "environment/package-contract.mjs"]) {
+            assert.equal(createHash("sha256").update(await read(file)).digest("hex"), result.build_input_hashes[file]);
+        }
+    }
 });

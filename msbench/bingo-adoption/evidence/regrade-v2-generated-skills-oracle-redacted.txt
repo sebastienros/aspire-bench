@@ -1,0 +1,21 @@
+/solution/original-model-source.patch: OK
+541f74700e38e375adbb81e54b507764da5136a50b86c6a6583bb735750eb1e8  Directory.Packages.props
+aafc0b673d09bdd25ae0a684ef49d9e76ea156d188b736f1a50a7aa5e088b58b  apphost.cs
+92096c8ea7716309bcd035ad2f05f1afbabd649c204fe7bc6413185961e966a3  apphost.run.json
+ee163a9b6ed91c8c4507a47776a602e7aac13d06c494f1eea4ca9108905cdef2  aspire.config.json
+Starting Aspire AppHost in the background...
+{
+  "appHostPath": "/app/apphost.cs",
+  "appHostPid": 443,
+  "cliPid": 334,
+  "dashboardUrl": "http://localhost:33881/login?t=[redacted-ephemeral-dashboard-token]",
+  "logFile": "/usr/local/logs/cli_20261105T162223509_detach-child_80e31ddc82d144879286faa1de21cba8.log"
+}
+Waiting for resource 'boardadmin' to be healthy...
+
+✅ Resource 'boardadmin' is healthy. (26.2s)
+Waiting for resource 'bingoboard' to be healthy...
+
+✅ Resource 'bingoboard' is healthy. (0.0s)
+Verified real Aspire-orchestrated raw Bingo, functional SQL/Redis roundtrip and unchanged source.
+Regraded the exact saved A01 generated-skills model patch; no inference or solution repairs.

@@ -1,0 +1,1 @@
+Verified real Aspire-orchestrated raw Bingo, functional SQL/Redis roundtrip and unchanged source.

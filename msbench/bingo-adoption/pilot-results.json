@@ -5,8 +5,8 @@
       "variant": "aspire",
       "run_id": "2026110557457266",
       "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110557457266",
-      "original_reward": 0.0,
-      "assessment": "grader-configuration-overconstraint-pending-no-model-replay",
+      "original_reward": 0,
+      "assessment": "unchanged-model-solution-passes-corrected-local-replay",
       "actual_model": "gpt-6.1-terra",
       "actual_vendor_cli": "1.0.99-0",
       "exception": null,
@@ -33,14 +33,17 @@
       "raw_result_sha256": "767d150a67f05eb71ec2a5b0c334dc504438cbda7a97ac00d524a8f7eee5aa69",
       "raw_trajectory_sha256": "7acf99a8f6328cc011d95f320d1b77208889a107299b810b20be2cf00fb04dfc",
       "invalid_escape_normalizations_in_memory": [],
-      "evidence_root": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/cloud/adoption-models/aspire"
+      "evidence_root": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/cloud/adoption-models/aspire",
+      "corrected_functional_pass": true,
+      "regrade_receipt": "evidence/a01-regrade-v2-report.json",
+      "regrade_is_new_model_sample": false
     },
     {
       "variant": "generated-skills",
       "run_id": "2026110557461446",
       "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110557461446",
-      "original_reward": 0.0,
-      "assessment": "grader-configuration-overconstraint-pending-no-model-replay",
+      "original_reward": 0,
+      "assessment": "unchanged-model-solution-passes-corrected-local-replay",
       "actual_model": "gpt-6.1-terra",
       "actual_vendor_cli": "1.0.99-0",
       "exception": null,
@@ -68,7 +71,10 @@
       "raw_result_sha256": "7c7d568d1b29d0a2d642b22ec6abd2b9fb0e1a089e12129523ea4488054fd1a1",
       "raw_trajectory_sha256": "c71c0e65fc1a49f376092789232b5c312d680dd58f84df111507ebbe719c93d8",
       "invalid_escape_normalizations_in_memory": [],
-      "evidence_root": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/cloud/adoption-models/generated-skills"
+      "evidence_root": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/cloud/adoption-models/generated-skills",
+      "corrected_functional_pass": true,
+      "regrade_receipt": "evidence/a01-regrade-v2-report.json",
+      "regrade_is_new_model_sample": false
     }
   ],
   "runner_reported_total_cost_usd": 0.5221362,
@@ -76,5 +82,6 @@
     "Original rewards0 retained; no corrected functional outcome asserted until exact-source replay",
     "One model observation per skill condition; no causal timing/generalization claim",
     "Raw evidence retained; invalid tool-output escapes interpreted only in memory"
-  ]
+  ],
+  "status": "complete-original-native-zeros-preserved-corrected-local-replays-pass"
 }

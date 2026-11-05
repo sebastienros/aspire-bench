@@ -1,5 +1,5 @@
 {
-  "status": "original-models-completed-grader-replay-pending",
+  "status": "complete-original-native-zeros-preserved-corrected-local-replays-pass",
   "task_commit": "25947262cabcae9efb3aacb502e8007a52bbbaa5",
   "model": "gpt-6.1-terra",
   "automatic_repeats": false,
@@ -120,8 +120,11 @@
       "actual_model_verified": true,
       "submission_log": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/logs/bingo-adoption-submit-aspire.log",
       "actual_vendor_cli": "1.0.99-0",
-      "original_reward": 0.0,
-      "assessment": "grader-configuration-overconstraint-pending-no-model-replay"
+      "original_reward": 0,
+      "assessment": "unchanged-model-solution-passes-corrected-local-replay",
+      "corrected_functional_pass": true,
+      "regrade_receipt": "evidence/a01-regrade-v2-report.json",
+      "regrade_is_new_model_sample": false
     },
     {
       "benchmark": "bingo-aspire-adoption",
@@ -135,8 +138,11 @@
       "actual_model_verified": true,
       "submission_log": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/logs/bingo-adoption-submit-generated-skills.log",
       "actual_vendor_cli": "1.0.99-0",
-      "original_reward": 0.0,
-      "assessment": "grader-configuration-overconstraint-pending-no-model-replay"
+      "original_reward": 0,
+      "assessment": "unchanged-model-solution-passes-corrected-local-replay",
+      "corrected_functional_pass": true,
+      "regrade_receipt": "evidence/a01-regrade-v2-report.json",
+      "regrade_is_new_model_sample": false
     }
   ]
 }

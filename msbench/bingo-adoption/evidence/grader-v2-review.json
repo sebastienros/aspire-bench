@@ -1,5 +1,5 @@
 {
-  "status": "exact-source-replay-pending",
+  "status": "both-exact-model-patches-pass-v2-original-cloud0-preserved",
   "reason": "Original immutable-file rule rejected compatible additive central package metadata; hardcoded physical db name exceeded logical connection-name task contract",
   "correction": [
     "Preserve every original dependency/property and permit only the three required Aspire.Hosting13.6.0 package additions",
@@ -34,5 +34,6 @@
       "original_result_sha256": "7c7d568d1b29d0a2d642b22ec6abd2b9fb0e1a089e12129523ea4488054fd1a1"
     }
   ],
-  "model_reruns": 0
+  "model_reruns": 0,
+  "regrade_receipt": "a01-regrade-v2-report.json"
 }

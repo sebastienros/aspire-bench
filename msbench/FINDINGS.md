@@ -621,6 +621,15 @@ Both A01 actual Terra runs completed with no trial exception and measured
 was slower. Those metrics and original 0 scores remain recorded while replay
 is pending. No repeated inference is used to produce a preferred conclusion.
 
+**Completed A01 adjudication:** Both byte-exact saved solutions now pass the
+[corrected external grader](bingo-adoption/evidence/a01-regrade-v2-report.json)
+in fresh local reconstructions, with original native 0 scores preserved.
+No reference AppHost, solution/credential fix or new model call was used.
+The replay platform is aarch64 versus original x86_64, explicitly recorded.
+Generated-skill `WithoutHttpsCertificate()` is original model behavior and
+was not changed to secure a pass; functional success is not production
+security-equivalence evidence.
+
 ## F14: Fault transfer and real two-app safety need distinct runtime proof
 
 **Evidence:** The [X01 ACL-denial case](bingo-transfer/README.md) changes both

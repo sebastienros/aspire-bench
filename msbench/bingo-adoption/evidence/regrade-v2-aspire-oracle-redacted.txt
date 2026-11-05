@@ -1,0 +1,22 @@
+/solution/original-model-source.patch: OK
+541f74700e38e375adbb81e54b507764da5136a50b86c6a6583bb735750eb1e8  Directory.Packages.props
+472c97ec2f0da9ad2316cde4cfbbf285b08962a4391e98f5d7728bd73a3444c3  apphost.cs
+6114cdee3e09286d4c5a4f7bf8e2b87144b91c503898aec00360793c97217a77  apphost.run.json
+cb94fc38504f6cd71133b2dcd1a240978ba3751ed4e66e548cd408f7cd213889  aspire.config.json
+79810615b4063be5474618fd002df934762fe9ccebb448537ce74ce23b319202  .gitignore
+Starting Aspire AppHost in the background...
+{
+  "appHostPath": "/app/apphost.cs",
+  "appHostPid": 445,
+  "cliPid": 337,
+  "dashboardUrl": "http://localhost:45829/login?t=[redacted-ephemeral-dashboard-token]",
+  "logFile": "/usr/local/logs/cli_20261105T162129109_detach-child_3e035d861a1d4169bdf73c77b4fb14b4.log"
+}
+Waiting for resource 'boardadmin' to be healthy...
+
+✅ Resource 'boardadmin' is healthy. (24.4s)
+Waiting for resource 'bingoboard' to be healthy...
+
+✅ Resource 'bingoboard' is healthy. (0.0s)
+Verified real Aspire-orchestrated raw Bingo, functional SQL/Redis roundtrip and unchanged source.
+Regraded the exact saved A01 Aspire model patch; no inference or solution repairs.
