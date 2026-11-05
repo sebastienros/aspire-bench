@@ -6,6 +6,13 @@ These are static Harbor tasks, not Vally conversion or dynamic benchmark
 rewriting. They retain the same seed-47 fault, source, prompt, oracle, grader,
 budgets and ordinary shell access.
 
+All seven final local images/oracles now passed, including real MCP resource/
+failure-log access. [dataset.jsonl](dataset.jsonl) pins the task revision
+`d3694ec111609a79073dcba35bc1f1b1c9517d8f`;
+[pilot-ledger.json](pilot-ledger.json) records distinct input fingerprints.
+One original Terra run per new condition is permitted; current model results
+are not implied by this local gate.
+
 | Cell | Skills | MCP | Purpose |
 |---|---|---|---|
 | `cli` | None | Off | Aspire CLI baseline |

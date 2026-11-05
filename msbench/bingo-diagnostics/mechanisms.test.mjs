@@ -9,6 +9,22 @@ const root = path.dirname(fileURLToPath(import.meta.url));
 const read = file => readFile(path.join(root, file), "utf8");
 const cells = ["aspire", "cli", "mcp", "skills-mcp", "generated-skills", "focused-trigger"];
 
+test("diagnostic dataset pins every locally validated unique condition without automatic repeats", async () => {
+    const rows = (await read("dataset.jsonl")).trim().split("\n").map(JSON.parse);
+    assert.deepEqual(rows.map(row => row.benchmark_variant), ["raw-scripted", ...cells]);
+    assert.equal(new Set(rows.map(row => row.task_repo_commit)).size, 1);
+    for (const row of rows) {
+        assert.match(row.task_repo_commit, /^[a-f0-9]{40}$/);
+        assert.equal(row.task_path, `msbench/bingo-diagnostics/tasks/${row.benchmark_variant}`);
+        assert.equal(row.task_repo, "https://github.com/sebastienros/aspire-bench");
+        assert.equal(row.variant_of_benchmark, "bingo-runtime-diagnosis");
+    }
+    const ledger = JSON.parse(await read("pilot-ledger.json"));
+    assert.equal(ledger.task_commit, rows[0].task_repo_commit);
+    assert.equal(ledger.automatic_repeats, false);
+    assert.equal(new Set(ledger.conditions.map(condition => condition.fingerprint)).size, 7);
+});
+
 test("diagnostic mechanism cells preserve actual fault, app, prompts, solution and grader", async () => {
     for (const cell of cells) {
         assert.equal(await read(`tasks/${cell}/instruction.md`), await read("tasks/aspire/instruction.md"));
