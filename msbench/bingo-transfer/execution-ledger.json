@@ -1,5 +1,5 @@
 {
-  "status": "local-direct-runtime-verified-remote-oracle-pending",
+  "status": "completed-two-original-model-conditions",
   "task_commit": "67f2ac195c653009972508203f84900368912fee",
   "model": "gpt-6.1-terra",
   "automatic_repeats": false,
@@ -69,8 +69,38 @@
       "variant": "aspire",
       "agent": "fix_validation",
       "model": "no_model",
-      "status": "submitted"
+      "status": "passed",
+      "reward": 1,
+      "exception": null,
+      "trial": "aspire__uz7U9Gz",
+      "receipt": "msbench/bingo-transfer/evidence/remote-aspire-oracle-result.json",
+      "receipt_sha256": "06619038ded740adef2b31b04bcab345d81f08a90ea0145e317c3b6d0c3037c2"
     }
   ],
-  "model_runs": []
+  "model_runs": [
+    {
+      "variant": "raw-scripted",
+      "fingerprint": "17d68ed4dd9e19bcbb2f7e5661c78f2de1405b6cea799b21d32f50aa1775126e",
+      "run_id": "2026110559505696",
+      "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110559505696",
+      "attempt_role": "original",
+      "status": "completed",
+      "actual_model_verified": true,
+      "submission_log": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/logs/x01-submit-raw-scripted.log",
+      "actual_vendor_cli": "1.0.99-0",
+      "reward": 1.0
+    },
+    {
+      "variant": "aspire",
+      "fingerprint": "decdc1dd1875967285000b3a60b07981f748399a2c9d09de44b02de093a2ce24",
+      "run_id": "2026110559509846",
+      "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110559509846",
+      "attempt_role": "original",
+      "status": "completed",
+      "actual_model_verified": true,
+      "submission_log": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/logs/x01-submit-aspire.log",
+      "actual_vendor_cli": "1.0.99-0",
+      "reward": 1.0
+    }
+  ]
 }

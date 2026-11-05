@@ -1,4 +1,4 @@
-# Evolution Terra pilot: interim assessment
+# Evolution Terra pilot and completed independent regrading
 
 Exactly four original model conditions ran, one per scenario/arm. All native
 call events identify `gpt-6.1-terra`; CLI provenance resolves 1.0.99-0.
@@ -7,7 +7,7 @@ No replacement/model rerun is authorized for a disappointing result.
 | Scenario | Arm | Native agent seconds | Original reward | Current assessment |
 |---|---|---:|---:|---|
 | F01 live catalog | Raw | 93.1 | 1 | Valid pass |
-| F01 live catalog | Aspire | 107.4 | 0 | Grader-scope defect; no-model replay pending |
+| F01 live catalog | Aspire | 107.4 | 0 | Exact unchanged source passes corrected local replay |
 | M01 schema evolution | Raw | 145.1 | 1 | Valid pass |
 | M01 schema evolution | Aspire | 271.9 | 1 | Valid pass |
 
@@ -42,12 +42,20 @@ baseline frontend never proxied producer import/call routes. Existing producer
 write/error behavior must be preserved at its admin origin, not newly invented
 at the player origin.
 
-The original reward 0 and native evidence are retained. The scientific response
-is a narrow grader correction and an independent replay of the exact saved
-four-file model patch in a clean fixture with fresh hidden state. Do not edit
-the model's solution, expand the prompt after the fact, resubmit inference,
-or label a replayed grader check as another model attempt. Until the replay
-passes, corrected success is **not** claimed.
+The original reward 0 and native evidence are retained. The narrow two-line
+grader correction and exact saved four-file model source were independently
+replayed in a clean fixture with fresh hidden state. The original v1 verifier
+reproduced the extra frontend 404-versus-400 failure; v2 then passed full
+SQL/Redis/catalog/filter/label/error and 43-row/user/OID/state preservation.
+No reference CatalogEndpoints implementation, model-source repair, prompt
+expansion or additional inference was used.
+
+The saved diff lacked a final LF and initially failed `git apply --check` before
+any source change. That failed transport attempt remains recorded. A separate
+copy appended exactly one LF, with new transport hash; resulting Git blobs and
+SHA-256 match the original model source. Local replay was aarch64 versus original
+x86_64, not the same cloud container or an extra model sample.
+[Detailed proof](evidence/f01-grader-v2.json) keeps these boundaries explicit.
 
 [pilot-results.json](pilot-results.json) preserves exact metrics, tokens/cost,
 original reward, hashes, normalization disclosures and assessment state.

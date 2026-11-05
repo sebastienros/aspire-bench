@@ -1,5 +1,5 @@
 {
-  "status": "model-runs-completed-one-grader-scope-review-pending",
+  "status": "complete-original-native-zero-preserved-one-corrected-local-replay",
   "task_commit": "25947262cabcae9efb3aacb502e8007a52bbbaa5",
   "model": "gpt-6.1-terra",
   "automatic_repeats": false,
@@ -198,8 +198,11 @@
       "actual_model_verified": true,
       "submission_log": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/logs/bingo-evolution-submit-f01-aspire.log",
       "actual_vendor_cli": "1.0.99-0",
-      "original_reward": 0.0,
-      "assessment": "grader-scope-defect-pending-no-model-replay"
+      "original_reward": 0,
+      "assessment": "unchanged-model-solution-passes-corrected-local-replay",
+      "corrected_functional_pass": true,
+      "regrade_receipt": "evidence/f01-grader-v2.json",
+      "regrade_is_new_model_sample": false
     },
     {
       "benchmark": "bingo-description-migration",

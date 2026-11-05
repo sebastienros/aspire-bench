@@ -565,3 +565,33 @@ It remains separate from any later Terra condition. Only after it passes can
 four new model conditions be submitted. See execution ledgers in each family.
 The [transfer/continuity review](TRANSFER-AND-CONTINUITY.md) records why eShop's
 raw parity is not presumed and genuine conversation continuation remains unmeasured.
+
+### 2026-11-05: completed adjudications and held-out observations
+
+The exact saved F01 source now passes full corrected grading in a clean local
+replay, which also reproduces original v1's overgrading failure. Both exact
+A01 sources likewise pass semantic package/physical-database/functional
+grading without solution repair. Original native zeros remain preserved,
+replays use aarch64 versus original x86_64, and no new model sample or faster
+agent time is invented. See [F01 proof](bingo-evolution/evidence/f01-grader-v2.json)
+and [A01 proof](bingo-adoption/evidence/a01-regrade-v2-report.json).
+
+X01's native remote oracle passed, then two unique Terra models both passed:
+raw [2026110559505696](https://msbenchapp.azurewebsites.net/run-analysis/2026110559505696),
+Aspire [2026110559509846](https://msbenchapp.azurewebsites.net/run-analysis/2026110559509846).
+Raw observed 49.5 s/20 tools/USD 0.0530; original-skill Aspire
+82.4 s/36 tools/USD 0.0951 with monitoring loaded. Preserve the slower result;
+no repeated raw/skills condition. One new combined skills/MCP follow-up is
+declared to test D01's promising interaction on the different fault.
+
+S01's native remote oracle also passed with two full apps, then two unique
+models were submitted:
+raw [2026110559660216](https://msbenchapp.azurewebsites.net/run-analysis/2026110559660216)
+and Aspire [2026110559664314](https://msbenchapp.azurewebsites.net/run-analysis/2026110559664314).
+Actual model/grade verification remains pending.
+
+P01's no-model diagnostic successfully exported safe progress/failure tails:
+setup fails specifically at DNS discovery before the private daemon. The exact
+resolver input/root cause is not yet asserted. A configured-loopback DNS
+compatibility fix is being developed with explicit transport tests, not a
+public-resolver fallback or a paid model retry.

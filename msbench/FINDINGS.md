@@ -617,11 +617,18 @@ frontend. The prompt requires the catalog at both origins and preserving
 existing producer behavior; original frontend write proxying did not exist.
 This is a grader-scope defect, not established agent failure.
 
-**Correction protocol:** Retain original reward/evidence, narrow legacy-write
+**Initial correction protocol:** Retain original reward/evidence, narrow legacy-write
 negative checks to their original admin origin, and replay the exact saved
 model patch against fresh external state without more inference. Do not
-silently convert 0 to 1 or alter the solution/prompt. The correction and
-replay remain pending; corrected success is not claimed yet.
+silently convert 0 to 1 or alter the solution/prompt.
+
+**Completed F01 adjudication:** The unchanged saved source now passes full v2
+functional/preservation grading in an independent local replay that also
+reproduces v1's overgrading failure. Source Git blobs/SHA-256 and the single
+transport-only EOF newline correction are recorded in
+[f01-grader-v2.json](bingo-evolution/evidence/f01-grader-v2.json).
+Original native 0 remains unchanged; no new model attempt or reference
+implementation was substituted.
 
 **Limits / status:** One concrete evaluation defect. A passing reference oracle
 can hide overgrading if its implementation does more than the user requested.
@@ -633,13 +640,13 @@ central-package immutability rule. Both solutions only added compatible
 orchestration package registrations without changing original dependencies.
 The [review](bingo-adoption/PILOT.md) narrows that restriction semantically and
 separates logical connection key `db` from a valid physical database name.
-Original 0 scores/patches are preserved; exact-source no-model replays remain
-required before corrected completion is claimed.
+Original 0 scores/patches are preserved; the exact-source no-model replay
+requirement was completed as recorded below.
 
 Both A01 actual Terra runs completed with no trial exception and measured
 412.8/535.7 seconds (original/generated); generated used fewer tool calls but
-was slower. Those metrics and original 0 scores remain recorded while replay
-is pending. No repeated inference is used to produce a preferred conclusion.
+was slower. Those metrics and original 0 scores remain recorded through
+adjudication. No repeated inference was used to produce a preferred conclusion.
 
 **Completed A01 adjudication:** Both byte-exact saved solutions now pass the
 [corrected external grader](bingo-adoption/evidence/a01-regrade-v2-report.json)
@@ -679,6 +686,14 @@ cross-host isolation, unrelated application transfer or statistical generalizati
 CLI/MCP, distinguish functional readiness from healthy reads, and require
 target-scoped repair plus unchanged other-workload evidence. Do not select by
 resource-name substring or normalize away authentication to simplify probes.
+
+**X01 model outcome:** Both original Terra solutions passed the native cloud
+functional/security/preservation contract. Raw took 49.5 s / estimated USD
+0.0530, original-skill Aspire 82.4 s / USD 0.0951; monitoring was loaded, and
+neither accessed protected grader paths. This shows narrow transfer feasibility,
+not an Aspire speed gain. A single additional combined skills/MCP condition
+is declared to test D01's mechanism under this different fault; original
+conditions will not be repeated.
 
 ## Recording future findings
 

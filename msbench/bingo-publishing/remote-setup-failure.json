@@ -1,0 +1,14 @@
+{
+  "run_id": "2026110558453858",
+  "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110558453858",
+  "agent": "fix_validation",
+  "model": "no_model",
+  "task_commit": "a206e498adc445865f05a49546a5e085956de0dd",
+  "trial": "aspire__pNxcTVU",
+  "model_executed": false,
+  "reward": null,
+  "observed": "Image built; outer task container created/started then exited1 during setup; original logs did not expose root cause",
+  "root_cause": "unknown-pending-sanitized-setup-diagnostic",
+  "native_result_sha256": "a18683adedb94c456bd5f03a4b292d5f9a6c8804fe69c1b28d08abade93b8e6a",
+  "evidence_path": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/cloud/publishing-portable-oracle/bingo-production-publishing-aspire.eval.x86_64.bingo-production-publishing-output/output/harbor_logs/jobs/2026-11-05__16-15-47/aspire__pNxcTVU/result.json"
+}

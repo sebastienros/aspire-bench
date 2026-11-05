@@ -36,8 +36,8 @@
       "variant": "aspire",
       "run_id": "2026110557444836",
       "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110557444836",
-      "original_reward": 0.0,
-      "assessment": "grader-scope-defect-pending-no-model-replay",
+      "original_reward": 0,
+      "assessment": "unchanged-model-solution-passes-corrected-local-replay",
       "actual_model": "gpt-6.1-terra",
       "actual_vendor_cli": "1.0.99-0",
       "exception": null,
@@ -62,7 +62,10 @@
       "raw_result_sha256": "f91724fcb75df0e696a25ef0bf3f2be4091c76eae1690e617fb4541cdb73aa41",
       "raw_trajectory_sha256": "91ae8718d073be862a6422ae19f9d811ca98e09b5cd4f2dff37096019a7dca2b",
       "invalid_escape_normalizations_in_memory": [],
-      "evidence_root": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/cloud/evolution-models/f01-aspire"
+      "evidence_root": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/cloud/evolution-models/f01-aspire",
+      "corrected_functional_pass": true,
+      "regrade_receipt": "evidence/f01-grader-v2.json",
+      "regrade_is_new_model_sample": false
     },
     {
       "scenario": "m01",
@@ -134,5 +137,6 @@
     "One observed model attempt per condition; no causal timing/population claims",
     "Do not count pending grader adjudication as a model failure or silently convert it into success",
     "Raw evidence retained; invalid tool-output escapes interpreted only in memory"
-  ]
+  ],
+  "status": "complete-original-native-zero-preserved-one-corrected-local-replay"
 }

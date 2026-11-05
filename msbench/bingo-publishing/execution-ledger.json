@@ -1,5 +1,5 @@
 {
-  "status": "public-input-local-runtime-passed-remote-oracle-pending",
+  "status": "diagnostic-remote-setup-validation-pending",
   "task_commit": "a206e498adc445865f05a49546a5e085956de0dd",
   "model": "gpt-6.1-terra",
   "automatic_repeats": false,
@@ -62,7 +62,10 @@
       "variant": "aspire",
       "agent": "fix_validation",
       "model": "no_model",
-      "status": "submitted"
+      "status": "failed-before-agent",
+      "reward": null,
+      "model_executed": false,
+      "exception_class": "RuntimeError"
     }
   ],
   "model_runs": []
