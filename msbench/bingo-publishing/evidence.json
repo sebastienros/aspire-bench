@@ -4,15 +4,17 @@
   "eligible_for_model_submission": false,
   "model_submission_gate": "Parent must verify native Harbor/CES execution of the final public-pinned task; direct local validation is not a native runner pass.",
   "completed_deployment": true,
+  "completed_deployment_scope": "Recorded public snapshot 1f9f961 only. The later setup-diagnostic changes are static-tested, not Docker/CES validated.",
   "portable_common_context": {
     "repository": "https://github.com/sebastienros/aspire-bench",
     "commit": "1f9f96148571f1b7343a9989df7776ac8cb78951",
     "path": "msbench/bingo-publishing/common",
     "github_resolution_verified": true,
-    "local_common_tree_matches": true,
+    "local_common_tree_matches": false,
     "docker_build_with_git_context_verified": true,
     "both_arms_direct_docker_runtime_verified": true,
-    "native_harbor_final_graph_verified": false
+    "native_harbor_final_graph_verified": false,
+    "pending_update": "The parent must publish and pin the setup-diagnostic common changes before its single no-model diagnostic job. Existing passing receipts still refer to 1f9f961."
   },
   "model_runs": [],
   "application_source": {
@@ -60,7 +62,7 @@
   ],
   "static_validation": {
     "command": "node --test msbench/bingo-publishing/experiment.test.mjs",
-    "passed_tests": 6,
+    "passed_tests": 9,
     "runtime_evidence": false
   },
   "observed_base_image_digests_during_failed_builds": {
@@ -196,6 +198,42 @@
     "docker_module_mtime_utc": "2026-10-14T23:29:29.134Z",
     "docker_context": "desktop-linux",
     "site_packages_modified_by_this_session": false
+  },
+  "remote_ces_oracle_attempts": [
+    {
+      "run_id": "2026110558453858",
+      "source": "coordinator report; original result/logs retained by coordinator",
+      "task_public_commit_prefix": "a206",
+      "arm": null,
+      "mode": "oracle-no-model",
+      "environment_image_built": true,
+      "container_created_and_started": true,
+      "phase": "environment-setup-before-agent",
+      "setup_exit_code": 1,
+      "agent_ran": false,
+      "native_grade": null,
+      "reward": null,
+      "root_cause": null,
+      "observed_log_scope": "Exported Compose-up failure reports container exit 1; setup stderr was redirected and not visible in the supplied export. /app/deployment absent.",
+      "model_result": false
+    }
+  ],
+  "diagnostic_followup": {
+    "scope": "Setup observability only; no speculative runtime fix or retry",
+    "runtime_validated": false,
+    "docker_invocations": 0,
+    "model_submissions": 0,
+    "trap": "Inherited ERR trap in entrypoint and setup, with phase, status, source basename and line; preserves original exit status.",
+    "stderr": "Descriptor 3 preserves container stderr across setup stdout/stderr redirection.",
+    "safe_artifacts": [
+      "/logs/environment/progress.log",
+      "/logs/environment/failures.jsonl",
+      "/logs/environment/setup-diagnostics.log"
+    ],
+    "raw_private_logs": "/opt/benchmark/private-logs; not declared as task artifacts",
+    "redaction": "Bounded setup/dockerd/info tails, sensitive lines removed, fixture credentials and URL credentials/query redacted; no command or environment dump.",
+    "next_action_owner": "coordinator",
+    "next_action": "Publish/pin changed common files and run one no-model diagnostic oracle, retrieving sanitized container stderr/environment artifacts on setup failure."
   },
   "durable_job_root": "/Users/sebastienros/.copilot/session-state/3efaa765-dfb1-4afd-b958-13b40879b4ec/files/p01-oracles",
   "fixture_failures_after_engine_recovery": [

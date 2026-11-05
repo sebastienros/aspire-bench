@@ -1,5 +1,5 @@
 schema_version = "1.3"
-artifacts = ["/app/deployment", "/app/apphost.cs"]
+artifacts = ["/app/deployment", "/app/apphost.cs", "/logs/environment"]
 
 [metadata]
 variant = "aspire"

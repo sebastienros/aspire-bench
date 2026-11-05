@@ -9,6 +9,9 @@ Earlier native Harbor fixture-development oracles also passed with an explicit
 local common override. No model run, push, PR or cloud provisioning was performed
 here. [evidence.json](evidence.json) separates all three evidence categories.
 **Native Harbor/CES execution remains a parent-owned gate before model submission.**
+The passing receipts refer to snapshot `1f9f961`; the subsequent setup-diagnostic
+follow-up described below has static tests only and must be published/repinned
+before the coordinator's diagnostic run.
 
 The parent published the exact final tasks at `a206e498adc445865f05a49546a5e085956de0dd`
 and submitted one representative **no-model** CES oracle,
@@ -156,7 +159,7 @@ The oracle therefore applies `.env.Production` with the supplied Production
 environment. Actual local prepare and application deployment exercised that
 environment-file convention.
 
-`node --test msbench/bingo-publishing/experiment.test.mjs` passes all six
+`node --test msbench/bingo-publishing/experiment.test.mjs` passes all nine
 structural tests. `node --check common/grade.mjs`, shell syntax checks and
 `git diff --check` pass. These are not substitutes for the runtime gate.
 
@@ -253,6 +256,41 @@ installation change; no causal claim about another actor or a version change is
 made. This session did not modify site-packages, Docker configuration or global
 tools. The direct fallback uses the same final task code but does not erase this
 runner limitation. No final Aspire native attempt was launched after it.
+
+### Remote setup failure and diagnostic-only follow-up
+
+The coordinator reported CES no-model oracle `2026110558453858`, public task
+revision prefix `a206`: the image built and its container was created/started,
+then setup exited 1 **before the agent**. No native grade or model result exists;
+`/app/deployment` was absent. The supplied export shows only Compose-up reporting
+the container exit, not the redirected setup stderr. The original result/export
+remains with the coordinator. This is separate from the earlier local native
+runner observation and does not invalidate or expand the recorded local passes.
+There is **no root-cause evidence yet**, so no DNS, filesystem, resource or
+application cause is inferred.
+
+The follow-up changes setup observability only:
+
+- Entrypoint and setup inherit an `ERR` trap that reports the exact exit status,
+  last setup phase, source basename and line, then preserves that status.
+- Descriptor 3 keeps container stderr available while normal setup output is
+  redirected. Major phases also write `/logs/environment/progress.log`.
+- On failure, a bounded reporter emits sanitized setup/dockerd/info tails to
+  container stderr and `/logs/environment/setup-diagnostics.log`, with structured
+  failure metadata in `/logs/environment/failures.jsonl`.
+- Raw logs remain under `/opt/benchmark/private-logs`, outside declared artifacts.
+  Sensitive log lines and URL credentials/query values are redacted; commands and
+  environment variables are not dumped. Both tasks declare `/logs/environment`
+  for artifact collection, including when deployment output does not exist.
+
+Synthetic non-Docker tests prove that the trap retains a nonzero failure code and
+surfaces redacted evidence despite normal stderr redirection. They also cover
+credential/URL/control-character redaction and both task artifact declarations.
+No Docker, model submission or retry was performed for this follow-up. The
+coordinator must publish/repin these common files and run its single no-model
+diagnostic job. Whether an infrastructure runner collects artifacts from an
+already-exited setup container remains a runner responsibility; declaring paths
+alone does not prove that transport. Container stderr supplies a second route.
 
 ### Concrete failures corrected
 
