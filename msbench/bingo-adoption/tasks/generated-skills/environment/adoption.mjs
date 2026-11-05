@@ -1,10 +1,10 @@
 import assert from "node:assert/strict";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile, readdir, readlink } from "node:fs/promises";
 import { hashes, unchanged } from "./hashes.js";
 import { verifyHttp } from "./http.js";
 import { command } from "./process.js";
 import { redisPingArgs } from "./redis.js";
-import { preservesPackageConfiguration, databaseFromConnectionString } from "./package-contract.mjs";
+import { preservesPackageConfiguration, databaseFromConnectionString, isApplicationBackend } from "./package-contract.mjs";
 
 const state = "/opt/benchmark/adoption-inputs.json";
 const mode = process.argv[2];
@@ -52,11 +52,20 @@ if (mode === "setup") {
     const postgres = owned.find(item => item.Name === `/${id}-postgres`);
     const redis = owned.find(item => item.Name === `/${id}-redis`);
     assert(postgres?.State.Running && redis?.State.Running);
-    const listeners = (await command("lsof", ["-t", `-iTCP:${new URL(urls.admin).port}`, "-sTCP:LISTEN"]))
-        .stdout.trim().split(/\s+/);
-    const backendPid = [...new Set(listeners)];
-    assert.equal(backendPid.length, 1, "Exactly one actual backend listener required");
-    const environment = Object.fromEntries((await readFile(`/proc/${backendPid[0]}/environ`, "utf8"))
+    const backendPids = [];
+    for (const pid of (await readdir("/proc")).filter(name => /^\d+$/.test(name))) {
+        let args, cwd;
+        try {
+            args = (await readFile(`/proc/${pid}/cmdline`, "utf8")).split("\0").filter(Boolean);
+            cwd = await readlink(`/proc/${pid}/cwd`);
+        } catch (error) {
+            if (["ENOENT", "ESRCH"].includes(error.code)) continue;
+            throw error;
+        }
+        if (isApplicationBackend(args, cwd)) backendPids.push(pid);
+    }
+    assert.equal(backendPids.length, 1, "Exactly one actual application backend required");
+    const environment = Object.fromEntries((await readFile(`/proc/${backendPids[0]}/environ`, "utf8"))
         .split("\0").filter(Boolean).map(entry => {
             const split = entry.indexOf("=");
             return [entry.slice(0, split), entry.slice(split + 1)];

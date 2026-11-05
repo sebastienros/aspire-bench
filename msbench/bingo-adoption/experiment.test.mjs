@@ -4,7 +4,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { hashes } from "../bingo/tasks/aspire/tests/hashes.js";
-import { preservesPackageConfiguration, databaseFromConnectionString } from "./tasks/aspire/environment/package-contract.mjs";
+import { preservesPackageConfiguration, databaseFromConnectionString, isApplicationBackend } from "./tasks/aspire/environment/package-contract.mjs";
 
 const root = path.dirname(fileURLToPath(import.meta.url));
 const task = path.join(root, "tasks/aspire");
@@ -75,4 +75,8 @@ test("adoption permits only compatible additive package metadata, not dependency
     assert.equal(databaseFromConnectionString("Host=localhost;Port=5432;Database=bingo;Password=not-printed"), "bingo");
     assert.equal(databaseFromConnectionString("Host=localhost;Database=db"), "db");
     assert.throws(() => databaseFromConnectionString("Host=localhost;Password=not-printed"));
+    assert(isApplicationBackend(["dotnet", "/app/src/BingoBoard.Admin/bin/Debug/net10.0/BingoBoard.Admin.dll"], "/app/src/BingoBoard.Admin"));
+    assert(isApplicationBackend(["/app/src/BingoBoard.Admin/bin/Debug/net10.0/BingoBoard.Admin"], "/app/src/BingoBoard.Admin"));
+    assert(!isApplicationBackend(["dcp", "http-proxy"], "/app/src/BingoBoard.Admin"));
+    assert(!isApplicationBackend(["dotnet", "BingoBoard.Admin.dll"], "/neighbor-app/src/BingoBoard.Admin"));
 });

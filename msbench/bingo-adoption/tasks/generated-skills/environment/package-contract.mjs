@@ -28,3 +28,8 @@ export function databaseFromConnectionString(connection) {
         "Real backend database name required");
     return fields.database;
 }
+
+export function isApplicationBackend(args, cwd) {
+    return cwd.startsWith("/app/")
+        && args.some(arg => /(?:^|\/)BingoBoard\.Admin(?:\.dll)?$/.test(arg));
+}
