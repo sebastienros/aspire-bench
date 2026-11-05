@@ -94,7 +94,10 @@ The corrected [portable dataset](portable-dataset.jsonl) pins task revision
 in the original dataset/ledger. One **oracle-only** remote validation,
 [2026110504832466](https://msbenchapp.azurewebsites.net/run-analysis/2026110504832466),
 was submitted to exercise the new graph before model replacements. It runs
-`fix_validation/no_model`, not Terra; its result is pending.
+`fix_validation/no_model`, not Terra, and passed native reward 1 with no
+exception, real fault/recovery and all negative cases. The
+[native receipt](evidence/remote-portable-oracle-result.json) is preserved.
+This clears the remote packaging gate without broad filesystem permissions.
 
 Local Docker work is serialized after recovery; inspect actual MCP schemas/
 backchannel and skill advertisement before inference. The original model/client

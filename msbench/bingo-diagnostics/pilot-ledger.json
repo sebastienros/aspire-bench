@@ -1,5 +1,5 @@
 {
-  "status": "infrastructure-failed-portable-graph-fix-pending-validation",
+  "status": "portable-graph-validated-awaiting-labeled-replacements",
   "task_commit": "d3694ec111609a79073dcba35bc1f1b1c9517d8f",
   "model": "gpt-6.1-terra",
   "one_original_attempt_per_condition": true,
@@ -343,6 +343,14 @@
     "model": "no_model",
     "variant": "generated-skills",
     "task_commit": "26720447747ed4d007f667775a76e0ad000c8605",
-    "status": "submitted"
+    "status": "passed",
+    "reward": 1,
+    "exception": null,
+    "trial": "generated-skills__DNHysJR",
+    "evidence": {
+      "remote-portable-oracle-result.json": "958f215c7e053af5694dc6c5a422c31cc37c6705c523f236775651d6a5d0e7e6",
+      "remote-portable-oracle-oracle.txt": "eb9462cec9efb5899cacef2bdf52cec907bc26c294567332c4ba19acdef8e482",
+      "remote-portable-oracle-verifier.txt": "84a2a78491dd80111b77f1c7ffdc09c04ed1f255f2993c03850fb9e73672cc59"
+    }
   }
 }

@@ -447,6 +447,13 @@ The changed graph must be validated before any labeled infrastructure
 replacement. Other evolving/deployment/transfer task families are being checked
 for the same remote portability issue before first submission.
 
+Remote oracle-only graph validation
+[2026110504832466](https://msbenchapp.azurewebsites.net/run-analysis/2026110504832466)
+passed reward 1/no exception on the portable generated-skill cell, including
+actual fault, negative and recovery checks. It used no model. This clears the
+packaging gate for explicitly labeled infrastructure replacements; original
+seven no-model failure receipts remain distinct and are not counted as samples.
+
 The next held-out transfer case is now being implemented in a separate
 origin-backed worktree:
 `/Users/sebastienros/.copilot/copilot-worktrees/aspire-bench/sebros-vigilant-pancake`,
