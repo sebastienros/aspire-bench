@@ -1,0 +1,124 @@
+{
+  "scenario": "X01",
+  "variant": "skills-mcp",
+  "status": "single-native-harbor-local-oracle-passed",
+  "mode": "native-harbor",
+  "validated_task_commit": "7c5f6f9d908bddae282b9dda9de8ab15bdcd1e88",
+  "validated_x01_public_payload": "67f2ac195c653009972508203f84900368912fee",
+  "job": "x01-skills-mcp-native-v1",
+  "job_id": "dac33aae-2ba5-4021-9f0a-c51e82f91272",
+  "trial": "skills-mcp__cGNcswQ",
+  "trial_id": "856758a1-ec47-46ac-b8e4-813ced3e5b90",
+  "native_task_checksum": "8e6dc5cd214df1f3fe3a462644629f0a035625db15230b8f739cc5ec6ddbd12e",
+  "log_directory": "/Users/sebastienros/.copilot/session-state/1526d9f0-55be-4ead-a2e3-c0ade15b900f/files/jobs/x01-skills-mcp-native-v1/skills-mcp__cGNcswQ",
+  "command": "harbor run --path msbench/bingo-transfer/tasks/skills-mcp --agent oracle --jobs-dir /Users/sebastienros/.copilot/session-state/1526d9f0-55be-4ead-a2e3-c0ade15b900f/files/jobs --job-name x01-skills-mcp-native-v1 --n-concurrent 1 --force-build",
+  "host": {
+    "harbor": "0.20.0",
+    "docker": "29.9.2 linux/arm64",
+    "disk_available_before": "142 GiB",
+    "global_runner_changes": false
+  },
+  "resource_limits_observed": {
+    "container_id_prefix": "8816ef20f6a2",
+    "container_name": "skills-mcp__cgncswq__env-main-1",
+    "running_during_check": true,
+    "nano_cpus": 4000000000,
+    "memory_bytes": 8589934592,
+    "real_incident_ready_marker": true
+  },
+  "budgets_seconds": {
+    "agent": 900,
+    "verifier": 300
+  },
+  "native_result": {
+    "agent": "oracle",
+    "agent_version": "1.0.0",
+    "model": null,
+    "reward": 1.0,
+    "exception_info": null,
+    "started_at": "2026-11-05T16:49:44.635485Z",
+    "finished_at": "2026-11-05T16:50:34.314907Z",
+    "agent_execution_started_at": "2026-11-05T16:50:23.293690Z",
+    "agent_execution_finished_at": "2026-11-05T16:50:30.057886Z",
+    "verifier_started_at": "2026-11-05T16:50:30.926081Z",
+    "verifier_finished_at": "2026-11-05T16:50:32.127092Z"
+  },
+  "live_mcp_preflight": {
+    "success_stdout": "Verified live X01 MCP AppHost, exact held-out resources and actual NOPERM console logs.",
+    "verified_by_executed_assertions": {
+      "stdio_initialize_and_required_tools": true,
+      "discovered_and_selected_apphost": "/app/apphost.cs",
+      "resource_identities": ["cedar83-quill", "cedar83-ledger", "steward", "mosaic"],
+      "resource_console_log_query": "steward",
+      "actual_noperm_logs_observed": true
+    },
+    "evidence_basis": "successful oracle stdout plus exact validated preflight source; full separate environment JSON not persisted by Harbor artifact declaration",
+    "separate_environment_json_retained": false,
+    "raw_response_digests_available_after_cleanup": false,
+    "model_mcp_use_proven": false,
+    "harbor_model_mcp_bridge_proven": false
+  },
+  "negative_rejections": [
+    "no-op/read-only health",
+    "wrong-neighbor repair while target writes remain denied",
+    "source/guidance shortcut",
+    "substituted endpoints",
+    "lost original cache data",
+    "lost original called state",
+    "changed original SQL data",
+    "neighbor data modification",
+    "incomplete original permission recovery",
+    "wrong-neighbor ACL denial",
+    "wrong-neighbor action hidden by restoring final ACL",
+    "re-armed unchanged fault"
+  ],
+  "oracle_stdout": "Verified live X01 MCP AppHost, exact held-out resources and actual NOPERM console logs.\nRejected no-op/read-only health\nRejected wrong-neighbor repair while target writes remain denied\nVerified X01: actual HTTP/SQL/Redis effects, exact original ACL/credentials/TLS/data and in-place target recovery.\nRejected source/guidance shortcut\nRejected substituted endpoints\nRejected lost original cache data\nRejected lost original called state\nRejected changed original SQL data\nRejected neighbor data modification\nRejected incomplete original permission recovery\nRejected wrong-neighbor ACL denial\nRejected wrong-neighbor action hidden by restoring final ACL\nRejected re-armed unchanged fault\nVerified X01: actual HTTP/SQL/Redis effects, exact original ACL/credentials/TLS/data and in-place target recovery.\n",
+  "verifier_stdout": "Verified X01: actual HTTP/SQL/Redis effects, exact original ACL/credentials/TLS/data and in-place target recovery.\n",
+  "retained_files": {
+    "result.json": {
+      "bytes": 3702,
+      "sha256": "46c29ccc41816487f89079a00c4a8d9f9f3c41d09d72402880f5243da053dc07"
+    },
+    "agent/oracle.txt": {
+      "bytes": 800,
+      "sha256": "3cc36f5efede9e7d8a375efa0069ffa65b997cff89d6e7dc565ea8aa2acd6ee5"
+    },
+    "verifier/test-stdout.txt": {
+      "bytes": 115,
+      "sha256": "6c01cc39367b86a973355f6ab3513b028433553deaff2f323d15ed0c45930764"
+    },
+    "verifier/reward.txt": {
+      "bytes": 2,
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    "trial.log": {
+      "bytes": 569,
+      "sha256": "0da6ba7c39dfa70e8255ef983c8ebb6fe99ef2085eb70cf8a7532f0c6f03e00e"
+    },
+    "artifacts/manifest.json": {
+      "bytes": 336,
+      "sha256": "ebbdc10528e51dbb0ec1a82422892c9a10e6f6c1e318fe10aaf6bd346303546a"
+    }
+  },
+  "validated_task_sha256": {
+    "environment/Dockerfile": "e7416b8df3a80745d4060c1bc82189e38edb3bbbc2f062c8648ebb757c96294a",
+    "environment/docker-compose.yaml": "a11054e36c4301076b925ea48c79eebbc860d8a84399205c982a13bca41c19c9",
+    "instruction.md": "1f212ae9742c0f06d575508c01e0535f9b786e6252481f32368e165b5019e7d4",
+    "solution/mcp-probe.mjs": "b79a3fba3b3043a8231430a7f19acc64f1fb03d3419025f94ce9a236c40deb25",
+    "solution/negative.mjs": "6d9d0b9225f76cb5e4453c14e23ee5ab030b38ffcc2420878325dd0aea68ee26",
+    "solution/solve.sh": "ab5ff3542996f4b90ae3e7d679aee48459b8580a4586e767b72fce809cfadb7d",
+    "task.toml": "6a9a10731f9d4e05af9e17eb30744a13d13e0b81177592083af63e36a75e8e3b",
+    "tests/test.sh": "90fbdaedb21b8fd7397fa8b2a315f39fcb186c9aca35ed779816bada8d976e6c"
+  },
+  "retention_limitation": "Harbor collected only endpoint metadata under declared artifacts. The separate incident, negative, MCP JSON and server-stderr files under /logs/environment were not auto-collected before cleanup; no claim to preserved bytes or per-response digests for those files. Native oracle/verifier/result and exact tested task source are durable.",
+  "cleanup": {
+    "native_harbor_removed_owned_container": true,
+    "no_running_docker_containers_at_return": true,
+    "sole_slot_returned_to_parent": true,
+    "direct_fallback_used": false,
+    "additional_local_repeats": 0
+  },
+  "remote_oracles": [],
+  "model_runs": [],
+  "scope": "one native local oracle confirms actual MCP backchannel/log capability and unchanged full grade; no remote/model tool-use or mechanism-transfer performance inference"
+}

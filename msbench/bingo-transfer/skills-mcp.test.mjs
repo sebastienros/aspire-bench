@@ -130,3 +130,26 @@ test("oracle preflight rejects schemas-only, wrong AppHost/resource ownership an
         await assert.rejects(readFile(path.join(directory, "evidence.json")), { code: "ENOENT" });
     });
 });
+
+test("single native local oracle receipt binds exact task and distinguishes live capability from model use", async () => {
+    const receipt = JSON.parse(await read("evidence/skills-mcp-local.json"));
+    assert.equal(receipt.mode, "native-harbor");
+    assert.equal(receipt.native_result.reward, 1);
+    assert.equal(receipt.native_result.exception_info, null);
+    assert.equal(receipt.native_result.model, null);
+    assert.equal(receipt.resource_limits_observed.nano_cpus, 4_000_000_000);
+    assert.equal(receipt.resource_limits_observed.memory_bytes, 8 * 1024 ** 3);
+    assert.equal(receipt.live_mcp_preflight.verified_by_executed_assertions.actual_noperm_logs_observed, true);
+    assert.equal(receipt.live_mcp_preflight.model_mcp_use_proven, false);
+    assert.equal(receipt.live_mcp_preflight.harbor_model_mcp_bridge_proven, false);
+    assert.equal(receipt.live_mcp_preflight.separate_environment_json_retained, false);
+    assert.equal(receipt.negative_rejections.length, 12);
+    assert.equal(digest(receipt.oracle_stdout), receipt.retained_files["agent/oracle.txt"].sha256);
+    assert.equal(digest(receipt.verifier_stdout), receipt.retained_files["verifier/test-stdout.txt"].sha256);
+    assert.equal(receipt.cleanup.direct_fallback_used, false);
+    assert.equal(receipt.cleanup.additional_local_repeats, 0);
+    assert.deepEqual(receipt.model_runs, []);
+    for (const [file, hash] of Object.entries(receipt.validated_task_sha256)) {
+        assert.equal(digest(await readFile(new URL(`tasks/skills-mcp/${file}`, root))), hash, file);
+    }
+});

@@ -1,9 +1,10 @@
 # One additional X01 condition: original skills plus MCP
 
-**Status: static preparation only; live MCP/local/remote gates pending.** No
-Docker or model run is authorized by this change. The parent owns the sole local
-Docker slot decision, independent remote oracle and at most one new low-budget
-Terra submission. Do not rerun the original raw or skills-only conditions.
+**Status: the single native Harbor local oracle passed, including live MCP.
+Remote/model gates remain pending.** The explicit parent sole-slot grant preceded
+runtime work; Harbor removed its runner and the slot was returned. The parent
+owns the independent remote oracle and at most one new low-budget Terra
+submission. Do not rerun the original raw or skills-only conditions.
 
 This follow-up asks whether the previously promising D01 **combined skills+MCP
 mechanism** transfers to X01's genuinely different ACL-denial fault/name instance.
@@ -86,7 +87,42 @@ The parent must independently verify a published Git-pinned remote oracle
 before the one new model condition. Record actual model/tool use and null or
 negative results without retries toward a preferred result.
 
-[Preparation manifest](evidence/skills-mcp.json) separates source/protocol/static
-facts from still-pending live availability and model-use evidence. The existing
-F14 and paired runtime receipts remain historical records, not this new arm's
-success report.
+[Manifest](evidence/skills-mcp.json) separates static facts, proved local MCP
+capability and still-pending model-use evidence. The existing F14 and paired
+runtime receipts remain historical records, not this new arm's success report.
+
+## Actual single native local gate, 2026-11-05
+
+Job `x01-skills-mcp-native-v1`, trial `skills-mcp__cGNcswQ`, used native
+Harbor 0.20.0 with `--agent oracle --n-concurrent 1 --force-build`. Unlike the
+earlier cells' historical metadata-only wrapper anomaly, this attempt actually
+built/started its container, passed incident readiness, executed the live
+preflight and all 12 negatives, and completed the unchanged external verifier:
+**reward 1, no exception**. Docker inspection confirmed 4 CPU and 8 GiB. No
+direct fallback, second attempt, model, old-arm rerun, global runner edit,
+shared cleanup or push occurred.
+
+[Native receipt](evidence/skills-mcp-local.json) records the exact native
+trial/task checksum, source commit, per-task-file SHA-256, timestamps, oracle
+and verifier output and checksums/paths. The successful preflight output is
+emitted only after actual stdio initialization, exact `/app/apphost.cs`
+discovery/selection, held-out resource queries and observed NOPERM logs; the
+executed source and stdout therefore bind those live assertions. All 12
+negative results and the final full-grade success are in the durable native
+`agent/oracle.txt`; `verifier/reward.txt` and native `result.json` independently
+record the reward.
+
+**Retention limitation:** the unchanged task artifact declaration collects
+endpoint metadata, not arbitrary `/logs/environment` files. Harbor's automatic
+cleanup did not retain the separate incident/negative/MCP JSON or server-stderr
+files. This report does not claim their bytes or per-response digests survived.
+Only the actual successful assertions, native outputs/results and exact tested
+source are preserved. No replay was made solely to recover richer artifacts,
+and no post-pass task mutation invalidates the tested checksum.
+
+This proves live local MCP AppHost/resource/log capability, not model MCP
+selection/use, Harbor-to-model bridge execution, paid-task completion, mechanism
+transfer performance or statistical generalization. Those remain the parent's
+remote-oracle/one-unique-condition responsibilities. The original 19 checks
+and their receipt/archive hashes remain unchanged; five added checks include
+the new runtime-bound native receipt (24 total).
