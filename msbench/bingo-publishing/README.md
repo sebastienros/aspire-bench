@@ -1,13 +1,21 @@
 # P01: Bingo isolated local publishing
 
-**Both final public-input local deployment oracles pass.** Raw and Aspire build
+**Both original Terra production-publishing runs passed.**
+Raw observed 144.4 s/36 tools/USD 0.09848; Aspire 324.5 s/60 tools/USD 0.14063.
+There is no observed Aspire speed or cost advantage in this one-sample pair.
+[Model report](PILOT.md) separates actual model results from the local/remote
+oracle history below.
+
+Both final public-input local deployment oracles also pass. Raw and Aspire build
 from the same published common/business snapshots, run real production
 containers, and pass their behavioral and negative cases. The final validation
 used the coordinator-approved **direct Docker fallback**, not a native Harbor
 pass: a native final attempt stalled in readiness without a task container.
 Earlier native Harbor fixture-development oracles also passed with an explicit
-local common override. No model run, push, PR or cloud provisioning was performed
-here. [evidence.json](evidence.json) separates all three evidence categories.
+local common override. Those local validation jobs did not execute a model or
+provision a cloud deployment. [evidence.json](evidence.json) separates local
+development, public-input direct validation, final native remote validation
+and subsequent actual model outcomes.
 **The final native remote oracle now passes.**
 Public-input passing receipts refer to snapshot `1f9f961`. Subsequent local DNS
 relay fixes also pass both production oracles, but use an explicit local common
@@ -19,11 +27,11 @@ passed with reward 1/no exception using [relay-dataset.jsonl](relay-dataset.json
 Its exported DNS plan proves actual configured `127.0.0.11`, relayed through
 private `172.16.0.1`; progress reaches ready and the full production verifier passes.
 [Receipt](evidence/final-remote-oracle.json) binds native result/output hashes.
-The two original Terra conditions are now submitted: raw
+The two original Terra conditions then both passed: raw
 [2026110562064652](https://msbenchapp.azurewebsites.net/run-analysis/2026110562064652)
 and Aspire
 [2026110562064656](https://msbenchapp.azurewebsites.net/run-analysis/2026110562064656).
-Submission is not yet a model-execution or outcome claim. Intermediate diagnostic builds at
+Actual model call events and CLI provenance were verified. Intermediate diagnostic builds at
 `648f323`, earlier public production receipts at `1f9f961` and the new final
 relay image builds have separate entries in the evidence manifest.
 

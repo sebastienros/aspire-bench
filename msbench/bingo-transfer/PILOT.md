@@ -20,14 +20,33 @@ application/model generalization. The original-skills Aspire sample was slower
 and more expensive; that result is retained rather than repeated to seek a win.
 
 D01's promising interaction was **skills plus MCP**, not skills alone. One
-additional, genuinely new X01 combined condition is being prepared to test that
-mechanism on this different fault family. Its app/prompt/grade will remain
-identical and model tool use will not be forced. This is a declared follow-up,
-not another raw/skills-only trial or an independent application sample.
-No combined result is asserted before its local/remote gates and model run.
+additional, genuinely new X01 combined condition was declared and executed
+after its local and independent remote gates. App/prompt/grade remained
+identical and model tool use was not forced. This is a later exploratory
+follow-up, not another raw/skills-only trial or an independent application
+sample.
+
+| New condition | Native agent seconds | Tool calls | Runner cost USD |
+|---|---:|---:|---:|
+| Aspire + original skills + MCP | 98.645066 | 47 | 0.1173459 |
+
+Run [2026110562064654](https://msbenchapp.azurewebsites.net/run-analysis/2026110562064654)
+passed native reward 1/no exception with the same verified model/client.
+The agent loaded the router and monitoring, then actually used **nine MCP
+calls** across resources, traces, structured logs and console logs. All nine
+completed successfully; actual NOPERM appeared in the log responses. No
+protected-path access was observed. This trajectory required no JSON escape
+normalization.
+
+Capability and natural MCP use therefore transfer to this fault, but the
+observed timing advantage does **not**: combined was slower than both
+original-skill Aspire (82.4 s) and raw (49.5 s), and cost more. Nine real calls
+are not by themselves an efficiency benefit. No repeat was made to seek a win.
+[SKILLS-MCP.md](SKILLS-MCP.md) retains the exact protocol, source and capability
+gates separately from this measured model result.
 
 [Execution ledger](execution-ledger.json) links the representative native
-remote oracle and two model run IDs.
+remote oracles and three unique model run IDs.
 [pilot-results.json](pilot-results.json) preserves exact metrics, tokens,
 original results/trajectory hashes and normalization disclosures. Costs are
 runner estimates, not billing, and sample size is one per condition.

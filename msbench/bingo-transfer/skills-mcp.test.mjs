@@ -11,6 +11,30 @@ const root = new URL("./", import.meta.url);
 const read = file => readFile(new URL(file, root), "utf8");
 const published = "67f2ac195c653009972508203f84900368912fee";
 
+test("combined dataset preserves old rows and binds only the new selected condition to its remote gate", async () => {
+    const parse = text => text.trim().split("\n").map(line => JSON.parse(line));
+    const old = parse(await read("portable-dataset.jsonl"));
+    const rows = parse(await read("combined-dataset.jsonl"));
+    const ledger = JSON.parse(await read("execution-ledger.json"));
+    const receipt = JSON.parse(await read("evidence/final-remote-oracle.json"));
+    assert.deepEqual(rows.slice(0, old.length), old);
+    assert.equal(rows.length, old.length + 1);
+    const added = rows.at(-1);
+    assert.equal(added.benchmark_variant, "skills-mcp");
+    assert.equal(added.default_variant, "raw-scripted");
+    assert.equal(added.task_repo_commit, receipt.task_commit);
+    assert.equal(receipt.reward, 1);
+    assert.equal(receipt.exception, null);
+    assert.equal(receipt.model_executed, false);
+    assert.equal(receipt.live_mcp_preflight_passed, true);
+    const condition = ledger.conditions.find(row => row.variant === "skills-mcp");
+    assert.equal(condition.task_commit, receipt.task_commit);
+    for (const [file, hash] of Object.entries(condition.condition.task_files)) {
+        assert.equal(digest(await readFile(new URL(`tasks/skills-mcp/${file}`, root))), hash, file);
+    }
+    assert.equal(new Set(ledger.model_runs.map(row => row.fingerprint)).size, ledger.model_runs.length);
+});
+
 test("unique combined cell changes only native/Harbor MCP access, not prompt/grade/negative contracts/budgets", async () => {
     for (const file of ["instruction.md", "tests/test.sh", "solution/negative.mjs"]) {
         assert.equal(await read(`tasks/skills-mcp/${file}`), await read(`tasks/aspire/${file}`), file);

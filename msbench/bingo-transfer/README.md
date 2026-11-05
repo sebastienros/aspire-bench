@@ -1,11 +1,13 @@
 # Bingo held-out fault/name transfer: X01 / reserved F14
 
-**Status: both local direct-Docker oracle/verifier gates passed; native Harbor,
-cloud and model gates remain separate.**
-Historical D01 tasks and their seven passing
-local oracles remain untouched and are not rerun. No model run, PR or push is
-performed by this child. The parent owns task pinning and at most one original
-`gpt-6.1-terra` attempt per new arm after both local gates.
+**Status: all three unique native cloud Terra conditions passed.**
+[Model report](PILOT.md) records raw 49.5 s, original-skill Aspire 82.4 s and
+the later combined skills/MCP condition 98.6 s. Combined actually used nine
+successful MCP calls, but did not transfer D01's timing advantage.
+The original-pair local validation below used direct Docker; the later combined
+cell also has its own native local and independent remote MCP gates.
+Historical D01 tasks/oracles and original X01 results remain unchanged.
+No identical model condition was rerun.
 
 The later parent-directed S01 pair lives separately in
 [`../bingo-isolation`](../bingo-isolation); it does not change this X01 condition.
@@ -148,7 +150,8 @@ These are fixture/grader proofs, not native Harbor/cloud/model results or
 agent-performance timings.
 
 [F14.json](evidence/F14.json) is the reserved evidence entry and provenance
-record. It has no model results. This condition tests one new held-out
+record. That historical local manifest has no model results; current results
+are recorded separately in [pilot-results.json](pilot-results.json). This condition tests one new held-out
 fault-family/name instance within the original application, **not independent-app
 transfer or statistical generalization** and not an Aspire advantage.
 

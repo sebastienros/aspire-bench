@@ -4,17 +4,20 @@ Living protocol, worktree/artifact ledger, execution log, and decision register.
 Started 2026-11-04. This document distinguishes planned experiments from executed
 evidence; pending work is not a product improvement or a positive result.
 
-**Execution status:** Nineteen unique Terra model conditions have executed:
-I01 (2), D01 (7), F01/M01 (4), A01 (2), X01 (2), and S01 (2).
+**Execution status: the bounded pilot is complete and published.**
+Twenty-two unique Terra model conditions executed:
+I01 (2), D01 (7), F01/M01 (4), A01 (2), X01 (3), S01 (2), and P01 (2).
 Three original native zeros are preserved alongside successful exact-source
 local regrades under corrected F01/A01 graders, not overwritten.
 The complete source-built managed Bingo baseline and empty-JSON contract fix
 are verified. P01's final public relay graph and one new X01 combined skills/MCP
-condition have passed local and independent native remote no-model gates.
-Only the three remaining prospective model conditions are submitted and running;
-submission is not counted as verified model execution.
-See the latest execution/recovery ledger below; the earlier storage block is
-retained as history, not the current engine status.
+condition passed local and independent native remote no-model gates before
+their three original model attempts, which all passed. All actual model/CLI
+identities and final public trace hashes are recorded. No condition was rerun
+to obtain a better result.
+Earlier storage/setup blocks and pending-language execution entries are retained
+as dated history, not current state. Genuine conversation continuation and
+cross-application/model generalization remain explicitly unmeasured.
 
 ## Objective and current answer
 
@@ -27,16 +30,84 @@ Current evidence supports directly discoverable executable workflows, not a
 general claim that Aspire beats well-supported raw development. See
 [FINDINGS.md](FINDINGS.md) and the original experiment reports.
 
+## Completed pilot: result index
+
+All observations below use verified `gpt-6.1-terra`, Copilot CLI `1.0.99-0`,
+the same packaged runner, fresh single-step conversations and 900/300-second
+agent/verifier budgets. They are **one sample per unique condition**, not
+replicates or significance estimates. Timings are native agent durations;
+infrastructure/setup/oracle/replay durations are excluded.
+
+| Scenario / report | Conditions | Raw seconds | Aspire seconds / outcome |
+|---|---:|---:|---|
+| [I01 routing repair](bingo-iteration/README.md#completed-terra-pilot) | 2 | 74.5 | 80.7; both native passes, no Aspire tools used |
+| [D01 false-health diagnosis](bingo-diagnostics/PILOT.md) | 7 | 72.4 | Original skills 94.1; combined skills/MCP 68.1; all seven native passes |
+| [F01 live catalog](bingo-evolution/PILOT.md) | 2 | 93.1 | 107.4; original native zero preserved, unchanged source passes corrected local grader |
+| [M01 additive migration](bingo-evolution/PILOT.md) | 2 | 145.1 | 271.9; both native passes, old rows/OIDs/state preserved |
+| [A01 cold adoption](bingo-adoption/PILOT.md) | 2 | Not a raw comparison | Original/generated skills 412.8/535.7; both original native zeros preserved, unchanged sources pass corrected local grading |
+| [X01 held-out ACL fault](bingo-transfer/PILOT.md) | 3 | 49.5 | Original skills 82.4, combined 98.6; all native passes, combined genuinely uses nine MCP calls |
+| [S01 two complete apps](bingo-isolation/PILOT.md) | 2 | 56.4 | 68.4; both native passes and preserve the other app |
+| [P01 production publishing](bingo-publishing/PILOT.md) | 2 | 144.4 | 324.5; both native passes with real Production .NET/nginx/SignalR/SQL/Redis |
+
+There are **19 native reward-1 records and three grader-invalid native zeros**.
+The three exact-source successful replays are separate local ARM64 adjudication
+evidence for original cloud x64 sources, not new model samples or rewritten
+native grades. See [F01](bingo-evolution/evidence/f01-grader-v2.json) and
+[A01](bingo-adoption/evidence/a01-regrade-v2-report.json). Original agent times
+and costs remain unchanged. A01's generated source retains its original
+plaintext choice; functional acceptance is not production-security equivalence.
+
+Total runner-reported model cost for these 22 conditions is **USD 2.48302085**,
+not an independently billed amount. It excludes historical startup/health
+experiments, all infrastructure/oracle/replay work, optional analysis, and
+coordinator/child credits. D01's seven original setup failures executed no model;
+their labeled replacements, not the failures, are the seven samples above.
+All three final model trajectories parsed without escape normalization;
+earlier D01 normalizations retain their separate disclosures and raw hashes.
+
+**Answer:** This portfolio does not demonstrate a general Aspire speed/cost
+advantage over strong raw scripts. D01's combined sample was 4.3 seconds faster
+than raw with nearly equal estimated cost, but X01's genuinely used combined
+MCP workflow was slower than both prior arms. This is capability/use transfer,
+not transfer of an efficiency advantage. Generated adoption used fewer calls
+but took longer. Correctness passed under the stated/adjudicated contracts,
+without an observed Aspire correctness advantage on the matched pairs.
+
+### Concrete changes and evidence boundaries
+
+| Change / recommendation | Implemented or measured proof |
+|---|---|
+| Emit valid empty JSON for a successful empty resource snapshot | [Local source fix](source-builds/empty-json/report.md), branch `sebros/agentic-empty-json`, change `fafe6482`: 66 focused Debug/Release cases and matched binary proof, 0 to 22 stdout bytes; no upstream merge or measured agent speed claim |
+| Make the complete known-target workflow directly discoverable | Startup/specific health recipes reduce discovery in their original experiments; generic CLI health guidance was slower. Keep routing/safety coverage, avoid mandatory broad discovery/reporting, and use exact version-matched endpoint/resource schemas |
+| Offer operation-aware, bounded MCP diagnosis rather than forcing more tool calls | D01 and X01 actually consume MCP/logs. X01's nine successful calls exposed NOPERM but cost more time; installed/advertised/reachable/used/useful/faster remain separate facts |
+| Provide a complete version-matched production publishing recipe | P01 exposes 60 versus 36 tools and substantial API discovery. Explicit image tags, `.env.Production`, dashboard/topology and external ownership conventions are locally/remote validated; a recipe speed improvement itself has not been measured |
+| Grade requested behavior and semantic configuration, not reference text | Corrected F01 origins and A01 additive dependency/actual physical-DB checks; original zeros, exact patches, one transport-only final-LF normalization and all unchanged-source replay provenance retained |
+
+The [complete managed x64 source payload](source-builds/aspire-managed-baseline.json)
+and six matching packages passed normal extraction and real Bingo
+start/wait/describe/HTTP/stop. Its 312,642,722-byte archive was rehashed at closeout
+to `ba7ac0f96774050cd82e969bae726233f556b138d1054899f1fa215a72613c14`.
+This is a nonshipping managed/untrimmed build, not NativeAOT performance parity;
+the model portfolio consistently uses CLI/Hosting 13.6.0.
+
+The pilot does not establish second-application/model transfer, editor-owned
+or cross-host worktree isolation, production security equivalence, or genuine
+conversation continuation. [Transfer/continuity review](TRANSFER-AND-CONTINUITY.md)
+records the inspected eShop and unchanged runner limitations. These are limits
+of the completed bounded study, not silently pending model reruns.
+
+### Questions after this pilot
+
 | Question | Existing evidence | Missing proof / next experiment |
 |---|---|---|
-| Does Aspire improve real development? | Original startup/assessment runs did not establish a speed advantage; I01 both passed with no Aspire tool use or advantage shown | Runtime diagnosis and broader change/repair tasks against raw-scripted, with hidden behavioral grading |
+| Does Aspire improve real development? | Completed routing, diagnosis, feature, migration, adoption, publishing and two-app pilots; no general efficiency/correctness advantage demonstrated | Predeclared randomized replication, second application/model and practical effect thresholds before a general claim |
 | Do focused skills help? | Specific health guidance reduced within-Aspire health sum from 145.3 to 41.3 s; D01 description-only case observed 81.5 vs 94.1 s with identical body | More fault/name transfer and replication; one metadata sample is not a causal latency estimate |
 | Must the router/general skills be removed? | Startup remained directly selected with the full bundle available | Routing and safety coverage outside startup; no removal justified |
 | Is the CLI itself slow? | Health `describe` commands took 0.09-0.14 s; generic workflow was slower overall | Hold observations constant and vary known-target/reporting guidance separately |
 | Do explicit integration names help agents? | PR 21279 local output exposes Redis/PostgreSQL and passes Docker oracles | Matched parent/treatment source builds, then randomized model trials |
-| Does MCP help? | D01 actually consumed MCP: combined skills/MCP observed 68.1 s, skills-only 94.1, raw 72.4; all passed | Different faults and task outcomes; do not generalize one sample or force irrelevant calls |
+| Does MCP help? | Actual use and passing diagnosis transfer from D01 to X01, but combined X01 98.6 s is slower than skills-only 82.4/raw 49.5 | A bounded operation-aware summary/workflow treatment and independent replication; do not force irrelevant calls |
 | Does retained context help? | Prior runner probes did not prove conversation continuation | Validate runner/thread continuity first; fresh handoff remains separate |
-| Is Bingo sufficient? | Supports HTTP, Vue proxy/HMR, PostgreSQL, Redis and SignalR | Add iteration/diagnosis first; use eShop only for genuine topology/queue transfer needs |
+| Is Bingo sufficient? | Completed HTTP/proxy, SQL/Redis, SignalR, production and two-app scenarios; held-out names and a different real fault | Still one application topology; eShop needs honest raw parity before queue/multiservice transfer claims |
 
 ## Repositories, worktrees, branches, artifacts
 
@@ -52,7 +123,10 @@ not the benchmark baseline. Do not overwrite another session's changes.
 | Aspire source baseline | `microsoft/aspire`, verified `https://github.com/microsoft/aspire` | `/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-upgraded-couscous` | `sebros/agentic-build-baseline`; clean base `d698a4f9cb800649791da2b3d81c5850330072c1` | [Complete managed x64 payload + 6 packages](source-builds/aspire-managed-baseline.json) verified through normal extraction and actual Bingo lifecycle; not shipping NativeAOT parity. Old ARM64 worktree paths disappeared; historical report retained |
 | Historical PR binary experiment | Public upstream PR artifacts, mirrored with approval | Harbor Docker tasks under `aspire-health/tasks/cli-pr21279` | `6676979b2bb4ed074568b84c84fb36a196d38f06`, version `17.0.0-pr.21279.g6676979b` | [Build manifest](aspire-health/pr21279-build.json); local validation only, not a matched causal control |
 | Empty-JSON CLI treatment | `microsoft/aspire` origin | `/Users/sebastienros/.copilot/copilot-worktrees/aspire/sebros-glowing-spoon` | `sebros/agentic-empty-json`; base `d698a4f9`; change `fafe64823d80e8f34fa5fc773ac9d9d9ba64f375` | [Manifest](source-builds/aspire-empty-json.json), [proof/patch](source-builds/empty-json/report.md); 66 targeted cases pass in Debug and Release, offline matched binaries verified |
-| Future skill/MCP treatments | Origin-backed worktrees as needed | Not created | Not created | Do not label proposed branches as existing |
+| D01 skill/MCP treatments | Same benchmark origin | `/Users/sebastienros/.copilot/copilot-worktrees/aspire-bench/sebros-super-funicular` | `sebros/bingo-runtime-diagnosis` | Seven conditions integrated/published; no active runtime |
+| F01/M01 and exact-source regrades | Same benchmark origin | `/Users/sebastienros/.copilot/copilot-worktrees/aspire-bench/sebros-friendly-memory` | `sebros/bingo-feature-and-migration` | Integrated/published; original source patches and native/replay receipts retained |
+| P01 production runtime / DNS | Same benchmark origin | `/Users/sebastienros/.copilot/copilot-worktrees/aspire-bench/sebros-jubilant-enigma` | `sebros/bingo-local-publishing` | Integrated/published; child runtime slot returned; final remote/model reports owned by coordinator |
+| X01/S01 transfer / combined MCP | Same benchmark origin | `/Users/sebastienros/.copilot/copilot-worktrees/aspire-bench/sebros-vigilant-pancake` | `sebros/bingo-held-out-fault-transfer` | Integrated/published; native local MCP proof and original receipts retained |
 | Optional eShop transfer | `dotnet/eShop` | Not checked out for this program | Unselected | Aspirified/raw equivalence must be verified, not assumed |
 
 For every custom build record source SHA, branch and base, diff/dirty status,
@@ -156,8 +230,8 @@ Fresh conversations and verified resumed conversations are separate strata.
 | M01 | Migrate schema without losing existing data | Pre/post record identity and contents, new behavior | [Both original model runs passed](bingo-evolution/PILOT.md); 43 legacy rows preserved, raw 145.1 s versus Aspire 271.9 s |
 | S01 | Two similar running apps/worktrees | Exact-target repair, other app and data unchanged | Both original native model runs passed with two full Bingo apps; raw 56.4 s versus Aspire 68.4 s. Editor/host-worktree ownership not claimed |
 | A01 | Add a dependency or adopt Aspire | Functional wiring, no hardcoded ports/secrets; setup cost included | Both original native zeros preserved; exact unchanged-source local regrades pass corrected semantic dependency/physical-DB contract. Generated plaintext choice preserved, no security-equivalence claim |
-| P01 | Publish and run isolated local deployment | Deployed functional checks, no dev-runtime assumptions | Both local production oracles and final native remote relay gate pass; two unique Terra models running |
-| X01 | Transfer to eShop / TypeScript / polyglot | Unseen topology/names, instrumentation parity and functional equivalence | ACL fault + held-out names: both original native model runs pass, raw 49.5 s versus Aspire 82.4 s. New combined skills/MCP local/remote gates pass and one unique model runs. eShop parity not assumed |
+| P01 | Publish and run isolated local deployment | Deployed functional checks, no dev-runtime assumptions | Both local production oracles, final native remote relay gate and two unique Terra models pass; raw 144.4 s versus Aspire 324.5 s |
+| X01 | Transfer to eShop / TypeScript / polyglot | Unseen topology/names, instrumentation parity and functional equivalence | ACL fault + held-out names: all three unique model runs pass; raw 49.5 s, skills 82.4 s, combined MCP 98.6 s. Natural MCP use transfers, observed D01 timing advantage does not; eShop parity not assumed |
 
 Existing startup/health experiments remain regression controls, not replacements
 for development scenarios. Generated project-local skills are a treatment to test,
@@ -612,3 +686,45 @@ original credentials/TLS/ACL/config/data. [Report](bingo-isolation/PILOT.md)
 and [exact results](bingo-isolation/pilot-results.json) make clear this is
 sibling workspace scope under one private runner, not editor/cross-host proof.
 There is no observed Aspire correctness or speed advantage in this pair.
+
+### 2026-11-05: final remote gates, remaining models and closeout
+
+Final P01 common `7420e30` was publicly pinned by task graph `ffed19f`.
+Both exact public-Git images were built and smoke-checked locally after the
+child's real loopback/direct production and negative-case proofs. Native remote
+no-model [2026110561495368](https://msbenchapp.azurewebsites.net/run-analysis/2026110561495368)
+then passed with exported actual `127.0.0.11` -> private `172.16.0.1` relay plan
+and complete ready progress. This resolves the final remote gate without
+guessing the old failed runs' exact resolver bytes or changing host DNS.
+
+Only then did P01's two original Terra conditions execute: raw
+[2026110562064652](https://msbenchapp.azurewebsites.net/run-analysis/2026110562064652)
+passed at 144.438336 s/36 calls/USD 0.09847690; Aspire
+[2026110562064656](https://msbenchapp.azurewebsites.net/run-analysis/2026110562064656)
+passed at 324.509960 s/60 calls/USD 0.14063245. Both actual Production workloads
+and preserved supplied state pass the independent verifier.
+[Final report](bingo-publishing/PILOT.md) records substantial public API
+discovery but makes no causal attribution of the full 180.1-second difference.
+
+X01 combined's independent native no-model
+[2026110561653346](https://msbenchapp.azurewebsites.net/run-analysis/2026110561653346)
+passed exact live MCP AppHost/resource/NOPERM assertions. Its sole new Terra
+condition [2026110562064654](https://msbenchapp.azurewebsites.net/run-analysis/2026110562064654)
+passed at 98.645066 s/47 calls/USD 0.1173459, actually using nine successful MCP
+calls with NOPERM log responses. This is slower than both prior X01 arms:
+capability and natural use transfer, but D01's small timing edge does not.
+The initial incomplete local dataset selection submitted no run; baseline rows
+were restored unchanged only to satisfy default-variant representation.
+
+All 22 unique model identities/client versions, native results and trace hashes
+are recorded; no final model trace needed JSON escape normalization or showed
+protected-path access. Runner-estimated model cost is USD 2.48302085. All original
+grader-invalid zeros, infrastructure failures, exact-source adjudications and
+local/native/direct/remote method boundaries remain intact. Corrected future
+F01/A01 datasets were not used for fresh model samples.
+
+The managed source archive was rehashed successfully at its durable artifact
+path. Source/benchmark child worktrees and evidence are retained, not archived
+or pruned. The parent observed no local Docker containers after final image
+smokes; completed cloud runs are retrieved rather than resubmitted. The current
+result index above is authoritative over older dated pending entries.

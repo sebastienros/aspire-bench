@@ -5,11 +5,33 @@ import { fileURLToPath } from "node:url";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { upstreamDns } from "./common/dns.mjs";
 import { redactDiagnosticText } from "./common/diagnostics.mjs";
 
 const read = file => readFile(new URL(file, import.meta.url), "utf8");
 const arms = ["raw-scripted", "aspire"];
+
+test("final relay dataset and unique condition records bind the remotely validated task files", async () => {
+    const rows = (await read("relay-dataset.jsonl")).trim().split("\n").map(line => JSON.parse(line));
+    const ledger = JSON.parse(await read("execution-ledger.json"));
+    const receipt = JSON.parse(await read("evidence/final-remote-oracle.json"));
+    assert.equal(ledger.task_commit, receipt.task_commit);
+    assert.deepEqual(rows.map(row => row.benchmark_variant), arms);
+    assert.equal(new Set(ledger.conditions.map(row => row.fingerprint)).size, arms.length);
+    for (const row of rows) {
+        assert.equal(row.task_repo_commit, receipt.task_commit);
+        assert.equal(row.task_path, `msbench/bingo-publishing/tasks/${row.benchmark_variant}`);
+        const condition = ledger.conditions.find(item => item.variant === row.benchmark_variant);
+        assert.equal(condition.task_commit, receipt.task_commit);
+        assert.equal(condition.condition.common_context, "7420e30e0934b9ee77a550e9fe3ceffdaded769b");
+        for (const [file, hash] of Object.entries(condition.condition.task_files)) {
+            const bytes = await readFile(new URL(`tasks/${row.benchmark_variant}/${file}`, import.meta.url));
+            assert.equal(createHash("sha256").update(bytes).digest("hex"), hash, file);
+        }
+    }
+    assert.equal(new Set(ledger.model_runs.map(row => row.fingerprint)).size, ledger.model_runs.length);
+});
 
 test("setup diagnostic tails redact credentials, URL credentials/query and control sequences", () => {
     const output = redactDiagnosticText([

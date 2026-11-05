@@ -1,6 +1,6 @@
 {
   "scenario": "P01",
-  "status": "final-relay-native-remote-oracle-passed-model-pilot-submitted",
+  "status": "final-relay-native-remote-oracle-and-both-original-models-passed",
   "eligible_for_model_submission": true,
   "model_submission_gate": "Final graph ffed19f passed native remote oracle 2026110561495368, reward 1/no exception. Only the two original prospective model conditions were then submitted.",
   "completed_deployment": true,
@@ -14,9 +14,34 @@
     "docker_build_with_git_context_verified": true,
     "both_arms_direct_docker_runtime_verified": true,
     "native_harbor_final_graph_verified": false,
-    "pending_update": "The parent must publish/pin relay changes after the intermediate 648f323 diagnostic graph; public passing receipts refer to 1f9f961 and new relay results explicitly use local common inputs."
+    "pending_update": "Resolved separately by final public relay common 7420e30/task ffed19f and native remote receipt evidence/final-remote-oracle.json. This object intentionally retains the historical 1f9f961 public-runtime scope."
   },
-  "model_runs": [],
+  "model_runs": [
+    {
+      "variant": "raw-scripted",
+      "fingerprint": "ba50627bc5e03f463afbcf6eb758aa541916a9922df8f6873e4c31a1a33ae16b",
+      "run_id": "2026110562064652",
+      "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110562064652",
+      "attempt_role": "original",
+      "status": "completed",
+      "actual_model_verified": true,
+      "submission_log": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/logs/p01-raw-model-submit.log",
+      "actual_vendor_cli": "1.0.99-0",
+      "reward": 1.0
+    },
+    {
+      "variant": "aspire",
+      "fingerprint": "61bcab0ea611f85e8f0e7a89074ed24b4bcd116ccc225e037eb8d4dc843afdc8",
+      "run_id": "2026110562064656",
+      "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110562064656",
+      "attempt_role": "original",
+      "status": "completed",
+      "actual_model_verified": true,
+      "submission_log": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/logs/p01-aspire-model-submit.log",
+      "actual_vendor_cli": "1.0.99-0",
+      "reward": 1.0
+    }
+  ],
   "application_source": {
     "repository": "https://github.com/sebastienros/aspire-bench",
     "commit": "baacba3e17181491c9a4d419db7d0e6763c3d363",
@@ -244,8 +269,8 @@
     ],
     "scope": "Setup observability only; no speculative runtime fix or retry",
     "runtime_validated": false,
-    "docker_invocations": 0,
-    "model_submissions": 0,
+    "child_docker_invocations": 0,
+    "child_model_submissions": 0,
     "trap": "Inherited ERR trap in entrypoint and setup, with phase, status, source basename and line; preserves original exit status.",
     "stderr": "Descriptor 3 preserves container stderr across setup stdout/stderr redirection.",
     "safe_artifacts": [
@@ -256,7 +281,7 @@
     "raw_private_logs": "/opt/benchmark/private-logs; not declared as task artifacts",
     "redaction": "Bounded setup/dockerd/info tails, sensitive lines removed, fixture credentials and URL credentials/query redacted; no command or environment dump.",
     "next_action_owner": "coordinator",
-    "next_action": "Publish/pin changed common files and run one no-model diagnostic oracle, retrieving sanitized container stderr/environment artifacts on setup failure."
+    "next_action": "Historical diagnostic gate completed as 2026110559322086 and exposed DNS discovery failure; subsequent relay/native/model results are recorded separately."
   },
   "relay_public_image_build_and_smoke": {
     "common_commit": "7420e30e0934b9ee77a550e9fe3ceffdaded769b",
@@ -292,9 +317,15 @@
     "local_test_preparation": "Owned outer user-defined Docker network supplied actual resolver 127.0.0.11. Removed only resolv.conf comments inside that container; preserved nameserver/options. Host DNS untouched.",
     "local_relay_plan": {
       "mode": "loopback-relay",
-      "configured": ["127.0.0.11"],
-      "upstreams": ["127.0.0.11"],
-      "servers": ["172.16.0.1"],
+      "configured": [
+        "127.0.0.11"
+      ],
+      "upstreams": [
+        "127.0.0.11"
+      ],
+      "servers": [
+        "172.16.0.1"
+      ],
       "bridge": {
         "bip": "172.16.0.1/24",
         "gateway": "172.16.0.1",
@@ -305,12 +336,17 @@
     "runner_sha256": "a5203c54d472cdaf44c92bd42c88b38c69bf41874775e2ec2e39b751df269c48",
     "runner_location": "durable_job_root",
     "runtime_method": "direct-Docker-real-task-local-common",
-    "common_context": "explicit local override, not yet public pinned",
+    "common_context": "explicit local override at these historical local runs; subsequent public pin/gate is recorded separately",
     "business_context": "original public business pin baacba3e17181491c9a4d419db7d0e6763c3d363",
     "platform": "linux-arm64",
     "outer_docker_engine": "29.9.2",
     "inner_docker_engine": "28.0.4",
-    "limits": { "cpus": 4, "memory_mb": 8192, "agent_timeout_seconds": 900, "verifier_timeout_seconds": 300 },
+    "limits": {
+      "cpus": 4,
+      "memory_mb": 8192,
+      "agent_timeout_seconds": 900,
+      "verifier_timeout_seconds": 300
+    },
     "passed_runs": [
       {
         "arm": "raw-scripted",
@@ -346,7 +382,9 @@
         "arm": "raw-scripted",
         "job": "p01-raw-scripted-dns-direct-v1",
         "resolver_mode": "direct",
-        "servers": ["192.168.65.7"],
+        "servers": [
+          "192.168.65.7"
+        ],
         "reward": 1,
         "result_sha256": "bad25837271c18daf1055aa8ed6f810259e789ff60e5a6f4c1c2f2f8d37ba626",
         "receipt_sha256": "be4fa004b1b56e28371fae4f142328fcbce4eeeb84e3be89173631b8da27df1c",
@@ -376,7 +414,7 @@
       "Treat the alternate default-route spelling 0.0.0.0/0 like default; covered by route-selection tests.",
       "Make existing required Compose project p01-deploy and service IDs boardadmin/bingoboard explicit in shared guidance before any model submission; no grader behavior changed."
     ],
-    "remaining_gate": "Parent publishes/repins new common snapshot and runs its remote no-model gate; diagnostic evidence must confirm actual remote resolver plan and setup outcome."
+    "remaining_gate": "Completed separately by the parent: final common 7420e30/task ffed19f remote oracle 2026110561495368 and both original model attempts passed. These historical local receipts alone still do not claim remote parity."
   },
   "durable_job_root": "/Users/sebastienros/.copilot/session-state/3efaa765-dfb1-4afd-b958-13b40879b4ec/files/p01-oracles",
   "fixture_failures_after_engine_recovery": [

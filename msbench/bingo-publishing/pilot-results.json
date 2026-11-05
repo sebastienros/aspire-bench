@@ -1,0 +1,83 @@
+{
+  "scenario": "P01",
+  "sample_size_per_condition": 1,
+  "task_commit": "ffed19f2b2d4f82360125c1da40a8b302bfd5ba8",
+  "common_commit": "7420e30e0934b9ee77a550e9fe3ceffdaded769b",
+  "remote_oracle_run_id": "2026110561495368",
+  "results": [
+    {
+      "scenario": "P01",
+      "variant": "raw-scripted",
+      "run_id": "2026110562064652",
+      "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110562064652",
+      "reward": 1.0,
+      "actual_model": "gpt-6.1-terra",
+      "actual_vendor_cli": "1.0.99-0",
+      "exception": null,
+      "native_agent_seconds": 144.438336,
+      "input_tokens_including_cache": 461247,
+      "cache_tokens_subset": 419788,
+      "output_tokens": 5135,
+      "runner_reported_cost_usd": 0.0984769,
+      "tool_calls": 36,
+      "tool_counts": {
+        "view": 17,
+        "bash": 14,
+        "glob": 2,
+        "rg": 2,
+        "apply_patch": 1
+      },
+      "loaded_skills": [],
+      "aspire_cli_command_mentions": {},
+      "protected_path_access": [],
+      "raw_result_sha256": "b55e63da93409f54631a4c31b1866b488b2f6e3d1801b07a9484d0cdcb343bfb",
+      "raw_trajectory_sha256": "88419bc79e8a3807a1b63891e5e88377aeaa50266f1401615770189be26e5085",
+      "invalid_escape_normalizations_in_memory": [],
+      "evidence_root": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/cloud/p01-raw-model"
+    },
+    {
+      "scenario": "P01",
+      "variant": "aspire",
+      "run_id": "2026110562064656",
+      "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110562064656",
+      "reward": 1.0,
+      "actual_model": "gpt-6.1-terra",
+      "actual_vendor_cli": "1.0.99-0",
+      "exception": null,
+      "native_agent_seconds": 324.50996,
+      "input_tokens_including_cache": 888844,
+      "cache_tokens_subset": 839334,
+      "output_tokens": 7360,
+      "runner_reported_cost_usd": 0.14063245,
+      "tool_calls": 60,
+      "tool_counts": {
+        "view": 16,
+        "bash": 33,
+        "glob": 2,
+        "rg": 3,
+        "apply_patch": 6
+      },
+      "loaded_skills": [],
+      "aspire_cli_command_mentions": {
+        "publish": 2,
+        "do": 1,
+        "docs": 19
+      },
+      "protected_path_access": [],
+      "raw_result_sha256": "fb6265a9d64e46c4651866ed4d25c247c25957e0d53f1bac6db669dd46e75ebf",
+      "raw_trajectory_sha256": "85ac1e104f3145f736bd9e95eb8b39e3188d85c1f44c8b98bebe491bcf5ef3db",
+      "invalid_escape_normalizations_in_memory": [],
+      "evidence_root": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/cloud/p01-aspire-model"
+    }
+  ],
+  "runner_reported_total_cost_usd": 0.23910935,
+  "limits": [
+    "One original attempt per arm on Bingo with fixed model/runner; no statistical or general production-efficiency inference.",
+    "Pre-agent nested Docker/DNS/image setup is separate from native agent timing.",
+    "Published .NET/nginx app containers use supplied PostgreSQL/Redis/network/volume; not whole-environment provisioning.",
+    "Strong raw scripted production baseline; Aspire must generate/deploy from its AppHost, so this is a product-workflow comparison, not a pure CLI microbenchmark.",
+    "No skill or MCP treatment exposed in either P01 arm.",
+    "Costs are runner-reported estimates, not independent billing.",
+    "Raw artifacts are preserved; these three final trajectories required no invalid-escape normalization."
+  ]
+}

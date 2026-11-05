@@ -1,10 +1,10 @@
 # One additional X01 condition: original skills plus MCP
 
 **Status: the single native Harbor local oracle passed, including live MCP.
-The independent remote oracle also passed; the single model result is pending.**
+The independent remote oracle and the single original model attempt also passed.**
 The explicit parent sole-slot grant preceded
 runtime work; Harbor removed its runner and the slot was returned. The parent
-owns the independent remote oracle and at most one new low-budget Terra
+completed the independent remote oracle and exactly one new low-budget Terra
 submission. Do not rerun the original raw or skills-only conditions.
 
 The published task is pinned at `ffed19f` in
@@ -14,9 +14,14 @@ passed reward 1/no exception with `--variant skills-mcp`, including the actual
 live AppHost/resource/NOPERM MCP preflight. The
 [remote receipt](evidence/final-remote-oracle.json) preserves native result and
 stdout hashes; exported native task checksums are runner-redacted, not invented.
-Only that new cell is selected. Its single original Terra attempt is submitted as
-[2026110562064654](https://msbenchapp.azurewebsites.net/run-analysis/2026110562064654);
-actual model use and performance remain pending.
+Only that new cell was selected. Its single original Terra attempt,
+[2026110562064654](https://msbenchapp.azurewebsites.net/run-analysis/2026110562064654),
+passed reward 1/no exception: 98.645066 seconds, 47 tools, USD 0.1173459
+runner estimate. It actually used nine successful MCP calls and loaded
+`aspire`/`aspire-monitoring`, with real NOPERM log responses. This was slower
+than original-skill Aspire 82.4 s and raw 49.5 s; actual capability/use transferred,
+not the observed D01 timing advantage. [Model report](PILOT.md) and
+[exact results](pilot-results.json) retain the unfavorable observation.
 The original raw/Aspire dataset rows are retained unchanged because MSBench
 requires the logical group's default variant to be represented. An initial
 dataset missing that row failed local validation before any run was submitted.
@@ -102,8 +107,9 @@ The parent must independently verify a published Git-pinned remote oracle
 before the one new model condition. Record actual model/tool use and null or
 negative results without retries toward a preferred result.
 
-[Manifest](evidence/skills-mcp.json) separates static facts, proved local MCP
-capability and still-pending model-use evidence. The existing F14 and paired
+[Manifest](evidence/skills-mcp.json) retains the original static-stage facts and
+then-pending model-use status; the current model result is linked above.
+The existing F14 and paired
 runtime receipts remain historical records, not this new arm's success report.
 
 ## Actual single native local gate, 2026-11-05
@@ -135,9 +141,13 @@ Only the actual successful assertions, native outputs/results and exact tested
 source are preserved. No replay was made solely to recover richer artifacts,
 and no post-pass task mutation invalidates the tested checksum.
 
-This proves live local MCP AppHost/resource/log capability, not model MCP
+This local receipt alone proves live local MCP AppHost/resource/log capability, not model MCP
 selection/use, Harbor-to-model bridge execution, paid-task completion, mechanism
 transfer performance or statistical generalization. Those remain the parent's
 remote-oracle/one-unique-condition responsibilities. The original 19 checks
 and their receipt/archive hashes remain unchanged; five added checks include
 the new runtime-bound native receipt (24 total).
+
+Those subsequent remote/model responsibilities are now completed in the
+independently linked receipts and model report above. The local receipt's
+retention limitation is not erased by later success.

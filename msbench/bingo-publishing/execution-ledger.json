@@ -1,11 +1,13 @@
 {
-  "status": "remaining-unique-model-pilot-running",
-  "task_commit": "a206e498adc445865f05a49546a5e085956de0dd",
+  "status": "completed-two-original-model-conditions",
+  "task_commit": "ffed19f2b2d4f82360125c1da40a8b302bfd5ba8",
+  "historical_pre_relay_task_commit": "a206e498adc445865f05a49546a5e085956de0dd",
   "model": "gpt-6.1-terra",
   "automatic_repeats": false,
   "remote_oracle_validations": [
     {
       "run_id": "2026110558453858",
+      "task_commit": "a206e498adc445865f05a49546a5e085956de0dd",
       "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110558453858",
       "variant": "aspire",
       "agent": "fix_validation",
@@ -14,6 +16,20 @@
       "reward": null,
       "model_executed": false,
       "exception_class": "RuntimeError"
+    },
+    {
+      "run_id": "2026110559322086",
+      "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110559322086",
+      "task_commit": "a757dda44107972b069063e55e8c322c0108a817",
+      "variant": "aspire",
+      "agent": "fix_validation",
+      "model": "no_model",
+      "status": "failed-before-agent",
+      "reward": null,
+      "model_executed": false,
+      "phase": "dns-discovery",
+      "setup_exit_code": 1,
+      "exact_resolver_format_known": false
     },
     {
       "run_id": "2026110561495368",
@@ -36,9 +52,11 @@
       "run_id": "2026110562064652",
       "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110562064652",
       "attempt_role": "original",
-      "status": "submitted",
-      "actual_model_verified": false,
-      "submission_log": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/logs/p01-raw-model-submit.log"
+      "status": "completed",
+      "actual_model_verified": true,
+      "submission_log": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/logs/p01-raw-model-submit.log",
+      "actual_vendor_cli": "1.0.99-0",
+      "reward": 1.0
     },
     {
       "variant": "aspire",
@@ -46,9 +64,11 @@
       "run_id": "2026110562064656",
       "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110562064656",
       "attempt_role": "original",
-      "status": "submitted",
-      "actual_model_verified": false,
-      "submission_log": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/logs/p01-aspire-model-submit.log"
+      "status": "completed",
+      "actual_model_verified": true,
+      "submission_log": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/logs/p01-aspire-model-submit.log",
+      "actual_vendor_cli": "1.0.99-0",
+      "reward": 1.0
     }
   ],
   "final_relay_task_commit": "ffed19f2b2d4f82360125c1da40a8b302bfd5ba8",

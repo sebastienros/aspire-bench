@@ -58,12 +58,53 @@
       "raw_trajectory_sha256": "328a851df2e3dc5ed924254c35495b5c31e1a5b975465971ef32e4e75e6d6a0b",
       "invalid_escape_normalizations_in_memory": [],
       "evidence_root": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/cloud/x01-models/aspire"
+    },
+    {
+      "scenario": "X01",
+      "variant": "skills-mcp",
+      "run_id": "2026110562064654",
+      "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110562064654",
+      "reward": 1.0,
+      "actual_model": "gpt-6.1-terra",
+      "actual_vendor_cli": "1.0.99-0",
+      "exception": null,
+      "native_agent_seconds": 98.645066,
+      "input_tokens_including_cache": 623337,
+      "cache_tokens_subset": 574848,
+      "output_tokens": 5601,
+      "runner_reported_cost_usd": 0.1173459,
+      "tool_calls": 47,
+      "tool_counts": {
+        "view": 12,
+        "bash": 20,
+        "skill": 2,
+        "aspire-list_resources": 2,
+        "aspire-list_structured_logs": 3,
+        "aspire-list_traces": 1,
+        "aspire-list_console_logs": 2,
+        "aspire-list_trace_structured_logs": 1,
+        "rg": 3,
+        "glob": 1
+      },
+      "loaded_skills": [
+        "aspire",
+        "aspire-monitoring"
+      ],
+      "aspire_cli_command_mentions": {
+        "describe": 1
+      },
+      "protected_path_access": [],
+      "raw_result_sha256": "0d190bf68f2efc258909007937d82fcb213d1424b0c2e791975bda7ac59f458f",
+      "raw_trajectory_sha256": "7362e07c3430589769abebf4955533b583020083ff90723e366ae996f27f727c",
+      "invalid_escape_normalizations_in_memory": [],
+      "evidence_root": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/cloud/x01-combined-model"
     }
   ],
-  "runner_reported_total_cost_usd": 0.1480842,
+  "runner_reported_total_cost_usd": 0.2654301,
   "limits": [
     "One held-out Bingo fault/name instance; not independent application/model transfer",
     "Native cloud functional grades, no population or causal speed claim",
-    "Costs are runner-reported not billed; no model repeats"
+    "Costs are runner-reported not billed; no model repeats",
+    "Combined skills/MCP is one prospectively declared later follow-up, not a simultaneous randomized replicate or an independent fault/application sample."
   ]
 }

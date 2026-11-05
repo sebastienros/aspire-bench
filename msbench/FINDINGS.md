@@ -435,16 +435,17 @@ pass. A final native Harbor attempt instead looped in readiness with no task
 container visible; it was stopped, has null agent/verifier results and no reward.
 The coordinator-approved direct fallback built/ran the exact tasks without
 modifying global tools, but is not a native runner pass. Native Harbor/CES
-execution remains required before model submission. Oracle timing is not an
-agent-efficiency result. No CES/x64/model or broader production architecture
-claim is made. The scenario
+execution was required before model submission and has since passed separately,
+as recorded below. Oracle timing is not an agent-efficiency result. Those local
+receipts alone make no CES/x64/model or broader production architecture
+claim. The scenario
 publishes application containers against supplied dependencies; it does not
 provision the whole environment. Root-local controls are not an adversarial
 sandbox. No shared restart/prune, cloud provisioning, model submission or repeat
 sweep was performed; historical tasks/tracker are untouched.
 
-**Portability/source follow-up:** Both common named contexts now default to the
-public Git snapshot `1f9f9614`, verified tree-equal before both final direct builds,
+**Portability/source follow-up:** Both common named contexts at those direct
+validation runs used public Git snapshot `1f9f9614`, verified tree-equal before the builds,
 not a sibling-local `../../../common` requiring remote Bake filesystem permission.
 No local named-context override or entitlement bypass was used for those runs.
 Nested Docker also needed the established
@@ -476,7 +477,19 @@ private relay `172.16.0.1` preserves it and setup reaches ready before the
 full native production grade. This new remote evidence is not a relabeling
 of the older `1f9f961` production receipts or intermediate `648f323` diagnostic
 builds. Only then were the two original prospective Terra conditions submitted,
-`2026110562064652` (raw) and `2026110562064656` (Aspire); outcomes are pending.
+`2026110562064652` (raw) and `2026110562064656` (Aspire).
+
+**Model outcome:** Both passed native full production grading, with actual
+Terra/CLI identity verified and no observed protected-path access. Raw took
+144.4 s/36 tools/USD 0.09848; Aspire took 324.5 s/60 tools/USD 0.14063.
+No skill/MCP treatment was exposed. Aspire's public shell requests contained
+19 documentation-command mentions across eight invocations, including
+version/API/Compose discovery and some guessed not-found paths/IDs.
+A concise, version-matched complete publishing recipe is a candidate, not an
+already measured improvement or evidence of a CLI documentation defect.
+The [model report](bingo-publishing/PILOT.md) retains exact native timing,
+cost/token/hash provenance and the adverse observation: no speed/cost advantage
+in this pair, n=1 per arm. Oracle/setup timings are not pooled with agent time.
 
 ## F11: Feature/data-evolution correctness needs real state, not readiness
 
@@ -728,8 +741,14 @@ MCP assertions, all 12 negatives and final external grade. Native stdout/results
 are retained; separately uncollected environment JSON is not claimed preserved.
 Its published graph passed remote no-model gate `2026110561653346`, reward 1/
 no exception, with the same exact live MCP assertions. The single new Terra
-condition `2026110562064654` is submitted; actual model MCP use/outcome remain
-pending. The initial local dataset-selection
+condition `2026110562064654` passed native reward 1/no exception in 98.6 s,
+47 tools and USD 0.11735. Router/monitoring loaded; **nine actual successful MCP
+calls** queried resources/traces/structured/console logs, including actual
+NOPERM. No protected-path access was observed. Capability and natural tool use
+transferred, but the D01 timing advantage did not: this observation is slower
+and more expensive than both original X01 arms. Do not equate actual MCP use
+with efficiency or repeat the condition to seek a win.
+The initial local dataset-selection
 error submitted no run; the default baseline rows remain present only for
 MSBench's variant validation and are not selected for re-execution.
 

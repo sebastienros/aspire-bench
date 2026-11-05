@@ -14,11 +14,15 @@ The expanded roadmap also has [runtime diagnosis/false-health/scope](bingo-diagn
 [local production publishing](bingo-publishing/README.md), plus
 [held-out ACL diagnosis](bingo-transfer/PILOT.md) and
 [two-app isolation](bingo-isolation/PILOT.md).
-Nineteen unique Terra model conditions have executed across the current program.
+Twenty-two unique Terra model conditions have executed across the current program.
 Three original native zeros remain preserved separately from successful
 unchanged-source regrades after grader corrections. Publishing and the new
 combined ACL skills/MCP condition passed their final native remote no-model
-gates; only their three new model conditions are submitted, with outcomes pending.
+gates and three new model conditions. [Publishing](bingo-publishing/PILOT.md)
+was slower with Aspire; [combined ACL diagnosis](bingo-transfer/PILOT.md)
+used MCP successfully but did not transfer D01's small timing edge.
+The [current conclusions and result index](AGENTIC-RESEARCH.md#completed-pilot-result-index)
+separate observations, implemented fixes and remaining generalization limits.
 Earlier Docker/storage failures are
 retained as historical infrastructure evidence, not the current engine state.
 

@@ -1,7 +1,9 @@
 # S01: two actual Bingo applications in sibling workspaces
 
-**Status: both direct-Docker oracle/verifier gates passed, after priority X01.
-No native Harbor/cloud/model result is claimed.** The explicit parent sole-slot
+**Status: both original native cloud Terra models passed**, raw 56.4 s versus
+Aspire 68.4 s; [model report](PILOT.md) records exact outcomes and scope.
+The historical local validation below used direct Docker, not native Harbor.
+The explicit parent sole-slot
 grant preceded runtime work; all owned runners were removed and the slot
 returned after the four X01/S01 gates. This new directory is separate from
 historical D01 and the X01 fault/name condition.
