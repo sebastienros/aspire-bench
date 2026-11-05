@@ -1,0 +1,15 @@
+AssertionError [ERR_ASSERTION]: /api/demo/producer/squares/import: HTTP 404
+
+404 !== 400
+
+    at request (file:///opt/benchmark/grader-v1/evolution.mjs:21:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async verifyFeature (file:///opt/benchmark/grader-v1/evolution.mjs:182:5)
+    at async main (file:///opt/benchmark/grader-v1/evolution.mjs:295:47) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 404,
+  expected: 400,
+  operator: 'strictEqual',
+  diff: 'simple'
+}

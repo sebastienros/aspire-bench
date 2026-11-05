@@ -1,0 +1,100 @@
+diff --git a/src/BingoBoard.Admin/Endpoints/ProducerEndpoints.cs b/src/BingoBoard.Admin/Endpoints/ProducerEndpoints.cs
+index 27864e0..f2ede96 100644
+--- a/src/BingoBoard.Admin/Endpoints/ProducerEndpoints.cs
++++ b/src/BingoBoard.Admin/Endpoints/ProducerEndpoints.cs
+@@ -13,6 +13,7 @@ public static class ProducerEndpoints
+ 
+         group.MapPost("/squares/import", ImportSquaresAsync);
+         group.MapGet("/status", GetStatusAsync);
++        group.MapGet("/catalog", GetCatalogAsync);
+         group.MapPost("/squares/{squareId}/state/{isChecked:bool}", SetSquareStateAsync);
+ 
+         return endpoints;
+@@ -46,6 +47,21 @@ public static class ProducerEndpoints
+         }
+     }
+ 
++    private static async Task<IResult> GetCatalogAsync(
++        string? type,
++        IBingoService bingoService,
++        CancellationToken cancellationToken)
++    {
++        var squares = await bingoService.GetCatalogAsync(type, cancellationToken);
++        return Results.Ok(squares.Select(square => new
++        {
++            square.Id,
++            square.Label,
++            square.Type,
++            square.IsChecked
++        }));
++    }
++
+     private static async Task<IResult> GetStatusAsync(
+         IClientConnectionService clientService,
+         IBingoService bingoService)
+diff --git a/src/BingoBoard.Admin/Services/BingoService.cs b/src/BingoBoard.Admin/Services/BingoService.cs
+index a213911..908e3f5 100644
+--- a/src/BingoBoard.Admin/Services/BingoService.cs
++++ b/src/BingoBoard.Admin/Services/BingoService.cs
+@@ -12,6 +12,32 @@ namespace BingoBoard.Admin.Services;
+ /// </summary>
+ public class BingoService(IDistributedCache cache, ILogger<BingoService> logger, IClientConnectionService clientService, ApplicationDbContext dbContext) : IBingoService
+ {
++    public async Task<List<BingoSquare>> GetCatalogAsync(string? type, CancellationToken cancellationToken = default)
++    {
++        var query = dbContext.BingoSquares.AsNoTracking().Where(square => square.IsActive);
++        if (type is not null)
++        {
++            query = query.Where(square => square.Type == type);
++        }
++
++        var squares = await query
++            .Select(square => new BingoSquare
++            {
++                Id = square.Id,
++                Label = square.Label,
++                Type = square.Type
++            })
++            .ToListAsync(cancellationToken);
++
++        foreach (var square in squares)
++        {
++            var state = await cache.GetStringAsync($"global_square_{square.Id}", cancellationToken);
++            square.IsChecked = bool.TryParse(state, out var isChecked) && isChecked;
++        }
++
++        return squares.OrderBy(square => square.Id, StringComparer.Ordinal).ToList();
++    }
++
+     public async Task<List<BingoSquare>> GetAllSquaresAsync()
+     {
+         try
+diff --git a/src/BingoBoard.Admin/Services/IBingoService.cs b/src/BingoBoard.Admin/Services/IBingoService.cs
+index 03db8c8..52b0c00 100644
+--- a/src/BingoBoard.Admin/Services/IBingoService.cs
++++ b/src/BingoBoard.Admin/Services/IBingoService.cs
+@@ -12,6 +12,8 @@ public interface IBingoService
+     /// </summary>
+     Task<List<BingoSquare>> GetAllSquaresAsync();
+ 
++    Task<List<BingoSquare>> GetCatalogAsync(string? type, CancellationToken cancellationToken = default);
++
+     /// <summary>
+     /// Get a random set of 25 bingo squares for a new client
+     /// </summary>
+diff --git a/src/bingo-board/vite.config.js b/src/bingo-board/vite.config.js
+index 95883d1..06b3693 100644
+--- a/src/bingo-board/vite.config.js
++++ b/src/bingo-board/vite.config.js
+@@ -32,6 +32,11 @@ export default defineConfig(({ mode, command }) => {
+           changeOrigin: true,
+           secure: false
+         },
++        '/api/demo/producer/catalog': {
++          target: adminUrl,
++          changeOrigin: true,
++          secure: false
++        },
+         // Proxy SignalR hub to the admin service
+         '/bingohub': {
+           target: adminUrl,

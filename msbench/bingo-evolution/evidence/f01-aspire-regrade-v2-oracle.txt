@@ -1,0 +1,60 @@
+/solution/original-model-source.patch: OK
+/solution/replay-model-source.patch: OK
+bcb6ce61336a6946471f0af8f47600efbe28cb3946a6b45db826e5d616804f61  src/BingoBoard.Admin/Endpoints/ProducerEndpoints.cs
+af21758acfb87e339113b48036ddf5543f9f5e20bbfc4cc4f19e767d9ff9f705  src/BingoBoard.Admin/Services/BingoService.cs
+c73b6b6bcfba1a3efe2b559abc4aeec2255fd087b9b3aa9bedf707cf3ffd0966  src/BingoBoard.Admin/Services/IBingoService.cs
+c809a39d6c8a60e9e936a5608ceb8e3333142db226e5dcce40527e154be1f569  src/bingo-board/vite.config.js
+Stopping resource 'boardadmin'...
+✅ Resource 'boardadmin' stopped successfully.
+Rebuilding resource 'migrations'...
+✅ Resource 'migrations' rebuilt successfully.
+[build] Stopping resource for rebuild...
+[build] Building project...
+[build] 2026-11-05T16:21:02.2420000Z [sys] Starting process...: Cmd = /usr/bin/dotnet, Args = ["build", "/app/src/BingoBoard.MigrationService/BingoBoard.MigrationService.csproj", "--configuration", "Debug"]
+[build] 2026-11-05T16:21:02.5080000Z   Determining projects to restore...
+[build] 2026-11-05T16:21:02.9050000Z   All projects are up-to-date for restore.
+[build] 2026-11-05T16:21:03.1000000Z   BingoBoard.Data -> /app/src/BingoBoard.Data/bin/Debug/net10.0/BingoBoard.Data.dll
+[build] 2026-11-05T16:21:03.1060000Z   BingoBoard.ServiceDefaults -> /app/src/BingoBoard.ServiceDefaults/bin/Debug/net10.0/BingoBoard.ServiceDefaults.dll
+[build] 2026-11-05T16:21:03.1630000Z   BingoBoard.MigrationService -> /app/src/BingoBoard.MigrationService/bin/Debug/net10.0/BingoBoard.MigrationService.dll
+[build] 2026-11-05T16:21:03.1740000Z 
+[build] 2026-11-05T16:21:03.1740000Z Build succeeded.
+[build] 2026-11-05T16:21:03.1740000Z     0 Warning(s)
+[build] 2026-11-05T16:21:03.1740000Z     0 Error(s)
+[build] 2026-11-05T16:21:03.1740000Z 
+[build] 2026-11-05T16:21:03.1740000Z Time Elapsed 00:00:00.85
+[build] Build succeeded. Restarting resource...
+Starting resource 'migrations'...
+✅ Resource 'migrations' started successfully.
+Rebuilding resource 'boardadmin'...
+✅ Resource 'boardadmin' rebuilt successfully.
+[build] Stopping resource for rebuild...
+[build] Building project...
+[build] 2026-11-05T16:21:04.0100000Z [sys] Starting process...: Cmd = /usr/bin/dotnet, Args = ["build", "/app/src/BingoBoard.Admin/BingoBoard.Admin.csproj", "--configuration", "Debug"]
+[build] 2026-11-05T16:21:04.2780000Z   Determining projects to restore...
+[build] 2026-11-05T16:21:04.5320000Z /app/src/BingoBoard.Admin/BingoBoard.Admin.csproj : warning NU1902: Package 'MessagePack' 2.5.302 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-qhrr-8q5h-9q3h
+[build] 2026-11-05T16:21:04.5320000Z   All projects are up-to-date for restore.
+[build] 2026-11-05T16:21:04.5850000Z /app/src/BingoBoard.Admin/BingoBoard.Admin.csproj : warning NU1902: Package 'MessagePack' 2.5.302 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-qhrr-8q5h-9q3h
+[build] 2026-11-05T16:21:04.7130000Z   BingoBoard.Data -> /app/src/BingoBoard.Data/bin/Debug/net10.0/BingoBoard.Data.dll
+[build] 2026-11-05T16:21:04.7400000Z   BingoBoard.ServiceDefaults -> /app/src/BingoBoard.ServiceDefaults/bin/Debug/net10.0/BingoBoard.ServiceDefaults.dll
+[build] 2026-11-05T16:21:05.5560000Z   BingoBoard.Admin -> /app/src/BingoBoard.Admin/bin/Debug/net10.0/BingoBoard.Admin.dll
+[build] 2026-11-05T16:21:05.5650000Z 
+[build] 2026-11-05T16:21:05.5650000Z Build succeeded.
+[build] 2026-11-05T16:21:05.5650000Z 
+[build] 2026-11-05T16:21:05.5650000Z /app/src/BingoBoard.Admin/BingoBoard.Admin.csproj : warning NU1902: Package 'MessagePack' 2.5.302 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-qhrr-8q5h-9q3h
+[build] 2026-11-05T16:21:05.5650000Z /app/src/BingoBoard.Admin/BingoBoard.Admin.csproj : warning NU1902: Package 'MessagePack' 2.5.302 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-qhrr-8q5h-9q3h
+[build] 2026-11-05T16:21:05.5650000Z     2 Warning(s)
+[build] 2026-11-05T16:21:05.5650000Z     0 Error(s)
+[build] 2026-11-05T16:21:05.5660000Z 
+[build] 2026-11-05T16:21:05.5660000Z Time Elapsed 00:00:01.48
+[build] Build succeeded. Restarting resource...
+Starting resource 'boardadmin'...
+✅ Resource 'boardadmin' started successfully.
+Waiting for resource 'boardadmin' to be healthy...
+
+✅ Resource 'boardadmin' is healthy. (0.7s)
+Reproduced original grader-invalid frontend write requirement.
+Catalog proof: {"freshIds":["feature-27aa6baec58c7d61103ddd26-z","feature-27aa6baec58c7d61103ddd26-a","feature-27aa6baec58c7d61103ddd26-hidden","feature-27aa6baec58c7d61103ddd26-other","feature-27aa6baec58c7d61103ddd26-null"],"filter":"kind-24493446887c49ff5873e197","filteredActiveCount":2,"refreshedLabel":"Changed f2f3573fa7fd2d2975ec50d8","unfilteredActiveCount":52,"directRedisAfterClear":"False","unknownFilter":[],"emptyImportStatus":400,"unknownCallStatus":404}
+Preservation proof: {"originalSquareCount":43,"originalUserCount":1,"originalDatabaseIdentity":{"database":"16384","squares":"16413","users":"16400","history":"16385"},"currentDatabaseIdentity":{"database":"16384","squares":"16413","users":"16400","history":"16385"},"originalMigrationIds":["20260206183116_InitialCreate"],"currentMigrationIds":["20260206183116_InitialCreate"],"sentinel":{"Id":"keep-c3d8f4fcd46ea4f39c4aa368","Label":"Preserved '4ee9a2e61d6d2487e3bb3bde","Type":"evolution","IsActive":true,"DisplayOrder":41,"CreatedAt":"2026-11-05T16:20:59.864762+00:00","UpdatedAt":"2026-11-05T16:20:59.864762+00:00"},"dependencyImages":[{"role":"postgres","image":"docker.io/library/postgres:18.3"},{"role":"redis","image":"docker.io/library/redis:8.6"}]}
+Verified f01: fresh functional contracts, negative inputs,
+real SQL/Redis, legacy rows/users/history, live frontend/version/SignalR and dependency identity.
+Regraded the exact saved agent patch; no reference implementation or model rerun.

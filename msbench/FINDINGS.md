@@ -494,8 +494,16 @@ moves only those two checks to the original admin origin, without expanding the
 prompt or changing M01. Original cloud reward 0 and local v1 source hashes are
 preserved as historical evidence; the cloud result is grader-invalid, not a
 capability loss. A catalog-only-proxy regression passes corrected grading and
-rejects v1; exact saved-patch Docker regrade is pending slot availability.
-No model rerun or resampling is authorized by this grader correction.
+rejects v1. The [exact saved-patch Docker regrade](bingo-evolution/evidence/f01-grader-v2.json)
+now reproduces the old 404-versus-400 failure and passes the full corrected
+grader with reward 1/no exception, preserving 43 original square records,
+original user, OIDs and Redis state. It uses no reference application solution.
+The first local replay stopped at a missing patch-transport final LF; original
+bytes/failure are retained and only a separately hashed LF-normalized copy was
+used. Output source Git blob IDs and runtime SHA-256 values match the original
+native model diff. This is a local aarch64 regrade of an original x86_64 attempt,
+not another model sample; native cloud reward 0 remains unchanged and is
+explicitly marked grader-invalid. No model rerun or resampling was performed.
 
 **Limits:** Local fixture/grader proof only, not agent-performance evidence or
 an Aspire advantage. No model attempt or observed model skill/tool-use benefit

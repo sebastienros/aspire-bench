@@ -26,6 +26,49 @@ test("F01 v2 preserves the original grader-invalid cloud result and exact model 
     assert(!patch.includes("'/api':"));
 });
 
+test("F01 saved-patch regrade preserves v1 failure and proves v2 without resampling or source repair", async () => {
+    const read = file => readFile(new URL(`./evidence/${file}`, import.meta.url), "utf8");
+    const correction = JSON.parse(await read("f01-grader-v2.json"));
+    assert.equal(correction.status, "saved-patch-regraded-pass-v2-original-reward-preserved");
+    const { replay, patch_transport: transport } = correction;
+    assert.equal(replay.status, "passed");
+    assert.equal(replay.reward, 1);
+    assert.equal(replay.exception, null);
+    assert.equal(replay.new_model_runs, 0);
+    assert.equal(replay.reference_application_solution_used, false);
+    assert.equal(replay.original_native_cloud_artifacts_modified, false);
+    assert.equal(replay.original_v1_failure_reproduced, true);
+    const originalPatch = await read("f01-aspire-original-model-source.patch");
+    const normalized = await read(transport.normalized_patch);
+    assert.equal(normalized, `${originalPatch}\n`, "Only restore a missing patch-transport LF");
+    assert.equal(createHash("sha256").update(normalized).digest("hex"), transport.normalized_sha256);
+    for (const [file, hash] of Object.entries(replay.native_evidence)) {
+        assert.equal(createHash("sha256").update(await read(file)).digest("hex"), hash);
+    }
+    const result = JSON.parse(await read("f01-aspire-regrade-v2-result.json"));
+    assert.equal(result.verifier_result.rewards.reward, 1);
+    assert.equal(result.exception_info, null);
+    assert.match(await read("f01-aspire-regrade-v1-verifier.txt"),
+        /\/api\/demo\/producer\/squares\/import: HTTP 404[\s\S]*404 !== 400/);
+    const failedTransport = JSON.parse(await read("f01-aspire-replay-transport-result.json"));
+    assert.equal(failedTransport.verifier_result.rewards.reward, 0);
+    assert.match(await read("f01-aspire-replay-transport-oracle.txt"), /corrupt patch at line 100/);
+    const oracle = await read("f01-aspire-regrade-v2-oracle.txt");
+    for (const [file, hashes] of Object.entries(replay.source_hashes)) {
+        assert(hashes.git_blob.startsWith(hashes.cloud_patch_index_prefix));
+        assert(oracle.includes(`${hashes.sha256}  ${file}`));
+    }
+    const proof = replay.protected_baseline_and_functional_proof;
+    assert.equal(proof.preservation.originalSquareCount, 43);
+    assert.equal(proof.preservation.originalUserCount, 1);
+    assert.deepEqual(proof.preservation.originalDatabaseIdentity, proof.preservation.currentDatabaseIdentity);
+    assert.deepEqual(proof.preservation.originalMigrationIds, proof.preservation.currentMigrationIds);
+    assert.equal(proof.catalog.filteredActiveCount, 2);
+    assert.equal(proof.catalog.directRedisAfterClear, "False");
+    assert.equal(proof.catalog.emptyImportStatus, 400);
+    assert.equal(proof.catalog.unknownCallStatus, 404);
+});
+
 test("F01 accepts a catalog-only player proxy while checking legacy admin errors", async () => {
     const source = await readFile(new URL("./common/evolution.mjs", import.meta.url), "utf8");
     const body = source.split("export async function verifyFeature(urls) {\n")[1]

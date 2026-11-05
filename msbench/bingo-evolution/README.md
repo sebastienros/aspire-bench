@@ -1,6 +1,6 @@
 # Bingo bounded feature and schema evolution
 
-**Historical v1 runtime pairs verified; F01 v2 grading correction pending replay.**
+**Historical v1 runtime pairs verified; F01 v2 saved-patch regrade passed.**
 All four original tasks passed sequential force-built Docker oracles with
 reward 1, no exceptions and seven rejected negative cases each. Earlier setup,
 reference-solution and shared-host failures remain recorded below. No model
@@ -128,12 +128,49 @@ Cloud evidence is read-only and no model was rerun.
 `f01-grader.test.mjs` executes the real `verifyFeature` body against a
 catalog-only player and baseline admin contracts: corrected grading succeeds,
 the original body fails at the extraneous frontend write check. The replay
-draft in `regrade/f01-aspire-replay.sh` applies only that exact patch to a clean
+in `regrade/f01-aspire-replay.sh` applies only that exact patch to a clean
 warm fixture with fresh hidden state, uses the unchanged reload adapter, then
 reproduces v1's failure and runs v2. It installs no reference feature code.
-Actual Docker replay awaits the coordinator's reserved slot. Original cloud
-execution is x86_64; planned local replay is aarch64 and is explicitly a
+The completed force-built local replay reproduces **v1's 404-versus-400 failure**
+and passes the **full v2 grader, reward 1 and no exception**, preserving 43
+original squares, the full original user, database/table OIDs, dependency
+identity, migration history and Redis state. Fresh catalog/SQL/Redis/label/
+filter/error contracts pass. Original cloud execution is x86_64; local
+replay is aarch64 and is explicitly a
 saved-patch regrade, not an independent sample, task resubmission or resampling.
+
+| Receipt | Meaning |
+|---|---|
+| [Original cloud result](evidence/f01-aspire-original-cloud-result.json) and [verifier](evidence/f01-aspire-original-cloud-verifier.txt) | Original reward 0 remains unchanged; grader-invalid extra frontend write requirement |
+| [Local v1 reproduction](evidence/f01-aspire-regrade-v1-verifier.txt) | Same reconstructed app/source fails the original grading boundary |
+| [Local v2 result](evidence/f01-aspire-regrade-v2-result.json), [oracle](evidence/f01-aspire-regrade-v2-oracle.txt), [verifier](evidence/f01-aspire-regrade-v2-verifier.txt) | Corrected grading reward 1, exact saved source, no reference solution or new inference |
+| [Transport attempt](evidence/f01-aspire-replay-transport-result.json) and [output](evidence/f01-aspire-replay-transport-oracle.txt) | Initial replay stopped before source application because the saved patch lacked its final transport LF; not a model/candidate failure |
+
+The original saved patch and native cloud `changes.patch` both lacked their
+final LF, so `git apply --check` initially reported `corrupt patch at line 100`.
+The original bytes/hash remain unchanged. The separately hashed replay patch
+adds exactly one LF (`ebb446a8a10de9208b5fc70931f30138f6a04c69c7dd69c36a1d7d047f4bebe0`),
+with no hunk/model source change. All four source blocks exactly match native
+cloud source blocks; independently materialized output Git blobs match the
+cloud diff index IDs, and their SHA-256 values match the runtime replay log.
+The [v2 ledger](evidence/f01-grader-v2.json) records those hashes, all native
+receipts, runtime input hashes and the exact replay command.
+
+The public app/skill/helper contexts are unchanged. Only the corrected external
+grader and original-v1 diagnostic helper are staged outside `/app`; normal
+Harbor limits remain 900/300 seconds and 4 CPUs/8 GiB. Durable replay evidence:
+
+```text
+/Users/sebastienros/.copilot/session-state/ab478c48-b1ee-44e3-8192-f23af9975dd4/files/bingo-evolution/f01-v2-regrade/jobs/
+  f01-original-model-regrade-v2/       # failed transport, no model source applied
+  f01-original-model-regrade-v2-lf/    # source-identical regrade pass
+```
+
+Harbor removed its owned containers, and the coordinator's Docker slot was
+returned. V1 reference-oracle outputs below remain historical; do not relabel
+their reward/source hashes as v2 local-oracle evidence. M01 tasks/grading are
+byte-identical to their prior revision. The parent owns any public F01 common
+context repin and cloud-outcome interpretation; no cloud artifacts were edited.
 
 ## Reproduction and evidence
 

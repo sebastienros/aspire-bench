@@ -1,5 +1,5 @@
 {
-  "status": "corrected-replay-awaiting-docker-slot",
+  "status": "saved-patch-regraded-pass-v2-original-reward-preserved",
   "date": "2026-11-05",
   "correction_scope": "F01 only: preserve legacy producer error behavior on its baseline admin origin, not an unrequested new frontend write proxy.",
   "source_base_commit": "fa157c54315c8e3e774c9641b8b429aaf55bc072",
@@ -49,12 +49,154 @@
     }
   },
   "replay": {
-    "status": "awaiting-reserved-docker-slot",
+    "status": "passed",
     "method": "Reconstruct original warm F01 Aspire fixture with fresh hidden SQL/Redis/OID state; apply exact saved four-file model source patch; use only the existing reload adapter; reproduce v1 failure and run v2 external grader.",
     "new_model_runs": 0,
     "reference_application_solution_used": false,
     "original_native_cloud_artifacts_modified": false,
     "same_cloud_container": false,
-    "platform_limit": "Original cloud ran Linux x86_64; planned local replay uses Linux aarch64. This is a saved-patch regrade, not an additional independent model sample."
+    "platform_limit": "Original cloud ran Linux x86_64; planned local replay uses Linux aarch64. This is a saved-patch regrade, not an additional independent model sample.",
+    "job": "f01-original-model-regrade-v2-lf",
+    "durable_trial_path": "/Users/sebastienros/.copilot/session-state/ab478c48-b1ee-44e3-8192-f23af9975dd4/files/bingo-evolution/f01-v2-regrade/jobs/f01-original-model-regrade-v2-lf/task__z5tJg9D",
+    "agent": "oracle (saved-patch applicator only)",
+    "reward": 1,
+    "exception": null,
+    "force_build": true,
+    "task_checksum": "565c5144dfce3d196b8b5e675adc9873ca700fe006c6231ad06b6ed0c1ba23b2",
+    "started_at": "2026-11-05T16:20:28.258364Z",
+    "finished_at": "2026-11-05T16:21:13.536267Z",
+    "command": "harbor run --path /Users/sebastienros/.copilot/session-state/ab478c48-b1ee-44e3-8192-f23af9975dd4/files/bingo-evolution/f01-v2-regrade/task --agent oracle --force-build --jobs-dir /Users/sebastienros/.copilot/session-state/ab478c48-b1ee-44e3-8192-f23af9975dd4/files/bingo-evolution/f01-v2-regrade/jobs --job-name f01-original-model-regrade-v2-lf --n-concurrent 1",
+    "original_v1_failure_reproduced": true,
+    "v1_reproduced_failure": "/api/demo/producer/squares/import: HTTP 404; 404 !== 400",
+    "native_evidence": {
+      "f01-aspire-regrade-v2-result.json": "8b995cd19ff10efeefe3268c282894d2adf6450c8d9fc329ccf4645ee466754d",
+      "f01-aspire-regrade-v2-oracle.txt": "9d36ab8832664c847719de4a7b994da4368ff90e1fba62ac290ee94dfffd5ad5",
+      "f01-aspire-regrade-v1-verifier.txt": "4dbb438fc2e96449c5ecc76d11e1a759d14a9de79422c7f70c4d9ac40a65b1bd",
+      "f01-aspire-regrade-v2-verifier.txt": "66ee9084e240d2b14e4d17b5f7c605215775a2787663b23a2d71f1251c664302",
+      "f01-aspire-replay-transport-result.json": "fcde85e4e3242e4f78784af1af045649253789459f6f6be4ccf64da75923edfd",
+      "f01-aspire-replay-transport-oracle.txt": "5ea46b0a7726902eb988c27c35d003fe877e3282c64dddcaef8bec60297e669e",
+      "f01-aspire-replay-transport-verifier.txt": "6421eea152fde0c8ac6775a4e9524e17412df433771bc3e07f766d1cc0b67a94"
+    },
+    "source_hashes": {
+      "src/BingoBoard.Admin/Endpoints/ProducerEndpoints.cs": {
+        "sha256": "bcb6ce61336a6946471f0af8f47600efbe28cb3946a6b45db826e5d616804f61",
+        "git_blob": "f2ede96559800ded73ffd0d00ef9e03c4c1e5dca",
+        "cloud_patch_index_prefix": "f2ede96"
+      },
+      "src/BingoBoard.Admin/Services/BingoService.cs": {
+        "sha256": "af21758acfb87e339113b48036ddf5543f9f5e20bbfc4cc4f19e767d9ff9f705",
+        "git_blob": "908e3f5a81e1af55f9d39954fc07b38e3951362b",
+        "cloud_patch_index_prefix": "908e3f5"
+      },
+      "src/BingoBoard.Admin/Services/IBingoService.cs": {
+        "sha256": "c73b6b6bcfba1a3efe2b559abc4aeec2255fd087b9b3aa9bedf707cf3ffd0966",
+        "git_blob": "52b0c00c98faa2e3389a537975a79266057892d8",
+        "cloud_patch_index_prefix": "52b0c00"
+      },
+      "src/bingo-board/vite.config.js": {
+        "sha256": "c809a39d6c8a60e9e936a5608ceb8e3333142db226e5dcce40527e154be1f569",
+        "git_blob": "06b3693aaa1a77f5b7769c5a158a2a30b77ab7d5",
+        "cloud_patch_index_prefix": "06b3693"
+      }
+    },
+    "protected_baseline_and_functional_proof": {
+      "catalog": {
+        "freshIds": [
+          "feature-3bbf39b96e8e8b3f11f9af5f-z",
+          "feature-3bbf39b96e8e8b3f11f9af5f-a",
+          "feature-3bbf39b96e8e8b3f11f9af5f-hidden",
+          "feature-3bbf39b96e8e8b3f11f9af5f-other",
+          "feature-3bbf39b96e8e8b3f11f9af5f-null"
+        ],
+        "filter": "kind-f38d020e59d3eeaef66bbfcb",
+        "filteredActiveCount": 2,
+        "refreshedLabel": "Changed 9e08ba334897a9d11b579bda",
+        "unfilteredActiveCount": 57,
+        "directRedisAfterClear": "False",
+        "unknownFilter": [],
+        "emptyImportStatus": 400,
+        "unknownCallStatus": 404
+      },
+      "preservation": {
+        "originalSquareCount": 43,
+        "originalUserCount": 1,
+        "originalDatabaseIdentity": {
+          "database": "16384",
+          "squares": "16413",
+          "users": "16400",
+          "history": "16385"
+        },
+        "currentDatabaseIdentity": {
+          "database": "16384",
+          "squares": "16413",
+          "users": "16400",
+          "history": "16385"
+        },
+        "originalMigrationIds": [
+          "20260206183116_InitialCreate"
+        ],
+        "currentMigrationIds": [
+          "20260206183116_InitialCreate"
+        ],
+        "sentinel": {
+          "Id": "keep-c3d8f4fcd46ea4f39c4aa368",
+          "Label": "Preserved '4ee9a2e61d6d2487e3bb3bde",
+          "Type": "evolution",
+          "IsActive": true,
+          "DisplayOrder": 41,
+          "CreatedAt": "2026-11-05T16:20:59.864762+00:00",
+          "UpdatedAt": "2026-11-05T16:20:59.864762+00:00"
+        },
+        "dependencyImages": [
+          {
+            "role": "postgres",
+            "image": "docker.io/library/postgres:18.3"
+          },
+          {
+            "role": "redis",
+            "image": "docker.io/library/redis:8.6"
+          }
+        ]
+      }
+    },
+    "build_inputs": {
+      "environment/Dockerfile": "20d1e963dd0f4e0b15f4171072fd7234e8d85a4b95e2033302795921925830d7",
+      "environment/app/README.md": "68e0bdebff108a30c7ca6d1302d3d44219109200fd48c2b83c5e7b757ec3e9ba",
+      "environment/bootstrap.sh": "029dfb5492025861ea7bdb1cc67afd3824aa0131d8ecc4fc2939313080d33c8f",
+      "environment/docker-compose.yaml": "ea2c02d2f091b18d1138a971623aa9dbb81f6b0a05fd22019bd7de04bb3018fe",
+      "environment/entrypoint.sh": "64cbe5dc0fef421bd9e12897dddf3cfd1c5f91d95fd6228e44f5297f64671d1b",
+      "environment/evolution-v2.mjs": "8dbd765e7828c8dbe04631b139abb01fc30d549d9412e8dbe32ed9f01f5419ba",
+      "environment/grader-v1/evolution.mjs": "5bd6b0bdbcc118472e9d56943e95873114d2db0f34dcfdc83a53d9ccdfcedea4",
+      "environment/grader-v1/hashes.js": "a79aad71c8a69337ce2ddcdc359b0eb7aebb132736c1881996b517e3e739269b",
+      "environment/grader-v1/http.js": "938f87802eb4e29dcebd75a6d77731207ee9def90e5608aae5acac78c65b25e9",
+      "environment/grader-v1/negative.mjs": "796e1cdc673649ca1a2a53a79d633f9528e4eb03a3153c83ed192e7d48b400a9",
+      "environment/grader-v1/process.js": "7ebac1394cdb607e2512ff89e66547db23f0a875440e9a6c7e32306ae577abc4",
+      "environment/skills/aspire-startup/SKILL.md": "b0a5b2f287421312729c3b9e1f89c1a34cf088798583834224d4b8408ea7eea9",
+      "instruction.md": "e8116471e174cc51199233db4bab90cbbdf5bad110fe00b9e4fcf7a5e0687b25",
+      "solution/original-model-source.patch": "cc9b133e173eb2ded3de1110f0afd5fb936e64c87b05d7d6346a7050029d6b59",
+      "solution/reload.sh": "190d146e704e5b8562b4bbfc91383066f5be1190ee2802e688700b87fa69033c",
+      "solution/replay-model-source.patch": "ebb446a8a10de9208b5fc70931f30138f6a04c69c7dd69c36a1d7d047f4bebe0",
+      "solution/solve.sh": "b6c5af73dacc574663bc12e16f22adbf02c7260fc76ce5275de2a561e1289825",
+      "task.toml": "faa9bb5418e2b3c2ee8223569b3c46d6618d38c683de5e3dd831b0135802ea0b",
+      "tests/test.sh": "12b46819acd0abc33533d04ff452b8f2cfa37483930646e67f05cd9e0618a2bb"
+    },
+    "build_contexts": "Original app/skills and v1 common use immutable public origin Git contexts; v2 external grader is a byte-exact task-local COPY override of the two-line correction.",
+    "limits": {
+      "agent_seconds": 900,
+      "verifier_seconds": 300,
+      "cpus": 4,
+      "memory_mb": 8192
+    },
+    "cleanup": "Harbor removed task-owned containers; docker ps empty after all three case replays. No shared cleanup/restart/prune."
+  },
+  "patch_transport": {
+    "original_sha256": "cc9b133e173eb2ded3de1110f0afd5fb936e64c87b05d7d6346a7050029d6b59",
+    "original_missing_final_lf": true,
+    "normalized_patch": "f01-aspire-replay-source.patch",
+    "normalized_sha256": "ebb446a8a10de9208b5fc70931f30138f6a04c69c7dd69c36a1d7d047f4bebe0",
+    "transformation": "Append exactly one missing final LF for git apply transport validity; no hunk/model source changes.",
+    "native_cloud_source_blocks_match_original_patch": true,
+    "initial_failure_job": "f01-original-model-regrade-v2",
+    "initial_failure": "git apply --check: corrupt patch at line 100; no model source applied, original baseline graded0. Preserved as transport/infrastructure attempt, not a model failure."
   }
 }
