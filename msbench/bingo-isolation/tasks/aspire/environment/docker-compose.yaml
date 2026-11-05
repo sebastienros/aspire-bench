@@ -1,0 +1,9 @@
+services:
+  main:
+    privileged: true
+    build:
+      additional_contexts:
+        diagnostics-common: ${MSBENCH_DIAGNOSTICS_CONTEXT:-https://github.com/sebastienros/aspire-bench.git#d3694ec111609a79073dcba35bc1f1b1c9517d8f:msbench/bingo-diagnostics/common}
+        aspire-overlay: ${MSBENCH_ASPIRE_OVERLAY_CONTEXT:-https://github.com/sebastienros/aspire-bench.git#d3694ec111609a79073dcba35bc1f1b1c9517d8f:msbench/bingo-diagnostics/tasks/aspire/environment/app}
+        aspire-app: ${MSBENCH_ASPIRE_APP_CONTEXT:-https://github.com/sebastienros/aspire-bench.git#d3694ec111609a79073dcba35bc1f1b1c9517d8f:msbench/bingo/common/aspire-app}
+        aspire-skills: https://github.com/sebastienros/aspire-bench.git#1fcca7e91c89716f0e4a8bf7324da13a39f70c66:msbench/bingo/tasks/aspire/environment/skills
