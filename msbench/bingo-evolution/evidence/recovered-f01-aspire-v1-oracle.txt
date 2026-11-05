@@ -1,0 +1,25 @@
+Rejected report-only: SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+Stopping resource 'boardadmin'...
+✅ Resource 'boardadmin' stopped successfully.
+Rebuilding resource 'migrations'...
+✅ Resource 'migrations' rebuilt successfully.
+[build] Stopping resource for rebuild...
+[build] Building project...
+[build] 2026-11-05T01:05:47.7720000Z [sys] Starting process...: Cmd = /usr/bin/dotnet, Args = ["build", "/app/src/BingoBoard.MigrationService/BingoBoard.MigrationService.csproj", "--configuration", "Debug"]
+[build] 2026-11-05T01:05:48.0840000Z   Determining projects to restore...
+[build] 2026-11-05T01:05:48.4870000Z   All projects are up-to-date for restore.
+[build] 2026-11-05T01:05:48.6930000Z   BingoBoard.Data -> /app/src/BingoBoard.Data/bin/Debug/net10.0/BingoBoard.Data.dll
+[build] 2026-11-05T01:05:48.7020000Z   BingoBoard.ServiceDefaults -> /app/src/BingoBoard.ServiceDefaults/bin/Debug/net10.0/BingoBoard.ServiceDefaults.dll
+[build] 2026-11-05T01:05:48.7620000Z   BingoBoard.MigrationService -> /app/src/BingoBoard.MigrationService/bin/Debug/net10.0/BingoBoard.MigrationService.dll
+[build] 2026-11-05T01:05:48.7690000Z 
+[build] 2026-11-05T01:05:48.7700000Z Build succeeded.
+[build] 2026-11-05T01:05:48.7700000Z     0 Warning(s)
+[build] 2026-11-05T01:05:48.7700000Z     0 Error(s)
+[build] 2026-11-05T01:05:48.7700000Z 
+[build] 2026-11-05T01:05:48.7700000Z Time Elapsed 00:00:00.91
+[build] Build succeeded. Restarting resource...
+Waiting for resource 'migrations' to be healthy...
+❌ Resource 'migrations' entered a failed state: Stopped waiting for resource 'migrations' to become healthy because it failed to start.
+
+📄 See logs at /usr/local/logs/cli_20261105T010549_4c132555.log
+🔍 See AppHost logs at /usr/local/logs/cli_20261105T010505566_detach-child_41e4e0072da14e78bb2d7cd997228bb4.log

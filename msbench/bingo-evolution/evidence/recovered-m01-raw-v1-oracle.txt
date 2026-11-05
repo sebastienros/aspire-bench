@@ -1,0 +1,167 @@
+Rejected report-only: SyntaxError: Unexpected end of JSON input
+  Determining projects to restore...
+/app/src/BingoBoard.Admin/BingoBoard.Admin.csproj : warning NU1902: Package 'MessagePack' 2.5.302 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-qhrr-8q5h-9q3h [/app/AspireifyBingo.slnx]
+  All projects are up-to-date for restore.
+/app/src/BingoBoard.Admin/BingoBoard.Admin.csproj : warning NU1902: Package 'MessagePack' 2.5.302 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-qhrr-8q5h-9q3h
+  BingoBoard.Data -> /app/src/BingoBoard.Data/bin/Debug/net10.0/BingoBoard.Data.dll
+  BingoBoard.MigrationService -> /app/src/BingoBoard.MigrationService/bin/Debug/net10.0/BingoBoard.MigrationService.dll
+  BingoBoard.Admin -> /app/src/BingoBoard.Admin/bin/Debug/net10.0/BingoBoard.Admin.dll
+
+Build succeeded.
+
+/app/src/BingoBoard.Admin/BingoBoard.Admin.csproj : warning NU1902: Package 'MessagePack' 2.5.302 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-qhrr-8q5h-9q3h [/app/AspireifyBingo.slnx]
+/app/src/BingoBoard.Admin/BingoBoard.Admin.csproj : warning NU1902: Package 'MessagePack' 2.5.302 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-qhrr-8q5h-9q3h
+    2 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.86
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Development
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: /app/src/BingoBoard.MigrationService
+info: BingoBoard.MigrationService.Worker[0]
+      Migrating the database...
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (6ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "MigrationId", "ProductVersion"
+      FROM "__EFMigrationsHistory"
+      ORDER BY "MigrationId";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
+          "MigrationId" character varying(150) NOT NULL,
+          "ProductVersion" character varying(32) NOT NULL,
+          CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY ("MigrationId")
+      );
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      LOCK TABLE "__EFMigrationsHistory" IN ACCESS EXCLUSIVE MODE
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "MigrationId", "ProductVersion"
+      FROM "__EFMigrationsHistory"
+      ORDER BY "MigrationId";
+info: Microsoft.EntityFrameworkCore.Migrations[20402]
+      Applying migration '20261104000000_AddSquareDescription'.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      ALTER TABLE "BingoSquares" ADD "Description" character varying(280) NOT NULL DEFAULT '';
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+      VALUES ('20261104000000_AddSquareDescription', '10.0.12');
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@normalizedUserName='?'], CommandType='Text', CommandTimeout='30']
+      SELECT a."Id", a."AccessFailedCount", a."ConcurrencyStamp", a."Email", a."EmailConfirmed", a."LockoutEnabled", a."LockoutEnd", a."NormalizedEmail", a."NormalizedUserName", a."PasswordHash", a."PhoneNumber", a."PhoneNumberConfirmed", a."SecurityStamp", a."TwoFactorEnabled", a."UserName"
+      FROM "AspNetUsers" AS a
+      WHERE a."NormalizedUserName" = @normalizedUserName
+      LIMIT 1
+info: BingoBoard.MigrationService.Worker[0]
+      The configured password matches the current password.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT b."Id"
+      FROM "BingoSquares" AS b
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT max(b."DisplayOrder")
+      FROM "BingoSquares" AS b
+info: BingoBoard.MigrationService.Worker[0]
+      Seeded 0 missing bingo squares; 44 already existed.
+info: Microsoft.Hosting.Lifetime[0]
+      Application is shutting down...
+Rejected applied migration with hardcoded empty descriptions
+  Determining projects to restore...
+/app/src/BingoBoard.Admin/BingoBoard.Admin.csproj : warning NU1902: Package 'MessagePack' 2.5.302 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-qhrr-8q5h-9q3h [/app/AspireifyBingo.slnx]
+  All projects are up-to-date for restore.
+  BingoBoard.Data -> /app/src/BingoBoard.Data/bin/Debug/net10.0/BingoBoard.Data.dll
+/app/src/BingoBoard.Admin/BingoBoard.Admin.csproj : warning NU1902: Package 'MessagePack' 2.5.302 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-qhrr-8q5h-9q3h
+  BingoBoard.MigrationService -> /app/src/BingoBoard.MigrationService/bin/Debug/net10.0/BingoBoard.MigrationService.dll
+  BingoBoard.Admin -> /app/src/BingoBoard.Admin/bin/Debug/net10.0/BingoBoard.Admin.dll
+
+Build succeeded.
+
+/app/src/BingoBoard.Admin/BingoBoard.Admin.csproj : warning NU1902: Package 'MessagePack' 2.5.302 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-qhrr-8q5h-9q3h [/app/AspireifyBingo.slnx]
+/app/src/BingoBoard.Admin/BingoBoard.Admin.csproj : warning NU1902: Package 'MessagePack' 2.5.302 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-qhrr-8q5h-9q3h
+    2 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.43
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Development
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: /app/src/BingoBoard.MigrationService
+info: BingoBoard.MigrationService.Worker[0]
+      Migrating the database...
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (6ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "MigrationId", "ProductVersion"
+      FROM "__EFMigrationsHistory"
+      ORDER BY "MigrationId";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
+          "MigrationId" character varying(150) NOT NULL,
+          "ProductVersion" character varying(32) NOT NULL,
+          CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY ("MigrationId")
+      );
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      LOCK TABLE "__EFMigrationsHistory" IN ACCESS EXCLUSIVE MODE
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT "MigrationId", "ProductVersion"
+      FROM "__EFMigrationsHistory"
+      ORDER BY "MigrationId";
+info: Microsoft.EntityFrameworkCore.Migrations[20405]
+      No migrations were applied. The database is already up to date.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@normalizedUserName='?'], CommandType='Text', CommandTimeout='30']
+      SELECT a."Id", a."AccessFailedCount", a."ConcurrencyStamp", a."Email", a."EmailConfirmed", a."LockoutEnabled", a."LockoutEnd", a."NormalizedEmail", a."NormalizedUserName", a."PasswordHash", a."PhoneNumber", a."PhoneNumberConfirmed", a."SecurityStamp", a."TwoFactorEnabled", a."UserName"
+      FROM "AspNetUsers" AS a
+      WHERE a."NormalizedUserName" = @normalizedUserName
+      LIMIT 1
+info: BingoBoard.MigrationService.Worker[0]
+      The configured password matches the current password.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT b."Id"
+      FROM "BingoSquares" AS b
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT max(b."DisplayOrder")
+      FROM "BingoSquares" AS b
+info: BingoBoard.MigrationService.Worker[0]
+      Seeded 0 missing bingo squares; 47 already existed.
+info: Microsoft.Hosting.Lifetime[0]
+      Application is shutting down...
+Rejected guidance: AssertionError [ERR_ASSERTION]: Protected guidance or original migration changed
+Rejected endpoints: AssertionError [ERR_ASSERTION]: Endpoint file changed
+Rejected lost-row: AssertionError [ERR_ASSERTION]: Existing square changed or lost: inactive-b3efa9c9618b2b3315c797c1
+Rejected rebuilt-table: AssertionError [ERR_ASSERTION]: Database or original tables were rebuilt
+Rejected lost-cache: AssertionError [ERR_ASSERTION]: Unrelated Redis state lost
+AssertionError [ERR_ASSERTION]: /api/demo/producer/squares/missing-6a4f2cd8d97bbbc2bcbacf24/description: HTTP 405
+
+405 !== 404
+
+    at request (file:///opt/benchmark/evolution.mjs:21:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async verifyMigration (file:///opt/benchmark/evolution.mjs:234:5)
+    at async main (file:///opt/benchmark/evolution.mjs:281:9) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 405,
+  expected: 404,
+  operator: 'strictEqual',
+  diff: 'simple'
+}

@@ -53,7 +53,7 @@ try {
     const result = await command("node", ["/opt/benchmark/evolution.mjs", "verify"], { accept: [0, 1] });
     assert.equal(result.code, 1, `Grader incorrectly accepted ${scenario}`);
     assert.match(result.stderr, expected, `Wrong failure for ${scenario}`);
-    console.log(`Rejected ${scenario}: ${result.stderr.split("\n").find(line => line.includes("AssertionError"))}`);
+    console.log(`Rejected ${scenario}: ${result.stderr.split("\n").find(line => expected.test(line))}`);
 } finally {
     await restore();
 }

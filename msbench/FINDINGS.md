@@ -420,7 +420,7 @@ corrected the oracle to apply prepare's `.env.Production`, rather than publish's
 placeholder `.env`. These are source/graph fixes, not successful Docker or remote
 deployment evidence; the runtime gate remains open.
 
-## F11: Feature/data-evolution checks need real state; local pair gates remain blocked
+## F11: Feature/data-evolution correctness needs real state, not readiness
 
 **Evidence:** The [bounded F01/M01 tasks](bingo-evolution/README.md#local-outcomes-2026-11-04)
 extend Bingo without changing historical fixtures. F01 adds an actual active
@@ -430,31 +430,45 @@ preexisting active/inactive squares and users. Prompts are matched and
 outcome-neutral; raw has useful reload/migration scripts, Aspire has eight
 explicitly exposed skills and ordinary resource operations, with MCP disabled.
 
-The initial F01 raw Docker oracle passed (reward 1, no exception), including
-fresh nonces, direct SQL/Redis observations and seven rejected no-op/hardcoded/
-integrity/data-loss cases. In particular, recreating a table with identical rows
-was rejected using its original database/table identity, not just row counts.
-[Native result and output](bingo-evolution/evidence/validation.json) retain the
-evidence. All 11 new/relevant historical structural and negative tests passed.
+**Verified locally:** After recovery, both F01/M01 pairs passed all four exact
+final sequential force-built Docker oracles (reward 1, no exceptions), with
+seven rejected no-op/hardcoded/integrity/data-loss cases each. Real SQL/Redis
+checks preserve 43 old square records and the complete original user, migration
+history and database/table OIDs. Recreating a table with identical rows is
+rejected, not just checked by row counts. Both M01 graders prove the actual
+non-null `varchar(280)` empty-default column, all old descriptions backfilled
+empty, a new applied migration, fresh SQL defaults and exact HTTP writes/
+negative inputs; F01 proves fresh catalog filtering, label refresh and call/
+clear state. [Native results and parsed runtime proof](bingo-evolution/evidence/recovered-local-validation.json)
+retain source/evidence hashes and failures separately.
 
-**Failure / limits:** F01 Aspire failed before agent execution when the new
-grader could not recognize its Redis image. The matcher assumed unqualified
-names; registry qualification is the working diagnosis, but the original image
-string was not retained. The candidate fixture fix is not runtime-reverified
-and is not evidence of an Aspire product failure. Shared-host
-disk exhaustion and an unresponsive Docker daemon then prevented completion of
-the replacement and both M01 validations. The initial raw oracle predates the
-image-name/artifact-list changes. **Neither final matched pair is verified or
-model-ready.** No completed M01 positive grade, model attempt, performance
-comparison, or observed skill/tool-use benefit is claimed. Setup/oracle runtime
-is not agent-development time.
+**Failures and actual corrections:** Initial image-name matching and shared-host
+disk/Docker failures remain in the historical ledger. Final runtime proof
+captures registry-qualified Aspire image names; helpers select owned roles,
+use database `db` versus raw `bingo`, and retain authenticated Redis TLS/CA
+verification. Recovery also exposed an invalid healthy wait on a completed
+worker, explicit `resource start` needed after rebuilding stopped/completed
+projects with the pinned CLI, and a reference empty 404 response reexecuted as
+PUT 405. Supported starts and the original producer's nonempty 404 pattern
+resolved these without dependency replacement or security bypass. Five failed
+recovery trials retain reward 0 alongside the final passes.
+
+**Limits:** Local fixture/grader proof only, not agent-performance evidence or
+an Aspire advantage. No model attempt or observed model skill/tool-use benefit
+is claimed; oracle/setup time is not agent-development time. The portable
+CES build graph remains a separate pending gate: the sibling common context
+is outside the environment directory. Parent D01 submissions encountered
+Docker Bake filesystem-entitlement rejection before agents ran. Parent must
+pin the public Git common context and verify build-on-demand packaging; no
+cloud dataset/readiness claim is made for these tasks yet.
 
 **Improvement candidate / status:** Keep schema/data correctness independent of
 resource readiness: compare original identifiers and contents, preserve migration
 history and database/table identity, and verify fresh writes/negative inputs
-through HTTP plus SQL/Redis. This mechanism has partial local proof, not an
-adopted product change. Complete both exact final Docker oracles only after the
-shared host is healthy; withhold cloud datasets/submissions until that gate.
+through HTTP plus SQL/Redis. This mechanism now has matched local runtime proof,
+not an adopted product change. Preserve useful raw scripts and supported Aspire
+recipes explicitly, including one-shot completion and restart semantics.
+Withhold cloud datasets/submissions until the independent portable-build gate.
 
 ## F10: Runtime diagnosis fixtures must pass the infrastructure gate first
 

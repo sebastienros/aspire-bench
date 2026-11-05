@@ -1,0 +1,47 @@
+Rejected report-only: SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+Stopping resource 'boardadmin'...
+✅ Resource 'boardadmin' stopped successfully.
+Rebuilding resource 'migrations'...
+✅ Resource 'migrations' rebuilt successfully.
+[build] Stopping resource for rebuild...
+[build] Building project...
+[build] 2026-11-05T01:07:22.8430000Z [sys] Starting process...: Cmd = /usr/bin/dotnet, Args = ["build", "/app/src/BingoBoard.MigrationService/BingoBoard.MigrationService.csproj", "--configuration", "Debug"]
+[build] 2026-11-05T01:07:23.1260000Z   Determining projects to restore...
+[build] 2026-11-05T01:07:23.5040000Z   All projects are up-to-date for restore.
+[build] 2026-11-05T01:07:23.7000000Z   BingoBoard.Data -> /app/src/BingoBoard.Data/bin/Debug/net10.0/BingoBoard.Data.dll
+[build] 2026-11-05T01:07:23.7100000Z   BingoBoard.ServiceDefaults -> /app/src/BingoBoard.ServiceDefaults/bin/Debug/net10.0/BingoBoard.ServiceDefaults.dll
+[build] 2026-11-05T01:07:23.7650000Z   BingoBoard.MigrationService -> /app/src/BingoBoard.MigrationService/bin/Debug/net10.0/BingoBoard.MigrationService.dll
+[build] 2026-11-05T01:07:23.7720000Z 
+[build] 2026-11-05T01:07:23.7720000Z Build succeeded.
+[build] 2026-11-05T01:07:23.7720000Z     0 Warning(s)
+[build] 2026-11-05T01:07:23.7720000Z     0 Error(s)
+[build] 2026-11-05T01:07:23.7720000Z 
+[build] 2026-11-05T01:07:23.7720000Z Time Elapsed 00:00:00.84
+[build] Build succeeded. Restarting resource...
+Rebuilding resource 'boardadmin'...
+✅ Resource 'boardadmin' rebuilt successfully.
+[build] Stopping resource for rebuild...
+[build] Building project...
+[build] 2026-11-05T01:07:24.3770000Z [sys] Starting process...: Cmd = /usr/bin/dotnet, Args = ["build", "/app/src/BingoBoard.Admin/BingoBoard.Admin.csproj", "--configuration", "Debug"]
+[build] 2026-11-05T01:07:24.6280000Z   Determining projects to restore...
+[build] 2026-11-05T01:07:24.8490000Z /app/src/BingoBoard.Admin/BingoBoard.Admin.csproj : warning NU1902: Package 'MessagePack' 2.5.302 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-qhrr-8q5h-9q3h
+[build] 2026-11-05T01:07:24.8500000Z   All projects are up-to-date for restore.
+[build] 2026-11-05T01:07:24.8950000Z /app/src/BingoBoard.Admin/BingoBoard.Admin.csproj : warning NU1902: Package 'MessagePack' 2.5.302 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-qhrr-8q5h-9q3h
+[build] 2026-11-05T01:07:24.9990000Z   BingoBoard.Data -> /app/src/BingoBoard.Data/bin/Debug/net10.0/BingoBoard.Data.dll
+[build] 2026-11-05T01:07:25.0320000Z   BingoBoard.ServiceDefaults -> /app/src/BingoBoard.ServiceDefaults/bin/Debug/net10.0/BingoBoard.ServiceDefaults.dll
+[build] 2026-11-05T01:07:25.8610000Z   BingoBoard.Admin -> /app/src/BingoBoard.Admin/bin/Debug/net10.0/BingoBoard.Admin.dll
+[build] 2026-11-05T01:07:25.8710000Z 
+[build] 2026-11-05T01:07:25.8710000Z Build succeeded.
+[build] 2026-11-05T01:07:25.8710000Z 
+[build] 2026-11-05T01:07:25.8710000Z /app/src/BingoBoard.Admin/BingoBoard.Admin.csproj : warning NU1902: Package 'MessagePack' 2.5.302 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-qhrr-8q5h-9q3h
+[build] 2026-11-05T01:07:25.8710000Z /app/src/BingoBoard.Admin/BingoBoard.Admin.csproj : warning NU1902: Package 'MessagePack' 2.5.302 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-qhrr-8q5h-9q3h
+[build] 2026-11-05T01:07:25.8710000Z     2 Warning(s)
+[build] 2026-11-05T01:07:25.8710000Z     0 Error(s)
+[build] 2026-11-05T01:07:25.8710000Z 
+[build] 2026-11-05T01:07:25.8710000Z Time Elapsed 00:00:01.42
+[build] Build succeeded. Restarting resource...
+Waiting for resource 'boardadmin' to be healthy...
+❌ Resource 'boardadmin' entered a failed state: Stopped waiting for resource 'boardadmin' to become healthy because it failed to start.
+
+📄 See logs at /usr/local/logs/cli_20261105T010726_f3668151.log
+🔍 See AppHost logs at /usr/local/logs/cli_20261105T010645725_detach-child_befc50ccb5b04b9988a9eb88c4fc1eeb.log

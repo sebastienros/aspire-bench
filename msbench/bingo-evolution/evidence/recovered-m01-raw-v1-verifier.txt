@@ -1,0 +1,15 @@
+AssertionError [ERR_ASSERTION]: /api/demo/producer/squares/missing-caf18bb62b3e51e0d3565f0a/description: HTTP 405
+
+405 !== 404
+
+    at request (file:///opt/benchmark/evolution.mjs:21:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async verifyMigration (file:///opt/benchmark/evolution.mjs:234:5)
+    at async main (file:///opt/benchmark/evolution.mjs:281:9) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 405,
+  expected: 404,
+  operator: 'strictEqual',
+  diff: 'simple'
+}

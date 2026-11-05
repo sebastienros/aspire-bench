@@ -1,0 +1,296 @@
+Rejected report-only: SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+Stopping resource 'boardadmin'...
+✅ Resource 'boardadmin' stopped successfully.
+Rebuilding resource 'migrations'...
+✅ Resource 'migrations' rebuilt successfully.
+[build] Stopping resource for rebuild...
+[build] Building project...
+[build] 2026-11-05T01:11:23.3370000Z [sys] Starting process...: Cmd = /usr/bin/dotnet, Args = ["build", "/app/src/BingoBoard.MigrationService/BingoBoard.MigrationService.csproj", "--configuration", "Debug"]
+[build] 2026-11-05T01:11:23.6290000Z   Determining projects to restore...
+[build] 2026-11-05T01:11:24.0300000Z   All projects are up-to-date for restore.
+[build] 2026-11-05T01:11:24.2380000Z   BingoBoard.Data -> /app/src/BingoBoard.Data/bin/Debug/net10.0/BingoBoard.Data.dll
+[build] 2026-11-05T01:11:24.2490000Z   BingoBoard.ServiceDefaults -> /app/src/BingoBoard.ServiceDefaults/bin/Debug/net10.0/BingoBoard.ServiceDefaults.dll
+[build] 2026-11-05T01:11:24.3090000Z   BingoBoard.MigrationService -> /app/src/BingoBoard.MigrationService/bin/Debug/net10.0/BingoBoard.MigrationService.dll
+[build] 2026-11-05T01:11:24.3170000Z 
+[build] 2026-11-05T01:11:24.3170000Z Build succeeded.
+[build] 2026-11-05T01:11:24.3170000Z     0 Warning(s)
+[build] 2026-11-05T01:11:24.3170000Z     0 Error(s)
+[build] 2026-11-05T01:11:24.3170000Z 
+[build] 2026-11-05T01:11:24.3170000Z Time Elapsed 00:00:00.90
+[build] Build succeeded. Restarting resource...
+Rebuilding resource 'boardadmin'...
+✅ Resource 'boardadmin' rebuilt successfully.
+[build] Stopping resource for rebuild...
+[build] Building project...
+[build] 2026-11-05T01:11:24.9230000Z [sys] Starting process...: Cmd = /usr/bin/dotnet, Args = ["build", "/app/src/BingoBoard.Admin/BingoBoard.Admin.csproj", "--configuration", "Debug"]
+[build] 2026-11-05T01:11:25.1890000Z   Determining projects to restore...
+[build] 2026-11-05T01:11:25.4050000Z /app/src/BingoBoard.Admin/BingoBoard.Admin.csproj : warning NU1902: Package 'MessagePack' 2.5.302 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-qhrr-8q5h-9q3h
+[build] 2026-11-05T01:11:25.4060000Z   All projects are up-to-date for restore.
+[build] 2026-11-05T01:11:25.4500000Z /app/src/BingoBoard.Admin/BingoBoard.Admin.csproj : warning NU1902: Package 'MessagePack' 2.5.302 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-qhrr-8q5h-9q3h
+[build] 2026-11-05T01:11:25.5410000Z   BingoBoard.Data -> /app/src/BingoBoard.Data/bin/Debug/net10.0/BingoBoard.Data.dll
+[build] 2026-11-05T01:11:25.5710000Z   BingoBoard.ServiceDefaults -> /app/src/BingoBoard.ServiceDefaults/bin/Debug/net10.0/BingoBoard.ServiceDefaults.dll
+[build] 2026-11-05T01:11:26.4030000Z   BingoBoard.Admin -> /app/src/BingoBoard.Admin/bin/Debug/net10.0/BingoBoard.Admin.dll
+[build] 2026-11-05T01:11:26.4140000Z 
+[build] 2026-11-05T01:11:26.4140000Z Build succeeded.
+[build] 2026-11-05T01:11:26.4140000Z 
+[build] 2026-11-05T01:11:26.4140000Z /app/src/BingoBoard.Admin/BingoBoard.Admin.csproj : warning NU1902: Package 'MessagePack' 2.5.302 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-qhrr-8q5h-9q3h
+[build] 2026-11-05T01:11:26.4140000Z /app/src/BingoBoard.Admin/BingoBoard.Admin.csproj : warning NU1902: Package 'MessagePack' 2.5.302 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-qhrr-8q5h-9q3h
+[build] 2026-11-05T01:11:26.4140000Z     2 Warning(s)
+[build] 2026-11-05T01:11:26.4140000Z     0 Error(s)
+[build] 2026-11-05T01:11:26.4140000Z 
+[build] 2026-11-05T01:11:26.4140000Z Time Elapsed 00:00:01.41
+[build] Build succeeded. Restarting resource...
+Waiting for resource 'boardadmin' to be healthy...
+❌ Resource 'boardadmin' entered a failed state: Stopped waiting for resource 'boardadmin' to become healthy because it failed to start.
+
+📄 See logs at /usr/local/logs/cli_20261105T011126_25c0ac71.log
+🔍 See AppHost logs at /usr/local/logs/cli_20261105T011046355_detach-child_7567aba431954e56ab6e2f56de09979e.log
+Getting logs...
+[migrations] Waiting for resource 'postgres' to enter the 'Running' state.
+[migrations] Waiting for resource 'db' to enter the 'Running' state.
+[migrations] Waiting for resource 'db' to become healthy.
+[migrations] Waiting for resource 'postgres' to become healthy.
+[migrations] Waiting for resource ready to execute for 'postgres'.
+[migrations] Finished waiting for resource 'postgres'.
+[migrations] Waiting for resource ready to execute for 'db'.
+[migrations] Finished waiting for resource 'db'.
+[migrations] [sys] Starting process...: Cmd = /usr/bin/dotnet, Args = ["run", "--project", 
+"/app/src/BingoBoard.MigrationService/BingoBoard.MigrationService.csproj", "--no-build", "--configuration", "Debug", "--no-launch-profile"]
+[migrations] info: Microsoft.Hosting.Lifetime[0]
+[migrations]       Application started. Press Ctrl+C to shut down.
+[migrations] info: Microsoft.Hosting.Lifetime[0]
+[migrations]       Hosting environment: Development
+[migrations] info: Microsoft.Hosting.Lifetime[0]
+[migrations]       Content root path: /app/src/BingoBoard.MigrationService
+[migrations] info: BingoBoard.MigrationService.Worker[0]
+[migrations]       Migrating the database...
+[migrations] fail: Microsoft.EntityFrameworkCore.Database.Command[20102]
+[migrations]       Failed executing DbCommand (7ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+[migrations]       SELECT "MigrationId", "ProductVersion"
+[migrations]       FROM "__EFMigrationsHistory"
+[migrations]       ORDER BY "MigrationId";
+[migrations] info: Microsoft.EntityFrameworkCore.Migrations[20402]
+[migrations]       Applying migration '20260206183116_InitialCreate'.
+[migrations] info: BingoBoard.MigrationService.Worker[0]
+[migrations]       Creating the admin user...
+[migrations] info: BingoBoard.MigrationService.Worker[0]
+[migrations]       Admin user created!
+[migrations] info: BingoBoard.MigrationService.Worker[0]
+[migrations]       Seeded 40 missing bingo squares; 0 already existed.
+[migrations] info: Microsoft.Hosting.Lifetime[0]
+[migrations]       Application is shutting down...
+[migrations] Executing command 'rebuild'.
+[migrations] [build] Stopping resource for rebuild...
+[migrations] [build] Building project...
+[migrations] [build] 2026-11-05T01:11:23.3370000Z [sys] Starting process...: Cmd = /usr/bin/dotnet, Args = ["build", 
+"/app/src/BingoBoard.MigrationService/BingoBoard.MigrationService.csproj", "--configuration", "Debug"]
+[migrations] [build] 2026-11-05T01:11:23.6290000Z   Determining projects to restore...
+[migrations] [build] 2026-11-05T01:11:24.0300000Z   All projects are up-to-date for restore.
+[migrations] [build] 2026-11-05T01:11:24.2380000Z   BingoBoard.Data -> /app/src/BingoBoard.Data/bin/Debug/net10.0/BingoBoard.Data.dll
+[migrations] [build] 2026-11-05T01:11:24.2490000Z   BingoBoard.ServiceDefaults -> 
+/app/src/BingoBoard.ServiceDefaults/bin/Debug/net10.0/BingoBoard.ServiceDefaults.dll
+[migrations] [build] 2026-11-05T01:11:24.3090000Z   BingoBoard.MigrationService -> 
+/app/src/BingoBoard.MigrationService/bin/Debug/net10.0/BingoBoard.MigrationService.dll
+[migrations] [build] 2026-11-05T01:11:24.3170000Z 
+[migrations] [build] 2026-11-05T01:11:24.3170000Z Build succeeded.
+[migrations] [build] 2026-11-05T01:11:24.3170000Z     0 Warning(s)
+[migrations] [build] 2026-11-05T01:11:24.3170000Z     0 Error(s)
+[migrations] [build] 2026-11-05T01:11:24.3170000Z 
+[migrations] [build] 2026-11-05T01:11:24.3170000Z Time Elapsed 00:00:00.90
+[migrations] [build] Build succeeded. Restarting resource...
+[migrations] Successfully executed command 'rebuild'.
+Getting logs...
+[boardadmin] Waiting for resource 'cache' to enter the 'Running' state.
+[boardadmin] Waiting for resource 'migrations' to complete.
+[boardadmin] Waiting for resource 'cache' to become healthy.
+[boardadmin] Waiting for resource ready to execute for 'cache'.
+[boardadmin] Finished waiting for resource 'cache'.
+[boardadmin] Finished waiting for resource 'migrations'.
+[boardadmin] [sys] Starting process...: Cmd = /usr/bin/dotnet, Args = ["run", "--project", "/app/src/BingoBoard.Admin/BingoBoard.Admin.csproj", "--no-build", 
+"--configuration", "Debug", "--no-launch-profile"]
+[boardadmin] warn: Microsoft.AspNetCore.DataProtection.Repositories.FileSystemXmlRepository[60]
+[boardadmin]       Storing keys in a directory '/root/.aspnet/DataProtection-Keys' that may not be persisted outside of the container. Protected data will be 
+unavailable when container is destroyed. For more information go to https://aka.ms/aspnet/dataprotectionwarning
+[boardadmin] warn: Microsoft.AspNetCore.Hosting.Diagnostics[15]
+[boardadmin]       Overriding HTTP_PORTS '8080' and HTTPS_PORTS ''. Binding to values defined by URLS instead 'http://localhost:32218'.
+[boardadmin] info: BingoBoard.Admin.Services.ApprovalCleanupService[0]
+[boardadmin]       Completed approval cleanup at 11/05/2026 01:11:15
+[boardadmin] info: Microsoft.Hosting.Lifetime[14]
+[boardadmin]       Now listening on: http://localhost:32218
+[boardadmin] info: Microsoft.Hosting.Lifetime[0]
+[boardadmin]       Application started. Press Ctrl+C to shut down.
+[boardadmin] info: Microsoft.Hosting.Lifetime[0]
+[boardadmin]       Hosting environment: Development
+[boardadmin] info: Microsoft.Hosting.Lifetime[0]
+[boardadmin]       Content root path: /app/src/BingoBoard.Admin
+[boardadmin] warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]
+[boardadmin]       Failed to determine the https port for redirect.
+[boardadmin] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+[boardadmin]       Executed DbCommand (6ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+[boardadmin]       SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+[boardadmin]       FROM "BingoSquares" AS b
+[boardadmin] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+[boardadmin]       Executed DbCommand (3ms) [Parameters=[@p0='?', @p1='?' (DbType = DateTime), @p2='?' (DbType = Int32), @p3='?' (DbType = Boolean), @p4='?', 
+@p5='?', @p6='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+[boardadmin]       INSERT INTO "BingoSquares" ("Id", "CreatedAt", "DisplayOrder", "IsActive", "Label", "Type", "UpdatedAt")
+[boardadmin]       VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
+[boardadmin] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+[boardadmin]       Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+[boardadmin]       SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+[boardadmin]       FROM "BingoSquares" AS b
+[boardadmin]       WHERE b."IsActive"
+[boardadmin]       ORDER BY b."DisplayOrder"
+[boardadmin] info: BingoBoard.Admin.Services.BingoService[0]
+[boardadmin]       Loaded 41 squares from database
+[boardadmin] info: BingoBoard.Admin.Services.BingoService[0]
+[boardadmin]       Updated square bench-5ad566703dc6 globally (no connected clients with bingo sets)
+[boardadmin] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+[boardadmin]       Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+[boardadmin]       SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+[boardadmin]       FROM "BingoSquares" AS b
+[boardadmin]       WHERE b."IsActive"
+[boardadmin]       ORDER BY b."DisplayOrder"
+[boardadmin] info: BingoBoard.Admin.Services.BingoService[0]
+[boardadmin]       Loaded 41 squares from database
+[boardadmin] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+[boardadmin]       Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+[boardadmin]       SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+[boardadmin]       FROM "BingoSquares" AS b
+[boardadmin]       WHERE b."IsActive"
+[boardadmin]       ORDER BY b."DisplayOrder"
+[boardadmin] info: BingoBoard.Admin.Services.BingoService[0]
+[boardadmin]       Loaded 41 squares from database
+[boardadmin] info: BingoBoard.Admin.Services.BingoService[0]
+[boardadmin]       Updated square bench-5ad566703dc6 globally (no connected clients with bingo sets)
+[boardadmin] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+[boardadmin]       Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+[boardadmin]       SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+[boardadmin]       FROM "BingoSquares" AS b
+[boardadmin] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+[boardadmin]       Executed DbCommand (0ms) [Parameters=[@p0='?', @p1='?' (DbType = DateTime), @p2='?' (DbType = Int32), @p3='?' (DbType = Boolean), @p4='?', 
+@p5='?', @p6='?' (DbType = DateTime), @p7='?', @p8='?' (DbType = DateTime), @p9='?' (DbType = Int32), @p10='?' (DbType = Boolean), @p11='?', @p12='?', @p13='?' 
+(DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+[boardadmin]       INSERT INTO "BingoSquares" ("Id", "CreatedAt", "DisplayOrder", "IsActive", "Label", "Type", "UpdatedAt")
+[boardadmin]       VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
+[boardadmin]       INSERT INTO "BingoSquares" ("Id", "CreatedAt", "DisplayOrder", "IsActive", "Label", "Type", "UpdatedAt")
+[boardadmin]       VALUES (@p7, @p8, @p9, @p10, @p11, @p12, @p13);
+[boardadmin] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+[boardadmin]       Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+[boardadmin]       SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+[boardadmin]       FROM "BingoSquares" AS b
+[boardadmin]       WHERE b."IsActive"
+[boardadmin]       ORDER BY b."DisplayOrder"
+[boardadmin] info: BingoBoard.Admin.Services.BingoService[0]
+[boardadmin]       Loaded 42 squares from database
+[boardadmin] info: BingoBoard.Admin.Services.BingoService[0]
+[boardadmin]       Updated square keep-67a486670c040df4300d2727 globally (no connected clients with bingo sets)
+[boardadmin] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+[boardadmin]       Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+[boardadmin]       SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+[boardadmin]       FROM "BingoSquares" AS b
+[boardadmin]       WHERE b."IsActive"
+[boardadmin]       ORDER BY b."DisplayOrder"
+[boardadmin] info: BingoBoard.Admin.Services.BingoService[0]
+[boardadmin]       Loaded 42 squares from database
+[boardadmin] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+[boardadmin]       Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+[boardadmin]       SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+[boardadmin]       FROM "BingoSquares" AS b
+[boardadmin] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+[boardadmin]       Executed DbCommand (0ms) [Parameters=[@p0='?', @p1='?' (DbType = DateTime), @p2='?' (DbType = Int32), @p3='?' (DbType = Boolean), @p4='?', 
+@p5='?', @p6='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+[boardadmin]       INSERT INTO "BingoSquares" ("Id", "CreatedAt", "DisplayOrder", "IsActive", "Label", "Type", "UpdatedAt")
+[boardadmin]       VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
+[boardadmin] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+[boardadmin]       Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+[boardadmin]       SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+[boardadmin]       FROM "BingoSquares" AS b
+[boardadmin]       WHERE b."IsActive"
+[boardadmin]       ORDER BY b."DisplayOrder"
+[boardadmin] info: BingoBoard.Admin.Services.BingoService[0]
+[boardadmin]       Loaded 43 squares from database
+[boardadmin] info: BingoBoard.Admin.Services.BingoService[0]
+[boardadmin]       Updated square bench-e46a8da7ccfa globally (no connected clients with bingo sets)
+[boardadmin] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+[boardadmin]       Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+[boardadmin]       SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+[boardadmin]       FROM "BingoSquares" AS b
+[boardadmin]       WHERE b."IsActive"
+[boardadmin]       ORDER BY b."DisplayOrder"
+[boardadmin] info: BingoBoard.Admin.Services.BingoService[0]
+[boardadmin]       Loaded 43 squares from database
+[boardadmin] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+[boardadmin]       Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+[boardadmin]       SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+[boardadmin]       FROM "BingoSquares" AS b
+[boardadmin]       WHERE b."IsActive"
+[boardadmin]       ORDER BY b."DisplayOrder"
+[boardadmin] info: BingoBoard.Admin.Services.BingoService[0]
+[boardadmin]       Loaded 43 squares from database
+[boardadmin] info: BingoBoard.Admin.Services.BingoService[0]
+[boardadmin]       Updated square bench-e46a8da7ccfa globally (no connected clients with bingo sets)
+[boardadmin] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+[boardadmin]       Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+[boardadmin]       SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+[boardadmin]       FROM "BingoSquares" AS b
+[boardadmin] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+[boardadmin]       Executed DbCommand (1ms) [Parameters=[@p0='?', @p1='?' (DbType = DateTime), @p2='?' (DbType = Int32), @p3='?' (DbType = Boolean), @p4='?', 
+@p5='?', @p6='?' (DbType = DateTime), @p7='?', @p8='?' (DbType = DateTime), @p9='?' (DbType = Int32), @p10='?' (DbType = Boolean), @p11='?', @p12='?', @p13='?' 
+(DbType = DateTime), @p14='?', @p15='?' (DbType = DateTime), @p16='?' (DbType = Int32), @p17='?' (DbType = Boolean), @p18='?', @p19='?', @p20='?' (DbType = 
+DateTime), @p21='?', @p22='?' (DbType = DateTime), @p23='?' (DbType = Int32), @p24='?' (DbType = Boolean), @p25='?', @p26='?', @p27='?' (DbType = DateTime), 
+@p28='?', @p29='?' (DbType = DateTime), @p30='?' (DbType = Int32), @p31='?' (DbType = Boolean), @p32='?', @p33='?', @p34='?' (DbType = DateTime)], 
+CommandType='Text', CommandTimeout='30']
+[boardadmin]       INSERT INTO "BingoSquares" ("Id", "CreatedAt", "DisplayOrder", "IsActive", "Label", "Type", "UpdatedAt")
+[boardadmin]       VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
+[boardadmin]       INSERT INTO "BingoSquares" ("Id", "CreatedAt", "DisplayOrder", "IsActive", "Label", "Type", "UpdatedAt")
+[boardadmin]       VALUES (@p7, @p8, @p9, @p10, @p11, @p12, @p13);
+[boardadmin]       INSERT INTO "BingoSquares" ("Id", "CreatedAt", "DisplayOrder", "IsActive", "Label", "Type", "UpdatedAt")
+[boardadmin]       VALUES (@p14, @p15, @p16, @p17, @p18, @p19, @p20);
+[boardadmin]       INSERT INTO "BingoSquares" ("Id", "CreatedAt", "DisplayOrder", "IsActive", "Label", "Type", "UpdatedAt")
+[boardadmin]       VALUES (@p21, @p22, @p23, @p24, @p25, @p26, @p27);
+[boardadmin]       INSERT INTO "BingoSquares" ("Id", "CreatedAt", "DisplayOrder", "IsActive", "Label", "Type", "UpdatedAt")
+[boardadmin]       VALUES (@p28, @p29, @p30, @p31, @p32, @p33, @p34);
+[boardadmin] info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+[boardadmin]       Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+[boardadmin]       SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+[boardadmin]       FROM "BingoSquares" AS b
+[boardadmin]       WHERE b."IsActive"
+[boardadmin]       ORDER BY b."DisplayOrder"
+[boardadmin] info: BingoBoard.Admin.Services.BingoService[0]
+[boardadmin]       Loaded 47 squares from database
+[boardadmin] info: BingoBoard.Admin.Services.BingoService[0]
+[boardadmin]       Updated square feature-4a1a3ca2191d2442d4bc58ca-z globally (no connected clients with bingo sets)
+[boardadmin] Executing command 'stop'.
+[boardadmin] info: Microsoft.Hosting.Lifetime[0]
+[boardadmin]       Application is shutting down...
+[boardadmin] info: BingoBoard.Admin.Services.ApprovalCleanupService[0]
+[boardadmin]       Approval cleanup service delay was cancelled
+[boardadmin] Successfully executed command 'stop'.
+[boardadmin] Executing command 'rebuild'.
+[boardadmin] [build] Stopping resource for rebuild...
+[boardadmin] [build] Building project...
+[boardadmin] [build] 2026-11-05T01:11:24.9230000Z [sys] Starting process...: Cmd = /usr/bin/dotnet, Args = ["build", 
+"/app/src/BingoBoard.Admin/BingoBoard.Admin.csproj", "--configuration", "Debug"]
+[boardadmin] [build] 2026-11-05T01:11:25.1890000Z   Determining projects to restore...
+[boardadmin] [build] 2026-11-05T01:11:25.4050000Z /app/src/BingoBoard.Admin/BingoBoard.Admin.csproj : warning NU1902: Package 'MessagePack' 2.5.302 has a known 
+moderate severity vulnerability, https://github.com/advisories/GHSA-qhrr-8q5h-9q3h
+[boardadmin] [build] 2026-11-05T01:11:25.4060000Z   All projects are up-to-date for restore.
+[boardadmin] [build] 2026-11-05T01:11:25.4500000Z /app/src/BingoBoard.Admin/BingoBoard.Admin.csproj : warning NU1902: Package 'MessagePack' 2.5.302 has a known 
+moderate severity vulnerability, https://github.com/advisories/GHSA-qhrr-8q5h-9q3h
+[boardadmin] [build] 2026-11-05T01:11:25.5410000Z   BingoBoard.Data -> /app/src/BingoBoard.Data/bin/Debug/net10.0/BingoBoard.Data.dll
+[boardadmin] [build] 2026-11-05T01:11:25.5710000Z   BingoBoard.ServiceDefaults -> 
+/app/src/BingoBoard.ServiceDefaults/bin/Debug/net10.0/BingoBoard.ServiceDefaults.dll
+[boardadmin] [build] 2026-11-05T01:11:26.4030000Z   BingoBoard.Admin -> /app/src/BingoBoard.Admin/bin/Debug/net10.0/BingoBoard.Admin.dll
+[boardadmin] [build] 2026-11-05T01:11:26.4140000Z 
+[boardadmin] [build] 2026-11-05T01:11:26.4140000Z Build succeeded.
+[boardadmin] [build] 2026-11-05T01:11:26.4140000Z 
+[boardadmin] [build] 2026-11-05T01:11:26.4140000Z /app/src/BingoBoard.Admin/BingoBoard.Admin.csproj : warning NU1902: Package 'MessagePack' 2.5.302 has a known 
+moderate severity vulnerability, https://github.com/advisories/GHSA-qhrr-8q5h-9q3h
+[boardadmin] [build] 2026-11-05T01:11:26.4140000Z /app/src/BingoBoard.Admin/BingoBoard.Admin.csproj : warning NU1902: Package 'MessagePack' 2.5.302 has a known 
+moderate severity vulnerability, https://github.com/advisories/GHSA-qhrr-8q5h-9q3h
+[boardadmin] [build] 2026-11-05T01:11:26.4140000Z     2 Warning(s)
+[boardadmin] [build] 2026-11-05T01:11:26.4140000Z     0 Error(s)
+[boardadmin] [build] 2026-11-05T01:11:26.4140000Z 
+[boardadmin] [build] 2026-11-05T01:11:26.4140000Z Time Elapsed 00:00:01.41
+[boardadmin] [build] Build succeeded. Restarting resource...
+[boardadmin] Successfully executed command 'rebuild'.

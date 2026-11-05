@@ -1,0 +1,651 @@
+{
+  "status": "local-runtime-verified-portable-context-pending",
+  "date": "2026-11-04",
+  "source_base_commit": "276b240f6e8561bf193c3392d061e888431d2f1d",
+  "branch": "sebros/bingo-feature-and-migration",
+  "model_runs": [],
+  "publication_or_push": false,
+  "pair_gates": {
+    "f01": "local-runtime-passed",
+    "m01": "local-runtime-passed"
+  },
+  "durable_evidence_root": "/Users/sebastienros/.copilot/session-state/ab478c48-b1ee-44e3-8192-f23af9975dd4/files/bingo-evolution",
+  "execution": "Single reserved local Docker slot; all jobs sequential, force-built, no automatic retries or model runs.",
+  "headroom": "Each final job checked >10 GiB; observed minimum approximately 36 GiB and final 43 GiB.",
+  "toolchain": {
+    "harbor": "0.20.0",
+    "platform": "Linux aarch64 Docker on macOS",
+    "node_image": "node:24.14.0-bookworm-slim",
+    "dotnet_image": "mcr.microsoft.com/dotnet/sdk:10.0.100-noble",
+    "docker_image": "docker:28.0.4-dind",
+    "aspire_cli": "13.6.0",
+    "postgres": "18.3",
+    "redis": "8.6",
+    "application_context_commit": "baacba3e17181491c9a4d419db7d0e6763c3d363",
+    "general_skills_commit": "1fcca7e91c89716f0e4a8bf7324da13a39f70c66"
+  },
+  "budgets_seconds": {
+    "agent": 900,
+    "verifier": 300,
+    "image_build": 1200
+  },
+  "static_validation": {
+    "command": "node --test msbench/benchmark.test.mjs msbench/bingo-iteration/experiment.test.mjs msbench/bingo-evolution/experiment.test.mjs",
+    "passed": 13,
+    "shell_syntax": "All new .sh files passed bash -n",
+    "whitespace": "git diff --check passed for code/docs; byte-exact native evidence/*.txt preserves trailing spaces with a scoped -whitespace Git attribute",
+    "historical_application_context_diff": "None against baacba3e17181491c9a4d419db7d0e6763c3d363"
+  },
+  "fixes": [
+    "Select exact owned container role/name/Compose labels rather than Config.Image; final runtime proof captures docker.io/library qualified images.",
+    "SQL uses Aspire database db versus raw bingo and container-owned PGPASSWORD; Redis preserves TLS/CA verification and container-owned REDISCLI_AUTH.",
+    "Explicit resource start after rebuild for stopped admin/completed migration worker; wait on admin readiness, not one-shot healthy state. Applied migration history independently verified.",
+    "Unknown description GET/PUT returns repository-standard nonempty NotFound body, preventing global status-code reexecution from changing PUT 404 to 405.",
+    "Verify all 43 original descriptions backfill empty and log actual schema/OID/nonce evidence, not only a green resource or success message."
+  ],
+  "prior_art": {
+    "branch_commit": "a2c88ccb6abb426d5fb4d4c93862971f085d7058",
+    "files": [
+      "msbench/bingo-diagnostics/common/diagnostics.mjs",
+      "msbench/bingo-diagnostics/common/redis.mjs"
+    ],
+    "usage": "Read-only git show; adapter contracts reused, parent validated sources unmodified."
+  },
+  "intermediate_attempts": [
+    {
+      "job": "recovered-f01-aspire-diagnostic",
+      "trial": "f01-aspire__rt8i5Uj",
+      "reward": 0,
+      "exception": null,
+      "purpose": "explicit retained-environment diagnostic attempt",
+      "cause": "Rebuild acknowledged but stopped/completed project did not restart; one-shot healthy wait or admin healthy wait failed",
+      "observed_failure_lines": [
+        "❌ Resource 'boardadmin' entered a failed state: Stopped waiting for resource 'boardadmin' to become healthy because it failed to start."
+      ],
+      "evidence": {
+        "recovered-f01-aspire-diagnostic-result.json": "37e0ed0cb5da79901f8a562afc4d536545ef328a0bce3d5e4f0447b705fe6cdc",
+        "recovered-f01-aspire-diagnostic-oracle.txt": "f37872cf36ab8691baf1ce26807259d55367250621eb8a49f9feb869e8da79a6",
+        "recovered-f01-aspire-diagnostic-verifier.txt": "3e3dff0bab4b124e453931bf1748d2d173529ba519107a08c26eab1f9f50124a"
+      },
+      "durable_trial_path": "/Users/sebastienros/.copilot/session-state/ab478c48-b1ee-44e3-8192-f23af9975dd4/files/bingo-evolution/jobs/recovered-f01-aspire-diagnostic/f01-aspire__rt8i5Uj"
+    },
+    {
+      "job": "recovered-f01-aspire-logs",
+      "trial": "f01-aspire__rQgiX3e",
+      "reward": 0,
+      "exception": null,
+      "purpose": "fixture correction validation, not model retry",
+      "cause": "Rebuild acknowledged but stopped/completed project did not restart; one-shot healthy wait or admin healthy wait failed",
+      "observed_failure_lines": [
+        "❌ Resource 'boardadmin' entered a failed state: Stopped waiting for resource 'boardadmin' to become healthy because it failed to start."
+      ],
+      "evidence": {
+        "recovered-f01-aspire-logs-result.json": "bb468a786b2eb09e7bd6570e4053c71f5c33ffec261f8d235dfb7040f7aa5628",
+        "recovered-f01-aspire-logs-oracle.txt": "f8bee55b5da42a521e93c88f51db69f7321ada2f9b50ee67e7ac6b8a4713ac32",
+        "recovered-f01-aspire-logs-verifier.txt": "3e3dff0bab4b124e453931bf1748d2d173529ba519107a08c26eab1f9f50124a"
+      },
+      "durable_trial_path": "/Users/sebastienros/.copilot/session-state/ab478c48-b1ee-44e3-8192-f23af9975dd4/files/bingo-evolution/jobs/recovered-f01-aspire-logs/f01-aspire__rQgiX3e"
+    },
+    {
+      "job": "recovered-f01-aspire-v1",
+      "trial": "f01-aspire__CQdJFHC",
+      "reward": 0,
+      "exception": null,
+      "purpose": "fixture correction validation, not model retry",
+      "cause": "Rebuild acknowledged but stopped/completed project did not restart; one-shot healthy wait or admin healthy wait failed",
+      "observed_failure_lines": [
+        "❌ Resource 'migrations' entered a failed state: Stopped waiting for resource 'migrations' to become healthy because it failed to start."
+      ],
+      "evidence": {
+        "recovered-f01-aspire-v1-result.json": "861475f651ea6ee0219103fa8af6742d130211476d843c764d066730ba369f2e",
+        "recovered-f01-aspire-v1-oracle.txt": "26f99b3abb5034a926222139ba7439d8441746e798e1330c11ec792542e15531",
+        "recovered-f01-aspire-v1-verifier.txt": "3e3dff0bab4b124e453931bf1748d2d173529ba519107a08c26eab1f9f50124a"
+      },
+      "durable_trial_path": "/Users/sebastienros/.copilot/session-state/ab478c48-b1ee-44e3-8192-f23af9975dd4/files/bingo-evolution/jobs/recovered-f01-aspire-v1/f01-aspire__CQdJFHC"
+    },
+    {
+      "job": "recovered-f01-aspire-v2",
+      "trial": "f01-aspire__VU9pDFg",
+      "reward": 0,
+      "exception": null,
+      "purpose": "fixture correction validation, not model retry",
+      "cause": "Rebuild acknowledged but stopped/completed project did not restart; one-shot healthy wait or admin healthy wait failed",
+      "observed_failure_lines": [
+        "❌ Resource 'boardadmin' entered a failed state: Stopped waiting for resource 'boardadmin' to become healthy because it failed to start."
+      ],
+      "evidence": {
+        "recovered-f01-aspire-v2-result.json": "e2af53e658a02907e995e8231aad9e856f0eb48919b6893177de1d8190c6a938",
+        "recovered-f01-aspire-v2-oracle.txt": "dfb87112a3f5368555cbc712849a1cd5c586afa5b005dd82902b3ae31c2fd4dc",
+        "recovered-f01-aspire-v2-verifier.txt": "3e3dff0bab4b124e453931bf1748d2d173529ba519107a08c26eab1f9f50124a"
+      },
+      "durable_trial_path": "/Users/sebastienros/.copilot/session-state/ab478c48-b1ee-44e3-8192-f23af9975dd4/files/bingo-evolution/jobs/recovered-f01-aspire-v2/f01-aspire__VU9pDFg"
+    },
+    {
+      "job": "recovered-f01-aspire-v3",
+      "trial": "f01-aspire__HNQVFzV",
+      "reward": 1,
+      "exception": null,
+      "purpose": "fixture correction validation, not model retry",
+      "cause": "Passed intermediate revision; final common proof/legacy coverage added afterward",
+      "observed_failure_lines": [],
+      "evidence": {},
+      "durable_trial_path": "/Users/sebastienros/.copilot/session-state/ab478c48-b1ee-44e3-8192-f23af9975dd4/files/bingo-evolution/jobs/recovered-f01-aspire-v3/f01-aspire__HNQVFzV"
+    },
+    {
+      "job": "recovered-f01-raw-v1",
+      "trial": "f01-raw-scripted__2D2hPRX",
+      "reward": 1,
+      "exception": null,
+      "purpose": "fixture correction validation, not model retry",
+      "cause": "Passed intermediate revision; final common proof/legacy coverage added afterward",
+      "observed_failure_lines": [],
+      "evidence": {},
+      "durable_trial_path": "/Users/sebastienros/.copilot/session-state/ab478c48-b1ee-44e3-8192-f23af9975dd4/files/bingo-evolution/jobs/recovered-f01-raw-v1/f01-raw-scripted__2D2hPRX"
+    },
+    {
+      "job": "recovered-m01-aspire-v1",
+      "trial": "m01-aspire__nTyDoW6",
+      "reward": 1,
+      "exception": null,
+      "purpose": "fixture correction validation, not model retry",
+      "cause": "Passed intermediate revision; final common proof/legacy coverage added afterward",
+      "observed_failure_lines": [],
+      "evidence": {},
+      "durable_trial_path": "/Users/sebastienros/.copilot/session-state/ab478c48-b1ee-44e3-8192-f23af9975dd4/files/bingo-evolution/jobs/recovered-m01-aspire-v1/m01-aspire__nTyDoW6"
+    },
+    {
+      "job": "recovered-m01-raw-v1",
+      "trial": "m01-raw-scripted__NKLeamn",
+      "reward": 0,
+      "exception": null,
+      "purpose": "fixture correction validation, not model retry",
+      "cause": "Unknown valid PUT became 405 after empty 404 response was reexecuted against the GET-only not-found page",
+      "observed_failure_lines": [
+        "AssertionError [ERR_ASSERTION]: /api/demo/producer/squares/missing-6a4f2cd8d97bbbc2bcbacf24/description: HTTP 405",
+        "AssertionError [ERR_ASSERTION]: /api/demo/producer/squares/missing-caf18bb62b3e51e0d3565f0a/description: HTTP 405"
+      ],
+      "evidence": {
+        "recovered-m01-raw-v1-result.json": "d08d1baed56f1484374e6b570eda6b7f763b1f04c71d9d6f0d80a9ca1a1700f1",
+        "recovered-m01-raw-v1-oracle.txt": "36654b472882448692adea3442c712805721ff5bdcbaf9c9a73ae12f8d44ad41",
+        "recovered-m01-raw-v1-verifier.txt": "4dddf7ebd5571666a14e3b1ef38ddadbc63896636d8e7a7ac4e37c2f8b06760a"
+      },
+      "durable_trial_path": "/Users/sebastienros/.copilot/session-state/ab478c48-b1ee-44e3-8192-f23af9975dd4/files/bingo-evolution/jobs/recovered-m01-raw-v1/m01-raw-scripted__NKLeamn"
+    },
+    {
+      "job": "recovered-m01-raw-v2",
+      "trial": "m01-raw-scripted__HWyLLmo",
+      "reward": 1,
+      "exception": null,
+      "purpose": "fixture correction validation, not model retry",
+      "cause": "Passed intermediate revision; final common proof/legacy coverage added afterward",
+      "observed_failure_lines": [],
+      "evidence": {},
+      "durable_trial_path": "/Users/sebastienros/.copilot/session-state/ab478c48-b1ee-44e3-8192-f23af9975dd4/files/bingo-evolution/jobs/recovered-m01-raw-v2/m01-raw-scripted__HWyLLmo"
+    }
+  ],
+  "final_results": [
+    {
+      "task": "f01-raw-scripted",
+      "job": "final-f01-raw-scripted",
+      "trial": "f01-raw-scripted__PxtJSJM",
+      "reward": 1,
+      "exception": null,
+      "agent": "oracle",
+      "model": null,
+      "force_build": true,
+      "trial_started_at": "2026-11-05T01:19:08.946889Z",
+      "trial_finished_at": "2026-11-05T01:20:06.198471Z",
+      "trial_seconds": 57.252,
+      "oracle_seconds": 11.929,
+      "verifier_seconds": 1.709,
+      "task_checksum": "39d3b96bcd5b995d5b045c570e46921502fe650bfcc137b6f39125be8a79e611",
+      "negative_cases_rejected": [
+        "unchanged app plus success report",
+        "hardcoded empty catalog",
+        "protected guidance change",
+        "valid swapped origins",
+        "inactive old row changed",
+        "same-row table rebuild",
+        "unrelated Redis state lost"
+      ],
+      "runtime_proof": {
+        "catalog": {
+          "freshIds": [
+            "feature-e1e5800b2fcd462fa83331be-z",
+            "feature-e1e5800b2fcd462fa83331be-a",
+            "feature-e1e5800b2fcd462fa83331be-hidden",
+            "feature-e1e5800b2fcd462fa83331be-other",
+            "feature-e1e5800b2fcd462fa83331be-null"
+          ],
+          "filter": "kind-76da52d454d7b9afb3186f07",
+          "filteredActiveCount": 2,
+          "refreshedLabel": "Changed e1610ab5758310a57b3c64fc",
+          "unfilteredActiveCount": 62,
+          "directRedisAfterClear": "False",
+          "unknownFilter": [],
+          "emptyImportStatus": 400,
+          "unknownCallStatus": 404
+        },
+        "preservation": {
+          "originalSquareCount": 43,
+          "originalUserCount": 1,
+          "originalDatabaseIdentity": {
+            "database": "16384",
+            "squares": "16413",
+            "users": "16400",
+            "history": "16385"
+          },
+          "currentDatabaseIdentity": {
+            "database": "16384",
+            "squares": "16413",
+            "users": "16400",
+            "history": "16385"
+          },
+          "originalMigrationIds": [
+            "20260206183116_InitialCreate"
+          ],
+          "currentMigrationIds": [
+            "20260206183116_InitialCreate"
+          ],
+          "sentinel": {
+            "Id": "keep-4274839ba7438d37614a431f",
+            "Label": "Preserved 'bc1df3234072d92bed4d8c1d",
+            "Type": "evolution",
+            "IsActive": true,
+            "DisplayOrder": 41,
+            "CreatedAt": "2026-11-05T01:19:42.616164+00:00",
+            "UpdatedAt": "2026-11-05T01:19:42.616164+00:00"
+          },
+          "dependencyImages": [
+            {
+              "role": "postgres",
+              "image": "postgres:18.3"
+            },
+            {
+              "role": "redis",
+              "image": "redis:8.6"
+            }
+          ]
+        }
+      },
+      "evidence": {
+        "final-f01-raw-scripted-result.json": "4af8b8fb4a971f4c04bfda0a7d0bbf15308ad87e3ffdd6379c68985ef9734fb2",
+        "final-f01-raw-scripted-oracle.txt": "a27e439e1f43070e912fcce2e22690800819643ee4015d674f944e4d1c4ec244",
+        "final-f01-raw-scripted-verifier.txt": "53013827435c4e45e31c42a59d6845487de7a747aaea706dd53228093c612bd6"
+      },
+      "durable_trial_path": "/Users/sebastienros/.copilot/session-state/ab478c48-b1ee-44e3-8192-f23af9975dd4/files/bingo-evolution/jobs/final-f01-raw-scripted/f01-raw-scripted__PxtJSJM",
+      "command": "MSBENCH_RAW_APP_CONTEXT=\"$PWD/msbench/bingo/common/raw-app\" harbor run --path msbench/bingo-evolution/tasks/f01-raw-scripted --agent oracle --force-build --jobs-dir /Users/sebastienros/.copilot/session-state/ab478c48-b1ee-44e3-8192-f23af9975dd4/files/bingo-evolution/jobs --job-name final-f01-raw-scripted --n-concurrent 1"
+    },
+    {
+      "task": "f01-aspire",
+      "job": "final-f01-aspire",
+      "trial": "f01-aspire__233gxrJ",
+      "reward": 1,
+      "exception": null,
+      "agent": "oracle",
+      "model": null,
+      "force_build": true,
+      "trial_started_at": "2026-11-05T01:20:09.231292Z",
+      "trial_finished_at": "2026-11-05T01:21:16.534892Z",
+      "trial_seconds": 67.303,
+      "oracle_seconds": 16.863,
+      "verifier_seconds": 1.914,
+      "task_checksum": "098026bd073f3c6c29551ec5ef49d3ac918543c19f4455211974cbdd3afa6f5e",
+      "negative_cases_rejected": [
+        "unchanged app plus success report",
+        "hardcoded empty catalog",
+        "protected guidance change",
+        "valid swapped origins",
+        "inactive old row changed",
+        "same-row table rebuild",
+        "unrelated Redis state lost"
+      ],
+      "runtime_proof": {
+        "catalog": {
+          "freshIds": [
+            "feature-434bc3c24084ca021dfae548-z",
+            "feature-434bc3c24084ca021dfae548-a",
+            "feature-434bc3c24084ca021dfae548-hidden",
+            "feature-434bc3c24084ca021dfae548-other",
+            "feature-434bc3c24084ca021dfae548-null"
+          ],
+          "filter": "kind-9ce7ec6e6374d5ca0b417d06",
+          "filteredActiveCount": 2,
+          "refreshedLabel": "Changed 4b061293c19e65ff2c587923",
+          "unfilteredActiveCount": 62,
+          "directRedisAfterClear": "False",
+          "unknownFilter": [],
+          "emptyImportStatus": 400,
+          "unknownCallStatus": 404
+        },
+        "preservation": {
+          "originalSquareCount": 43,
+          "originalUserCount": 1,
+          "originalDatabaseIdentity": {
+            "database": "16384",
+            "squares": "16413",
+            "users": "16400",
+            "history": "16385"
+          },
+          "currentDatabaseIdentity": {
+            "database": "16384",
+            "squares": "16413",
+            "users": "16400",
+            "history": "16385"
+          },
+          "originalMigrationIds": [
+            "20260206183116_InitialCreate"
+          ],
+          "currentMigrationIds": [
+            "20260206183116_InitialCreate"
+          ],
+          "sentinel": {
+            "Id": "keep-936f84f44e2dbac9660ece8a",
+            "Label": "Preserved 'debe0383c4de2a6b20fe4864",
+            "Type": "evolution",
+            "IsActive": true,
+            "DisplayOrder": 41,
+            "CreatedAt": "2026-11-05T01:20:48.67172+00:00",
+            "UpdatedAt": "2026-11-05T01:20:48.67172+00:00"
+          },
+          "dependencyImages": [
+            {
+              "role": "redis",
+              "image": "docker.io/library/redis:8.6"
+            },
+            {
+              "role": "postgres",
+              "image": "docker.io/library/postgres:18.3"
+            }
+          ]
+        }
+      },
+      "evidence": {
+        "final-f01-aspire-result.json": "ec9c819e928f7bd7bdfe3f79b1aaf31ea3f973268875624e58c48e4e6040d2bf",
+        "final-f01-aspire-oracle.txt": "471cc607ee1273db33573e7fc459051412bdc9e0c35527bc9798f5fb751bd6d3",
+        "final-f01-aspire-verifier.txt": "106cd678c497c73b6803a599ed8950ad9083fae5fe1881e5a6a1d6f67505710b"
+      },
+      "durable_trial_path": "/Users/sebastienros/.copilot/session-state/ab478c48-b1ee-44e3-8192-f23af9975dd4/files/bingo-evolution/jobs/final-f01-aspire/f01-aspire__233gxrJ",
+      "command": "MSBENCH_ASPIRE_APP_CONTEXT=\"$PWD/msbench/bingo/common/aspire-app\" harbor run --path msbench/bingo-evolution/tasks/f01-aspire --agent oracle --force-build --jobs-dir /Users/sebastienros/.copilot/session-state/ab478c48-b1ee-44e3-8192-f23af9975dd4/files/bingo-evolution/jobs --job-name final-f01-aspire --n-concurrent 1"
+    },
+    {
+      "task": "m01-raw-scripted",
+      "job": "final-m01-raw-scripted",
+      "trial": "m01-raw-scripted__LiCpweZ",
+      "reward": 1,
+      "exception": null,
+      "agent": "oracle",
+      "model": null,
+      "force_build": true,
+      "trial_started_at": "2026-11-05T01:21:19.632161Z",
+      "trial_finished_at": "2026-11-05T01:22:18.288148Z",
+      "trial_seconds": 58.656,
+      "oracle_seconds": 12.485,
+      "verifier_seconds": 2.214,
+      "task_checksum": "b9bab2d70ac4bfeba47072e1d8781baf431d39a6c4cd76733d0b3ea67066c302",
+      "negative_cases_rejected": [
+        "unchanged app plus success report",
+        "applied migration discarding description writes",
+        "protected guidance change",
+        "valid swapped origins",
+        "inactive old row changed",
+        "same-row table rebuild",
+        "unrelated Redis state lost"
+      ],
+      "runtime_proof": {
+        "migration": {
+          "column": {
+            "data_type": "character varying",
+            "character_maximum_length": 280,
+            "is_nullable": "NO",
+            "column_default": "''::character varying"
+          },
+          "backfilledOriginalSquares": 43,
+          "freshId": "description-c65876d3a2e9f3bcf07621a9",
+          "sqlDefaultId": "sql-a3a49d3f94c16b7981c9c188",
+          "exactTextLengths": [
+            43,
+            28,
+            280,
+            0
+          ],
+          "invalidInputsRejected": 3,
+          "unknownGetAndPutStatus": 404,
+          "sqlOriginRead": "SQL e1f0557701727f728b48b98a"
+        },
+        "preservation": {
+          "originalSquareCount": 43,
+          "originalUserCount": 1,
+          "originalDatabaseIdentity": {
+            "database": "16384",
+            "squares": "16413",
+            "users": "16400",
+            "history": "16385"
+          },
+          "currentDatabaseIdentity": {
+            "database": "16384",
+            "squares": "16413",
+            "users": "16400",
+            "history": "16385"
+          },
+          "originalMigrationIds": [
+            "20260206183116_InitialCreate"
+          ],
+          "currentMigrationIds": [
+            "20260206183116_InitialCreate",
+            "20261104000000_AddSquareDescription"
+          ],
+          "sentinel": {
+            "Id": "keep-64f33a019adcc760a93bba3b",
+            "Label": "Preserved '09bbfae65aeb4e261ac0bdd3",
+            "Type": "evolution",
+            "IsActive": true,
+            "DisplayOrder": 41,
+            "CreatedAt": "2026-11-05T01:21:55.029037+00:00",
+            "UpdatedAt": "2026-11-05T01:21:55.029037+00:00"
+          },
+          "dependencyImages": [
+            {
+              "role": "postgres",
+              "image": "postgres:18.3"
+            },
+            {
+              "role": "redis",
+              "image": "redis:8.6"
+            }
+          ]
+        }
+      },
+      "evidence": {
+        "final-m01-raw-scripted-result.json": "ea67f01e79591f5fb934f9b410b16f6180dc085ef5a966d4c022cabbd23d46cb",
+        "final-m01-raw-scripted-oracle.txt": "d1400af9e78bddc1f8af4bbf6d9c37af7af38c01277b2094701842464372c0ce",
+        "final-m01-raw-scripted-verifier.txt": "07b2084023f035465a607f9562dbeb806ba63bdbcd153d0e7b0dc917ec9f4dcd"
+      },
+      "durable_trial_path": "/Users/sebastienros/.copilot/session-state/ab478c48-b1ee-44e3-8192-f23af9975dd4/files/bingo-evolution/jobs/final-m01-raw-scripted/m01-raw-scripted__LiCpweZ",
+      "command": "MSBENCH_RAW_APP_CONTEXT=\"$PWD/msbench/bingo/common/raw-app\" harbor run --path msbench/bingo-evolution/tasks/m01-raw-scripted --agent oracle --force-build --jobs-dir /Users/sebastienros/.copilot/session-state/ab478c48-b1ee-44e3-8192-f23af9975dd4/files/bingo-evolution/jobs --job-name final-m01-raw-scripted --n-concurrent 1"
+    },
+    {
+      "task": "m01-aspire",
+      "job": "final-m01-aspire",
+      "trial": "m01-aspire__V2h9NbM",
+      "reward": 1,
+      "exception": null,
+      "agent": "oracle",
+      "model": null,
+      "force_build": true,
+      "trial_started_at": "2026-11-05T01:22:21.353956Z",
+      "trial_finished_at": "2026-11-05T01:23:19.060802Z",
+      "trial_seconds": 57.707,
+      "oracle_seconds": 16.597,
+      "verifier_seconds": 2.346,
+      "task_checksum": "4038cb945c1a8469cebb7acefd4da93ed4af6c722263fa80dc7776c930d2fba3",
+      "negative_cases_rejected": [
+        "unchanged app plus success report",
+        "applied migration discarding description writes",
+        "protected guidance change",
+        "valid swapped origins",
+        "inactive old row changed",
+        "same-row table rebuild",
+        "unrelated Redis state lost"
+      ],
+      "runtime_proof": {
+        "migration": {
+          "column": {
+            "data_type": "character varying",
+            "character_maximum_length": 280,
+            "is_nullable": "NO",
+            "column_default": "''::character varying"
+          },
+          "backfilledOriginalSquares": 43,
+          "freshId": "description-f7cf2239284d5821c973c301",
+          "sqlDefaultId": "sql-d2dd722add87e679f7234c4d",
+          "exactTextLengths": [
+            43,
+            28,
+            280,
+            0
+          ],
+          "invalidInputsRejected": 3,
+          "unknownGetAndPutStatus": 404,
+          "sqlOriginRead": "SQL a9c3cd49e0ac8a9ab3b72c01"
+        },
+        "preservation": {
+          "originalSquareCount": 43,
+          "originalUserCount": 1,
+          "originalDatabaseIdentity": {
+            "database": "16384",
+            "squares": "16413",
+            "users": "16400",
+            "history": "16385"
+          },
+          "currentDatabaseIdentity": {
+            "database": "16384",
+            "squares": "16413",
+            "users": "16400",
+            "history": "16385"
+          },
+          "originalMigrationIds": [
+            "20260206183116_InitialCreate"
+          ],
+          "currentMigrationIds": [
+            "20260206183116_InitialCreate",
+            "20261104000000_AddSquareDescription"
+          ],
+          "sentinel": {
+            "Id": "keep-b0d19b39bb3ff5d1d6a41d8a",
+            "Label": "Preserved '86a9733b0b5771ad0abf5f72",
+            "Type": "evolution",
+            "IsActive": true,
+            "DisplayOrder": 41,
+            "CreatedAt": "2026-11-05T01:22:54.558179+00:00",
+            "UpdatedAt": "2026-11-05T01:22:54.558179+00:00"
+          },
+          "dependencyImages": [
+            {
+              "role": "postgres",
+              "image": "docker.io/library/postgres:18.3"
+            },
+            {
+              "role": "redis",
+              "image": "docker.io/library/redis:8.6"
+            }
+          ]
+        }
+      },
+      "evidence": {
+        "final-m01-aspire-result.json": "a64ee8516ec74b5c54de74e3ec5b9e1198b02e9be60e42a272c56966562d2382",
+        "final-m01-aspire-oracle.txt": "89e64dcb3eabb72e5bbba892bba950a9e9eaa681d690e0661f1a90bf45450dfd",
+        "final-m01-aspire-verifier.txt": "7a239c8fa94cac0c2c7924402ae5ba0d3e0c92386bb3add02eba70cb547b285c"
+      },
+      "durable_trial_path": "/Users/sebastienros/.copilot/session-state/ab478c48-b1ee-44e3-8192-f23af9975dd4/files/bingo-evolution/jobs/final-m01-aspire/m01-aspire__V2h9NbM",
+      "command": "MSBENCH_ASPIRE_APP_CONTEXT=\"$PWD/msbench/bingo/common/aspire-app\" harbor run --path msbench/bingo-evolution/tasks/m01-aspire --agent oracle --force-build --jobs-dir /Users/sebastienros/.copilot/session-state/ab478c48-b1ee-44e3-8192-f23af9975dd4/files/bingo-evolution/jobs --job-name final-m01-aspire --n-concurrent 1"
+    }
+  ],
+  "build_input_hashes": {
+    "common": {
+      "evolution.mjs": "5bd6b0bdbcc118472e9d56943e95873114d2db0f34dcfdc83a53d9ccdfcedea4",
+      "hashes.js": "a79aad71c8a69337ce2ddcdc359b0eb7aebb132736c1881996b517e3e739269b",
+      "http.js": "938f87802eb4e29dcebd75a6d77731207ee9def90e5608aae5acac78c65b25e9",
+      "negative.mjs": "796e1cdc673649ca1a2a53a79d633f9528e4eb03a3153c83ed192e7d48b400a9",
+      "process.js": "7ebac1394cdb607e2512ff89e66547db23f0a875440e9a6c7e32306ae577abc4"
+    },
+    "tasks": {
+      "f01-raw-scripted": {
+        "environment/Dockerfile": "0e50771128ce7171c517b93d9e3cbe142ab1fbda699cba2219da7911fe99d687",
+        "environment/app/README.md": "1a8057fa844e5b1b342f7dcc792ed50ec3acedf2835ec547b168761aa9f7d85b",
+        "environment/app/scripts/check.sh": "989ade7d964e41e1e1e969c0d03c9107faf2443156685ae2d4e20e5d4dab651b",
+        "environment/app/scripts/common.sh": "e87ac175a4b19fd468b09a95f0f213eaa14a16e3ca7b3f2dada4e3fecf29fb03",
+        "environment/app/scripts/launch.mjs": "cdb1288f25e8445c6d275772d3d51dfd7c931b4c213dd18518c2cb58f53490dc",
+        "environment/app/scripts/reload-admin.mjs": "af083ec63c114d2a76c4d5edf7fd0bbc5884d6bb192d30409ca0b018fe115d0f",
+        "environment/app/scripts/reload.sh": "b9a3264073d34da9a6821b1c934c39242e86bf8933261e7d101ea1ab28785864",
+        "environment/app/scripts/start.sh": "31c574539e13a4d266553f6355b53e574d13446f77cb421c223113d73a451a3b",
+        "environment/bootstrap.sh": "5d3609d08d41ba64dcd46b4f6d187a5cc482668a48833ee1135bb413a9022c5b",
+        "environment/docker-compose.yaml": "e2e0b0d462e5d3f0edeb39492c78d7f5dcda11b0842ae1f76ea55c6479756144",
+        "environment/entrypoint.sh": "64cbe5dc0fef421bd9e12897dddf3cfd1c5f91d95fd6228e44f5297f64671d1b",
+        "instruction.md": "e8116471e174cc51199233db4bab90cbbdf5bad110fe00b9e4fcf7a5e0687b25",
+        "solution/CatalogEndpoints.cs": "7c69c822c1ef3c69cd736a0a850d15fa7ca72c953420bd3a3c89bc9c7c722844",
+        "solution/reload.sh": "967399798da4e81ee43e28502386f19849d5b7567c06a2551dc35313c0671ed3",
+        "solution/solve.sh": "34725a72aba0fec9359a0f99a8a184b81b3e34967fda09f9de5c363044a547ae",
+        "task.toml": "948cb414476ae3477f3324fdb5862a0b1c2c5793decbc336837a9d7ef291a6e2",
+        "tests/test.sh": "12b46819acd0abc33533d04ff452b8f2cfa37483930646e67f05cd9e0618a2bb"
+      },
+      "f01-aspire": {
+        "environment/Dockerfile": "bce98dae1e841fb7d32cd81ebbefc12d3d8a634db8ca14dd5ce926851d39da11",
+        "environment/app/README.md": "68e0bdebff108a30c7ca6d1302d3d44219109200fd48c2b83c5e7b757ec3e9ba",
+        "environment/bootstrap.sh": "029dfb5492025861ea7bdb1cc67afd3824aa0131d8ecc4fc2939313080d33c8f",
+        "environment/docker-compose.yaml": "4e201d432b248eb37c9565143a763840fb3cd0559fb3b26e2cbfc0af1a6793e3",
+        "environment/entrypoint.sh": "64cbe5dc0fef421bd9e12897dddf3cfd1c5f91d95fd6228e44f5297f64671d1b",
+        "environment/skills/aspire-startup/SKILL.md": "b0a5b2f287421312729c3b9e1f89c1a34cf088798583834224d4b8408ea7eea9",
+        "instruction.md": "e8116471e174cc51199233db4bab90cbbdf5bad110fe00b9e4fcf7a5e0687b25",
+        "solution/CatalogEndpoints.cs": "7c69c822c1ef3c69cd736a0a850d15fa7ca72c953420bd3a3c89bc9c7c722844",
+        "solution/reload.sh": "190d146e704e5b8562b4bbfc91383066f5be1190ee2802e688700b87fa69033c",
+        "solution/solve.sh": "34725a72aba0fec9359a0f99a8a184b81b3e34967fda09f9de5c363044a547ae",
+        "task.toml": "faa9bb5418e2b3c2ee8223569b3c46d6618d38c683de5e3dd831b0135802ea0b",
+        "tests/test.sh": "12b46819acd0abc33533d04ff452b8f2cfa37483930646e67f05cd9e0618a2bb"
+      },
+      "m01-raw-scripted": {
+        "environment/Dockerfile": "0e50771128ce7171c517b93d9e3cbe142ab1fbda699cba2219da7911fe99d687",
+        "environment/app/README.md": "1a8057fa844e5b1b342f7dcc792ed50ec3acedf2835ec547b168761aa9f7d85b",
+        "environment/app/scripts/check.sh": "989ade7d964e41e1e1e969c0d03c9107faf2443156685ae2d4e20e5d4dab651b",
+        "environment/app/scripts/common.sh": "e87ac175a4b19fd468b09a95f0f213eaa14a16e3ca7b3f2dada4e3fecf29fb03",
+        "environment/app/scripts/launch.mjs": "cdb1288f25e8445c6d275772d3d51dfd7c931b4c213dd18518c2cb58f53490dc",
+        "environment/app/scripts/reload-admin.mjs": "af083ec63c114d2a76c4d5edf7fd0bbc5884d6bb192d30409ca0b018fe115d0f",
+        "environment/app/scripts/reload.sh": "b9a3264073d34da9a6821b1c934c39242e86bf8933261e7d101ea1ab28785864",
+        "environment/app/scripts/start.sh": "31c574539e13a4d266553f6355b53e574d13446f77cb421c223113d73a451a3b",
+        "environment/bootstrap.sh": "5d3609d08d41ba64dcd46b4f6d187a5cc482668a48833ee1135bb413a9022c5b",
+        "environment/docker-compose.yaml": "cf906436ca7cfe216b7065a4ecc7a421ab7c906db1e8a86306a79b00f4e582d1",
+        "environment/entrypoint.sh": "64cbe5dc0fef421bd9e12897dddf3cfd1c5f91d95fd6228e44f5297f64671d1b",
+        "instruction.md": "690087a1dd879fad3457dd1c5098bc7cdf966359a2a38f79ef11164399f76e2d",
+        "solution/AddSquareDescription.cs": "b11a5e11b1a72952c17fb25dcad0b5220996c1ca8e6beb5774290dd400f2b9ef",
+        "solution/DescriptionEndpoints.cs": "ce7746336ec4f0d449eb488018d19d46b44dd6507ffb48144440b594030ba6de",
+        "solution/reload.sh": "967399798da4e81ee43e28502386f19849d5b7567c06a2551dc35313c0671ed3",
+        "solution/solve.sh": "20d7086f82332e0c0e57d530e3888c7fa872de3707f694b986d3125875571601",
+        "task.toml": "a4be61ab655fbe7936498d2f157690bfa21f70875ffa554f0b429bc3f0fd41da",
+        "tests/test.sh": "12b46819acd0abc33533d04ff452b8f2cfa37483930646e67f05cd9e0618a2bb"
+      },
+      "m01-aspire": {
+        "environment/Dockerfile": "bce98dae1e841fb7d32cd81ebbefc12d3d8a634db8ca14dd5ce926851d39da11",
+        "environment/app/README.md": "68e0bdebff108a30c7ca6d1302d3d44219109200fd48c2b83c5e7b757ec3e9ba",
+        "environment/bootstrap.sh": "029dfb5492025861ea7bdb1cc67afd3824aa0131d8ecc4fc2939313080d33c8f",
+        "environment/docker-compose.yaml": "e9313ab00bea8a3208bc93e0078f1aec0f9ef034a0e286133bb780145efc1631",
+        "environment/entrypoint.sh": "64cbe5dc0fef421bd9e12897dddf3cfd1c5f91d95fd6228e44f5297f64671d1b",
+        "environment/skills/aspire-startup/SKILL.md": "b0a5b2f287421312729c3b9e1f89c1a34cf088798583834224d4b8408ea7eea9",
+        "instruction.md": "690087a1dd879fad3457dd1c5098bc7cdf966359a2a38f79ef11164399f76e2d",
+        "solution/AddSquareDescription.cs": "b11a5e11b1a72952c17fb25dcad0b5220996c1ca8e6beb5774290dd400f2b9ef",
+        "solution/DescriptionEndpoints.cs": "ce7746336ec4f0d449eb488018d19d46b44dd6507ffb48144440b594030ba6de",
+        "solution/reload.sh": "190d146e704e5b8562b4bbfc91383066f5be1190ee2802e688700b87fa69033c",
+        "solution/solve.sh": "20d7086f82332e0c0e57d530e3888c7fa872de3707f694b986d3125875571601",
+        "task.toml": "0dfd93d00db3614979d85296e772745e9e4e042c5cf12170148da88cc294849a",
+        "tests/test.sh": "12b46819acd0abc33533d04ff452b8f2cfa37483930646e67f05cd9e0618a2bb"
+      }
+    }
+  },
+  "portability": {
+    "status": "pending-parent-public-Git-context-pin-and-remote-build-proof",
+    "current_evolution_common_context": "../../../common",
+    "known_remote_gate": "Parent reports Docker Bake/CES requires a filesystem read entitlement for this outside-environment common context. No broad entitlement/security bypass applied.",
+    "required_graph": "Pin evolution-common to https://github.com/sebastienros/aspire-bench.git#<exact-parent-published-source-SHA>:msbench/bingo-evolution/common in all four task compose files after integration/publication; verify build-on-demand graph separately. Local sibling context proves runtime, not CES portability.",
+    "dataset_withheld": true
+  },
+  "interpretation": "Four final local oracle validations, not pass@1/model efficiency or a demonstrated Aspire advantage. Preserve old blocked evidence and all correction failures."
+}

@@ -1,0 +1,107 @@
+Rejected report-only: SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+Stopping resource 'boardadmin'...
+✅ Resource 'boardadmin' stopped successfully.
+Rebuilding resource 'migrations'...
+✅ Resource 'migrations' rebuilt successfully.
+[build] Stopping resource for rebuild...
+[build] Building project...
+[build] 2026-11-05T01:20:55.3950000Z [sys] Starting process...: Cmd = /usr/bin/dotnet, Args = ["build", "/app/src/BingoBoard.MigrationService/BingoBoard.MigrationService.csproj", "--configuration", "Debug"]
+[build] 2026-11-05T01:20:55.6920000Z   Determining projects to restore...
+[build] 2026-11-05T01:20:56.0840000Z   All projects are up-to-date for restore.
+[build] 2026-11-05T01:20:56.2920000Z   BingoBoard.Data -> /app/src/BingoBoard.Data/bin/Debug/net10.0/BingoBoard.Data.dll
+[build] 2026-11-05T01:20:56.3020000Z   BingoBoard.ServiceDefaults -> /app/src/BingoBoard.ServiceDefaults/bin/Debug/net10.0/BingoBoard.ServiceDefaults.dll
+[build] 2026-11-05T01:20:56.3600000Z   BingoBoard.MigrationService -> /app/src/BingoBoard.MigrationService/bin/Debug/net10.0/BingoBoard.MigrationService.dll
+[build] 2026-11-05T01:20:56.3670000Z 
+[build] 2026-11-05T01:20:56.3670000Z Build succeeded.
+[build] 2026-11-05T01:20:56.3670000Z     0 Warning(s)
+[build] 2026-11-05T01:20:56.3670000Z     0 Error(s)
+[build] 2026-11-05T01:20:56.3670000Z 
+[build] 2026-11-05T01:20:56.3670000Z Time Elapsed 00:00:00.89
+[build] Build succeeded. Restarting resource...
+Starting resource 'migrations'...
+✅ Resource 'migrations' started successfully.
+Rebuilding resource 'boardadmin'...
+✅ Resource 'boardadmin' rebuilt successfully.
+[build] Stopping resource for rebuild...
+[build] Building project...
+[build] 2026-11-05T01:20:57.2330000Z [sys] Starting process...: Cmd = /usr/bin/dotnet, Args = ["build", "/app/src/BingoBoard.Admin/BingoBoard.Admin.csproj", "--configuration", "Debug"]
+[build] 2026-11-05T01:20:57.5050000Z   Determining projects to restore...
+[build] 2026-11-05T01:20:57.7270000Z /app/src/BingoBoard.Admin/BingoBoard.Admin.csproj : warning NU1902: Package 'MessagePack' 2.5.302 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-qhrr-8q5h-9q3h
+[build] 2026-11-05T01:20:57.7280000Z   All projects are up-to-date for restore.
+[build] 2026-11-05T01:20:57.7750000Z /app/src/BingoBoard.Admin/BingoBoard.Admin.csproj : warning NU1902: Package 'MessagePack' 2.5.302 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-qhrr-8q5h-9q3h
+[build] 2026-11-05T01:20:57.8860000Z   BingoBoard.Data -> /app/src/BingoBoard.Data/bin/Debug/net10.0/BingoBoard.Data.dll
+[build] 2026-11-05T01:20:57.9250000Z   BingoBoard.ServiceDefaults -> /app/src/BingoBoard.ServiceDefaults/bin/Debug/net10.0/BingoBoard.ServiceDefaults.dll
+[build] 2026-11-05T01:20:59.1150000Z   BingoBoard.Admin -> /app/src/BingoBoard.Admin/bin/Debug/net10.0/BingoBoard.Admin.dll
+[build] 2026-11-05T01:20:59.1240000Z 
+[build] 2026-11-05T01:20:59.1250000Z Build succeeded.
+[build] 2026-11-05T01:20:59.1250000Z 
+[build] 2026-11-05T01:20:59.1250000Z /app/src/BingoBoard.Admin/BingoBoard.Admin.csproj : warning NU1902: Package 'MessagePack' 2.5.302 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-qhrr-8q5h-9q3h
+[build] 2026-11-05T01:20:59.1250000Z /app/src/BingoBoard.Admin/BingoBoard.Admin.csproj : warning NU1902: Package 'MessagePack' 2.5.302 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-qhrr-8q5h-9q3h
+[build] 2026-11-05T01:20:59.1250000Z     2 Warning(s)
+[build] 2026-11-05T01:20:59.1250000Z     0 Error(s)
+[build] 2026-11-05T01:20:59.1250000Z 
+[build] 2026-11-05T01:20:59.1250000Z Time Elapsed 00:00:01.82
+[build] Build succeeded. Restarting resource...
+Starting resource 'boardadmin'...
+✅ Resource 'boardadmin' started successfully.
+Waiting for resource 'boardadmin' to be healthy...
+
+✅ Resource 'boardadmin' is healthy. (0.7s)
+Rejected hardcoded empty catalog
+Stopping resource 'boardadmin'...
+✅ Resource 'boardadmin' stopped successfully.
+Rebuilding resource 'migrations'...
+✅ Resource 'migrations' rebuilt successfully.
+[build] Stopping resource for rebuild...
+[build] Building project...
+[build] 2026-11-05T01:21:02.5060000Z [sys] Starting process...: Cmd = /usr/bin/dotnet, Args = ["build", "/app/src/BingoBoard.MigrationService/BingoBoard.MigrationService.csproj", "--configuration", "Debug"]
+[build] 2026-11-05T01:21:02.7810000Z   Determining projects to restore...
+[build] 2026-11-05T01:21:02.9770000Z   All projects are up-to-date for restore.
+[build] 2026-11-05T01:21:03.0690000Z   BingoBoard.Data -> /app/src/BingoBoard.Data/bin/Debug/net10.0/BingoBoard.Data.dll
+[build] 2026-11-05T01:21:03.1260000Z   BingoBoard.ServiceDefaults -> /app/src/BingoBoard.ServiceDefaults/bin/Debug/net10.0/BingoBoard.ServiceDefaults.dll
+[build] 2026-11-05T01:21:03.1770000Z   BingoBoard.MigrationService -> /app/src/BingoBoard.MigrationService/bin/Debug/net10.0/BingoBoard.MigrationService.dll
+[build] 2026-11-05T01:21:03.1810000Z 
+[build] 2026-11-05T01:21:03.1810000Z Build succeeded.
+[build] 2026-11-05T01:21:03.1820000Z     0 Warning(s)
+[build] 2026-11-05T01:21:03.1820000Z     0 Error(s)
+[build] 2026-11-05T01:21:03.1820000Z 
+[build] 2026-11-05T01:21:03.1820000Z Time Elapsed 00:00:00.58
+[build] Build succeeded. Restarting resource...
+Starting resource 'migrations'...
+✅ Resource 'migrations' started successfully.
+Rebuilding resource 'boardadmin'...
+✅ Resource 'boardadmin' rebuilt successfully.
+[build] Stopping resource for rebuild...
+[build] Building project...
+[build] 2026-11-05T01:21:04.3160000Z [sys] Starting process...: Cmd = /usr/bin/dotnet, Args = ["build", "/app/src/BingoBoard.Admin/BingoBoard.Admin.csproj", "--configuration", "Debug"]
+[build] 2026-11-05T01:21:04.6030000Z   Determining projects to restore...
+[build] 2026-11-05T01:21:04.8090000Z /app/src/BingoBoard.Admin/BingoBoard.Admin.csproj : warning NU1902: Package 'MessagePack' 2.5.302 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-qhrr-8q5h-9q3h
+[build] 2026-11-05T01:21:04.8100000Z   All projects are up-to-date for restore.
+[build] 2026-11-05T01:21:04.8310000Z /app/src/BingoBoard.Admin/BingoBoard.Admin.csproj : warning NU1902: Package 'MessagePack' 2.5.302 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-qhrr-8q5h-9q3h
+[build] 2026-11-05T01:21:04.9080000Z   BingoBoard.Data -> /app/src/BingoBoard.Data/bin/Debug/net10.0/BingoBoard.Data.dll
+[build] 2026-11-05T01:21:04.9700000Z   BingoBoard.ServiceDefaults -> /app/src/BingoBoard.ServiceDefaults/bin/Debug/net10.0/BingoBoard.ServiceDefaults.dll
+[build] 2026-11-05T01:21:05.6610000Z   BingoBoard.Admin -> /app/src/BingoBoard.Admin/bin/Debug/net10.0/BingoBoard.Admin.dll
+[build] 2026-11-05T01:21:05.6650000Z 
+[build] 2026-11-05T01:21:05.6650000Z Build succeeded.
+[build] 2026-11-05T01:21:05.6650000Z 
+[build] 2026-11-05T01:21:05.6650000Z /app/src/BingoBoard.Admin/BingoBoard.Admin.csproj : warning NU1902: Package 'MessagePack' 2.5.302 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-qhrr-8q5h-9q3h
+[build] 2026-11-05T01:21:05.6650000Z /app/src/BingoBoard.Admin/BingoBoard.Admin.csproj : warning NU1902: Package 'MessagePack' 2.5.302 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-qhrr-8q5h-9q3h
+[build] 2026-11-05T01:21:05.6660000Z     2 Warning(s)
+[build] 2026-11-05T01:21:05.6660000Z     0 Error(s)
+[build] 2026-11-05T01:21:05.6660000Z 
+[build] 2026-11-05T01:21:05.6660000Z Time Elapsed 00:00:01.27
+[build] Build succeeded. Restarting resource...
+Starting resource 'boardadmin'...
+✅ Resource 'boardadmin' started successfully.
+Waiting for resource 'boardadmin' to be healthy...
+
+✅ Resource 'boardadmin' is healthy. (1.0s)
+Rejected guidance: AssertionError [ERR_ASSERTION]: Protected guidance or original migration changed
+Rejected endpoints: AssertionError [ERR_ASSERTION]: Endpoint file changed
+Rejected lost-row: AssertionError [ERR_ASSERTION]: Existing square changed or lost: inactive-16cee286b245db0c8e6faabf
+Rejected rebuilt-table: AssertionError [ERR_ASSERTION]: Database or original tables were rebuilt
+Rejected lost-cache: AssertionError [ERR_ASSERTION]: Unrelated Redis state lost
+Catalog proof: {"freshIds":["feature-13987dcaff07b656f1b546c5-z","feature-13987dcaff07b656f1b546c5-a","feature-13987dcaff07b656f1b546c5-hidden","feature-13987dcaff07b656f1b546c5-other","feature-13987dcaff07b656f1b546c5-null"],"filter":"kind-20509abd1c21bf2d169f3882","filteredActiveCount":2,"refreshedLabel":"Changed ac0ee7120c838868ec9998c5","unfilteredActiveCount":57,"directRedisAfterClear":"False","unknownFilter":[],"emptyImportStatus":400,"unknownCallStatus":404}
+Preservation proof: {"originalSquareCount":43,"originalUserCount":1,"originalDatabaseIdentity":{"database":"16384","squares":"16413","users":"16400","history":"16385"},"currentDatabaseIdentity":{"database":"16384","squares":"16413","users":"16400","history":"16385"},"originalMigrationIds":["20260206183116_InitialCreate"],"currentMigrationIds":["20260206183116_InitialCreate"],"sentinel":{"Id":"keep-936f84f44e2dbac9660ece8a","Label":"Preserved 'debe0383c4de2a6b20fe4864","Type":"evolution","IsActive":true,"DisplayOrder":41,"CreatedAt":"2026-11-05T01:20:48.67172+00:00","UpdatedAt":"2026-11-05T01:20:48.67172+00:00"},"dependencyImages":[{"role":"redis","image":"docker.io/library/redis:8.6"},{"role":"postgres","image":"docker.io/library/postgres:18.3"}]}
+Verified f01: fresh functional contracts, negative inputs,
+real SQL/Redis, legacy rows/users/history, live frontend/version/SignalR and dependency identity.

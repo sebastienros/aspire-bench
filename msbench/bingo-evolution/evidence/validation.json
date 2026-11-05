@@ -116,7 +116,7 @@
     "passed": 11,
     "shell_syntax": "passed for every new .sh",
     "whitespace": "git diff --check passed",
-    "final_common_grader_sha256": "334a906e2d449feb225b134ca37ffe3b477d53d5603d8370f682cb1316edce4a"
+    "blocked_revision_common_grader_sha256": "334a906e2d449feb225b134ca37ffe3b477d53d5603d8370f682cb1316edce4a"
   },
   "interpretation": "Local partial fixture evidence only. Neither matched scenario pair is verified/model-ready. No model-performance or Aspire-advantage claim."
 }

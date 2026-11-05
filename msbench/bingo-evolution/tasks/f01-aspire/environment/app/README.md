@@ -21,8 +21,21 @@ Use only the agent skills and tools actually exposed in this session.
 For an already-running application, discover its supported per-resource
 operations with `aspire resource boardadmin --help --apphost /app/apphost.cs`.
 Use the exposed resource stop/rebuild commands when shared project code changes;
-the completed migration worker can be rebuilt/rerun before the admin resource.
-Wait for the changed resource before testing its HTTP behavior. Do not restart
+the completed migration worker can be rebuilt/rerun before the admin resource:
+
+```bash
+aspire resource boardadmin stop --apphost /app/apphost.cs --non-interactive --nologo
+aspire resource migrations rebuild --apphost /app/apphost.cs --non-interactive --nologo
+aspire resource migrations start --apphost /app/apphost.cs --non-interactive --nologo
+aspire resource boardadmin rebuild --apphost /app/apphost.cs --non-interactive --nologo
+aspire resource boardadmin start --apphost /app/apphost.cs --non-interactive --nologo
+aspire wait boardadmin --apphost /app/apphost.cs --non-interactive --timeout 120 --nologo
+```
+
+Explicit start is needed after rebuilding a stopped project or completed worker
+with this pinned CLI. The migration worker exits on success: do not use a
+healthy-state wait as proof of its completion; verify schema/history/data.
+Wait for the changed admin resource before testing HTTP behavior. Do not restart
 PostgreSQL/Redis or substitute a new AppHost. Vite reloads frontend configuration
 automatically. Runtime endpoints in `benchmark-endpoints.json` stay fixed.
 

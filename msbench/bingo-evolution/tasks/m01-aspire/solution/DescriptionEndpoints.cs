@@ -15,7 +15,9 @@ public static class DescriptionEndpoints
         {
             var square = await db.BingoSquares.AsNoTracking()
                 .SingleOrDefaultAsync(square => square.Id == squareId, cancellationToken);
-            return square is null ? Results.NotFound() : Results.Ok(new { square.Id, square.Description });
+            return square is null
+                ? Results.NotFound($"Square '{squareId}' was not found.")
+                : Results.Ok(new { square.Id, square.Description });
         });
         group.MapPut("/{squareId}/description", async (
             string squareId, DescriptionInput input, ApplicationDbContext db, CancellationToken cancellationToken) =>
@@ -28,7 +30,7 @@ public static class DescriptionEndpoints
                 square => square.Id == squareId, cancellationToken);
             if (square is null)
             {
-                return Results.NotFound();
+                return Results.NotFound($"Square '{squareId}' was not found.");
             }
             square.Description = input.Description;
             await db.SaveChangesAsync(cancellationToken);

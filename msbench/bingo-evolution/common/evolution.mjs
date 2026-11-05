@@ -22,32 +22,65 @@ export async function request(origin, route, init, status = 200) {
     return response;
 }
 
-export async function dependencies() {
+export function ownedContainers(rows, kind = process.env.BENCH_APP_KIND, run = process.env.BENCH_RUN_ID) {
+    assert(["compose", "aspire"].includes(kind), "Known application orchestration required");
+    assert(run && /^[a-z0-9-]+$/.test(run), "Run namespace required");
+    return ["postgres", "redis"].map(role => {
+        const matches = kind === "compose"
+            ? rows.filter(row => row.Config.Labels?.["com.docker.compose.project"] === run
+                && row.Config.Labels?.["com.docker.compose.service"] === role)
+            : rows.filter(row => row.Name === `/${run}-${role}`);
+        assert.equal(matches.length, 1, `Exactly one owned ${role} required`);
+        assert(matches[0].State.Running && !matches[0].State.Paused, "Running unpaused dependency required");
+        return { role, row: matches[0] };
+    });
+}
+
+async function containerRows() {
     const run = process.env.BENCH_RUN_ID;
     assert(run, "BENCH_RUN_ID required");
     const filters = process.env.BENCH_APP_KIND === "compose"
         ? ["--filter", `label=com.docker.compose.project=${run}`]
         : ["--filter", `name=^/${run}-(postgres|redis)$`];
-    const ids = (await command("docker", ["ps", "-q", ...filters])).stdout.trim().split(/\s+/).filter(Boolean);
+    const ids = (await command("docker", ["ps", "-q", ...filters], { timeout: 15_000 })).stdout.trim().split(/\s+/).filter(Boolean);
     assert.equal(ids.length, 2, "Exactly two owned dependency containers required");
-    const rows = JSON.parse((await command("docker", ["inspect", ...ids])).stdout);
-    return rows.map(row => ({
-        id: row.Id, image: row.Config.Image, startedAt: row.State.StartedAt,
+    return ownedContainers(JSON.parse((await command("docker", ["inspect", ...ids], { timeout: 15_000 })).stdout));
+}
+
+export async function dependencies() {
+    return (await containerRows()).map(({ role, row }) => ({
+        role, id: row.Id, image: row.Config.Image, startedAt: row.State.StartedAt,
         restarts: row.RestartCount,
     })).sort((a, b) => a.id.localeCompare(b.id));
 }
 
+export function sqlExecArgs(row, statement, kind = process.env.BENCH_APP_KIND) {
+    assert(["compose", "aspire"].includes(kind), "Known application orchestration required");
+    return ["exec", row.Id, "sh", "-c", 'PGPASSWORD="$POSTGRES_PASSWORD" psql "$@"',
+        "psql", "-U", "postgres", "-d", kind === "aspire" ? "db" : "bingo",
+        "-At", "-v", "ON_ERROR_STOP=1", "-c", statement];
+}
+
 export async function sql(statement) {
-    const postgres = (await dependencies()).find(row => row.image.split("/").at(-1).startsWith("postgres:"));
-    assert(postgres, "Owned PostgreSQL required");
-    return (await command("docker", ["exec", postgres.id, "psql", "-U", "postgres",
-        "-d", "bingo", "-At", "-v", "ON_ERROR_STOP=1", "-c", statement])).stdout.trim();
+    const { row } = (await containerRows()).find(item => item.role === "postgres");
+    return (await command("docker", sqlExecArgs(row, statement), { timeout: 15_000 })).stdout.trim();
+}
+
+export function redisExecArgs(row, args) {
+    const authenticated = row.Config.Env?.some(entry =>
+        entry.startsWith("REDIS_PASSWORD=") && entry.length > "REDIS_PASSWORD=".length);
+    const client = authenticated
+        ? ["sh", "-c", 'REDISCLI_AUTH="$REDIS_PASSWORD" redis-cli --raw "$@"', "redis-cli"]
+        : ["redis-cli", "--raw"];
+    const launch = [...row.Config.Entrypoint ?? [], ...row.Config.Cmd ?? []].join(" ");
+    const tls = /(?:^|\s)--tls-port(?:\s|=)/.test(launch)
+        ? ["--tls", "--cacert", "/usr/lib/ssl/aspire/cert.pem"] : [];
+    return ["exec", row.Id, ...client, ...tls, ...args];
 }
 
 export async function redis(...args) {
-    const cache = (await dependencies()).find(row => row.image.split("/").at(-1).startsWith("redis:"));
-    assert(cache, "Owned Redis required");
-    return (await command("docker", ["exec", cache.id, "redis-cli", "--raw", ...args])).stdout.trim();
+    const { row } = (await containerRows()).find(item => item.role === "redis");
+    return (await command("docker", redisExecArgs(row, args), { timeout: 15_000 })).stdout.trim();
 }
 
 async function rows() {
@@ -148,6 +181,12 @@ export async function verifyFeature(urls) {
     assert.equal(await redis("HGET", `global_square_${items[0].id}`, "data"), "False");
     await request(urls.frontend, `${root}/squares/import`, json([]), 400);
     await request(urls.frontend, `${root}/squares/missing-${nonce()}/state/true`, { method: "POST" }, 404);
+    console.log("Catalog proof:", JSON.stringify({
+        freshIds: items.map(item => item.id), filter: kind, filteredActiveCount: after.length,
+        refreshedLabel: items[0].label, unfilteredActiveCount: unfiltered.length,
+        directRedisAfterClear: await redis("HGET", `global_square_${items[0].id}`, "data"),
+        unknownFilter: [], emptyImportStatus: 400, unknownCallStatus: 404,
+    }));
 }
 
 const descriptionRoute = id => `${root}/squares/${id}/description`;
@@ -166,6 +205,12 @@ export async function verifyMigration(urls, state) {
     assert.equal(columns[0].is_nullable, "NO");
     assert.match(columns[0].column_default, /''/, "Legacy/new SQL inserts need an empty default");
     assert((await history()).length > state.history.length, "A new applied EF migration required");
+    const legacyDescriptions = new Map(JSON.parse(await sql(
+        'SELECT json_agg(s) FROM (SELECT "Id", "Description" FROM "BingoSquares") s'))
+        .map(row => [row.Id, row.Description]));
+    for (const row of state.rows) {
+        assert.equal(legacyDescriptions.get(row.Id), "", `Legacy description must backfill to empty: ${row.Id}`);
+    }
     for (const id of [state.sentinel, state.inactive]) {
         assert.equal(await sql(`SELECT "Description" FROM "BingoSquares" WHERE "Id"=${literal(id)}`), "",
             "Legacy records must backfill to empty");
@@ -207,6 +252,11 @@ export async function verifyMigration(urls, state) {
     await request(urls.frontend, descriptionRoute(state.inactive), json({ description: persisted }, "PUT"));
     assert.equal(await sql(`SELECT "Description" FROM "BingoSquares" WHERE "Id"=${literal(state.inactive)}`), persisted);
     await request(urls.frontend, descriptionRoute(state.inactive), json({ description: "" }, "PUT"));
+    console.log("Migration proof:", JSON.stringify({
+        column: columns[0], backfilledOriginalSquares: state.rows.length,
+        freshId: id, sqlDefaultId: sqlId, exactTextLengths: values.map(value => value.length),
+        invalidInputsRejected: 3, unknownGetAndPutStatus: 404, sqlOriginRead: external,
+    }));
 }
 
 async function main() {
@@ -226,11 +276,13 @@ async function main() {
         assert.notEqual(baseline.status, 200, "Baseline already implements the requested capability");
         const cacheKey = `evolution-preserve-${nonce()}`;
         const cacheValue = nonce();
-        await redis("SET", cacheKey, cacheValue);
+        assert.equal(await redis("SET", cacheKey, cacheValue), "OK", "Authenticated Redis sentinel write required");
+        const dependencySnapshot = await dependencies();
+        console.log("Owned dependency images:", JSON.stringify(dependencySnapshot.map(({ role, image }) => ({ role, image }))));
         await writeFile(stateFile, JSON.stringify({
             sentinel, inactive, cacheKey, cacheValue,
             inputs: await protectedHashes(), endpoints: digest(urlsText),
-            dependencies: await dependencies(), identity: await identity(),
+            dependencies: dependencySnapshot, identity: await identity(),
             rows: await rows(), users: await users(), history: await history(),
         }));
         console.log("Warm baseline ready: live apps, seeded PostgreSQL/Redis and protected inputs.");
@@ -246,6 +298,14 @@ async function main() {
         await verifyMigration(urls, state);
     }
     await verifyPreservation(state, urlsText, urls);
+    console.log("Preservation proof:", JSON.stringify({
+        originalSquareCount: state.rows.length, originalUserCount: state.users.length,
+        originalDatabaseIdentity: state.identity, currentDatabaseIdentity: await identity(),
+        originalMigrationIds: state.history.map(row => row.MigrationId),
+        currentMigrationIds: (await history()).map(row => row.MigrationId),
+        sentinel: state.rows.find(row => row.Id === state.sentinel),
+        dependencyImages: state.dependencies.map(({ role, image }) => ({ role, image })),
+    }));
     console.log(`Verified ${process.env.BENCH_SCENARIO}: fresh functional contracts, negative inputs,
 real SQL/Redis, legacy rows/users/history, live frontend/version/SignalR and dependency identity.`);
 }
