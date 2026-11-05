@@ -20,7 +20,8 @@ function inputs(directory = root, result = {}) {
         const path = join(directory, entry);
         const key = relative(root, path);
         if (ignored.has(entry) || key === "deployment"
-            || (process.env.BENCH_APP_KIND === "aspire" && key === "apphost.cs")) continue;
+            || (process.env.BENCH_APP_KIND === "aspire" && key === "apphost.cs"
+                && process.env.BENCH_PRECONFIGURED !== "true")) continue;
         const stat = lstatSync(path);
         assert(!stat.isSymbolicLink(), `Input symlink not permitted: ${key}`);
         if (stat.isDirectory()) inputs(path, result);

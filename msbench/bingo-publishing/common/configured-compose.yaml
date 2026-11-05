@@ -1,0 +1,31 @@
+name: p01-deploy
+services:
+  boardadmin:
+    image: boardadmin:local
+    build:
+      context: ..
+      dockerfile: Dockerfile.dotnet
+      args:
+        PROJECT: BingoBoard.Admin
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      DOTNET_ENVIRONMENT: Production
+      Authentication__AdminPassword: ${Parameters__admin_password:?}
+      ConnectionStrings__db: ${ConnectionStrings__db:?}
+      ConnectionStrings__cache: ${ConnectionStrings__cache:?}
+    ports:
+      - "127.0.0.1:18080:8080"
+    networks: [p01-net]
+  bingoboard:
+    image: bingoboard:local
+    build:
+      context: ../src/bingo-board
+      dockerfile: Dockerfile.nginx
+    environment:
+      BINGO_ADMIN_URL: http://boardadmin:8080
+    ports:
+      - "127.0.0.1:18081:8080"
+    networks: [p01-net]
+networks:
+  p01-net:
+    external: true
