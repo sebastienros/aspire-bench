@@ -83,6 +83,14 @@ test("native local receipts prove full deployment and unchanged supplied models 
     assert.equal(evidence.remote_model_submission_eligible, false);
     assert.equal(evidence.method, "native-harbor-oracle-force-build");
     assert.equal(evidence.owned_containers_removed, true);
+    const rows = (await read(evidence.dataset)).trim().split("\n").map(line => JSON.parse(line));
+    assert.deepEqual(rows.map(row => row.benchmark_variant), variants);
+    for (const row of rows) {
+        assert.equal(row.task_repo_commit, evidence.task_commit);
+        assert.equal(row.default_variant, "raw-configured");
+        assert.equal(row.variant_of_benchmark, "bingo-production-publishing-configured");
+        assert.equal(row.task_path, `msbench/bingo-publishing/tasks/${row.benchmark_variant}`);
+    }
     assert.deepEqual(evidence.runs.map(row => row.variant), variants);
     const digest = bytes => createHash("sha256").update(bytes).digest("hex");
     assert.equal(digest(await readFile(new URL("tasks/raw-configured/instruction.md", import.meta.url))),

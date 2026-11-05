@@ -60,4 +60,16 @@ The native wrapper uses the declared 4 CPU/8 GiB and 900/300-second limits;
 the live Aspire runner's CPU/memory limits were also inspected. Harbor removed
 both owned runners. Other users' Docker workloads were left untouched.
 The exact task/result/output/artifact hashes are recorded in
-`configured-evidence.json`; large native jobs remain in persistent session files.
+[configured-evidence.json](configured-evidence.json); large native jobs remain
+in persistent session files. [configured-dataset.jsonl](configured-dataset.jsonl)
+pins both task directories at `25ab43d0c9573559fc3bae704397f90c698f6b8d`,
+with separate `raw-configured` and `aspire-configured` variants. It does not
+replace the original P01 datasets or reuse their model-condition identities.
+
+Inspect the prepared variants without inference:
+
+```bash
+msbench-cli list instances --dataset msbench/bingo-publishing/configured-dataset.jsonl \
+  --benchmark bingo-production-publishing-configured \
+  --variant aspire-configured --format json
+```

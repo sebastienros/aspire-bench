@@ -1,5 +1,7 @@
 {
   "status": "native-local-oracle-validated-no-model",
+  "task_commit": "25ab43d0c9573559fc3bae704397f90c698f6b8d",
+  "dataset": "configured-dataset.jsonl",
   "common_commit": "8255977f24d4bf0ff272ed72b3205f81d66d7367",
   "business_commit": "baacba3e17181491c9a4d419db7d0e6763c3d363",
   "prompt_sha256": "e3fa6b849851b3e5934c223b4128c586bc21d443877914549153451bbb5a57c3",

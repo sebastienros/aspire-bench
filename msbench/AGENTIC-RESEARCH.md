@@ -26,6 +26,10 @@ The separate [preconfigured pair](bingo-publishing/CONFIGURED.md) supplies the
 complete AppHost and equivalent raw Compose before the agent starts, with
 identical outcome-only prompts. Both native local oracles pass; no additional
 model condition has been run or added to the 22-condition accounting.
+The preconfigured dataset pins tasks at `25ab43d` and common at `8255977`.
+Both native local jobs rejected supplied-model edits and retained byte-identical
+AppHost/raw Compose artifacts. The expanded contract/regression suite has
+104 passing checks; historical P01 inputs, datasets and results are unchanged.
 
 ## Objective and current answer
 

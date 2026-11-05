@@ -500,6 +500,11 @@ now provide the complete AppHost and matching raw Compose plus a deployment
 command before the agent starts, with identical outcome-only prompts.
 Existing model results remain unchanged; new fixture validation is not a new
 model sample or retroactive evidence of a speed difference.
+Both new native local Harbor oracles now pass reward 1/no exception, with
+six/eight negative cases and byte-identical retained raw/AppHost configurations.
+[Receipt](bingo-publishing/configured-evidence.json) and
+[new dataset](bingo-publishing/configured-dataset.jsonl) bind the tested inputs.
+No new cloud/model submission was made.
 
 ## F11: Feature/data-evolution correctness needs real state, not readiness
 
