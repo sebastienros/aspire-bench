@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { randomBytes, createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
-import { readFileSync, writeFileSync, readdirSync, lstatSync } from "node:fs";
+import { readFileSync, writeFileSync, readdirSync, lstatSync, mkdirSync } from "node:fs";
 import { join, relative } from "node:path";
 
 const root = "/app";
@@ -194,6 +194,39 @@ async function runtime(state) {
     } finally {
         hub.socket.close();
     }
+    mkdirSync("/logs/verifier", { recursive: true });
+    const imagePins = {};
+    for (const reference of ["postgres:18.3", "redis:8.6",
+        "mcr.microsoft.com/dotnet/sdk:10.0.100-noble", "mcr.microsoft.com/dotnet/aspnet:10.0.12-noble",
+        "node:24.14.0-bookworm-slim", "nginxinc/nginx-unprivileged:1.28-alpine"]) {
+        const image = JSON.parse(docker("image", "inspect", reference))[0];
+        imagePins[reference] = { id: image.Id, repoDigests: image.RepoDigests };
+    }
+    writeFileSync("/logs/verifier/checks.json", JSON.stringify({
+        arm: process.env.BENCH_APP_KIND,
+        aspireCliVersion: process.env.BENCH_APP_KIND === "aspire" ? run("aspire", ["--version"]) : null,
+        environment: "Production",
+        dotnetVersion: av.dotNetVersion,
+        asset,
+        assetSha256: state.assets[asset],
+        inputsSha256: sha(JSON.stringify(state.inputs)),
+        businessInputsSha256: sha(JSON.stringify(Object.fromEntries(
+            Object.entries(state.inputs).filter(([path]) => path.startsWith("src/"))))),
+        imagePins,
+        catalogRows: state.catalog.length,
+        activeCatalogRows: state.catalog.filter(item => item.IsActive).length,
+        dependencyOwnershipPreserved: true,
+        infrastructurePreserved: true,
+        priorRedisStatePreserved: true,
+        correctLoginAccepted: true,
+        incorrectLoginRejected: true,
+        signalRWebSocketCatalogAndFreshRedisBoard: true,
+        unknownSignalRMethodRejected: true,
+        containers: containers.map(item => ({
+            service: item.Config.Labels["com.docker.compose.service"],
+            id: item.Id, imageId: item.Image, ports: item.NetworkSettings.Ports,
+        })),
+    }, null, 2));
     console.log("PASS: production containers, static Vue, real login/version/SignalR/DB/Redis, preserved inputs and ownership");
 }
 if (process.argv[2] === "setup") {

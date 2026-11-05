@@ -10,6 +10,10 @@ and image-build/deployment pipeline. Do not hand-author/eject the final YAML or
 package the AppHost as a workload. `aspire publish` and the target's prepare/deploy
 steps are available; use `--non-interactive`. The Docker integration's
 `ConfigureComposeFile` API supports external networks. No package upgrades.
+Use `WithDashboard(false)` for this two-workload deployment. Dockerfile builds
+and generated service image references must use the same explicit local tags;
+`WithImageTag` and `ConfigureComposeFile` service `Image` support this in 13.6.
+Apply prepare's `.env.Production`, not publish's placeholder `.env`.
 
 Serve admin on loopback port 18080 and the built static Vue frontend on loopback
 port 18081. The frontend must reach the deployed admin's version API and real

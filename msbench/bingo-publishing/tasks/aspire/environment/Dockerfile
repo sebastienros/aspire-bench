@@ -24,11 +24,12 @@ COPY --from=publishing-common /Dockerfile.frontend /app/src/bingo-board/Dockerfi
 COPY --from=publishing-common /inputs.env /app/deployment-inputs.env
 COPY --from=publishing-common /README.md /app/README.md
 COPY --from=publishing-common /apphost.cs /app/apphost.cs
+COPY --from=publishing-common /aspire.config.json /app/aspire.config.json
 RUN rm compose.yaml \
     && dotnet publish src/BingoBoard.MigrationService -c Release -o /opt/benchmark/seed \
     && dotnet restore src/BingoBoard.Admin \
-    && cd src/bingo-board && npm ci && npm run build
+    && cd src/bingo-board && npm ci && VITE_DOTNET_VERSION=10 npm run build
 RUN dotnet restore apphost.cs
-COPY --from=publishing-common /entrypoint.sh /setup.sh /grade.mjs /negative.sh /opt/benchmark/
+COPY --from=publishing-common /entrypoint.sh /setup.sh /grade.mjs /negative.sh /dns.mjs /opt/benchmark/
 ENTRYPOINT ["tini", "--", "bash", "/opt/benchmark/entrypoint.sh"]
 CMD ["sleep", "infinity"]

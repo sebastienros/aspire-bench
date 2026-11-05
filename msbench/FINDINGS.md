@@ -399,40 +399,49 @@ guards and source-preserving functional behavior. The two conditions differ
 only in the actual CLI-13.6-generated router/init knowledge. This is local
 setup/grader proof, not yet an autonomous-agent success or generator benefit.
 
-## F12: Local publishing needs a production runtime gate; P01 remains blocked
+## F12: Local publishing needs a production runtime and image-identity gate
 
 **Paired evidence:** The [P01 publishing draft](bingo-publishing/README.md)
-and [failure manifest](bingo-publishing/evidence.json) preserve one raw and one
-Aspire local Docker oracle attempt. Both failed during environment-image build,
-before any agent solution or verifier: BuildKit returned file/metadata
-`input/output error`; raw also failed syncing dpkg state. Shared-host disk
-exhaustion was reported by the coordinator, with a direct local observation of
-100% disk capacity and 2.8 GiB available. Neither arm has a deployment, reward,
-executed functional check, or model result. Four structural tests pass only.
+and [manifest](bingo-publishing/evidence.json) retain the original paired
+shared-host image-build I/O failures and subsequent concrete fixture corrections.
+After owner-controlled engine recovery, raw `p01-raw-v5` and Aspire
+`p01-aspire-v5` each pass with reward 1. They execute real .NET 10.0.12/nginx
+Production workloads, correct/wrong admin login, original Vue bundle hashes,
+WebSocket SignalR/database catalog and fresh Redis boards, preserving existing
+data and environment-owned dependency/network/volume identity. No-op, immutable
+input edits, lost prior state, nonrunning workloads and a live Vite server are
+rejected; Aspire additionally rejects publish-only and ejected YAML artifacts.
+These passing development oracles explicitly used local common input overrides.
 
 **Improvement candidate / design:** Evaluate published .NET + production-served
 Vue with real login, version routing, WebSocket SignalR/database catalog and
 Redis behavior; keep environment-owned dependencies and prior data unchanged.
 Do not treat Vite proxies, AppHost containers, Development-only producer APIs,
 generated YAML text, or publish-only output as completed production deployment.
-Use exact release-family APIs: current documentation plus 13.6 NuGet inspection
-confirmed `AddDockerComposeEnvironment`, `ConfigureComposeFile` and
-`AddDockerfile`; it did not establish runtime compatibility.
+Use exact release-family APIs and matching image identities. Actual CLI
+`13.6.0+56f3e9c0` compiled and ran the AppHost publish/prepare/build path. Its
+prepare defaults emitted deployment tags that did not match Dockerfile build
+tags; the successful model pairs `WithImageTag("local")` with documented
+`ConfigureComposeFile` service `Image`, disables the optional dashboard for the
+matched two-workload topology, and applies `.env.Production`. No YAML/env
+ejection or newer unsupported static-site API is used.
 
-**Limits / status:** Blocked, NOT Docker-validated and not eligible for model
-submission. The implementation and intended rejection cases are scaffolding,
-not observed passes or proof of Aspire benefit. Recover the shared engine under
-its owner's control, then sequentially establish image builds, CLI/Hosting 13.6
-publish/prepare behavior and both positive/negative runtime oracles. Only owned
-runner commands were stopped; no shared restart/prune, cloud provisioning,
-model submission, or repeat sweep. Historical tasks/tracker are untouched.
+**Limits / status:** Local runtime behavior passes, but not eligible for model
+submission until corrected common files are published/pinned and both default
+public-context oracles pass. Oracle timing is not an agent-efficiency result.
+No CES/x64/model or broader production architecture claim is made. The scenario
+publishes application containers against supplied dependencies; it does not
+provision the whole environment. Root-local controls are not an adversarial
+sandbox. No shared restart/prune, cloud provisioning, model submission or repeat
+sweep was performed; historical tasks/tracker are untouched.
 
 **Portability/source follow-up:** Both common named contexts now default to the
-verified public Git snapshot `7bdc7464`, not a sibling-local `../../../common`
-requiring remote Bake filesystem permission. Exact 13.6 source inspection also
-corrected the oracle to apply prepare's `.env.Production`, rather than publish's
-placeholder `.env`. These are source/graph fixes, not successful Docker or remote
-deployment evidence; the runtime gate remains open.
+public Git snapshot `265fe63f`, not a sibling-local `../../../common` requiring
+remote Bake filesystem permission. Runtime fixes now require a newer public
+pin and final graph verification. Nested Docker also needed the established
+`vfs` recipe and explicit inheritance of the task's actual upstream DNS; it must
+not guess public resolvers. Vue golden/published builds use identical version
+inputs, avoiding a false bundle-hash failure from the SDK's ambient environment.
 
 ## F11: Feature/data-evolution correctness needs real state, not readiness
 

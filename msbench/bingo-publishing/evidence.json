@@ -1,16 +1,16 @@
 {
   "scenario": "P01",
-  "status": "blocked-shared-docker-storage-not-runtime-validated",
+  "status": "local-runtime-passed-awaiting-final-public-context-validation",
   "eligible_for_model_submission": false,
-  "completed_deployment": false,
+  "completed_deployment": true,
   "portable_common_context": {
     "repository": "https://github.com/sebastienros/aspire-bench",
-    "commit": "7bdc746445b887d1c61b228e9d6d59f378589fe8",
+    "commit": "265fe63f927c9c36bde3c7b85e9ba4be03365db0",
     "path": "msbench/bingo-publishing/common",
     "github_resolution_verified": true,
     "local_common_tree_matches": false,
-    "pending_update": "Current ownership and package-family guards must be published and pinned before final portable validation.",
-    "docker_build_with_git_context_verified": false
+    "docker_build_with_git_context_verified": true,
+    "pending_update": "Runtime corrections are newer than the public pin; publish/pin them and run both final default-context oracles."
   },
   "model_runs": [],
   "application_source": {
@@ -20,7 +20,8 @@
     "same_for_both_arms": true
   },
   "aspire_intended_version": "13.6.0",
-  "aspire_actual_task_execution_verified": false,
+  "aspire_actual_task_execution_verified": true,
+  "aspire_actual_task_version": "13.6.0+56f3e9c0d216c0c7069dabb49dd0464e4827744f",
   "budgets_seconds": {
     "agent": 900,
     "verifier": 300
@@ -57,7 +58,7 @@
   ],
   "static_validation": {
     "command": "node --test msbench/bingo-publishing/experiment.test.mjs",
-    "passed_tests": 4,
+    "passed_tests": 5,
     "runtime_evidence": false
   },
   "observed_base_image_digests_during_failed_builds": {
@@ -67,8 +68,78 @@
   },
   "owned_process_cleanup": {
     "runner_processes_stopped": true,
-    "remaining_container_state_verified": false,
+    "remaining_container_state_verified": true,
     "shared_engine_restart_or_prune": false
   },
-  "remaining_prerequisite": "Owner-controlled recovery of disk headroom and writable/responsive Docker/BuildKit, followed by sequential final-task image builds and actual positive/negative runtime oracles. CLI 13.6 prepare/output/env-file behavior and final AppHost have not executed."
+  "local_runtime_results": [
+    {
+      "arm": "raw-scripted",
+      "job": "p01-raw-v5",
+      "trial": "raw-scripted__SGKuyU6",
+      "result_sha256": "1d5a86f88f0b01db183c2544d8ccc6d33ba59ccd8981e70d9e2e545d4b7c0960",
+      "receipt_sha256": "91ba78f176f1161f1d3e1b2a3dc00fe19f0de014ebfbed1959011fe16ac97c96",
+      "reward": 1,
+      "agent_oracle_seconds": 34.826,
+      "verifier_seconds": 0.758,
+      "common_context": "explicit-local-override"
+    },
+    {
+      "arm": "aspire",
+      "job": "p01-aspire-v5",
+      "trial": "aspire__ifG4baZ",
+      "result_sha256": "a764efa13634afe91cfac787cf26ef70baea8dba0b6062b3af5ef63071686f6f",
+      "receipt_sha256": "65def1ef42873526f804a6a182058a3b2c72009e3be615310b81960eb31368a4",
+      "reward": 1,
+      "agent_oracle_seconds": 83.567,
+      "verifier_seconds": 1.826,
+      "common_context": "explicit-local-override"
+    }
+  ],
+  "durable_job_root": "/Users/sebastienros/.copilot/session-state/3efaa765-dfb1-4afd-b958-13b40879b4ec/files/p01-oracles",
+  "fixture_failures_after_engine_recovery": [
+    {
+      "job": "p01-raw-v2",
+      "phase": "environment-setup",
+      "reward": null,
+      "exception": "CancelledError",
+      "result_sha256": "9c2681a073a7aac5cab271a21947bbcf52bcdc593dcd84cc0cf5f349a0f97637",
+      "cause": "Nested overlay2 failed to mount with invalid argument; stopped after setup container exited."
+    },
+    {
+      "job": "p01-raw-v3",
+      "phase": "oracle-image-build",
+      "reward": null,
+      "native_trial_result_written": false,
+      "cause": "Task DNS/HTTP worked, nested build DNS fell back to unreachable Google resolvers. NU1301; manually stopped and oracle log retained."
+    },
+    {
+      "job": "p01-raw-v4",
+      "phase": "behavioral-grading",
+      "reward": 0,
+      "result_sha256": "f4fada34c90c7399bb821845e92b836897c3003b0183050bab90759c77e4263e",
+      "cause": "Golden Vue bundle inherited SDK DOTNET_VERSION=10.0.0; published Node build used 10. Explicit matching VITE_DOTNET_VERSION fixed hash mismatch."
+    },
+    {
+      "job": "p01-aspire-v2",
+      "phase": "publish-only-negative",
+      "reward": 0,
+      "result_sha256": "1a2327602fbf29be8fbb7cc6b0036bb98bd8b11762a5af03ca8fac100f2c3a67",
+      "cause": "First publish created aspire.config.json outside editable inputs; supply known settings before snapshotting instead of weakening hashing."
+    },
+    {
+      "job": "p01-aspire-v3",
+      "phase": "compose-apply",
+      "reward": 0,
+      "result_sha256": "4e2ef4ae65d4d0bb2f2f28e2b308a937f816b67c249ae730de66d7de2e8ab707",
+      "cause": "Prepare produced image tags not present locally; default dashboard also created third service and port collision."
+    },
+    {
+      "job": "p01-aspire-v4",
+      "phase": "compose-apply",
+      "reward": 0,
+      "result_sha256": "eaf37b4e8c0f527e41e9c363fadb98747d46f0a7cfaadb790545f1b114079d62",
+      "cause": "Experimental LocalImageTag build callback did not synchronize prepare references. Removed; model uses verified service Image customization plus WithImageTag."
+    }
+  ],
+  "remaining_prerequisite": "Publish/pin final common snapshot and run both default-public-context oracles sequentially. Local production/positive/negative behavior passes; no CES/x64/model validation is claimed."
 }

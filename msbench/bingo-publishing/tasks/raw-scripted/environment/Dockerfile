@@ -22,7 +22,7 @@ COPY --from=publishing-common /README.md /app/README.md
 RUN rm compose.yaml \
     && dotnet publish src/BingoBoard.MigrationService -c Release -o /opt/benchmark/seed \
     && dotnet restore src/BingoBoard.Admin \
-    && cd src/bingo-board && npm ci && npm run build
-COPY --from=publishing-common /entrypoint.sh /setup.sh /grade.mjs /negative.sh /opt/benchmark/
+    && cd src/bingo-board && npm ci && VITE_DOTNET_VERSION=10 npm run build
+COPY --from=publishing-common /entrypoint.sh /setup.sh /grade.mjs /negative.sh /dns.mjs /opt/benchmark/
 ENTRYPOINT ["tini", "--", "bash", "/opt/benchmark/entrypoint.sh"]
 CMD ["sleep", "infinity"]

@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 mkdir -p /logs/environment
-dockerd --host=unix:///var/run/docker.sock --storage-driver=overlay2 \
+dns_output=$(node /opt/benchmark/dns.mjs)
+mapfile -t dns_servers <<<"$dns_output"
+dns_options=()
+for server in "${dns_servers[@]}"; do dns_options+=(--dns "$server"); done
+printf 'Private Docker inherited DNS: %s\n' "${dns_servers[*]}"
+dockerd --host=unix:///var/run/docker.sock --storage-driver=vfs "${dns_options[@]}" \
     >/logs/environment/docker.log 2>&1 &
 daemon_pid=$!
 for attempt in {1..90}; do

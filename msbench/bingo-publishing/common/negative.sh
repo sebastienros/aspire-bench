@@ -39,6 +39,7 @@ docker rm "$frontend"
 docker run -d --name p01-vite-rejected --network p01-net \
     --label com.docker.compose.project=p01-deploy \
     --label com.docker.compose.service=bingoboard \
+    -e BINGO_ADMIN_URL=http://boardadmin:8080 \
     --entrypoint npm p01-vite:test run dev -- --host 0.0.0.0 --port 8080
 for attempt in {1..30}; do
     if docker exec p01-vite-rejected node --input-type=module -e \

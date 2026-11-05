@@ -2,9 +2,20 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
+import { upstreamDns } from "./common/dns.mjs";
 
 const read = file => readFile(new URL(file, import.meta.url), "utf8");
 const arms = ["raw-scripted", "aspire"];
+
+test("private Docker inherits actual upstream DNS without a public-DNS fallback", () => {
+    assert.deepEqual(upstreamDns("nameserver 10.0.0.2\nnameserver 10.0.0.2\n"), ["10.0.0.2"]);
+    assert.deepEqual(upstreamDns("nameserver 127.0.0.11\n# ExtServers: [host(192.168.65.7)]"),
+        ["192.168.65.7"]);
+    assert.deepEqual(upstreamDns("nameserver ::1\n# ExtServers: [168.63.129.16 host(2001:db8::53)]"),
+        ["168.63.129.16", "2001:db8::53"]);
+    assert.throws(() => upstreamDns("nameserver 127.0.0.11\n"), /No non-loopback upstream DNS/);
+    assert.throws(() => upstreamDns("# ExtServers: [not-an-address]\n"), /No non-loopback upstream DNS/);
+});
 
 test("paired tasks use same immutable source, runtime oracle and budgets", async () => {
     for (const arm of arms) {
@@ -51,6 +62,10 @@ test("Aspire control is release-compatible and regenerated rather than grading t
     assert.match(solution, /AddDockerComposeEnvironment/);
     assert.match(solution, /External = true/);
     assert.match(solution, /aspire do prepare-compose/);
+    assert.match(solution, /\.WithDashboard\(false\)/);
+    assert.match(solution, /\.WithImageTag\("local"\)/);
+    assert.match(solution, /service\.Image = \$"\{name\}:local";/);
+    assert.match(solution, /--env-file deployment\/\.env\.Production/);
     const grader = await read("common/grade.mjs");
     assert.match(grader, /Independent|independent AppHost publish/);
     assert.match(grader, /readFileSync\(`\$\{out\}\/docker-compose.yaml`/);
