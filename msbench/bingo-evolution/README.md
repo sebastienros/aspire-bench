@@ -1,7 +1,7 @@
 # Bingo bounded feature and schema evolution
 
-**Both local runtime pairs and representative remote packaging verified.**
-All four exact final tasks passed sequential force-built Docker oracles with
+**Historical v1 runtime pairs verified; F01 v2 grading correction pending replay.**
+All four original tasks passed sequential force-built Docker oracles with
 reward 1, no exceptions and seven rejected negative cases each. Earlier setup,
 reference-solution and shared-host failures remain recorded below. No model
 performance result is implied by these oracle receipts.
@@ -99,10 +99,46 @@ controls, not a hardened adversarial sandbox. No browser-rendered UI, SignalR
 message delivery, rollback compatibility, concurrency, or production deployment
 claim is made.
 
+## F01 grading correction v2, 2026-11-05
+
+The first actual parent-submitted Terra Aspire result exposed overgrading:
+the prompt requires the **catalog** at both origins, while preserving the
+existing producer API. The baseline player proxies version information and
+SignalR, not producer writes. V1 nevertheless required frontend empty-import
+400 and missing-square call 404, implicitly requiring an unrequested write
+proxy. The reference oracle's broad `/api` proxy hid that mismatch.
+
+V2 changes exactly those two legacy negative checks to `urls.admin`. It does
+not broaden the prompt, add an application change, alter M01 behavior/tasks,
+or weaken either-origin catalog, nonce, direct SQL/Redis, preservation or
+negative-input contracts. The original complete v1 module is reconstructible
+by reversing just the two documented substitutions. Historical v1 oracle
+outputs and hashes are immutable; they are not relabeled as v2 evidence.
+
+The original native reward **0** for run
+[2026110557444836](https://msbenchapp.azurewebsites.net/run-analysis/2026110557444836)
+is retained with the failure `/squares/import: HTTP 404` versus expected 400.
+Classify this result as **grader-invalid**, not a model failure. The parent
+supplied the saved four-file model source patch (SHA-256
+`cc9b133e173eb2ded3de1110f0afd5fb936e64c87b05d7d6346a7050029d6b59`);
+it adds a catalog-only player proxy. The original result/verifier/patch and
+v1/v2 hashes are preserved in [f01-grader-v2.json](evidence/f01-grader-v2.json).
+Cloud evidence is read-only and no model was rerun.
+
+`f01-grader.test.mjs` executes the real `verifyFeature` body against a
+catalog-only player and baseline admin contracts: corrected grading succeeds,
+the original body fails at the extraneous frontend write check. The replay
+draft in `regrade/f01-aspire-replay.sh` applies only that exact patch to a clean
+warm fixture with fresh hidden state, uses the unchanged reload adapter, then
+reproduces v1's failure and runs v2. It installs no reference feature code.
+Actual Docker replay awaits the coordinator's reserved slot. Original cloud
+execution is x86_64; planned local replay is aarch64 and is explicitly a
+saved-patch regrade, not an independent sample, task resubmission or resampling.
+
 ## Reproduction and evidence
 
 ```bash
-node --test msbench/bingo-evolution/experiment.test.mjs
+node --test msbench/bingo-evolution/{experiment,f01-grader}.test.mjs
 EVIDENCE_ROOT=/absolute/path/to/durable/session/files/bingo-evolution
 mkdir -p "$EVIDENCE_ROOT/jobs"
 harbor run --path msbench/bingo-evolution/tasks/f01-raw-scripted --agent oracle \

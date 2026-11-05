@@ -179,8 +179,8 @@ export async function verifyFeature(urls) {
     const after = expected().map(item => ({ ...item, isChecked: false }));
     for (const origin of [urls.frontend, urls.admin]) checkCatalog(await catalog(origin, kind), after);
     assert.equal(await redis("HGET", `global_square_${items[0].id}`, "data"), "False");
-    await request(urls.frontend, `${root}/squares/import`, json([]), 400);
-    await request(urls.frontend, `${root}/squares/missing-${nonce()}/state/true`, { method: "POST" }, 404);
+    await request(urls.admin, `${root}/squares/import`, json([]), 400);
+    await request(urls.admin, `${root}/squares/missing-${nonce()}/state/true`, { method: "POST" }, 404);
     console.log("Catalog proof:", JSON.stringify({
         freshIds: items.map(item => item.id), filter: kind, filteredActiveCount: after.length,
         refreshedLabel: items[0].label, unfilteredActiveCount: unfiltered.length,

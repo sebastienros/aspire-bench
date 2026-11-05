@@ -462,8 +462,8 @@ preexisting active/inactive squares and users. Prompts are matched and
 outcome-neutral; raw has useful reload/migration scripts, Aspire has eight
 explicitly exposed skills and ordinary resource operations, with MCP disabled.
 
-**Verified locally:** After recovery, both F01/M01 pairs passed all four exact
-final sequential force-built Docker oracles (reward 1, no exceptions), with
+**Verified locally under the original v1 grader:** After recovery, both F01/M01
+pairs passed all four sequential force-built Docker oracles (reward 1, no exceptions), with
 seven rejected no-op/hardcoded/integrity/data-loss cases each. Real SQL/Redis
 checks preserve 43 old square records and the complete original user, migration
 history and database/table OIDs. Recreating a table with identical rows is
@@ -484,6 +484,18 @@ projects with the pinned CLI, and a reference empty 404 response reexecuted as
 PUT 405. Supported starts and the original producer's nonempty 404 pattern
 resolved these without dependency replacement or security bypass. Five failed
 recovery trials retain reward 0 alongside the final passes.
+
+**F01 overgrading found in the first actual model attempt:** The Aspire agent
+implemented the requested catalog-only player proxy. Catalog and real SQL/Redis
+checks passed, but the grader also demanded a new frontend producer write proxy
+for legacy 400/404 checks, despite that behavior never existing in the baseline.
+The [v2 correction](bingo-evolution/README.md#f01-grading-correction-v2-2026-11-05)
+moves only those two checks to the original admin origin, without expanding the
+prompt or changing M01. Original cloud reward 0 and local v1 source hashes are
+preserved as historical evidence; the cloud result is grader-invalid, not a
+capability loss. A catalog-only-proxy regression passes corrected grading and
+rejects v1; exact saved-patch Docker regrade is pending slot availability.
+No model rerun or resampling is authorized by this grader correction.
 
 **Limits:** Local fixture/grader proof only, not agent-performance evidence or
 an Aspire advantage. No model attempt or observed model skill/tool-use benefit

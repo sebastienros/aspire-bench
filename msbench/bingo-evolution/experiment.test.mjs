@@ -82,7 +82,7 @@ test("application sources and guidance stay independent of historical fixtures",
     assert.doesNotMatch(migration, /DropTable|EnsureDeleted|EnsureCreated/);
 });
 
-test("four final native oracles and runtime input hashes prove local gates without claiming portable packaging", async () => {
+test("historical v1 oracle inputs stay immutable across the documented F01 v2 grading correction", async () => {
     const ledger = JSON.parse(await read("evidence/recovered-local-validation.json"));
     assert.equal(ledger.status, "local-runtime-verified-portable-context-pending");
     assert.deepEqual(ledger.model_runs, []);
@@ -90,7 +90,19 @@ test("four final native oracles and runtime input hashes prove local gates witho
     assert.equal(ledger.portability.dataset_withheld, true);
     assert.equal(ledger.final_results.length, 4);
     assert.equal(ledger.intermediate_attempts.filter(result => result.reward === 0).length, 5);
-    assert.deepEqual(await hashes(path.join(root, "common")), ledger.build_input_hashes.common);
+    const correction = JSON.parse(await read("evidence/f01-grader-v2.json"));
+    const currentCommon = await hashes(path.join(root, "common"));
+    assert.equal(currentCommon["evolution.mjs"], correction.v2_common_grader_sha256);
+    let restoredV1 = await read("common/evolution.mjs");
+    for (const { before, after } of correction.exact_replacements) {
+        assert.equal(restoredV1.split(after).length, 2, "Each scoped correction must occur exactly once");
+        restoredV1 = restoredV1.replace(after, before);
+    }
+    const restoredHash = createHash("sha256").update(restoredV1).digest("hex");
+    assert.equal(restoredHash, correction.v1_common_grader_sha256);
+    assert.equal(restoredHash, ledger.build_input_hashes.common["evolution.mjs"]);
+    assert.deepEqual({ ...currentCommon, "evolution.mjs": restoredHash }, ledger.build_input_hashes.common,
+        "Only the two documented F01 origin substitutions may differ from frozen v1 runtime inputs");
     for (const result of ledger.final_results) {
         assert.equal(result.reward, 1);
         assert.equal(result.exception, null);

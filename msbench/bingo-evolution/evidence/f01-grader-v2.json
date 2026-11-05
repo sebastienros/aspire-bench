@@ -1,0 +1,60 @@
+{
+  "status": "corrected-replay-awaiting-docker-slot",
+  "date": "2026-11-05",
+  "correction_scope": "F01 only: preserve legacy producer error behavior on its baseline admin origin, not an unrequested new frontend write proxy.",
+  "source_base_commit": "fa157c54315c8e3e774c9641b8b429aaf55bc072",
+  "frozen_v1_evidence": "recovered-local-validation.json",
+  "v1_common_grader_sha256": "5bd6b0bdbcc118472e9d56943e95873114d2db0f34dcfdc83a53d9ccdfcedea4",
+  "v2_common_grader_sha256": "8dbd765e7828c8dbe04631b139abb01fc30d549d9412e8dbe32ed9f01f5419ba",
+  "exact_replacements": [
+    {
+      "before": "    await request(urls.frontend, `${root}/squares/import`, json([]), 400);",
+      "after": "    await request(urls.admin, `${root}/squares/import`, json([]), 400);"
+    },
+    {
+      "before": "    await request(urls.frontend, `${root}/squares/missing-${nonce()}/state/true`, { method: \"POST\" }, 404);",
+      "after": "    await request(urls.admin, `${root}/squares/missing-${nonce()}/state/true`, { method: \"POST\" }, 404);"
+    }
+  ],
+  "preserved": [
+    "Identical F01 prompts, both-origin catalog contracts, fresh nonces and direct SQL/Redis checks",
+    "Existing data/user/OID/dependency/Redis preservation and all negative cases",
+    "Byte-identical M01 task files and unchanged verifyMigration behavior",
+    "Original v1 local oracle outputs, rewards and source hashes; not relabeled as v2",
+    "Native original cloud reward 0; classified as grader-invalid, not a model failure"
+  ],
+  "original_cloud_attempt": {
+    "run_id": "2026110557444836",
+    "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110557444836",
+    "model": "gpt-6.1-terra",
+    "original_native_reward": 0,
+    "grading_validity": "invalid-extra-frontend-write-requirement",
+    "original_failure": "/api/demo/producer/squares/import: HTTP 404; original grader expected 400 through the frontend, which never proxied this baseline write API.",
+    "condition_fingerprint": "0bc522e05d471f908bcc52c6340d22c453b1629237928b7bcdbde637b5e54965",
+    "task_source_commit": "25947262cabcae9efb3aacb502e8007a52bbbaa5",
+    "application_context_commit": "baacba3e17181491c9a4d419db7d0e6763c3d363",
+    "native_trial": "f01-aspire__fG7ZDKU",
+    "saved_source_patch_sha256": "cc9b133e173eb2ded3de1110f0afd5fb936e64c87b05d7d6346a7050029d6b59",
+    "saved_source_patch_path": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/f01-aspire-model-source.patch",
+    "source_files": [
+      "src/BingoBoard.Admin/Endpoints/ProducerEndpoints.cs",
+      "src/BingoBoard.Admin/Services/BingoService.cs",
+      "src/BingoBoard.Admin/Services/IBingoService.cs",
+      "src/bingo-board/vite.config.js"
+    ],
+    "native_evidence": {
+      "f01-aspire-original-cloud-result.json": "f91724fcb75df0e696a25ef0bf3f2be4091c76eae1690e617fb4541cdb73aa41",
+      "f01-aspire-original-cloud-verifier.txt": "62d41967f0ad62faa4ba18db519be376594028887c0203fa53fbcb7a294cf569",
+      "f01-aspire-original-model-source.patch": "cc9b133e173eb2ded3de1110f0afd5fb936e64c87b05d7d6346a7050029d6b59"
+    }
+  },
+  "replay": {
+    "status": "awaiting-reserved-docker-slot",
+    "method": "Reconstruct original warm F01 Aspire fixture with fresh hidden SQL/Redis/OID state; apply exact saved four-file model source patch; use only the existing reload adapter; reproduce v1 failure and run v2 external grader.",
+    "new_model_runs": 0,
+    "reference_application_solution_used": false,
+    "original_native_cloud_artifacts_modified": false,
+    "same_cloud_container": false,
+    "platform_limit": "Original cloud ran Linux x86_64; planned local replay uses Linux aarch64. This is a saved-patch regrade, not an additional independent model sample."
+  }
+}
