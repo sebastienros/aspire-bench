@@ -245,6 +245,16 @@ Do not prune/restart shared Docker or submit unvalidated task drafts to obtain
 apparently complete model results. Static tests and an older oracle pass do not
 validate a subsequently modified final image/grader.
 
+**Remote graph follow-up:** All seven initially submitted diagnostic cells
+failed at image build, before agent execution, because remote Docker Bake
+required `fs.read` access for repository-sibling local named contexts.
+[Receipts](bingo-diagnostics/evidence/remote-build-failures.json) preserve the
+exact warning and IDs. Correct the build graph using immutable Git contexts
+with the same verified contents rather than granting broad filesystem access.
+Local runtime success does not establish remote frontend portability.
+Any replacement remains labeled infrastructure recovery, not a model retry
+or another independent sample.
+
 ## F07: Broader skill availability need not add startup discovery churn
 
 **Evidence:** The [orchestration-availability comparison](aspire-startup/README.md#observed-orchestration-availability-results)

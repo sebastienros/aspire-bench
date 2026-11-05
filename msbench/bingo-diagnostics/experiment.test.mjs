@@ -125,7 +125,7 @@ test("matched static Harbor tasks have neutral symptom prompts and identical gra
             .replace('network_mode = "public"\n', 'network_mode = "public"\nskills_dir = "/opt/aspire-skills"\n'));
     for (const arm of ["aspire", "raw-scripted"]) {
         const compose = await read(`tasks/${arm}/environment/docker-compose.yaml`);
-        assert.match(compose, /diagnostics-common: \.\.\/\.\.\/\.\.\/common/);
+        assert.match(compose, /diagnostics-common: https:\/\/github\.com\/sebastienros\/aspire-bench\.git#[a-f0-9]{40}:msbench\/bingo-diagnostics\/common/);
         assert.match(compose, /#baacba3e17181491c9a4d419db7d0e6763c3d363:/);
         assert.doesNotMatch(compose, /vally|volumes:|ports:/i);
         const dockerfile = await read(`tasks/${arm}/environment/Dockerfile`);

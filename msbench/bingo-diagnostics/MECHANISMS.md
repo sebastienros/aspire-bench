@@ -75,6 +75,20 @@ arm's first D01 result is shared by the product and mechanism reports; never
 count it twice as an independent sample. No duplicate I01/startup/health runs.
 Single samples are mechanism-feasibility evidence, not statistical proof.
 
+The seven initial CES submissions all failed **before model execution**:
+the newer remote Docker Bake frontend demanded filesystem-read entitlement
+for the relative `../../../common` contexts. No agent result/reward/model
+usage was produced. [Failure receipts](evidence/remote-build-failures.json)
+retain every run ID; these are not seven model failures.
+
+Portable context correction uses public immutable Git named contexts at the
+same tested `d3694ec` source for common/generated/focused contents. No broad
+filesystem entitlement is granted, and content comparison confirms runtime
+bytes are unchanged. The final portable graph requires a separate validation
+gate before at most one explicitly labeled infrastructure replacement per
+condition; do not silently replace the failed receipts or count replacements
+as independent model samples.
+
 Local Docker work is serialized after recovery; inspect actual MCP schemas/
 backchannel and skill advertisement before inference. The original model/client
 pins and exact input/condition fingerprints must be recorded with each run.

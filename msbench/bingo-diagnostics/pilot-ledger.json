@@ -1,5 +1,5 @@
 {
-  "status": "ready-local-validation-passed",
+  "status": "infrastructure-failed-portable-graph-fix-pending-validation",
   "task_commit": "d3694ec111609a79073dcba35bc1f1b1c9517d8f",
   "model": "gpt-6.1-terra",
   "one_original_attempt_per_condition": true,
@@ -237,5 +237,101 @@
       }
     }
   ],
-  "model_runs": []
+  "model_runs": [
+    {
+      "variant": "raw-scripted",
+      "fingerprint": "1c0e3f3d331496b4450e05abe71c22c2b14a47be65266f68b4108ff0cf7d4d37",
+      "run_id": "2026110503794340",
+      "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110503794340",
+      "status": "failed-before-model",
+      "submission_log": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/logs/diagnostic-submit-raw-scripted.log",
+      "actual_model_verified": false,
+      "failure_class": "remote-bake-filesystem-entitlement",
+      "model_executed": false,
+      "attempt_role": "original-infrastructure-failed"
+    },
+    {
+      "variant": "mcp",
+      "fingerprint": "19aab01e4d965615bb843924b7f0a7508928e95227e596510bcd9518f652030e",
+      "run_id": "2026110503798446",
+      "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110503798446",
+      "status": "failed-before-model",
+      "submission_log": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/logs/diagnostic-submit-mcp.log",
+      "actual_model_verified": false,
+      "failure_class": "remote-bake-filesystem-entitlement",
+      "model_executed": false,
+      "attempt_role": "original-infrastructure-failed"
+    },
+    {
+      "variant": "skills-mcp",
+      "fingerprint": "acae200005ab6a4bfb6053346958b69e0490d36a8fa02f1d0d11ce77a8eeb171",
+      "run_id": "2026110503802628",
+      "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110503802628",
+      "status": "failed-before-model",
+      "submission_log": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/logs/diagnostic-submit-skills-mcp.log",
+      "actual_model_verified": false,
+      "failure_class": "remote-bake-filesystem-entitlement",
+      "model_executed": false,
+      "attempt_role": "original-infrastructure-failed"
+    },
+    {
+      "variant": "cli",
+      "fingerprint": "6bd4198e4eaa2b2b214127f7336e468ed1f5333af2ba0ea6769458d282ee94f5",
+      "run_id": "2026110503806572",
+      "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110503806572",
+      "status": "failed-before-model",
+      "submission_log": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/logs/diagnostic-submit-cli.log",
+      "actual_model_verified": false,
+      "failure_class": "remote-bake-filesystem-entitlement",
+      "model_executed": false,
+      "attempt_role": "original-infrastructure-failed"
+    },
+    {
+      "variant": "aspire",
+      "fingerprint": "63e3a4ddb80af90910c3532a87f98e5b87e08e2821b9e38d9451da6bade98bc3",
+      "run_id": "2026110503810546",
+      "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110503810546",
+      "status": "failed-before-model",
+      "submission_log": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/logs/diagnostic-submit-aspire.log",
+      "actual_model_verified": false,
+      "failure_class": "remote-bake-filesystem-entitlement",
+      "model_executed": false,
+      "attempt_role": "original-infrastructure-failed"
+    },
+    {
+      "variant": "focused-trigger",
+      "fingerprint": "555580e194e15a6e1845e9b409973ca7c27a3827a36316cb639c3b214f07962b",
+      "run_id": "2026110503816584",
+      "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110503816584",
+      "status": "failed-before-model",
+      "submission_log": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/logs/diagnostic-submit-focused-trigger.log",
+      "actual_model_verified": false,
+      "failure_class": "remote-bake-filesystem-entitlement",
+      "model_executed": false,
+      "attempt_role": "original-infrastructure-failed"
+    },
+    {
+      "variant": "generated-skills",
+      "fingerprint": "6c366293862139cea0bc4061b4aa6c07f370ae6bcc811d13adb6e1dbb4d0cbe5",
+      "run_id": "2026110503820562",
+      "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110503820562",
+      "status": "failed-before-model",
+      "submission_log": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/logs/diagnostic-submit-generated-skills.log",
+      "actual_model_verified": false,
+      "failure_class": "remote-bake-filesystem-entitlement",
+      "model_executed": false,
+      "attempt_role": "original-infrastructure-failed"
+    }
+  ],
+  "submission_order_seed": 20261104,
+  "submission_order": [
+    "raw-scripted",
+    "mcp",
+    "skills-mcp",
+    "cli",
+    "aspire",
+    "focused-trigger",
+    "generated-skills"
+  ],
+  "max_labeled_infrastructure_replacements_per_condition": 1
 }

@@ -83,6 +83,14 @@ test("generated skill treatment retains actual 13.6 generation output rather tha
         "aspire-init/SKILL.md", "aspire-init/references/init-workflow.md",
         "aspire/SKILL.md", "aspire/references/aspire-13-3-breaking-changes.md",
     ]);
-    assert.match(await read("tasks/generated-skills/environment/docker-compose.yaml"), /aspire-skills: \.\.\/\.\.\/\.\.\/generated-skills/);
+    assert.match(await read("tasks/generated-skills/environment/docker-compose.yaml"), /aspire-skills: https:\/\/github\.com\/sebastienros\/aspire-bench\.git#[a-f0-9]{40}:msbench\/bingo-diagnostics\/generated-skills/);
     assert.doesNotMatch(await read("tasks/generated-skills/environment/Dockerfile"), /hooks|agent init/);
+});
+
+test("remote build contexts do not require filesystem access outside the task environment", async () => {
+    for (const cell of ["raw-scripted", ...cells]) {
+        const compose = await read(`tasks/${cell}/environment/docker-compose.yaml`);
+        assert.doesNotMatch(compose, /:\s+\.\.\//);
+        assert.match(compose, /diagnostics-common: https:\/\/github\.com\//);
+    }
 });

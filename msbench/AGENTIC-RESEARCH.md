@@ -430,3 +430,26 @@ The generator's four changed files are router/init-related; therefore a unique
 to exercise that changed knowledge, rather than treating unchanged monitoring
 as a broad generator-effect test. Every pending adoption/evolution/deployment
 cell still needs its own final local gate. No duplicate model condition is run.
+
+### 2026-11-04: portable remote-build gate
+
+Submitted seven distinct D01 conditions once each, in recorded randomized
+order (seed 20261104), after all local runtime gates passed. All seven remote
+jobs failed before model execution: newer Docker Bake denied filesystem-read
+entitlement for the relative outside-environment named contexts. No model
+tokens, agent time, or rewards were generated. Preserve every original run ID
+in the [ledger](bingo-diagnostics/pilot-ledger.json) and
+[failure manifest](bingo-diagnostics/evidence/remote-build-failures.json).
+
+Corrected portable graphs reference exact public Git snapshots of the already
+validated common and skill contents, instead of weakening filesystem boundaries.
+The changed graph must be validated before any labeled infrastructure
+replacement. Other evolving/deployment/transfer task families are being checked
+for the same remote portability issue before first submission.
+
+The next held-out transfer case is now being implemented in a separate
+origin-backed worktree:
+`/Users/sebastienros/.copilot/copilot-worktrees/aspire-bench/sebros-vigilant-pancake`,
+branch `sebros/bingo-held-out-fault-transfer`. It changes namespace/names and
+uses real Redis ACL write denial rather than the original pause fault.
+Static work is ready; no Docker/model execution before its serialized slot.

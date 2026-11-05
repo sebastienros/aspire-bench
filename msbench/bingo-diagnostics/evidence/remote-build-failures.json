@@ -1,0 +1,84 @@
+{
+  "status": "all-original-runs-failed-before-model",
+  "failures": [
+    {
+      "variant": "raw-scripted",
+      "run_id": "2026110503794340",
+      "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110503794340",
+      "model_executed": false,
+      "reward": null,
+      "failure_class": "remote-bake-filesystem-entitlement",
+      "native_result_sha256": "9b07fff6c4365b57e1b1b4190e1f4f0a58117f5b1db59241afecb3602831ee0d",
+      "observed_error": "additional privileges requested: pass --allow=fs.read=/tmp/a/t/msbench/bingo-diagnostics",
+      "evidence_root": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/cloud/diagnostics/raw-scripted"
+    },
+    {
+      "variant": "mcp",
+      "run_id": "2026110503798446",
+      "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110503798446",
+      "model_executed": false,
+      "reward": null,
+      "failure_class": "remote-bake-filesystem-entitlement",
+      "native_result_sha256": "a49f3d9fcd3a5e935ab41d55c4af7e73fe7c4c712c3ac19db08dc3979e49b7b2",
+      "observed_error": "additional privileges requested: pass --allow=fs.read=/tmp/a/t/msbench/bingo-diagnostics",
+      "evidence_root": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/cloud/diagnostics/mcp"
+    },
+    {
+      "variant": "skills-mcp",
+      "run_id": "2026110503802628",
+      "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110503802628",
+      "model_executed": false,
+      "reward": null,
+      "failure_class": "remote-bake-filesystem-entitlement",
+      "native_result_sha256": "ae86bdb8b469eb043ec3530223a3d5dc0429af37ce30bc5d7a3d5420afcdf52c",
+      "observed_error": "additional privileges requested: pass --allow=fs.read=/tmp/a/t/msbench/bingo-diagnostics",
+      "evidence_root": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/cloud/diagnostics/skills-mcp"
+    },
+    {
+      "variant": "cli",
+      "run_id": "2026110503806572",
+      "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110503806572",
+      "model_executed": false,
+      "reward": null,
+      "failure_class": "remote-bake-filesystem-entitlement",
+      "native_result_sha256": "3858e10203ef04f23ec04fa4eec8639fda79862fb1c66b8804ae3f5105922024",
+      "observed_error": "additional privileges requested: pass --allow=fs.read=/tmp/a/t/msbench/bingo-diagnostics",
+      "evidence_root": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/cloud/diagnostics/cli"
+    },
+    {
+      "variant": "aspire",
+      "run_id": "2026110503810546",
+      "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110503810546",
+      "model_executed": false,
+      "reward": null,
+      "failure_class": "remote-bake-filesystem-entitlement",
+      "native_result_sha256": "0d1a1d785ecc2fe0c32d55d5abc2bf8ccd282b7f8aa2303a638f1074c4a63ee9",
+      "observed_error": "additional privileges requested: pass --allow=fs.read=/tmp/a/t/msbench/bingo-diagnostics",
+      "evidence_root": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/cloud/diagnostics/aspire"
+    },
+    {
+      "variant": "focused-trigger",
+      "run_id": "2026110503816584",
+      "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110503816584",
+      "model_executed": false,
+      "reward": null,
+      "failure_class": "remote-bake-filesystem-entitlement",
+      "native_result_sha256": "18bc00cf39862842436b9c45873ea961af770d880c0290e14067ae17d1875f98",
+      "observed_error": "additional privileges requested: pass --allow=fs.read=/tmp/a/t/msbench/bingo-diagnostics",
+      "evidence_root": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/cloud/diagnostics/focused-trigger"
+    },
+    {
+      "variant": "generated-skills",
+      "run_id": "2026110503820562",
+      "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110503820562",
+      "model_executed": false,
+      "reward": null,
+      "failure_class": "remote-bake-filesystem-entitlement",
+      "native_result_sha256": "ac7e2b539a6fe82115be2964636b33d19955c0a9077024db6c4db5badc85d7fb",
+      "observed_error": "additional privileges requested: pass --allow=fs.read=/tmp/a/t/msbench/bingo-diagnostics",
+      "evidence_root": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/cloud/diagnostics/generated-skills"
+    }
+  ],
+  "interpretation": "No model/task outcome or cost estimate exists; do not count infrastructure failures as seven agent failures",
+  "fix": "Immutable Git named build contexts instead of outside-environment local filesystem contexts; no broad fs entitlement grants"
+}
