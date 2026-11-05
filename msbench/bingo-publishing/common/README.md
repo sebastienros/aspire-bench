@@ -30,6 +30,10 @@ curl -fsS http://127.0.0.1:18080/api/version-info
 
 The real application is served on admin `http://127.0.0.1:18080` and player
 `http://127.0.0.1:18081`. Login uses username `admin` and the supplied admin password.
+The deployment must use Compose project **`p01-deploy`** and exactly two service
+IDs: **`boardadmin`** for the published .NET admin and **`bingoboard`** for the
+nginx/static player. These identities are required by the ownership verifier;
+preserve them in either hand-authored Compose or the Aspire AppHost.
 `/api/demo/producer/*` and OpenAPI/Swagger are Development-only and must NOT
 be enabled in this deployment. The existing SignalR hub `/bingohub` and
 `GetAllAvailableSquares`/`RequestBingoSet` methods are available in Production.

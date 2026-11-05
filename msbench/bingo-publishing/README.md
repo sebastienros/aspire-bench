@@ -9,9 +9,9 @@ Earlier native Harbor fixture-development oracles also passed with an explicit
 local common override. No model run, push, PR or cloud provisioning was performed
 here. [evidence.json](evidence.json) separates all three evidence categories.
 **Native Harbor/CES execution remains a parent-owned gate before model submission.**
-The passing receipts refer to snapshot `1f9f961`; the subsequent setup-diagnostic
-follow-up described below has static tests only and must be published/repinned
-before the coordinator's diagnostic run.
+Public-input passing receipts refer to snapshot `1f9f961`. Subsequent local DNS
+relay fixes also pass both production oracles, but use an explicit local common
+context; publish/repin them before the coordinator's remote no-model gate.
 
 The parent published the exact final tasks at `a206e498adc445865f05a49546a5e085956de0dd`
 and submitted one representative **no-model** CES oracle,
@@ -50,6 +50,10 @@ Only `deployment/` and the Aspire AppHost are editable. Immutable input hashes
 cover the original application, dependency lockfiles, Dockerfiles, credentials,
 guidance and toolchain input files. This is a constrained publishing task, not
 open-ended application redesign. No skill or MCP treatment is exposed.
+Shared guidance explicitly requires Compose project `p01-deploy` and service IDs
+`boardadmin`/`bingoboard`, matching the ownership verifier. This prospective
+pre-model clarification changes no runtime behavior; earlier receipts retain
+their original immutable-input hashes.
 
 ## Independent runtime gate
 
@@ -159,8 +163,9 @@ The oracle therefore applies `.env.Production` with the supplied Production
 environment. Actual local prepare and application deployment exercised that
 environment-file convention.
 
-`node --test msbench/bingo-publishing/experiment.test.mjs` passes all nine
-structural tests. `node --check common/grade.mjs`, shell syntax checks and
+`node --test msbench/bingo-publishing/dns.test.mjs
+msbench/bingo-publishing/experiment.test.mjs` passes all 16 DNS/contract tests.
+`node --check common/grade.mjs`, shell syntax checks and
 `git diff --check` pass. These are not substitutes for the runtime gate.
 
 ### Passing fixture-development oracles
@@ -291,6 +296,79 @@ coordinator must publish/repin these common files and run its single no-model
 diagnostic job. Whether an infrastructure runner collects artifacts from an
 already-exited setup container remains a runner responsibility; declaring paths
 alone does not prove that transport. Container stderr supplies a second route.
+
+### DNS discovery diagnostic and resolver-preserving repair
+
+The next coordinator-owned diagnostic, `2026110559322086`, successfully exported
+sanitized environment artifacts. Its failure metadata proves
+`phase=dns-discovery`, exit 1, entrypoint line 8, before dockerd or application
+setup logs exist. The remote `/etc/resolv.conf` content was not exported, so
+**the actual remote resolver format is still unknown**. This narrows the failure
+to DNS derivation; it does not prove a specific nameserver or outer network.
+
+The former derivation code rejected a valid loopback-only nameserver when no
+Docker `ExtServers` comment was available. A local representative reproduction
+now covers that case without inventing upstream DNS:
+
+- The existing nonloopback and explicit Docker-upstream paths remain direct.
+- For an explicitly configured loopback resolver with no nonloopback upstream,
+  the private daemon uses an outer UDP/TCP relay forwarding only to those exact
+  configured loopback addresses. The relay binds only the private Docker bridge
+  gateway, not host-published ports or `0.0.0.0`.
+- Bridge and network-pool `/24` subnets are chosen from private IPv4 space after
+  excluding actual outer routes, interface subnets and resolver addresses.
+  If no suitable subnet exists, setup fails explicitly. Only this owned outer
+  container's network namespace is changed; host DNS/routes are untouched.
+- Upstream failures/timeouts are logged without query names. Only supplied
+  resolvers are tried; exhaustion/capacity returns DNS SERVFAIL. There is no
+  guessed public resolver or success-shaped fallback.
+- `dns-plan.json`, readiness and relay logs expose the selected safe plan.
+  Failure diagnostics include configured nameserver IPs, whether Docker
+  metadata exists, plan errors and relay failures, not raw resolver search
+  domains or environment values.
+
+Unit tests exercise exact binary UDP/TCP request/response forwarding, fragmented
+TCP frames, timeouts/SERVFAIL, supplied-upstream failover, loop refusal, overload
+and route/address conflicts. No DNS-library dependency was added.
+
+Local runtime proof uses a task-owned outer Docker network with the actual
+configured `127.0.0.11` resolver. The fixture runner removes **only comments**
+from that container's resolver file, keeping its nameserver/options unchanged;
+it never edits host DNS. This produces the representative missing-metadata
+condition. The plan selects bridge/relay `172.16.0.1/24` and a separate
+`172.16.1.0/24` pool, forwarding to `127.0.0.11` in the same outer namespace.
+A real BuildKit Dockerfile `RUN` resolves `api.nuget.org` using **both UDP and
+TCP** through the chosen gateway, then the original production oracle runs.
+
+| Local common-input job | Resolver path | RUN DNS UDP/TCP | Reward | Oracle / verifier seconds |
+|---|---|---|---:|---|
+| `p01-raw-scripted-dns-stub-v2` | Loopback relay | Pass | 1 | 23.380 / 0.508 |
+| `p01-aspire-dns-stub-v1` | Loopback relay | Pass | 1 | 73.326 / 1.684 |
+| `p01-raw-scripted-dns-direct-v1` | Existing direct `192.168.65.7` | Pass | 1 | 25.947 / 0.539 |
+
+Both relay-arm production checks still read .NET `10.0.12`, the same Vue bundle,
+the original business-source hash and all preserved data/ownership. Raw's five
+and Aspire's seven negatives pass. Owned outer containers and proof networks
+were removed, and the sole local Docker slot was explicitly returned.
+The first probe-only attempt, `p01-raw-scripted-dns-stub-v1`, completed setup but
+its experimental `docker build --network bridge` flag was rejected by BuildKit;
+the corrected probe uses `--network default`. That failed attempt is retained,
+not counted as a production pass or hidden as a rerun.
+
+Exact runner commands and evidence are retained under the same durable job root:
+`run-relay.mjs` (SHA-256
+`a5203c54d472cdaf44c92bd42c88b38c69bf41874775e2ec2e39b751df269c48`)
+and `dns-probe/`. These are **local-common direct Docker checks**, not republished
+Git-context or CES results. The outer engine reports `29.9.2`; the task's private
+daemon remains pinned to Docker `28.0.4`. CPU/memory and 900/300-second
+oracle/verifier limits remain matched. Later stderr-plan/diagnostic-tail guards
+and the shared Compose identity wording are covered by static tests; the
+recorded runtime receipts are not relabeled as different file versions.
+
+The parent must publish/repin the new common snapshot, then run its remote
+no-model gate and inspect the actual remote plan/outcome. No remote job,
+model submission, global DNS edit or host port publication was performed here;
+local representative success is not claimed to establish the remote root cause.
 
 ### Concrete failures corrected
 

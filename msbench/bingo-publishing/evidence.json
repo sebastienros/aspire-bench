@@ -4,7 +4,7 @@
   "eligible_for_model_submission": false,
   "model_submission_gate": "Parent must verify native Harbor/CES execution of the final public-pinned task; direct local validation is not a native runner pass.",
   "completed_deployment": true,
-  "completed_deployment_scope": "Full production runtime proof remains the recorded public snapshot 1f9f961. Later 648f323 diagnostic images were built and smoke-tested locally; their full runtime/CES gate is separate.",
+  "completed_deployment_scope": "Recorded public snapshot 1f9f961 and later local-common DNS relay production oracles. Intermediate 648f323 diagnostic images were built/smoke-tested locally; the final relay snapshot still requires public repinning and remote validation.",
   "portable_common_context": {
     "repository": "https://github.com/sebastienros/aspire-bench",
     "commit": "1f9f96148571f1b7343a9989df7776ac8cb78951",
@@ -14,7 +14,7 @@
     "docker_build_with_git_context_verified": true,
     "both_arms_direct_docker_runtime_verified": true,
     "native_harbor_final_graph_verified": false,
-    "pending_update": "Parent diagnostic graphs now pin 648f323 after actual local image builds/smoke checks; full runtime receipts still refer to 1f9f961."
+    "pending_update": "The parent must publish/pin relay changes after the intermediate 648f323 diagnostic graph; public passing receipts refer to 1f9f961 and new relay results explicitly use local common inputs."
   },
   "model_runs": [],
   "application_source": {
@@ -61,8 +61,8 @@
     }
   ],
   "static_validation": {
-    "command": "node --test msbench/bingo-publishing/experiment.test.mjs",
-    "passed_tests": 9,
+    "command": "node --test msbench/bingo-publishing/dns.test.mjs msbench/bingo-publishing/experiment.test.mjs",
+    "passed_tests": 16,
     "runtime_evidence": false
   },
   "observed_base_image_digests_during_failed_builds": {
@@ -216,6 +216,23 @@
       "root_cause": null,
       "observed_log_scope": "Exported Compose-up failure reports container exit 1; setup stderr was redirected and not visible in the supplied export. /app/deployment absent.",
       "model_result": false
+    },
+    {
+      "run_id": "2026110559322086",
+      "source": "coordinator report from exported sanitized diagnostic artifacts",
+      "mode": "oracle-no-model",
+      "phase": "dns-discovery",
+      "setup_exit_code": 1,
+      "source_file": "entrypoint.sh",
+      "source_line": 8,
+      "agent_ran": false,
+      "native_grade": null,
+      "reward": null,
+      "docker_daemon_started": false,
+      "sanitized_environment_artifacts_exported": true,
+      "observed_log_scope": "progress/failures/tails prove DNS discovery exit 1 before dockerd; /etc/resolv.conf content was not exported.",
+      "exact_resolver_format_known": false,
+      "root_cause_scope": "DNS derivation failure only; remote configured nameserver format remains unknown."
     }
   ],
   "diagnostic_followup": {
@@ -240,6 +257,109 @@
     "redaction": "Bounded setup/dockerd/info tails, sensitive lines removed, fixture credentials and URL credentials/query redacted; no command or environment dump.",
     "next_action_owner": "coordinator",
     "next_action": "Publish/pin changed common files and run one no-model diagnostic oracle, retrieving sanitized container stderr/environment artifacts on setup failure."
+  },
+  "dns_relay_followup": {
+    "remote_observation": "Diagnostic run 2026110559322086 failed during DNS discovery. A loopback-only nameserver without ExtServers is one previously unsupported configuration; remote resolver contents remain unknown.",
+    "implementation": "Preserve direct nonloopback and explicit Docker-upstream paths. If only configured loopback resolvers are available, derive two private /24 networks excluding actual outer IPv4 routes, interface subnets and DNS addresses; bind an outer UDP/TCP relay only to the private Docker bridge gateway and forward to those exact configured loopback upstreams.",
+    "public_resolver_fallback": false,
+    "host_dns_changed": false,
+    "host_ports_published": false,
+    "query_names_logged": false,
+    "failure_behavior": "Bounded upstream timeouts/failover among supplied resolvers only; explicit failure logs and SERVFAIL on exhaustion/capacity. No success-shaped DNS fallback.",
+    "safe_artifacts": [
+      "/logs/environment/dns-plan.json",
+      "/logs/environment/dns-relay-ready.json",
+      "/logs/environment/dns-relay.log"
+    ],
+    "diagnostics": "DNS discovery logs actual configured IPs and whether Docker metadata exists, without search domains/credentials. Failure tails include DNS plan and relay errors.",
+    "local_test_preparation": "Owned outer user-defined Docker network supplied actual resolver 127.0.0.11. Removed only resolv.conf comments inside that container; preserved nameserver/options. Host DNS untouched.",
+    "local_relay_plan": {
+      "mode": "loopback-relay",
+      "configured": ["127.0.0.11"],
+      "upstreams": ["127.0.0.11"],
+      "servers": ["172.16.0.1"],
+      "bridge": {
+        "bip": "172.16.0.1/24",
+        "gateway": "172.16.0.1",
+        "pool": "172.16.1.0/24"
+      }
+    },
+    "runner": "run-relay.mjs",
+    "runner_sha256": "a5203c54d472cdaf44c92bd42c88b38c69bf41874775e2ec2e39b751df269c48",
+    "runner_location": "durable_job_root",
+    "runtime_method": "direct-Docker-real-task-local-common",
+    "common_context": "explicit local override, not yet public pinned",
+    "business_context": "original public business pin baacba3e17181491c9a4d419db7d0e6763c3d363",
+    "platform": "linux-arm64",
+    "outer_docker_engine": "29.9.2",
+    "inner_docker_engine": "28.0.4",
+    "limits": { "cpus": 4, "memory_mb": 8192, "agent_timeout_seconds": 900, "verifier_timeout_seconds": 300 },
+    "passed_runs": [
+      {
+        "arm": "raw-scripted",
+        "job": "p01-raw-scripted-dns-stub-v2",
+        "resolver_mode": "loopback-relay",
+        "reward": 1,
+        "result_sha256": "3c2d518878faf8672a58892c7cb1adda8b7eadcde1734fd4ae500fb5cdae81e6",
+        "receipt_sha256": "a13412e659e70a7c5f989dd1cd82121e86ac2838f066755b905796e8b12c5ce0",
+        "dns_build_log_sha256": "0b40f691b7d2b668b95a63ca8e730ee2f9cd218b1170914c12a43c0674b4fc5a",
+        "setup_seconds": 55.994,
+        "real_build_RUN_udp_tcp_dns_seconds": 0.83,
+        "agent_oracle_seconds": 23.38,
+        "verifier_seconds": 0.508,
+        "negative_cases_rejected": 5,
+        "owned_cleanup_complete": true
+      },
+      {
+        "arm": "aspire",
+        "job": "p01-aspire-dns-stub-v1",
+        "resolver_mode": "loopback-relay",
+        "reward": 1,
+        "result_sha256": "6f6bba8135a5c282f9cc2fba511fca6e92c2678deaee2e8a5f6e0c91bdd3afc6",
+        "receipt_sha256": "506322d8cec9f6bf6648ef41e4c22c03b154c811965a2376eee3affc098d411b",
+        "dns_build_log_sha256": "f75bea84e80cf5fb79a7e5de481c3045f8f165183814c94bc20547c2750499d2",
+        "setup_seconds": 51.945,
+        "real_build_RUN_udp_tcp_dns_seconds": 1.72,
+        "agent_oracle_seconds": 73.326,
+        "verifier_seconds": 1.684,
+        "negative_cases_rejected": 7,
+        "owned_cleanup_complete": true
+      },
+      {
+        "arm": "raw-scripted",
+        "job": "p01-raw-scripted-dns-direct-v1",
+        "resolver_mode": "direct",
+        "servers": ["192.168.65.7"],
+        "reward": 1,
+        "result_sha256": "bad25837271c18daf1055aa8ed6f810259e789ff60e5a6f4c1c2f2f8d37ba626",
+        "receipt_sha256": "be4fa004b1b56e28371fae4f142328fcbce4eeeb84e3be89173631b8da27df1c",
+        "dns_build_log_sha256": "1a07b75996c296128ca4c03304f254b505e33405e771a52b2d62b6dd3c55939e",
+        "setup_seconds": 51.925,
+        "real_build_RUN_udp_tcp_dns_seconds": 1.74,
+        "agent_oracle_seconds": 25.947,
+        "verifier_seconds": 0.539,
+        "negative_cases_rejected": 5,
+        "owned_cleanup_complete": true
+      }
+    ],
+    "retained_probe_failure": {
+      "job": "p01-raw-scripted-dns-stub-v1",
+      "reward": null,
+      "result_sha256": "aa432a0cdcc45b4107157a49f06a447d055fde7b28a67a0fc9ed51292967a0b1",
+      "setup_completed": true,
+      "error": "Probe-only docker build --network bridge is unsupported by BuildKit. Corrected probe to --network default; no fixture logic change for this retry.",
+      "owned_cleanup_complete": true
+    },
+    "remote_jobs_submitted_by_child": 0,
+    "model_runs": [],
+    "docker_slot_returned": true,
+    "remote_resolver_parity_claimed": false,
+    "post_runtime_static_changes": [
+      "Surface already-recorded safe plan on preserved stderr and include plan/relay logs in failure tails.",
+      "Treat the alternate default-route spelling 0.0.0.0/0 like default; covered by route-selection tests.",
+      "Make existing required Compose project p01-deploy and service IDs boardadmin/bingoboard explicit in shared guidance before any model submission; no grader behavior changed."
+    ],
+    "remaining_gate": "Parent publishes/repins new common snapshot and runs its remote no-model gate; diagnostic evidence must confirm actual remote resolver plan and setup outcome."
   },
   "durable_job_root": "/Users/sebastienros/.copilot/session-state/3efaa765-dfb1-4afd-b958-13b40879b4ec/files/p01-oracles",
   "fixture_failures_after_engine_recovery": [
@@ -287,5 +407,5 @@
       "cause": "Experimental LocalImageTag build callback did not synchronize prepare references. Removed; model uses verified service Image customization plus WithImageTag."
     }
   ],
-  "remaining_prerequisite": "The parent must establish native Harbor/CES execution before model submission. Both final public-input direct-Docker production and negative oracles pass; no CES/x64/model validation is claimed."
+  "remaining_prerequisite": "Publish/repin DNS relay common changes and establish native Harbor/CES setup and oracle behavior using the parent-owned remote no-model gate. Local loopback-only and direct DNS production oracles pass; remote resolver contents and outcome are not inferred."
 }

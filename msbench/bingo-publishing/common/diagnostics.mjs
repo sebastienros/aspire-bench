@@ -52,8 +52,10 @@ export function reportSetupFailure({ phase, status, line, source, privateDirecto
         phase, status: Number(status), source: basename(source), line: Number(line),
         platform: process.platform, architecture: process.arch,
     };
-    const logs = ["setup.log", "docker.log", "docker-info.log"]
+    const logs = ["setup.log", "docker.log", "docker-info.log", "dns-plan.log"]
         .map(name => `--- ${name}: sanitized tail ---\n${logTail(join(privateDirectory, name))}`)
+        .concat(["dns-plan.json", "dns-relay.log"]
+            .map(name => `--- ${name}: sanitized tail ---\n${logTail(join(outputDirectory, name))}`))
         .join("\n");
     const text = `[P01 setup failure] ${JSON.stringify(failure)}\n${logs}\n`;
     mkdirSync(outputDirectory, { recursive: true, mode: 0o700 });

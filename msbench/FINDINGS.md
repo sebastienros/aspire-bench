@@ -452,6 +452,23 @@ Nested Docker also needed the established
 not guess public resolvers. Vue golden/published builds use identical version
 inputs, avoiding a false bundle-hash failure from the SDK's ambient environment.
 
+**Remote setup / DNS follow-up:** Coordinator-owned no-model CES oracle
+`2026110558453858` exited setup before the agent; the subsequent sanitized
+diagnostic `2026110559322086` proves failure in DNS discovery before dockerd,
+but does not reveal the remote resolver file or establish its exact format.
+The [local repair evidence](bingo-publishing/README.md#dns-discovery-diagnostic-and-resolver-preserving-repair)
+adds an explicit UDP/TCP relay for configured outer loopback resolvers lacking
+upstream metadata, with nonoverlapping bridge/network selection against actual
+outer routes. It preserves those resolvers instead of guessing a public one,
+logs failures and returns SERVFAIL rather than fabricating success.
+Both local loopback-only production oracles and a direct-resolver regression
+pass, including real Dockerfile RUN UDP/TCP DNS, preserved ownership/data and
+all applicable negatives. This is representative local proof, not a remote
+root-cause or CES pass. The parent must publish/repin and inspect its remote
+no-model gate before any model submission. Shared guidance also now explicitly
+states the project/service IDs already required by grading, prospectively
+avoiding hidden identity constraints; earlier receipts remain version-scoped.
+
 ## F11: Feature/data-evolution correctness needs real state, not readiness
 
 **Evidence:** The [bounded F01/M01 tasks](bingo-evolution/README.md#local-outcomes-2026-11-04)

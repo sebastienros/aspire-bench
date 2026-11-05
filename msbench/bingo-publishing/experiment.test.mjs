@@ -119,6 +119,10 @@ test("private Docker inherits actual upstream DNS without a public-DNS fallback"
 });
 
 test("paired tasks use same immutable source, runtime oracle and budgets", async () => {
+    const sharedGuidance = await read("common/README.md");
+    assert.match(sharedGuidance, /Compose project \*\*`p01-deploy`\*\*/);
+    assert.match(sharedGuidance, /\*\*`boardadmin`\*\*/);
+    assert.match(sharedGuidance, /\*\*`bingoboard`\*\*/);
     for (const arm of arms) {
         const task = await read(`tasks/${arm}/task.toml`);
         assert.match(task, /timeout_sec = 900/);
@@ -209,7 +213,13 @@ test("executed passing oracle evidence satisfies exact budgets without claiming 
         const selectedCommit = evidence.diagnostic_followup.common_commit ?? evidence.portable_common_context.commit;
         assert(compose.includes(`#${selectedCommit}:msbench/bingo-publishing/common`));
     }
-    for (const row of [...evidence.local_runtime_results, ...(evidence.public_runtime_results ?? [])]) {
+    assert.equal(evidence.dns_relay_followup.remote_resolver_parity_claimed, false);
+    assert.equal(evidence.dns_relay_followup.public_resolver_fallback, false);
+    assert.equal(evidence.dns_relay_followup.host_dns_changed, false);
+    assert.equal(evidence.dns_relay_followup.host_ports_published, false);
+    assert.equal(evidence.dns_relay_followup.passed_runs.length, 3);
+    for (const row of [...evidence.local_runtime_results, ...evidence.public_runtime_results,
+        ...evidence.dns_relay_followup.passed_runs]) {
         assert.equal(row.reward, 1);
         assert.match(row.result_sha256, /^[a-f0-9]{64}$/);
         assert.match(row.receipt_sha256, /^[a-f0-9]{64}$/);
