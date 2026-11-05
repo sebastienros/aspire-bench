@@ -19,6 +19,7 @@ memory_mb = 8192
 storage_mb = 20480
 workdir = "/app"
 network_mode = "public"
+skills_dir = "/opt/aspire-skills"
 
 [environment.healthcheck]
 command = "test -f /opt/benchmark/ready && docker info >/dev/null"

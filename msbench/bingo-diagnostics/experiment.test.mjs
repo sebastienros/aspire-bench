@@ -87,7 +87,9 @@ test("matched static Harbor tasks have neutral symptom prompts and identical gra
     assert.match(prompt, /calling a square fails/);
     assert.doesNotMatch(prompt, /Redis|pause|spindle|folio|docker unpause|aspire (?:start|logs|describe)|vite\.config/);
     assert.equal(await read("tasks/aspire/task.toml"),
-        (await read("tasks/raw-scripted/task.toml")).replace('variant = "raw-scripted"', 'variant = "aspire"'));
+        (await read("tasks/raw-scripted/task.toml"))
+            .replace('variant = "raw-scripted"', 'variant = "aspire"')
+            .replace('network_mode = "public"\n', 'network_mode = "public"\nskills_dir = "/opt/aspire-skills"\n'));
     for (const arm of ["aspire", "raw-scripted"]) {
         const compose = await read(`tasks/${arm}/environment/docker-compose.yaml`);
         assert.match(compose, /diagnostics-common: \.\.\/\.\.\/\.\.\/common/);

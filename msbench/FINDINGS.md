@@ -184,6 +184,17 @@ A successful Aspire-app task does not demonstrate skill/MCP value when the
 agent uses ordinary code/HTTP tools; choose runtime diagnosis next rather
 than force tool calls into an irrelevant task.
 
+**Matched mechanism preparation:** Task-local CLI 13.6 actually generated the
+seven skills in `.github/skills`; compared with the pinned bundle, only router/
+init and two associated reference files differ. Monitoring knowledge is
+unchanged. A separate focused-trigger cell changes only monitoring's discovery
+description, retaining its identity/body/references. A persistent native 13.6
+MCP client completed initialize/tools-list with 14 tools, including AppHost
+list/selection; its server does not support host-17's `--apphost` switch.
+[Treatment definitions](bingo-diagnostics/MECHANISMS.md) preserve these concrete
+version distinctions. Live Docker backchannel and natural agent use remain
+unverified; no speed benefit is inferred from this preparation.
+
 ## F05: Multi-step session continuity is a runner contract, not workspace reuse
 
 **Evidence:** The [Copilot continuation probe](aspire-startup/README.md#continuation-retry-with-msbench-0367)

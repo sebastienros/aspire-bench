@@ -4,12 +4,11 @@ Living protocol, worktree/artifact ledger, execution log, and decision register.
 Started 2026-11-04. This document distinguishes planned experiments from executed
 evidence; pending work is not a product improvement or a positive result.
 
-**Execution status:** Blocked on the shared Docker engine after storage/native
-build I/O failures. All scenario branches/drafts are integrated, and 44
-structural/negative unit tests pass; final Docker pair gates and additional
-model experiments do not. Targeted phase-owned cleanup preserved prior
-artifacts, but a later bounded Docker probe still timed out. No unvalidated
-task was submitted to MSBench. See the latest execution/recovery ledger below.
+**Execution status:** Running after targeted Docker Desktop recovery. Existing
+scenario drafts and prior evidence are integrated; remaining runtime gates
+are being resumed sequentially. No unvalidated task is submitted to MSBench.
+See the latest execution/recovery ledger below; the earlier storage block is
+retained as history, not the current engine status.
 
 ## Objective and current answer
 
@@ -367,3 +366,41 @@ All integrated static suites now pass 44 tests:
 This includes diagnostic policy/negative assertions, not a claim that the
 unexecuted live recovery scenarios passed. No additional inference was performed
 after the completed I01 pair.
+
+### 2026-11-04: controlled recovery and resumed execution
+
+User instructed continued autonomous recovery. The supported Desktop restart
+timed out. After verifying exact Docker-owned PIDs, parent sent SIGTERM to the
+hung GUI/backend processes and SIGKILL only to the remaining unresponsive
+backend supervisor after graceful termination failed. Supported Desktop start
+succeeded; actual Docker `info`/`ps` responded (28.0.4, Linux/aarch64).
+No factory reset, shared prune, volume deletion, or unrelated process kill.
+
+Archived inspect/log receipts for six explicitly verified stopped scenario
+containers, then removed only those six containers. Their labels tied them
+to this program's worktrees; unrelated containers were untouched. Host free
+space rose to 42 GiB. The dedicated incomplete source-build volume was measured
+at approximately 0.9 GiB and retained. One source builder now owns the local
+Docker slot; it is attempting a lower-storage managed complete payload with
+actual layout/runtime validation, explicitly not shipping NativeAOT parity.
+
+Ignored `.runs` and source-worktree `artifacts/` then disappeared unexpectedly
+between calls. Cause unknown; neither parent nor builder had an active broad
+cleanup operation. Tracked reports/source were intact. New binaries, scratch
+assets, caches, logs and run downloads now live in durable session `files/`
+directories; immutable inputs are reconstructed from preserved archives.
+Do not invent an attribution or resubmit historical model conditions because
+local downloads disappeared.
+
+Prepared [unique diagnostic mechanism cells](bingo-diagnostics/MECHANISMS.md):
+CLI-only, original skills-only, MCP-only, both, actual generated skills, and a
+description-only focused trigger. The original skills-only D01 result will be
+reused between product/factorial reports, not counted as a second independent
+sample. Each new condition requires a final local image/runtime gate.
+
+Actually generated seven skills with task-local CLI
+`13.6.0+56f3e9c0d216c0c7069dabb49dd0464e4827744f`; only four generated files differ
+from the pinned bundle, and monitoring knowledge is unchanged. Separately,
+focused-trigger changes only the monitoring discovery description while retaining
+its identity/body/references. A matched native 13.6 MCP handshake advertised
+14 tools. Docker backchannel and natural agent use remain to be verified.
