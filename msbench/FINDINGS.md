@@ -695,6 +695,13 @@ not an Aspire speed gain. A single additional combined skills/MCP condition
 is declared to test D01's mechanism under this different fault; original
 conditions will not be repeated.
 
+**S01 model outcome:** Both actual two-app Terra solutions passed native
+functional, original-security and other-app preservation checks. Raw observed
+56.4 s / USD 0.0631; original-skill Aspire 68.4 s / USD 0.0863 with monitoring
+loaded. Neither accessed protected grader paths. Both workflows selected the
+correct target; no observed correctness advantage or Aspire speed gain is
+established. [Report](bingo-isolation/PILOT.md) retains the full scope boundary.
+
 ## Recording future findings
 
 Give each finding a stable ID and include evidence links, exact observed

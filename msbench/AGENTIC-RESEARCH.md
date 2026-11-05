@@ -595,3 +595,14 @@ setup fails specifically at DNS discovery before the private daemon. The exact
 resolver input/root cause is not yet asserted. A configured-loopback DNS
 compatibility fix is being developed with explicit transport tests, not a
 public-resolver fallback or a paid model retry.
+
+### 2026-11-05: true two-app model completion
+
+Both S01 original Terra runs passed native grading: raw 56.4 s/24 calls/
+USD 0.0631; original-skill Aspire 68.4 s/29 calls/USD 0.0863 with monitoring.
+Actual model/CLI identity and no protected-path access were checked. Both
+correctly scoped the repair while preserving the other complete app and
+original credentials/TLS/ACL/config/data. [Report](bingo-isolation/PILOT.md)
+and [exact results](bingo-isolation/pilot-results.json) make clear this is
+sibling workspace scope under one private runner, not editor/cross-host proof.
+There is no observed Aspire correctness or speed advantage in this pair.

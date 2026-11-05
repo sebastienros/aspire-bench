@@ -234,5 +234,11 @@
       "original_reward": 1.0,
       "assessment": "valid-pass"
     }
-  ]
+  ],
+  "corrected_grader_dataset": {
+    "path": "corrected-dataset.jsonl",
+    "task_commit": "258f3e505487ffa3c8dc063e858d8388377ee2ad",
+    "model_runs_submitted": 0,
+    "purpose": "Future use of corrected contract; original scored runs retain original immutable dataset/task pin"
+  }
 }

@@ -1,0 +1,67 @@
+{
+  "scenario": "S01",
+  "sample_size_per_condition": 1,
+  "results": [
+    {
+      "variant": "raw-scripted",
+      "run_id": "2026110559660216",
+      "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110559660216",
+      "reward": 1.0,
+      "actual_model": "gpt-6.1-terra",
+      "actual_vendor_cli": "1.0.99-0",
+      "exception": null,
+      "native_agent_seconds": 56.419835,
+      "input_tokens_including_cache": 205571,
+      "cache_tokens_subset": 174945,
+      "output_tokens": 3211,
+      "runner_reported_cost_usd": 0.06307800000000001,
+      "tool_calls": 24,
+      "tool_counts": {
+        "bash": 13,
+        "rg": 3,
+        "view": 8
+      },
+      "loaded_skills": [],
+      "protected_path_access": [],
+      "raw_result_sha256": "790dabd56d8486883df62862966b4d8855a2f298fa4b70f1b1abfa72cb7dc053",
+      "raw_trajectory_sha256": "1932cc26e63b6c62d86517d6d2bff6437625e4d2c572b3d038016b6c90c14f73",
+      "invalid_escape_normalizations_in_memory": [],
+      "evidence_root": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/cloud/s01-models/raw-scripted"
+    },
+    {
+      "variant": "aspire",
+      "run_id": "2026110559664314",
+      "url": "https://msbenchapp.azurewebsites.net/run-analysis/2026110559664314",
+      "reward": 1.0,
+      "actual_model": "gpt-6.1-terra",
+      "actual_vendor_cli": "1.0.99-0",
+      "exception": null,
+      "native_agent_seconds": 68.42799,
+      "input_tokens_including_cache": 359553,
+      "cache_tokens_subset": 316345,
+      "output_tokens": 3303,
+      "runner_reported_cost_usd": 0.08633400000000001,
+      "tool_calls": 29,
+      "tool_counts": {
+        "bash": 15,
+        "skill": 1,
+        "rg": 5,
+        "view": 8
+      },
+      "loaded_skills": [
+        "aspire-monitoring"
+      ],
+      "protected_path_access": [],
+      "raw_result_sha256": "edeed8ba5a30519a8475352865e2aa6985bcbb6e3ff70acf80ec8153ffe8d942",
+      "raw_trajectory_sha256": "ee1643129ff9a1d45e211e09e0b98fde51cc9b8ac6da1739f750e2c33389efd3",
+      "invalid_escape_normalizations_in_memory": [],
+      "evidence_root": "/Users/sebastienros/.copilot/session-state/5e0d7c50-6db2-490d-8ac0-c432509b2f7e/files/research-20261104/cloud/s01-models/aspire"
+    }
+  ],
+  "runner_reported_total_cost_usd": 0.14941200000000002,
+  "limits": [
+    "Two actual Bingo apps in sibling source workspaces, not editor-owned/host-git/cross-host sessions",
+    "One model observation per arm; no population/causal timing claim",
+    "Costs are runner-reported not billed; no repeats"
+  ]
+}
