@@ -1,0 +1,10 @@
+Scanning for running AppHosts...
+Trace: 737461a (http://localhost:43881/traces/detail/737461ad1ede3cf0d51a8a14e4341d3e)
+Duration: 1.04s  Spans: 5
+
+boardadmin
+└─ 2d11d90 (http://localhost:43881/traces/detail/737461ad1ede3cf0d51a8a14e4341d3e?spanId=2d11d906cc2026fa) POST /api/demo/producer/squares/import OK    1.04s
+   ├─ 2c65979 (http://localhost:43881/traces/detail/737461ad1ede3cf0d51a8a14e4341d3e?spanId=2c65979e35eb2945) postgresql OK   0.73ms
+   ├─ 171a660 (http://localhost:43881/traces/detail/737461ad1ede3cf0d51a8a14e4341d3e?spanId=171a660319420b3d) postgresql OK   0.26ms
+   ├─ 4f66557 (http://localhost:43881/traces/detail/737461ad1ede3cf0d51a8a14e4341d3e?spanId=4f665573861708f3) postgresql OK    1.03s
+   └─ ac7a157 (http://localhost:43881/traces/detail/737461ad1ede3cf0d51a8a14e4341d3e?spanId=ac7a15769f1bcf44) postgresql OK   0.29ms

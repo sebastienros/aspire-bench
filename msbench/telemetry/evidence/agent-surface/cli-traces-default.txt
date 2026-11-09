@@ -1,0 +1,182 @@
+Scanning for running AppHosts...
+┌──────────────┬───────────────────────────────────────────────────────────────────────────────────────────────────────────────────┬───────┬──────────┬────────┐
+│ Timestamp    │ Name                                                                                                              │ Spans │ Duration │ Status │
+├──────────────┼───────────────────────────────────────────────────────────────────────────────────────────────────────────────────┼───────┼──────────┼────────┤
+│ 17:11:19.948 │ boardadmin: POST /api/demo/producer/squares/import 02f6dd2                                                        │ 5     │ 0.19s    │ OK     │
+│              │ (http://localhost:43881/traces/detail/02f6dd24380b048c5fdcfc2d3d84e7cc)                                           │       │          │        │
+│ 17:11:21.640 │ boardadmin: POST /api/demo/producer/squares/import 13e99cb                                                        │ 5     │ 0.36s    │ OK     │
+│              │ (http://localhost:43881/traces/detail/13e99cb3d57b8d1299e4e2cb300e3e97)                                           │       │          │        │
+│ 17:11:22.011 │ boardadmin: POST /api/demo/producer/squares/import 5ec2e5f                                                        │ 5     │ 0.3s     │ OK     │
+│              │ (http://localhost:43881/traces/detail/5ec2e5f8afcfe28532514657dc120c8b)                                           │       │          │        │
+│ 17:11:22.312 │ boardadmin: POST /api/demo/producer/squares/import 8423c7f                                                        │ 5     │ 0.23s    │ OK     │
+│              │ (http://localhost:43881/traces/detail/8423c7ff5341499368b2d25c8f1bb845)                                           │       │          │        │
+│ 17:11:24.498 │ boardadmin: POST /api/demo/producer/squares/import 2037165                                                        │ 5     │ 0.3s     │ OK     │
+│              │ (http://localhost:43881/traces/detail/20371659100b40045516316638cafffd)                                           │       │          │        │
+│ 17:11:24.798 │ boardadmin: POST /api/demo/producer/squares/import 5b6297d                                                        │ 5     │ 0.36s    │ OK     │
+│              │ (http://localhost:43881/traces/detail/5b6297d5c899ff71f13acbdb34d0d3e2)                                           │       │          │        │
+│ 17:11:25.163 │ boardadmin: POST /api/demo/producer/squares/import a4326cd                                                        │ 5     │ 0.28s    │ OK     │
+│              │ (http://localhost:43881/traces/detail/a4326cdfdfcb1306291fd5e8da101380)                                           │       │          │        │
+│ 17:11:26.855 │ boardadmin: POST /api/demo/producer/squares/import 14610e9                                                        │ 5     │ 0.28s    │ OK     │
+│              │ (http://localhost:43881/traces/detail/14610e9f2544be4545c24985f23d976c)                                           │       │          │        │
+│ 17:11:27.134 │ boardadmin: POST /api/demo/producer/squares/import 053e2ca                                                        │ 5     │ 0.28s    │ OK     │
+│              │ (http://localhost:43881/traces/detail/053e2ca45dc8ae225d2dcbc16a27faf8)                                           │       │          │        │
+│ 17:11:27.414 │ boardadmin: POST /api/demo/producer/squares/import 16b9cba                                                        │ 5     │ 0.28s    │ OK     │
+│              │ (http://localhost:43881/traces/detail/16b9cba7058bba73cadbfd34263cc022)                                           │       │          │        │
+│ 17:11:29.084 │ boardadmin: POST /api/demo/producer/squares/import 0bbb7f8                                                        │ 5     │ 0.31s    │ OK     │
+│              │ (http://localhost:43881/traces/detail/0bbb7f8c1ec850329e2d5db7277d62d7)                                           │       │          │        │
+│ 17:11:29.396 │ boardadmin: POST /api/demo/producer/squares/import 499cdd0                                                        │ 5     │ 0.32s    │ OK     │
+│              │ (http://localhost:43881/traces/detail/499cdd0673002173d8dd7958276865dc)                                           │       │          │        │
+│ 17:11:29.714 │ boardadmin: POST /api/demo/producer/squares/import d37a149                                                        │ 5     │ 0.31s    │ OK     │
+│              │ (http://localhost:43881/traces/detail/d37a14951483e8e46f8f045b42904aad)                                           │       │          │        │
+│ 17:11:31.460 │ boardadmin: POST /api/demo/producer/squares/import a58aee4                                                        │ 5     │ 0.34s    │ OK     │
+│              │ (http://localhost:43881/traces/detail/a58aee41ea954b95d7d2ddab9259b840)                                           │       │          │        │
+│ 17:11:31.797 │ boardadmin: POST /api/demo/producer/squares/import b140623                                                        │ 5     │ 0.33s    │ OK     │
+│              │ (http://localhost:43881/traces/detail/b14062352bc9ee9779264a39904ae912)                                           │       │          │        │
+│ 17:11:32.131 │ boardadmin: POST /api/demo/producer/squares/import 1322161                                                        │ 5     │ 0.34s    │ OK     │
+│              │ (http://localhost:43881/traces/detail/13221617201c692edd97cb02382f6797)                                           │       │          │        │
+│ 17:11:34.130 │ boardadmin: POST /api/demo/producer/squares/import 1381a3d                                                        │ 5     │ 0.5s     │ OK     │
+│              │ (http://localhost:43881/traces/detail/1381a3d7a11fc0de61d5bb71410525cd)                                           │       │          │        │
+│ 17:11:34.631 │ boardadmin: POST /api/demo/producer/squares/import a20b2ef                                                        │ 5     │ 0.44s    │ OK     │
+│              │ (http://localhost:43881/traces/detail/a20b2eff74e0499da4dce471f91aba19)                                           │       │          │        │
+│ 17:11:35.075 │ boardadmin: POST /api/demo/producer/squares/import a6b754b                                                        │ 5     │ 0.51s    │ OK     │
+│              │ (http://localhost:43881/traces/detail/a6b754b64eb6a6d8befc18cb0411495e)                                           │       │          │        │
+│ 17:11:35.842 │ boardadmin: GET /api/demo/producer/status e819e5e                                                                 │ 2     │ 47.1ms   │ OK     │
+│              │ (http://localhost:43881/traces/detail/e819e5ece7ef2b3262265c53e86380ff)                                           │       │          │        │
+│ 17:11:35.895 │ boardadmin: POST /api/demo/producer/squares/{squareId}/state/{isChecked:bool} 62be62e                             │ 2     │ 16.37ms  │ OK     │
+│              │ (http://localhost:43881/traces/detail/62be62e8cb83e13d89d150cc95862ea1)                                           │       │          │        │
+│ 17:11:35.917 │ boardadmin: GET /api/version-info 8e7b072 (http://localhost:43881/traces/detail/8e7b0724e860f8e822bc80e37079ef2c) │ 1     │ 1.1ms    │ OK     │
+│ 17:11:35.922 │ boardadmin: POST /api/demo/producer/squares/import 64ed1b5                                                        │ 5     │ 1.42s    │ OK     │
+│              │ (http://localhost:43881/traces/detail/64ed1b56182f5c1be1aab0497d25c358)                                           │       │          │        │
+│ 17:11:38.852 │ boardadmin: GET /api/demo/producer/status 0e3f902                                                                 │ 2     │ 31.98ms  │ OK     │
+│              │ (http://localhost:43881/traces/detail/0e3f9024396c6665ceb3c9e604d961bb)                                           │       │          │        │
+│ 17:11:38.885 │ boardadmin: POST /api/demo/producer/squares/{squareId}/state/{isChecked:bool} 6386d99                             │ 2     │ 3.8ms    │ OK     │
+│              │ (http://localhost:43881/traces/detail/6386d996d51476af0d6c81f1a85e268d)                                           │       │          │        │
+│ 17:11:38.893 │ boardadmin: GET /api/version-info 1ddd6e9 (http://localhost:43881/traces/detail/1ddd6e998f2abaf580d440eb62219a47) │ 1     │ 0.22ms   │ OK     │
+│ 17:11:40.397 │ boardadmin: GET /api/demo/producer/status 5928fd0                                                                 │ 2     │ 23.03ms  │ OK     │
+│              │ (http://localhost:43881/traces/detail/5928fd0bed77592a041bae8a42d8a417)                                           │       │          │        │
+│ 17:11:40.422 │ boardadmin: POST /api/demo/producer/squares/{squareId}/state/{isChecked:bool} fd18563                             │ 2     │ 3.48ms   │ OK     │
+│              │ (http://localhost:43881/traces/detail/fd18563c7f075154c7962dceb2eb1633)                                           │       │          │        │
+│ 17:11:40.431 │ boardadmin: GET /api/version-info ce6b548 (http://localhost:43881/traces/detail/ce6b548fbf0729dba312151db1f8eeac) │ 1     │ 0.23ms   │ OK     │
+│ 17:11:40.434 │ boardadmin: POST /api/demo/producer/squares/import 8951aaa                                                        │ 5     │ 1.54s    │ OK     │
+│              │ (http://localhost:43881/traces/detail/8951aaa6430dc8c0d5710737c4a56b4b)                                           │       │          │        │
+│ 17:11:43.481 │ boardadmin: GET /api/demo/producer/status 74610c8                                                                 │ 2     │ 18.3ms   │ OK     │
+│              │ (http://localhost:43881/traces/detail/74610c85b0e45831dabfd2832e46d089)                                           │       │          │        │
+│ 17:11:43.500 │ boardadmin: POST /api/demo/producer/squares/{squareId}/state/{isChecked:bool} 89bc01f                             │ 2     │ 2.06ms   │ OK     │
+│              │ (http://localhost:43881/traces/detail/89bc01f61b98806851277464f0813c0a)                                           │       │          │        │
+│ 17:11:43.504 │ boardadmin: GET /api/version-info 8444844 (http://localhost:43881/traces/detail/8444844dfb936e1e23f7e02745b017cc) │ 1     │ 0.19ms   │ OK     │
+│ 17:11:45.012 │ boardadmin: GET /api/demo/producer/status 15097ab                                                                 │ 2     │ 17.03ms  │ OK     │
+│              │ (http://localhost:43881/traces/detail/15097ab4b2f237d239579de00b4f1cab)                                           │       │          │        │
+│ 17:11:45.031 │ boardadmin: POST /api/demo/producer/squares/{squareId}/state/{isChecked:bool} ddb30f4                             │ 2     │ 2.45ms   │ OK     │
+│              │ (http://localhost:43881/traces/detail/ddb30f4ed20abe4406546837862a96b0)                                           │       │          │        │
+│ 17:11:45.036 │ boardadmin: GET /api/version-info 5c63b39 (http://localhost:43881/traces/detail/5c63b394284829e8255b082af3206205) │ 1     │ 0.17ms   │ OK     │
+│ 17:11:45.037 │ boardadmin: POST /api/demo/producer/squares/import 014b713                                                        │ 5     │ 1.26s    │ OK     │
+│              │ (http://localhost:43881/traces/detail/014b713212cf13416b07e7cf0f195c5b)                                           │       │          │        │
+│ 17:11:47.803 │ boardadmin: GET /api/demo/producer/status f3fff96                                                                 │ 2     │ 16.71ms  │ OK     │
+│              │ (http://localhost:43881/traces/detail/f3fff964621e71eb7064e4b24bb9eff9)                                           │       │          │        │
+│ 17:11:47.821 │ boardadmin: POST /api/demo/producer/squares/{squareId}/state/{isChecked:bool} 9cb42b7                             │ 2     │ 2.61ms   │ OK     │
+│              │ (http://localhost:43881/traces/detail/9cb42b72af44c9dce9403335863b28a4)                                           │       │          │        │
+│ 17:11:47.826 │ boardadmin: GET /api/version-info 2a51f8e (http://localhost:43881/traces/detail/2a51f8eed1bf45466ed0a9ce5e46c864) │ 1     │ 0.21ms   │ OK     │
+│ 17:11:49.330 │ boardadmin: GET /api/demo/producer/status 2b31d74                                                                 │ 2     │ 21.34ms  │ OK     │
+│              │ (http://localhost:43881/traces/detail/2b31d741fb37b76161a91777f40ef4fb)                                           │       │          │        │
+│ 17:11:49.352 │ boardadmin: POST /api/demo/producer/squares/{squareId}/state/{isChecked:bool} 4d5eb20                             │ 2     │ 2.21ms   │ OK     │
+│              │ (http://localhost:43881/traces/detail/4d5eb2076016f3c13b4a8e1f60287615)                                           │       │          │        │
+│ 17:11:49.357 │ boardadmin: GET /api/version-info 0b247cf (http://localhost:43881/traces/detail/0b247cfa343efb171bf0352969a2b561) │ 1     │ 0.19ms   │ OK     │
+│ 17:11:49.359 │ boardadmin: POST /api/demo/producer/squares/import afc9b42                                                        │ 5     │ 1.14s    │ OK     │
+│              │ (http://localhost:43881/traces/detail/afc9b42782b1db6e006b3630b7cf8082)                                           │       │          │        │
+│ 17:11:52.005 │ boardadmin: GET /api/demo/producer/status 899dd6f                                                                 │ 2     │ 16.44ms  │ OK     │
+│              │ (http://localhost:43881/traces/detail/899dd6f124f6dace3a1943eaeb47aeec)                                           │       │          │        │
+│ 17:11:52.022 │ boardadmin: POST /api/demo/producer/squares/{squareId}/state/{isChecked:bool} 38a2e77                             │ 2     │ 2.19ms   │ OK     │
+│              │ (http://localhost:43881/traces/detail/38a2e77a0ce26ab4269418594eaa55ae)                                           │       │          │        │
+│ 17:11:52.027 │ boardadmin: GET /api/version-info 3a0eec2 (http://localhost:43881/traces/detail/3a0eec270ac2dadee1aa0967d9ccb461) │ 1     │ 0.13ms   │ OK     │
+│ 17:11:53.529 │ boardadmin: GET /api/demo/producer/status 1bdd6e4                                                                 │ 2     │ 17.63ms  │ OK     │
+│              │ (http://localhost:43881/traces/detail/1bdd6e4fd9536504283a69599a9517bc)                                           │       │          │        │
+│ 17:11:53.548 │ boardadmin: POST /api/demo/producer/squares/{squareId}/state/{isChecked:bool} f591ac8                             │ 2     │ 13.4ms   │ OK     │
+│              │ (http://localhost:43881/traces/detail/f591ac87bbbebb7ea1ce4e463955b01a)                                           │       │          │        │
+│ 17:11:53.564 │ boardadmin: GET /api/version-info cdcbda5 (http://localhost:43881/traces/detail/cdcbda511cfb5cca903a92d4fc9e2d29) │ 1     │ 0.15ms   │ OK     │
+│ 17:11:53.565 │ boardadmin: POST /api/demo/producer/squares/import b0227b1                                                        │ 5     │ 1.29s    │ OK     │
+│              │ (http://localhost:43881/traces/detail/b0227b1d2162ede955939b2d493debcc)                                           │       │          │        │
+│ 17:11:56.363 │ boardadmin: GET /api/demo/producer/status ea1a41b                                                                 │ 2     │ 19.31ms  │ OK     │
+│              │ (http://localhost:43881/traces/detail/ea1a41b732fe06bdcc67f0aa1fda1766)                                           │       │          │        │
+│ 17:11:56.383 │ boardadmin: POST /api/demo/producer/squares/{squareId}/state/{isChecked:bool} 0cd6c49                             │ 2     │ 2.28ms   │ OK     │
+│              │ (http://localhost:43881/traces/detail/0cd6c4983e319628c9045183db5f5064)                                           │       │          │        │
+│ 17:11:56.388 │ boardadmin: GET /api/version-info ded2df4 (http://localhost:43881/traces/detail/ded2df428d467a09b659bf5bf252ac25) │ 1     │ 0.14ms   │ OK     │
+│ 17:11:57.894 │ boardadmin: GET /api/demo/producer/status fee4542                                                                 │ 2     │ 18.82ms  │ OK     │
+│              │ (http://localhost:43881/traces/detail/fee4542d214e8cdb8bfb4b8222e0644c)                                           │       │          │        │
+│ 17:11:57.913 │ boardadmin: POST /api/demo/producer/squares/{squareId}/state/{isChecked:bool} 9127004                             │ 2     │ 2.07ms   │ OK     │
+│              │ (http://localhost:43881/traces/detail/9127004b18a356fd9f4bc230345e9007)                                           │       │          │        │
+│ 17:11:57.918 │ boardadmin: GET /api/version-info e66a36f (http://localhost:43881/traces/detail/e66a36f29c28c533beb0a2e1152e9339) │ 1     │ 0.13ms   │ OK     │
+│ 17:11:57.919 │ boardadmin: POST /api/demo/producer/squares/import 1178a2a                                                        │ 5     │ 1.07s    │ OK     │
+│              │ (http://localhost:43881/traces/detail/1178a2a61c4c2d3cecf209fd0b564827)                                           │       │          │        │
+│ 17:12:00.492 │ boardadmin: GET /api/demo/producer/status 5622699                                                                 │ 2     │ 26.87ms  │ OK     │
+│              │ (http://localhost:43881/traces/detail/5622699af3118b094da7c78f79a7ed24)                                           │       │          │        │
+│ 17:12:00.520 │ boardadmin: POST /api/demo/producer/squares/{squareId}/state/{isChecked:bool} 51eb312                             │ 2     │ 4.78ms   │ OK     │
+│              │ (http://localhost:43881/traces/detail/51eb312151312f19f3891d1413a16b37)                                           │       │          │        │
+│ 17:12:00.528 │ boardadmin: GET /api/version-info d5f405d (http://localhost:43881/traces/detail/d5f405d6c1e8cb3c08791c716f1f954a) │ 1     │ 0.25ms   │ OK     │
+│ 17:12:02.030 │ boardadmin: GET /api/demo/producer/status 91432d9                                                                 │ 2     │ 16.07ms  │ OK     │
+│              │ (http://localhost:43881/traces/detail/91432d97e381d2dad84bc07b746294ae)                                           │       │          │        │
+│ 17:12:02.047 │ boardadmin: POST /api/demo/producer/squares/{squareId}/state/{isChecked:bool} c8942a9                             │ 2     │ 1.7ms    │ OK     │
+│              │ (http://localhost:43881/traces/detail/c8942a9ec5cef7ac8e120f59724a75ce)                                           │       │          │        │
+│ 17:12:02.051 │ boardadmin: GET /api/version-info 350b9ec (http://localhost:43881/traces/detail/350b9eca8f97e4a69f817dbd6b0d76e1) │ 1     │ 0.13ms   │ OK     │
+│ 17:12:02.052 │ boardadmin: POST /api/demo/producer/squares/import ed4e6db                                                        │ 5     │ 1.08s    │ OK     │
+│              │ (http://localhost:43881/traces/detail/ed4e6db098edf6236d526e2d727366b1)                                           │       │          │        │
+│ 17:12:04.633 │ boardadmin: GET /api/demo/producer/status 0cf069c                                                                 │ 2     │ 16.84ms  │ OK     │
+│              │ (http://localhost:43881/traces/detail/0cf069cef1bfc4492927fcc6e6b8dee8)                                           │       │          │        │
+│ 17:12:04.650 │ boardadmin: POST /api/demo/producer/squares/{squareId}/state/{isChecked:bool} 1d99307                             │ 2     │ 1.88ms   │ OK     │
+│              │ (http://localhost:43881/traces/detail/1d993071a9ff2d33c20449a2d4ac1953)                                           │       │          │        │
+│ 17:12:04.654 │ boardadmin: GET /api/version-info b76b18d (http://localhost:43881/traces/detail/b76b18dacc96941c50cdaaa74d5f2bf2) │ 1     │ 0.13ms   │ OK     │
+│ 17:12:06.157 │ boardadmin: GET /api/demo/producer/status a2a808c                                                                 │ 2     │ 15.8ms   │ OK     │
+│              │ (http://localhost:43881/traces/detail/a2a808cf55b7271fb40453568d6678c4)                                           │       │          │        │
+│ 17:12:06.174 │ boardadmin: POST /api/demo/producer/squares/{squareId}/state/{isChecked:bool} 5e862f2                             │ 2     │ 2.26ms   │ OK     │
+│              │ (http://localhost:43881/traces/detail/5e862f2283dceb2abc2c8caf9d98ee3e)                                           │       │          │        │
+│ 17:12:06.179 │ boardadmin: GET /api/version-info b032059 (http://localhost:43881/traces/detail/b0320594923901f91a0da49adca93106) │ 1     │ 0.12ms   │ OK     │
+│ 17:12:06.181 │ boardadmin: POST /api/demo/producer/squares/import cdf7314                                                        │ 5     │ 1.08s    │ OK     │
+│              │ (http://localhost:43881/traces/detail/cdf731491c6985e407c541e97948253a)                                           │       │          │        │
+│ 17:12:08.769 │ boardadmin: GET /api/demo/producer/status fbd149a                                                                 │ 2     │ 16.84ms  │ OK     │
+│              │ (http://localhost:43881/traces/detail/fbd149a061903636b9edd51bb9dd79c9)                                           │       │          │        │
+│ 17:12:08.786 │ boardadmin: POST /api/demo/producer/squares/{squareId}/state/{isChecked:bool} f80aa72                             │ 2     │ 1.93ms   │ OK     │
+│              │ (http://localhost:43881/traces/detail/f80aa720868a85c78399295d3066036a)                                           │       │          │        │
+│ 17:12:08.790 │ boardadmin: GET /api/version-info 0c94ada (http://localhost:43881/traces/detail/0c94ada026b3a2463122253bb793b698) │ 1     │ 0.09ms   │ OK     │
+│ 17:12:10.293 │ boardadmin: GET /api/demo/producer/status 1230bc3                                                                 │ 2     │ 15.87ms  │ OK     │
+│              │ (http://localhost:43881/traces/detail/1230bc326b9cd56a90f08c096823468d)                                           │       │          │        │
+│ 17:12:10.309 │ boardadmin: POST /api/demo/producer/squares/{squareId}/state/{isChecked:bool} e49f2bc                             │ 2     │ 2.15ms   │ OK     │
+│              │ (http://localhost:43881/traces/detail/e49f2bc3967be30d5f87738f04481310)                                           │       │          │        │
+│ 17:12:10.314 │ boardadmin: GET /api/version-info ac72b9a (http://localhost:43881/traces/detail/ac72b9ab9057aaccb2fa227703b432b4) │ 1     │ 0.17ms   │ OK     │
+│ 17:12:10.315 │ boardadmin: POST /api/demo/producer/squares/import 8158ef7                                                        │ 5     │ 1.09s    │ OK     │
+│              │ (http://localhost:43881/traces/detail/8158ef7431818c656d9d7859fa0e2a63)                                           │       │          │        │
+│ 17:12:12.910 │ boardadmin: GET /api/demo/producer/status 68ca80e                                                                 │ 2     │ 44.2ms   │ OK     │
+│              │ (http://localhost:43881/traces/detail/68ca80e2c9ed65bf5f61f65d58680304)                                           │       │          │        │
+│ 17:12:12.955 │ boardadmin: POST /api/demo/producer/squares/{squareId}/state/{isChecked:bool} 258719c                             │ 2     │ 4.02ms   │ OK     │
+│              │ (http://localhost:43881/traces/detail/258719ca4f550b6ab34fb9ab5d6fbf5d)                                           │       │          │        │
+│ 17:12:12.963 │ boardadmin: GET /api/version-info 8f4cbed (http://localhost:43881/traces/detail/8f4cbedab5cf5c1984d4e3e5c0b123a1) │ 1     │ 0.18ms   │ OK     │
+│ 17:12:14.466 │ boardadmin: GET /api/demo/producer/status f68e5e2                                                                 │ 2     │ 14.52ms  │ OK     │
+│              │ (http://localhost:43881/traces/detail/f68e5e28c4300e3376d8ecb09079d5c9)                                           │       │          │        │
+│ 17:12:14.481 │ boardadmin: POST /api/demo/producer/squares/{squareId}/state/{isChecked:bool} dcf23c3                             │ 2     │ 2.1ms    │ OK     │
+│              │ (http://localhost:43881/traces/detail/dcf23c3be8616449c74c37042f9cd466)                                           │       │          │        │
+│ 17:12:14.485 │ boardadmin: GET /api/version-info cdade1c (http://localhost:43881/traces/detail/cdade1c67ea68841a23dfd68496c1863) │ 1     │ 0.1ms    │ OK     │
+│ 17:12:14.486 │ boardadmin: POST /api/demo/producer/squares/import 541065e                                                        │ 5     │ 1.25s    │ OK     │
+│              │ (http://localhost:43881/traces/detail/541065eeed2045ed403ce0a21e894a64)                                           │       │          │        │
+│ 17:12:17.241 │ boardadmin: GET /api/demo/producer/status 92da11b                                                                 │ 2     │ 17.29ms  │ OK     │
+│              │ (http://localhost:43881/traces/detail/92da11b3d710e1253bcc2ea24e9d275d)                                           │       │          │        │
+│ 17:12:17.259 │ boardadmin: POST /api/demo/producer/squares/{squareId}/state/{isChecked:bool} 109ceee                             │ 2     │ 1.93ms   │ OK     │
+│              │ (http://localhost:43881/traces/detail/109ceee99c42d36dff35eb0f86a02aa4)                                           │       │          │        │
+│ 17:12:17.263 │ boardadmin: GET /api/version-info d9c09ee (http://localhost:43881/traces/detail/d9c09ee3b2758bb1b0d6784f7b5f562a) │ 1     │ 0.12ms   │ OK     │
+│ 17:12:18.767 │ boardadmin: GET /api/demo/producer/status c8854d2                                                                 │ 2     │ 15.02ms  │ OK     │
+│              │ (http://localhost:43881/traces/detail/c8854d22b8238ab1ca975099eb925350)                                           │       │          │        │
+│ 17:12:18.783 │ boardadmin: POST /api/demo/producer/squares/{squareId}/state/{isChecked:bool} 4657572                             │ 2     │ 2.18ms   │ OK     │
+│              │ (http://localhost:43881/traces/detail/46575728fa8af4985bb6c4cba4b513ca)                                           │       │          │        │
+│ 17:12:18.787 │ boardadmin: GET /api/version-info 52127e2 (http://localhost:43881/traces/detail/52127e224b68f7f379553c8c63ef4e59) │ 1     │ 0.11ms   │ OK     │
+│ 17:12:18.788 │ boardadmin: POST /api/demo/producer/squares/import 737461a                                                        │ 5     │ 1.04s    │ OK     │
+│              │ (http://localhost:43881/traces/detail/737461ad1ede3cf0d51a8a14e4341d3e)                                           │       │          │        │
+│ 17:12:21.325 │ boardadmin: GET /api/demo/producer/status d21288a                                                                 │ 2     │ 17.2ms   │ OK     │
+│              │ (http://localhost:43881/traces/detail/d21288a64abdaa0e6af68ab8b4786081)                                           │       │          │        │
+│ 17:12:21.343 │ boardadmin: POST /api/demo/producer/squares/{squareId}/state/{isChecked:bool} da7a118                             │ 2     │ 1.75ms   │ OK     │
+│              │ (http://localhost:43881/traces/detail/da7a1185f760a3f00abb4f65a1c043fe)                                           │       │          │        │
+│ 17:12:21.347 │ boardadmin: GET /api/version-info e7a57b5 (http://localhost:43881/traces/detail/e7a57b54a306b7a8225576621169670f) │ 1     │ 0.1ms    │ OK     │
+│ 17:12:22.849 │ boardadmin: GET /api/demo/producer/status ccebd6c                                                                 │ 2     │ 16.73ms  │ OK     │
+│              │ (http://localhost:43881/traces/detail/ccebd6c6fdc490336a715f631d46ef9f)                                           │       │          │        │
+│ 17:12:22.867 │ boardadmin: POST /api/demo/producer/squares/{squareId}/state/{isChecked:bool} 5e44e73                             │ 2     │ 1.86ms   │ OK     │
+│              │ (http://localhost:43881/traces/detail/5e44e735f7d43116125ff8886c563fbb)                                           │       │          │        │
+│ 17:12:22.870 │ boardadmin: GET /api/version-info c90f18a (http://localhost:43881/traces/detail/c90f18a9cd7effdf842fdf3c87a1fc09) │ 1     │ 0.09ms   │ OK     │
+│ 17:12:22.872 │ boardadmin: postgresql 7e1cdc9 (http://localhost:43881/traces/detail/7e1cdc985a18ddb83a1a3e0f3f325439)            │ 2     │ 0.5ms    │ OK     │
+└──────────────┴───────────────────────────────────────────────────────────────────────────────────────────────────────────────────┴───────┴──────────┴────────┘
+Showing 100 of 119 traces

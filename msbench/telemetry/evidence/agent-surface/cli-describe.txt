@@ -1,0 +1,20 @@
+Scanning for running AppHosts...
+┌─────────────────────────────────────────────────────────┬─────────────────────┬──────────┬─────────┬─────────────────────────────────────────────────────────┐
+│ Name                                                    │ Type                │ State    │ Health  │ URLs                                                    │
+├─────────────────────────────────────────────────────────┼─────────────────────┼──────────┼─────────┼─────────────────────────────────────────────────────────┤
+│ admin-password                                          │ Parameter           │ Running  │ Healthy │ -                                                       │
+│ (http://localhost:43881/?resource=admin-password)       │                     │          │         │                                                         │
+│ bingoboard                                              │ Vite                │ Running  │ Healthy │ Play bingo (http://localhost:40379/)                    │
+│ (http://localhost:43881/?resource=bingoboard-xcdddeqw)  │                     │          │         │                                                         │
+│ bingoboard-installer                                    │ Executable          │ Finished │ -       │ -                                                       │
+│ (http://localhost:43881/?resource=bingoboard-installer- │                     │          │         │                                                         │
+│ eyuwfzqb)                                               │                     │          │         │                                                         │
+│ boardadmin                                              │ Project             │ Running  │ Healthy │ Manage squares                                          │
+│ (http://localhost:43881/?resource=boardadmin-pqyexnck)  │                     │          │         │ (http://localhost:41615/squares-management)             │
+│ cache (http://localhost:43881/?resource=bingo-redis)    │ Redis               │ Running  │ Healthy │ tcp://localhost:35147, rediss://localhost:43187         │
+│ db (http://localhost:43881/?resource=db)                │ PostgreSQL Database │ Running  │ Healthy │ -                                                       │
+│ migrations                                              │ Project             │ Finished │ -       │ -                                                       │
+│ (http://localhost:43881/?resource=migrations-yzutjgzg)  │                     │          │         │                                                         │
+│ postgres                                                │ PostgreSQL Server   │ Running  │ Healthy │ tcp://localhost:46531                                   │
+│ (http://localhost:43881/?resource=bingo-postgres)       │                     │          │         │                                                         │
+└─────────────────────────────────────────────────────────┴─────────────────────┴──────────┴─────────┴─────────────────────────────────────────────────────────┘

@@ -1,0 +1,646 @@
+Scanning for running AppHosts...
+17:11:12.543 INFO boardadmin Executed DbCommand (55ms) [Parameters=[@p0='?', @p1='?' (DbType = DateTime), @p2='?' (DbType = Int32), @p3='?' (DbType = Boolean), 
+@p4='?', @p5='?', @p6='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+INSERT INTO "BingoSquares" ("Id", "CreatedAt", "DisplayOrder", "IsActive", "Label", "Type", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
+17:11:14.118 INFO boardadmin Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+17:11:14.211 INFO boardadmin Executed DbCommand (93ms) [Parameters=[@p0='?', @p1='?' (DbType = DateTime), @p2='?' (DbType = Int32), @p3='?' (DbType = Boolean), 
+@p4='?', @p5='?', @p6='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+INSERT INTO "BingoSquares" ("Id", "CreatedAt", "DisplayOrder", "IsActive", "Label", "Type", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
+17:11:14.215 INFO boardadmin Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+17:11:14.306 INFO boardadmin Executed DbCommand (89ms) [Parameters=[@p0='?', @p1='?' (DbType = DateTime), @p2='?' (DbType = Int32), @p3='?' (DbType = Boolean), 
+@p4='?', @p5='?', @p6='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+INSERT INTO "BingoSquares" ("Id", "CreatedAt", "DisplayOrder", "IsActive", "Label", "Type", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
+17:11:14.310 INFO boardadmin Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+17:11:14.399 INFO boardadmin Executed DbCommand (88ms) [Parameters=[@p0='?', @p1='?' (DbType = DateTime), @p2='?' (DbType = Int32), @p3='?' (DbType = Boolean), 
+@p4='?', @p5='?', @p6='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+INSERT INTO "BingoSquares" ("Id", "CreatedAt", "DisplayOrder", "IsActive", "Label", "Type", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
+17:11:15.921 INFO boardadmin Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+17:11:16.040 INFO boardadmin Executed DbCommand (118ms) [Parameters=[@p0='?', @p1='?' (DbType = DateTime), @p2='?' (DbType = Int32), @p3='?' (DbType = Boolean),
+@p4='?', @p5='?', @p6='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+INSERT INTO "BingoSquares" ("Id", "CreatedAt", "DisplayOrder", "IsActive", "Label", "Type", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
+17:11:16.044 INFO boardadmin Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+17:11:16.162 INFO boardadmin Executed DbCommand (117ms) [Parameters=[@p0='?', @p1='?' (DbType = DateTime), @p2='?' (DbType = Int32), @p3='?' (DbType = Boolean),
+@p4='?', @p5='?', @p6='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+INSERT INTO "BingoSquares" ("Id", "CreatedAt", "DisplayOrder", "IsActive", "Label", "Type", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
+17:11:16.165 INFO boardadmin Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+17:11:16.279 INFO boardadmin Executed DbCommand (113ms) [Parameters=[@p0='?', @p1='?' (DbType = DateTime), @p2='?' (DbType = Int32), @p3='?' (DbType = Boolean),
+@p4='?', @p5='?', @p6='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+INSERT INTO "BingoSquares" ("Id", "CreatedAt", "DisplayOrder", "IsActive", "Label", "Type", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
+17:11:17.720 INFO boardadmin Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+17:11:17.867 INFO boardadmin Executed DbCommand (146ms) [Parameters=[@p0='?', @p1='?' (DbType = DateTime), @p2='?' (DbType = Int32), @p3='?' (DbType = Boolean),
+@p4='?', @p5='?', @p6='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+INSERT INTO "BingoSquares" ("Id", "CreatedAt", "DisplayOrder", "IsActive", "Label", "Type", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
+17:11:17.871 INFO boardadmin Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+17:11:18.016 INFO boardadmin Executed DbCommand (145ms) [Parameters=[@p0='?', @p1='?' (DbType = DateTime), @p2='?' (DbType = Int32), @p3='?' (DbType = Boolean),
+@p4='?', @p5='?', @p6='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+INSERT INTO "BingoSquares" ("Id", "CreatedAt", "DisplayOrder", "IsActive", "Label", "Type", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
+17:11:18.020 INFO boardadmin Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+17:11:18.166 INFO boardadmin Executed DbCommand (145ms) [Parameters=[@p0='?', @p1='?' (DbType = DateTime), @p2='?' (DbType = Int32), @p3='?' (DbType = Boolean),
+@p4='?', @p5='?', @p6='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+INSERT INTO "BingoSquares" ("Id", "CreatedAt", "DisplayOrder", "IsActive", "Label", "Type", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
+17:11:19.583 INFO boardadmin Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+17:11:19.762 INFO boardadmin Executed DbCommand (179ms) [Parameters=[@p0='?', @p1='?' (DbType = DateTime), @p2='?' (DbType = Int32), @p3='?' (DbType = Boolean),
+@p4='?', @p5='?', @p6='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+INSERT INTO "BingoSquares" ("Id", "CreatedAt", "DisplayOrder", "IsActive", "Label", "Type", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
+17:11:19.765 INFO boardadmin Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+17:11:19.945 INFO boardadmin Executed DbCommand (179ms) [Parameters=[@p0='?', @p1='?' (DbType = DateTime), @p2='?' (DbType = Int32), @p3='?' (DbType = Boolean),
+@p4='?', @p5='?', @p6='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+INSERT INTO "BingoSquares" ("Id", "CreatedAt", "DisplayOrder", "IsActive", "Label", "Type", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
+17:11:19.949 INFO boardadmin Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+17:11:20.133 INFO boardadmin Executed DbCommand (183ms) [Parameters=[@p0='?', @p1='?' (DbType = DateTime), @p2='?' (DbType = Int32), @p3='?' (DbType = Boolean),
+@p4='?', @p5='?', @p6='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+INSERT INTO "BingoSquares" ("Id", "CreatedAt", "DisplayOrder", "IsActive", "Label", "Type", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
+17:11:21.641 INFO boardadmin Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+17:11:21.999 INFO boardadmin Executed DbCommand (357ms) [Parameters=[@p0='?', @p1='?' (DbType = DateTime), @p2='?' (DbType = Int32), @p3='?' (DbType = Boolean),
+@p4='?', @p5='?', @p6='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+INSERT INTO "BingoSquares" ("Id", "CreatedAt", "DisplayOrder", "IsActive", "Label", "Type", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
+17:11:22.015 INFO boardadmin Executed DbCommand (3ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+17:11:22.310 INFO boardadmin Executed DbCommand (292ms) [Parameters=[@p0='?', @p1='?' (DbType = DateTime), @p2='?' (DbType = Int32), @p3='?' (DbType = Boolean),
+@p4='?', @p5='?', @p6='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+INSERT INTO "BingoSquares" ("Id", "CreatedAt", "DisplayOrder", "IsActive", "Label", "Type", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
+17:11:22.313 INFO boardadmin Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+17:11:22.535 INFO boardadmin Executed DbCommand (221ms) [Parameters=[@p0='?', @p1='?' (DbType = DateTime), @p2='?' (DbType = Int32), @p3='?' (DbType = Boolean),
+@p4='?', @p5='?', @p6='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+INSERT INTO "BingoSquares" ("Id", "CreatedAt", "DisplayOrder", "IsActive", "Label", "Type", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
+17:11:24.503 INFO boardadmin Executed DbCommand (5ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+17:11:24.795 INFO boardadmin Executed DbCommand (289ms) [Parameters=[@p0='?', @p1='?' (DbType = DateTime), @p2='?' (DbType = Int32), @p3='?' (DbType = Boolean),
+@p4='?', @p5='?', @p6='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+INSERT INTO "BingoSquares" ("Id", "CreatedAt", "DisplayOrder", "IsActive", "Label", "Type", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
+17:11:24.799 INFO boardadmin Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+17:11:25.157 INFO boardadmin Executed DbCommand (357ms) [Parameters=[@p0='?', @p1='?' (DbType = DateTime), @p2='?' (DbType = Int32), @p3='?' (DbType = Boolean),
+@p4='?', @p5='?', @p6='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+INSERT INTO "BingoSquares" ("Id", "CreatedAt", "DisplayOrder", "IsActive", "Label", "Type", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
+17:11:25.165 INFO boardadmin Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+17:11:25.446 INFO boardadmin Executed DbCommand (280ms) [Parameters=[@p0='?', @p1='?' (DbType = DateTime), @p2='?' (DbType = Int32), @p3='?' (DbType = Boolean),
+@p4='?', @p5='?', @p6='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+INSERT INTO "BingoSquares" ("Id", "CreatedAt", "DisplayOrder", "IsActive", "Label", "Type", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
+17:11:26.856 INFO boardadmin Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+17:11:27.132 INFO boardadmin Executed DbCommand (275ms) [Parameters=[@p0='?', @p1='?' (DbType = DateTime), @p2='?' (DbType = Int32), @p3='?' (DbType = Boolean),
+@p4='?', @p5='?', @p6='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+INSERT INTO "BingoSquares" ("Id", "CreatedAt", "DisplayOrder", "IsActive", "Label", "Type", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
+17:11:27.135 INFO boardadmin Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+17:11:27.412 INFO boardadmin Executed DbCommand (276ms) [Parameters=[@p0='?', @p1='?' (DbType = DateTime), @p2='?' (DbType = Int32), @p3='?' (DbType = Boolean),
+@p4='?', @p5='?', @p6='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+INSERT INTO "BingoSquares" ("Id", "CreatedAt", "DisplayOrder", "IsActive", "Label", "Type", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
+17:11:27.415 INFO boardadmin Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+17:11:27.692 INFO boardadmin Executed DbCommand (276ms) [Parameters=[@p0='?', @p1='?' (DbType = DateTime), @p2='?' (DbType = Int32), @p3='?' (DbType = Boolean),
+@p4='?', @p5='?', @p6='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+INSERT INTO "BingoSquares" ("Id", "CreatedAt", "DisplayOrder", "IsActive", "Label", "Type", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
+17:11:29.085 INFO boardadmin Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+17:11:29.393 INFO boardadmin Executed DbCommand (307ms) [Parameters=[@p0='?', @p1='?' (DbType = DateTime), @p2='?' (DbType = Int32), @p3='?' (DbType = Boolean),
+@p4='?', @p5='?', @p6='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+INSERT INTO "BingoSquares" ("Id", "CreatedAt", "DisplayOrder", "IsActive", "Label", "Type", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
+17:11:29.397 INFO boardadmin Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+17:11:29.712 INFO boardadmin Executed DbCommand (314ms) [Parameters=[@p0='?', @p1='?' (DbType = DateTime), @p2='?' (DbType = Int32), @p3='?' (DbType = Boolean),
+@p4='?', @p5='?', @p6='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+INSERT INTO "BingoSquares" ("Id", "CreatedAt", "DisplayOrder", "IsActive", "Label", "Type", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
+17:11:29.716 INFO boardadmin Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+17:11:30.026 INFO boardadmin Executed DbCommand (310ms) [Parameters=[@p0='?', @p1='?' (DbType = DateTime), @p2='?' (DbType = Int32), @p3='?' (DbType = Boolean),
+@p4='?', @p5='?', @p6='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+INSERT INTO "BingoSquares" ("Id", "CreatedAt", "DisplayOrder", "IsActive", "Label", "Type", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
+17:11:31.461 INFO boardadmin Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+17:11:31.794 INFO boardadmin Executed DbCommand (333ms) [Parameters=[@p0='?', @p1='?' (DbType = DateTime), @p2='?' (DbType = Int32), @p3='?' (DbType = Boolean),
+@p4='?', @p5='?', @p6='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+INSERT INTO "BingoSquares" ("Id", "CreatedAt", "DisplayOrder", "IsActive", "Label", "Type", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
+17:11:31.798 INFO boardadmin Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+17:11:32.129 INFO boardadmin Executed DbCommand (331ms) [Parameters=[@p0='?', @p1='?' (DbType = DateTime), @p2='?' (DbType = Int32), @p3='?' (DbType = Boolean),
+@p4='?', @p5='?', @p6='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+INSERT INTO "BingoSquares" ("Id", "CreatedAt", "DisplayOrder", "IsActive", "Label", "Type", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
+17:11:32.132 INFO boardadmin Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+17:11:32.471 INFO boardadmin Executed DbCommand (338ms) [Parameters=[@p0='?', @p1='?' (DbType = DateTime), @p2='?' (DbType = Int32), @p3='?' (DbType = Boolean),
+@p4='?', @p5='?', @p6='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+INSERT INTO "BingoSquares" ("Id", "CreatedAt", "DisplayOrder", "IsActive", "Label", "Type", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
+17:11:34.133 INFO boardadmin Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+17:11:34.626 INFO boardadmin Executed DbCommand (492ms) [Parameters=[@p0='?', @p1='?' (DbType = DateTime), @p2='?' (DbType = Int32), @p3='?' (DbType = Boolean),
+@p4='?', @p5='?', @p6='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+INSERT INTO "BingoSquares" ("Id", "CreatedAt", "DisplayOrder", "IsActive", "Label", "Type", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
+17:11:34.633 INFO boardadmin Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+17:11:35.073 INFO boardadmin Executed DbCommand (438ms) [Parameters=[@p0='?', @p1='?' (DbType = DateTime), @p2='?' (DbType = Int32), @p3='?' (DbType = Boolean),
+@p4='?', @p5='?', @p6='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+INSERT INTO "BingoSquares" ("Id", "CreatedAt", "DisplayOrder", "IsActive", "Label", "Type", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
+17:11:35.076 INFO boardadmin Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+17:11:35.579 INFO boardadmin Executed DbCommand (502ms) [Parameters=[@p0='?', @p1='?' (DbType = DateTime), @p2='?' (DbType = Int32), @p3='?' (DbType = Boolean),
+@p4='?', @p5='?', @p6='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+INSERT INTO "BingoSquares" ("Id", "CreatedAt", "DisplayOrder", "IsActive", "Label", "Type", "UpdatedAt")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
+17:11:35.867 INFO boardadmin Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"
+17:11:35.899 INFO boardadmin Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"
+17:11:35.924 INFO boardadmin Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+17:11:37.343 INFO boardadmin Executed DbCommand (1,417ms) [Parameters=[@p2='?', @p0='?', @p1='?' (DbType = DateTime), @p5='?', @p3='?', @p4='?' (DbType = 
+DateTime), @p8='?', @p6='?', @p7='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+UPDATE "BingoSquares" SET "Label" = @p0, "UpdatedAt" = @p1
+WHERE "Id" = @p2;
+UPDATE "BingoSquares" SET "Label" = @p3, "UpdatedAt" = @p4
+WHERE "Id" = @p5;
+UPDATE "BingoSquares" SET "Label" = @p6, "UpdatedAt" = @p7
+WHERE "Id" = @p8;
+17:11:38.857 INFO boardadmin Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"
+17:11:38.886 INFO boardadmin Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"
+17:11:40.402 INFO boardadmin Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"
+17:11:40.423 INFO boardadmin Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"
+17:11:40.435 INFO boardadmin Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+17:11:41.972 INFO boardadmin Executed DbCommand (1,536ms) [Parameters=[@p2='?', @p0='?', @p1='?' (DbType = DateTime), @p5='?', @p3='?', @p4='?' (DbType = 
+DateTime), @p8='?', @p6='?', @p7='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+UPDATE "BingoSquares" SET "Label" = @p0, "UpdatedAt" = @p1
+WHERE "Id" = @p2;
+UPDATE "BingoSquares" SET "Label" = @p3, "UpdatedAt" = @p4
+WHERE "Id" = @p5;
+UPDATE "BingoSquares" SET "Label" = @p6, "UpdatedAt" = @p7
+WHERE "Id" = @p8;
+17:11:43.485 INFO boardadmin Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"
+17:11:43.501 INFO boardadmin Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"
+17:11:45.016 INFO boardadmin Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"
+17:11:45.032 INFO boardadmin Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"
+17:11:45.039 INFO boardadmin Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+17:11:46.299 INFO boardadmin Executed DbCommand (1,260ms) [Parameters=[@p2='?', @p0='?', @p1='?' (DbType = DateTime), @p5='?', @p3='?', @p4='?' (DbType = 
+DateTime), @p8='?', @p6='?', @p7='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+UPDATE "BingoSquares" SET "Label" = @p0, "UpdatedAt" = @p1
+WHERE "Id" = @p2;
+UPDATE "BingoSquares" SET "Label" = @p3, "UpdatedAt" = @p4
+WHERE "Id" = @p5;
+UPDATE "BingoSquares" SET "Label" = @p6, "UpdatedAt" = @p7
+WHERE "Id" = @p8;
+17:11:47.806 INFO boardadmin Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"
+17:11:47.822 INFO boardadmin Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"
+17:11:49.335 INFO boardadmin Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"
+17:11:49.353 INFO boardadmin Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"
+17:11:49.360 INFO boardadmin Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+17:11:50.500 INFO boardadmin Executed DbCommand (1,139ms) [Parameters=[@p2='?', @p0='?', @p1='?' (DbType = DateTime), @p5='?', @p3='?', @p4='?' (DbType = 
+DateTime), @p8='?', @p6='?', @p7='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+UPDATE "BingoSquares" SET "Label" = @p0, "UpdatedAt" = @p1
+WHERE "Id" = @p2;
+UPDATE "BingoSquares" SET "Label" = @p3, "UpdatedAt" = @p4
+WHERE "Id" = @p5;
+UPDATE "BingoSquares" SET "Label" = @p6, "UpdatedAt" = @p7
+WHERE "Id" = @p8;
+17:11:52.009 INFO boardadmin Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"
+17:11:52.023 INFO boardadmin Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"
+17:11:53.533 INFO boardadmin Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"
+17:11:53.549 INFO boardadmin Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"
+17:11:53.567 INFO boardadmin Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+17:11:54.859 INFO boardadmin Executed DbCommand (1,292ms) [Parameters=[@p2='?', @p0='?', @p1='?' (DbType = DateTime), @p5='?', @p3='?', @p4='?' (DbType = 
+DateTime), @p8='?', @p6='?', @p7='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+UPDATE "BingoSquares" SET "Label" = @p0, "UpdatedAt" = @p1
+WHERE "Id" = @p2;
+UPDATE "BingoSquares" SET "Label" = @p3, "UpdatedAt" = @p4
+WHERE "Id" = @p5;
+UPDATE "BingoSquares" SET "Label" = @p6, "UpdatedAt" = @p7
+WHERE "Id" = @p8;
+17:11:56.369 INFO boardadmin Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"
+17:11:56.384 INFO boardadmin Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"
+17:11:57.897 INFO boardadmin Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"
+17:11:57.914 INFO boardadmin Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"
+17:11:57.920 INFO boardadmin Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+17:11:58.988 INFO boardadmin Executed DbCommand (1,068ms) [Parameters=[@p2='?', @p0='?', @p1='?' (DbType = DateTime), @p5='?', @p3='?', @p4='?' (DbType = 
+DateTime), @p8='?', @p6='?', @p7='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+UPDATE "BingoSquares" SET "Label" = @p0, "UpdatedAt" = @p1
+WHERE "Id" = @p2;
+UPDATE "BingoSquares" SET "Label" = @p3, "UpdatedAt" = @p4
+WHERE "Id" = @p5;
+UPDATE "BingoSquares" SET "Label" = @p6, "UpdatedAt" = @p7
+WHERE "Id" = @p8;
+17:12:00.495 INFO boardadmin Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"
+17:12:00.522 INFO boardadmin Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"
+17:12:02.034 INFO boardadmin Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"
+17:12:02.048 INFO boardadmin Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"
+17:12:02.053 INFO boardadmin Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+17:12:03.129 INFO boardadmin Executed DbCommand (1,076ms) [Parameters=[@p2='?', @p0='?', @p1='?' (DbType = DateTime), @p5='?', @p3='?', @p4='?' (DbType = 
+DateTime), @p8='?', @p6='?', @p7='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+UPDATE "BingoSquares" SET "Label" = @p0, "UpdatedAt" = @p1
+WHERE "Id" = @p2;
+UPDATE "BingoSquares" SET "Label" = @p3, "UpdatedAt" = @p4
+WHERE "Id" = @p5;
+UPDATE "BingoSquares" SET "Label" = @p6, "UpdatedAt" = @p7
+WHERE "Id" = @p8;
+17:12:04.636 INFO boardadmin Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"
+17:12:04.651 INFO boardadmin Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"
+17:12:06.161 INFO boardadmin Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"
+17:12:06.175 INFO boardadmin Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"
+17:12:06.182 INFO boardadmin Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+17:12:07.262 INFO boardadmin Executed DbCommand (1,079ms) [Parameters=[@p2='?', @p0='?', @p1='?' (DbType = DateTime), @p5='?', @p3='?', @p4='?' (DbType = 
+DateTime), @p8='?', @p6='?', @p7='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+UPDATE "BingoSquares" SET "Label" = @p0, "UpdatedAt" = @p1
+WHERE "Id" = @p2;
+UPDATE "BingoSquares" SET "Label" = @p3, "UpdatedAt" = @p4
+WHERE "Id" = @p5;
+UPDATE "BingoSquares" SET "Label" = @p6, "UpdatedAt" = @p7
+WHERE "Id" = @p8;
+17:12:08.772 INFO boardadmin Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"
+17:12:08.787 INFO boardadmin Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"
+17:12:10.296 INFO boardadmin Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"
+17:12:10.310 INFO boardadmin Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"
+17:12:10.316 INFO boardadmin Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+17:12:11.407 INFO boardadmin Executed DbCommand (1,091ms) [Parameters=[@p2='?', @p0='?', @p1='?' (DbType = DateTime), @p5='?', @p3='?', @p4='?' (DbType = 
+DateTime), @p8='?', @p6='?', @p7='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+UPDATE "BingoSquares" SET "Label" = @p0, "UpdatedAt" = @p1
+WHERE "Id" = @p2;
+UPDATE "BingoSquares" SET "Label" = @p3, "UpdatedAt" = @p4
+WHERE "Id" = @p5;
+UPDATE "BingoSquares" SET "Label" = @p6, "UpdatedAt" = @p7
+WHERE "Id" = @p8;
+17:12:12.917 INFO boardadmin Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"
+17:12:12.957 INFO boardadmin Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"
+17:12:14.468 INFO boardadmin Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"
+17:12:14.482 INFO boardadmin Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"
+17:12:14.487 INFO boardadmin Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+17:12:15.738 INFO boardadmin Executed DbCommand (1,250ms) [Parameters=[@p2='?', @p0='?', @p1='?' (DbType = DateTime), @p5='?', @p3='?', @p4='?' (DbType = 
+DateTime), @p8='?', @p6='?', @p7='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+UPDATE "BingoSquares" SET "Label" = @p0, "UpdatedAt" = @p1
+WHERE "Id" = @p2;
+UPDATE "BingoSquares" SET "Label" = @p3, "UpdatedAt" = @p4
+WHERE "Id" = @p5;
+UPDATE "BingoSquares" SET "Label" = @p6, "UpdatedAt" = @p7
+WHERE "Id" = @p8;
+17:12:17.244 INFO boardadmin Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"
+17:12:17.260 INFO boardadmin Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"
+17:12:18.770 INFO boardadmin Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"
+17:12:18.784 INFO boardadmin Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"
+17:12:18.789 INFO boardadmin Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+17:12:19.822 INFO boardadmin Executed DbCommand (1,032ms) [Parameters=[@p2='?', @p0='?', @p1='?' (DbType = DateTime), @p5='?', @p3='?', @p4='?' (DbType = 
+DateTime), @p8='?', @p6='?', @p7='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+UPDATE "BingoSquares" SET "Label" = @p0, "UpdatedAt" = @p1
+WHERE "Id" = @p2;
+UPDATE "BingoSquares" SET "Label" = @p3, "UpdatedAt" = @p4
+WHERE "Id" = @p5;
+UPDATE "BingoSquares" SET "Label" = @p6, "UpdatedAt" = @p7
+WHERE "Id" = @p8;
+17:12:21.329 INFO boardadmin Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"
+17:12:21.344 INFO boardadmin Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"
+17:12:22.853 INFO boardadmin Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"
+17:12:22.868 INFO boardadmin Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"
+17:12:22.872 INFO boardadmin Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+17:12:23.958 INFO boardadmin Executed DbCommand (1,085ms) [Parameters=[@p2='?', @p0='?', @p1='?' (DbType = DateTime), @p5='?', @p3='?', @p4='?' (DbType = 
+DateTime), @p8='?', @p6='?', @p7='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+UPDATE "BingoSquares" SET "Label" = @p0, "UpdatedAt" = @p1
+WHERE "Id" = @p2;
+UPDATE "BingoSquares" SET "Label" = @p3, "UpdatedAt" = @p4
+WHERE "Id" = @p5;
+UPDATE "BingoSquares" SET "Label" = @p6, "UpdatedAt" = @p7
+WHERE "Id" = @p8;
+17:11:35.867 INFO boardadmin Loaded 43 squares from database
+17:11:35.899 INFO boardadmin Loaded 43 squares from database
+17:11:35.903 INFO boardadmin Updated square amazing globally (no connected clients with bingo sets)
+17:11:38.857 INFO boardadmin Loaded 43 squares from database
+17:11:38.886 INFO boardadmin Loaded 43 squares from database
+17:11:38.887 INFO boardadmin Updated square app-bug globally (no connected clients with bingo sets)
+17:11:40.402 INFO boardadmin Loaded 43 squares from database
+17:11:40.424 INFO boardadmin Loaded 43 squares from database
+17:11:40.425 INFO boardadmin Updated square aspire-pun globally (no connected clients with bingo sets)
+17:11:43.485 INFO boardadmin Loaded 43 squares from database
+17:11:43.501 INFO boardadmin Loaded 43 squares from database
+17:11:43.501 INFO boardadmin Updated square av-issue globally (no connected clients with bingo sets)
+17:11:45.016 INFO boardadmin Loaded 43 squares from database
+17:11:45.032 INFO boardadmin Loaded 43 squares from database
+17:11:45.033 INFO boardadmin Updated square bad-ai globally (no connected clients with bingo sets)
+17:11:47.807 INFO boardadmin Loaded 43 squares from database
+17:11:47.822 INFO boardadmin Loaded 43 squares from database
+17:11:47.823 INFO boardadmin Updated square bathroom-break globally (no connected clients with bingo sets)
+17:11:49.335 INFO boardadmin Loaded 43 squares from database
+17:11:49.353 INFO boardadmin Loaded 43 squares from database
+17:11:49.354 INFO boardadmin Updated square coffee-mention globally (no connected clients with bingo sets)
+17:11:52.010 INFO boardadmin Loaded 43 squares from database
+17:11:52.023 INFO boardadmin Loaded 43 squares from database
+17:11:52.024 INFO boardadmin Updated square council-of-aspirations globally (no connected clients with bingo sets)
+17:11:53.534 INFO boardadmin Loaded 43 squares from database
+17:11:53.559 INFO boardadmin Loaded 43 squares from database
+17:11:53.560 INFO boardadmin Updated square damian-fowler-bicker globally (no connected clients with bingo sets)
+17:11:56.369 INFO boardadmin Loaded 43 squares from database
+17:11:56.384 INFO boardadmin Loaded 43 squares from database
+17:11:56.385 INFO boardadmin Updated square damian-tbc globally (no connected clients with bingo sets)
+17:11:57.898 INFO boardadmin Loaded 43 squares from database
+17:11:57.914 INFO boardadmin Loaded 43 squares from database
+17:11:57.915 INFO boardadmin Updated square demo-gods globally (no connected clients with bingo sets)
+17:12:00.495 INFO boardadmin Loaded 43 squares from database
+17:12:00.522 INFO boardadmin Loaded 43 squares from database
+17:12:00.524 INFO boardadmin Updated square did-that-work globally (no connected clients with bingo sets)
+17:12:02.034 INFO boardadmin Loaded 43 squares from database
+17:12:02.048 INFO boardadmin Loaded 43 squares from database
+17:12:02.049 INFO boardadmin Updated square different-opinions globally (no connected clients with bingo sets)
+17:12:04.636 INFO boardadmin Loaded 43 squares from database
+17:12:04.651 INFO boardadmin Loaded 43 squares from database
+17:12:04.652 INFO boardadmin Updated square do-it-live globally (no connected clients with bingo sets)
+17:12:06.161 INFO boardadmin Loaded 43 squares from database
+17:12:06.175 INFO boardadmin Loaded 43 squares from database
+17:12:06.176 INFO boardadmin Updated square error-celly globally (no connected clients with bingo sets)
+17:12:08.773 INFO boardadmin Loaded 43 squares from database
+17:12:08.787 INFO boardadmin Loaded 43 squares from database
+17:12:08.788 INFO boardadmin Updated square fowler-llm globally (no connected clients with bingo sets)
+17:12:10.296 INFO boardadmin Loaded 43 squares from database
+17:12:10.310 INFO boardadmin Loaded 43 squares from database
+17:12:10.311 INFO boardadmin Updated square fowler-monorepo globally (no connected clients with bingo sets)
+17:12:12.917 INFO boardadmin Loaded 43 squares from database
+17:12:12.957 INFO boardadmin Loaded 43 squares from database
+17:12:12.959 INFO boardadmin Updated square fowler-pause globally (no connected clients with bingo sets)
+17:12:14.468 INFO boardadmin Loaded 43 squares from database
+17:12:14.482 INFO boardadmin Loaded 43 squares from database
+17:12:14.483 INFO boardadmin Updated square free globally (no connected clients with bingo sets)
+17:12:17.244 INFO boardadmin Loaded 43 squares from database
+17:12:17.260 INFO boardadmin Loaded 43 squares from database
+17:12:17.260 INFO boardadmin Updated square friday-behavior globally (no connected clients with bingo sets)
+17:12:18.770 INFO boardadmin Loaded 43 squares from database
+17:12:18.784 INFO boardadmin Loaded 43 squares from database
+17:12:18.784 INFO boardadmin Updated square frustration globally (no connected clients with bingo sets)
+17:12:21.329 INFO boardadmin Loaded 43 squares from database
+17:12:21.344 INFO boardadmin Loaded 43 squares from database
+17:12:21.344 INFO boardadmin Updated square github-issues globally (no connected clients with bingo sets)
+17:12:22.853 INFO boardadmin Loaded 43 squares from database
+17:12:22.868 INFO boardadmin Loaded 43 squares from database
+17:12:22.868 INFO boardadmin Updated square ignore-docs globally (no connected clients with bingo sets)

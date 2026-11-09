@@ -1,0 +1,5 @@
+Scanning for running AppHosts...
+17:11:04.752 FAIL migrations Failed executing DbCommand (13ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT "MigrationId", "ProductVersion"
+FROM "__EFMigrationsHistory"
+ORDER BY "MigrationId";
