@@ -8,7 +8,7 @@ trials in a cell, including failures; a failed trial keeps its real time and tok
 | Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
 | aspire-cli | 3/3 | 171 | 45 | 126 | 803,469 | 11,849 | 0.021 | 43 | - | 0 | 192,019 |
-| aspire-lean | 6/6 | 93 | 8 | 49 | 300,828 | 5,602 | 0.010 | 26 | aspire-diagnosex6 | 0 | 147,932 |
+| aspire-lean | 12/12 | 89 | 8 | 48 | 334,896 | 5,258 | 0.011 | 28 | aspire-diagnosex12, aspire-orchestrationx1 | 0 | 141,146 |
 | aspire-lean-mcp | 3/3 | 104 | 7 | 59 | 705,048 | 7,036 | 0.018 | 36 | aspire-diagnosex3 | 8 | 412,161 |
 | aspire-lean-mcp-all | 1/1 | 60 | 13 | 32 | 280,318 | 3,391 | 0.009 | 24 | aspire-diagnosex1 | 10 | 246,436 |
 | aspire-lean-mcp-compact | 3/3 | 111 | 9 | 72 | 557,433 | 6,232 | 0.014 | 31 | aspire-diagnosex3 | 12 | 274,789 |
@@ -19,7 +19,7 @@ trials in a cell, including failures; a failed trial keeps its real time and tok
 | aspire-plus | 3/3 | 167 | 25 | 99 | 799,193 | 11,838 | 0.020 | 44 | aspirex1, aspire-diagnosex1, aspire-monitoringx1 | 0 | 217,155 |
 | aspire-skills | 3/3 | 207 | 28 | 133 | 1,222,642 | 15,432 | 0.029 | 57 | aspirex1, aspire-monitoringx2, aspire-orchestrationx1 | 0 | 249,429 |
 | aspire-skills-mcp | 2/6 | 254 | 21 | 224 | 1,518,351 | 16,124 | 0.033 | 56 | aspirex6, aspire-monitoringx6, aspire-orchestrationx3 | 17 | 506,582 |
-| raw | 6/6 | 113 | 10 | 80 | 447,482 | 7,867 | 0.014 | 34 | - | 0 | 162,724 |
+| raw | 9/9 | 105 | 11 | 69 | 444,139 | 6,938 | 0.013 | 33 | - | 0 | 144,018 |
 
 ## read-only / gpt-6.1-sol
 
@@ -53,7 +53,7 @@ trials in a cell, including failures; a failed trial keeps its real time and tok
 | Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
 | aspire-cli | 3/3 | 191 | 77 | 128 | 910,384 | 13,988 | 0.023 | 57 | - | 0 | 259,310 |
-| aspire-lean | 6/6 | 90 | 28 | 53 | 276,566 | 4,884 | 0.009 | 26 | aspire-diagnosex6 | 0 | 127,170 |
+| aspire-lean | 9/9 | 87 | 26 | 50 | 255,174 | 4,422 | 0.009 | 25 | aspire-diagnosex9 | 0 | 125,055 |
 | aspire-lean-mcp | 4/4 | 141 | 28 | 77 | 624,284 | 7,935 | 0.018 | 38 | aspire-diagnosex4 | 8 | 318,236 |
 | aspire-lean-mcp-compact | 3/3 | 95 | 35 | 61 | 411,936 | 5,192 | 0.012 | 29 | aspire-diagnosex3 | 9 | 192,748 |
 | aspire-lean-mcp-src | 3/3 | 140 | 43 | 84 | 453,415 | 8,122 | 0.014 | 33 | aspire-diagnosex3 | 3 | 197,351 |
@@ -64,7 +64,7 @@ trials in a cell, including failures; a failed trial keeps its real time and tok
 | aspire-plus | 3/3 | 133 | 34 | 74 | 390,468 | 9,489 | 0.013 | 33 | aspire-diagnosex3 | 0 | 135,859 |
 | aspire-skills | 3/3 | 178 | 58 | 95 | 758,503 | 10,644 | 0.022 | 49 | - | 0 | 222,635 |
 | aspire-skills-mcp | 6/6 | 262 | 105 | 161 | 1,493,192 | 17,600 | 0.033 | 60 | aspirex3, aspire-monitoringx6, aspire-orchestrationx1 | 12 | 628,702 |
-| raw | 6/6 | 129 | 25 | 62 | 463,250 | 8,378 | 0.015 | 34 | - | 0 | 185,210 |
+| raw | 12/12 | 132 | 25 | 65 | 491,865 | 7,884 | 0.015 | 35 | - | 0 | 186,004 |
 
 ## slow-sql / gpt-6.1-sol
 

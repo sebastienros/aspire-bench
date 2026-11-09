@@ -32,8 +32,8 @@ lower the success rate.
 
 | Scenario / model | Raw app | Shipped skills + MCP (`aspire-skills-mcp`) |
 |---|---|---|
-| `slow-sql` / luna | 129 s, 463k input tokens, 6/6 | 262 s (+102%), 1.49M tokens (+222%), 6/6 |
-| `read-only` / luna | 113 s, 447k tokens, 6/6 | 254 s (+125%), 1.52M tokens (+239%), **2/6** (app works again in 4/6) |
+| `slow-sql` / luna | 132 s, 492k input tokens, 12/12 | 262 s (+97%), 1.49M tokens (+204%), 6/6 |
+| `read-only` / luna | 105 s, 444k tokens, 9/9 | 254 s (+141%), 1.52M tokens (+242%), **2/6** (app works again in 4/6) |
 | `slow-sql` / terra | 54 s, 164k tokens, 6/6 | 87 s (+59%), 556k tokens (+239%), 6/6 |
 | `read-only` / terra | 56 s, 200k tokens, 6/6 | 72 s (+28%), 449k tokens (+125%), 6/6 |
 
@@ -60,25 +60,25 @@ Three mechanisms, each visible in the trajectories:
 
 | Scenario / model | Raw app | Shipped skills (`aspire-skills`) | Proposed (`aspire-lean`) |
 |---|---|---|---|
-| `slow-sql` / luna | 129 s, 463k tok, $0.015 | 178 s, 759k tok, $0.022 | **90 s (−31%), 277k tok (−40%), $0.009 (−39%)**, 6/6 |
-| `read-only` / luna | 113 s, 447k tok, $0.014 | 207 s, 1.22M tok, $0.029 | **93 s (−18%), 301k tok (−33%), $0.010 (−31%)**, 6/6 |
+| `slow-sql` / luna | 132 s, 492k tok, $0.015 | 178 s, 759k tok, $0.022 | **87 s (−34%), 255k tok (−48%), $0.009 (−39%)**, 9/9 |
+| `read-only` / luna | 105 s, 444k tok, $0.013 | 207 s, 1.22M tok, $0.029 | **89 s (−16%), 335k tok (−25%), $0.011 (−20%)**, 12/12 |
 | `slow-sql` / terra | 54 s, 164k tok, $0.054 | 80 s, 391k tok, $0.087 | 61 s (+13%), 215k tok (+31%), $0.056 (+5%), 6/6 |
 | `read-only` / terra | 56 s, 200k tok, $0.060 | 66 s, 348k tok, $0.077 | 52 s (−8%), 202k tok (+1%), $0.051 (−16%), 6/6 |
 
 Percentages are against the raw app. Against the shipped skills the proposed set is
 21% to 55% faster and uses 42% to 75% fewer input tokens in every cell.
 
-- `aspire-diagnose` was loaded in **32 of 32** `lean` trials across the three models.
+- `aspire-diagnose` was loaded in **41 of 41** graded `lean` trials across the three models.
   Every `slow-sql` trial then ran the duration filter; no shipped-skills trial (0 of 48)
   ever did.
 - Against the shipped skills + MCP the improvement is statistically solid: every luna
   and terra cell has p ≤ 0.004 on time, tokens and cost (exact Mann-Whitney, 6 vs 6;
   see [results/stats.md](results/stats.md)).
-- Against the raw app the honest reading is **parity, with a lead on the cheapest
-  model that is not yet statistically established**. On luna the medians are lower on
-  time, tokens and cost in both scenarios, but raw-on-luna varies widely and the
-  comparison does not reach significance at this sample size. On terra `slow-sql` the
-  proposed set is 13% slower than raw (7 s, p = 0.024); on terra `read-only` and on sol
+- Against the raw app: **a win on the cheapest model, parity on the stronger ones.**
+  On luna `slow-sql` the proposed set is 34% faster with 48% fewer input tokens and 39%
+  lower cost (p = 0.04, 0.01, 0.01; 9 vs 12). On luna `read-only` the medians are 16% to
+  25% lower but do not reach significance (p = 0.08 to 0.19; 12 vs 9). On terra
+  `slow-sql` it is 13% slower than raw (7 s, p = 0.024); on terra `read-only` and on sol
   there is no detectable difference. Stronger models extract the same evidence from the
   raw app's log file about as quickly.
 

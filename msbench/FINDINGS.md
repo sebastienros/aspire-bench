@@ -779,11 +779,12 @@ established. [Report](bingo-isolation/PILOT.md) retains the full scope boundary.
 **Evidence:** The [telemetry suite](telemetry/README.md) runs two runtime faults
 (`slow-sql`, `read-only`) against the raw app and the aspirified app on the daily build
 `17.1.0-preview.1.26559.1+4954c76a`, with live traffic, outcome-only prompts and an
-HTTP/SQL verifier. [Results](telemetry/RESULTS.md) pool 205 trials over rounds 1 and 2.
-With the eight shipped skills and the MCP server, the aspirified app took +28% to +125%
-agent time and +125% to +239% input tokens against the raw app on luna and terra
-(p = 0.002 to 0.004 in all four cells, exact Mann-Whitney, 6 vs 6). On luna,
-`read-only`, the root cause was removed in 2 of 6 trials against 6 of 6 for raw.
+HTTP/SQL verifier. [Results](telemetry/RESULTS.md) pool 223 graded trials over rounds
+1, 2 and 5 (6 infrastructure failures recorded separately). With the eight shipped
+skills and the MCP server, the aspirified app took +28% to +141% agent time and +125%
+to +242% input tokens against the raw app on luna and terra (p ≤ 0.004 in all four
+cells, exact Mann-Whitney). On luna, `read-only`, the root cause was removed in 2 of 6
+trials against 9 of 9 for raw.
 
 **Mechanisms observed:** the duration filter that solves `slow-sql` sits three hops deep
 (router, `aspire-monitoring`, its reference) and no shipped-skills trial used it (0 of
@@ -800,15 +801,15 @@ these task types; it does not generalize to faults with no log signal.
 
 **Evidence:** Same suite. `aspire-lean` (new 4.5 KB `aspire-diagnose`, router removed,
 `aspire-monitoring` description narrowed, no MCP) against shipped skills + MCP:
-−29% to −66% agent time and −55% to −81% input tokens, p ≤ 0.004 in all four luna and
-terra cells. `aspire-diagnose` was loaded in 32 of 32 trials on three models.
+−29% to −70% agent time and −55% to −84% input tokens, p ≤ 0.004 in all four luna and
+terra cells. `aspire-diagnose` was loaded in 41 of 41 graded trials on three models.
 Adding the skill next to the router (`aspire-plus`) was selected in only 4 of 6 luna
 trials and took 167 s against 93 s on `read-only`.
 
-**Against the raw app:** parity. Luna medians are 18% to 31% lower on time and 33% to
-40% lower on tokens but do not reach significance at 6 vs 6 (more trials queued).
-Terra `slow-sql` is 13% slower than raw (p = 0.02); terra `read-only` and sol show no
-difference.
+**Against the raw app:** a win on luna `slow-sql` (−34% time, −48% tokens, −39% cost;
+p = 0.04 / 0.01 / 0.01, 9 vs 12), a non-significant lead on luna `read-only` (−16% /
+−25% / −20%; p = 0.08 to 0.19, 12 vs 9), 13% slower on terra `slow-sql` (p = 0.02), and
+no difference on terra `read-only` or sol.
 
 **Improvement candidate:** Ship `aspire-diagnose`; remove or drastically shrink the
 router; give each skill a symptom-based trigger that excludes its neighbours.

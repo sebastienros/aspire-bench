@@ -40,7 +40,7 @@ def main():
     cells = defaultdict(list)
     for line in (SUITE / "results/trials.jsonl").read_text().splitlines():
         row = json.loads(line)
-        if row["model_requested"] != "oracle" and row.get("agent_seconds") is not None:
+        if row["model_requested"] != "oracle" and row.get("agent_seconds") is not None and not row.get("infrastructure_failure"):
             cells[(row["scenario"], row["model_requested"], row["arm"])].append(row)
     lines = ["# Significance of the headline comparisons", "",
              "Exact two-sided Mann-Whitney test on per-trial values. `A vs B` reports the change of A's",
