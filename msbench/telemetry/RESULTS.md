@@ -266,10 +266,12 @@ over 3 trials per cell; all 45 trials passed.
   the verifier logs.
 - Before any model ran, each fault was validated on both app kinds: the verifier fails
   on the broken state and passes after the reference repair, locally and in the cloud.
-  Six remote no-model gates completed with reward 1. The three gates submitted with
-  rounds 3 and 4 (`aspire-lean-plain` / `slow-sql`, `raw` and `aspire-lean-start` /
-  `cold-start`) ended without producing a result and were resubmitted at 22:17 UTC;
-  those cells had passed the local fail/repair/pass gate before the model runs.
+  All nine remote no-model gates completed with reward 1 (both scenarios on `raw`,
+  `aspire-lean-mcp`, `aspire-skills-mcp`, `aspire-mcp-src`, `aspire-lean-mcp-compact`,
+  `aspire-lean-plain`; `cold-start` on `raw` and `aspire-lean-start`). The last three
+  were submitted with rounds 3 and 4, ended without a result like those rounds, and
+  were resubmitted after the model runs; their cells had passed the local
+  fail/repair/pass gate beforehand.
 - No graded trial was discarded. `aspire-lean-mcp` / `slow-sql` / luna has 4 trials
   because the pipeline probe ran the identical cell and is included.
 - Runner-reported model cost for the 348 graded trials: USD 19.45.
