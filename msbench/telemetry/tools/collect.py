@@ -262,6 +262,8 @@ def main():
     ledger = [json.loads(line) for line in (SUITE / "results/ledger.jsonl").read_text().splitlines() if line.strip()]
     rows = []
     for entry in ledger:
+        if entry.get("cancelled"):
+            continue
         root = DATA / "extracted" / entry["run_id"] if "--no-fetch" in sys.argv else fetch(entry["run_id"])
         trials = [p for p in root.rglob("result.json") if "trial_name" in p.read_text()[:4000]]
         if not trials:

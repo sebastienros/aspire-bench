@@ -28,7 +28,7 @@ def main():
     args = [arg for arg in sys.argv[1:] if arg != "--quiet"]
     if args[:1] == ["--round"]:
         ledger = [json.loads(line) for line in (SUITE / "results/ledger.jsonl").read_text().splitlines() if line.strip()]
-        runs = [entry["run_id"] for entry in ledger if entry["round"] == args[1]]
+        runs = [entry["run_id"] for entry in ledger if entry["round"] == args[1] and not entry.get("cancelled")]
     else:
         runs = args
     pending, final = set(runs), {}

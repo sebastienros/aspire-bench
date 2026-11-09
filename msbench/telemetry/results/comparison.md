@@ -6,6 +6,36 @@ Percentages compare the arm's median with the `raw` median of the same scenario 
 `Infra` counts trials that ended in a runner, setup or model-service exception before any grade;
 they are listed in trials.jsonl and excluded from every other column.
 
+## cold-start / gpt-6-luna
+
+| Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| raw | 3 | 3/3 | 3/3 | 41 (+0%) | 63,666 (+0%) | 0.003 (+0%) | 5 | - | - |
+| aspire-cli | 3 | 3/3 | 3/3 | 49 (+19%) | 72,301 (+14%) | 0.003 (-11%) | 7 | - | - |
+| aspire-skills | 3 | 3/3 | 3/3 | 52 (+25%) | 125,998 (+98%) | 0.004 (+52%) | 8 | - | - |
+| aspire-lean | 3 | 3/3 | 3/3 | 82 (+100%) | 249,128 (+291%) | 0.007 (+133%) | 17 | - | - |
+| aspire-lean-start | 3 | 3/3 | 3/3 | 51 (+23%) | 115,738 (+82%) | 0.003 (+14%) | 11 | - | - |
+
+## cold-start / gpt-6.1-sol
+
+| Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| raw | 3 | 3/3 | 3/3 | 40 (+0%) | 61,822 (+0%) | 0.041 (+0%) | 6 | - | - |
+| aspire-cli | 3 | 3/3 | 3/3 | 50 (+24%) | 70,339 (+14%) | 0.040 (-2%) | 7 | - | - |
+| aspire-skills | 3 | 3/3 | 3/3 | 50 (+26%) | 120,700 (+95%) | 0.062 (+52%) | 8 | - | - |
+| aspire-lean | 3 | 3/3 | 3/3 | 56 (+39%) | 120,322 (+95%) | 0.063 (+53%) | 9 | - | - |
+| aspire-lean-start | 3 | 3/3 | 3/3 | 54 (+35%) | 113,978 (+84%) | 0.053 (+29%) | 10 | - | - |
+
+## cold-start / gpt-6.1-terra
+
+| Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| raw | 3 | 3/3 | 3/3 | 33 (+0%) | 35,191 (+0%) | 0.018 (+0%) | 3 | - | - |
+| aspire-cli | 3 | 3/3 | 3/3 | 51 (+54%) | 75,025 (+113%) | 0.022 (+25%) | 8 | - | - |
+| aspire-skills | 3 | 3/3 | 3/3 | 53 (+58%) | 83,054 (+136%) | 0.029 (+59%) | 6 | - | - |
+| aspire-lean | 3 | 3/3 | 3/3 | 51 (+53%) | 122,122 (+247%) | 0.032 (+78%) | 8 | - | - |
+| aspire-lean-start | 3 | 3/3 | 3/3 | 54 (+63%) | 116,096 (+230%) | 0.027 (+51%) | 10 | - | - |
+
 ## read-only / gpt-6-luna
 
 | Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
@@ -22,16 +52,21 @@ they are listed in trials.jsonl and excluded from every other column.
 | aspire-mcp-compact | 3 | 3/3 | 3/3 | 126 (+19%) | 730,722 (+65%) | 0.018 (+34%) | 42 | 14 | - |
 | aspire-lean-mcp-src | 3 | 3/3 | 3/3 | 123 (+17%) | 563,172 (+27%) | 0.016 (+17%) | 34 | 12 | - |
 | aspire-lean-mcp-compact | 3 | 3/3 | 3/3 | 111 (+6%) | 557,433 (+26%) | 0.014 (+9%) | 31 | 9 | - |
-| aspire-lean-mcp-all | 1 | 1/1 | 1/1 | 60 (-43%) | 280,318 (-37%) | 0.009 (-33%) | 24 | 13 | - |
+| aspire-lean-src | 3 | 3/3 | 3/3 | 94 (-11%) | 399,903 (-10%) | 0.012 (-12%) | 31 | 8 | - |
+| aspire-lean-plain | 3 | 3/3 | 3/3 | 86 (-19%) | 382,527 (-14%) | 0.013 (-4%) | 31 | 8 | - |
+| aspire-lean-mcp-all | 3 | 3/3 | 3/3 | 89 (-16%) | 486,967 (+10%) | 0.013 (-1%) | 29 | 10 | - |
 
 ## read-only / gpt-6.1-sol
 
 | Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| raw | 3 | 3/3 | 3/3 | 54 (+0%) | 178,661 (+0%) | 0.115 (+0%) | 18 | 6 | - |
-| aspire-skills | 3 | 3/3 | 3/3 | 57 (+6%) | 270,125 (+51%) | 0.130 (+13%) | 22 | 12 | - |
-| aspire-skills-mcp | 3 | 3/3 | 3/3 | 61 (+14%) | 328,459 (+84%) | 0.147 (+28%) | 23 | 12 | - |
-| aspire-lean | 5 | 5/5 | 5/5 | 57 (+6%) | 236,105 (+32%) | 0.130 (+13%) | 21 | 8 | - |
+| raw | 6 | 6/6 | 6/6 | 61 (+0%) | 179,950 (+0%) | 0.119 (+0%) | 18 | 6 | - |
+| aspire-skills | 6 | 6/6 | 6/6 | 62 (+2%) | 289,304 (+61%) | 0.139 (+17%) | 22 | 14 | - |
+| aspire-skills-mcp | 6 | 6/6 | 6/6 | 63 (+3%) | 345,428 (+92%) | 0.151 (+27%) | 24 | 13 | - |
+| aspire-lean | 6 | 6/6 | 6/6 | 56 (-8%) | 225,306 (+25%) | 0.125 (+6%) | 20 | 8 | - |
+| aspire-lean-src | 3 | 3/3 | 3/3 | 58 (-4%) | 254,879 (+42%) | 0.133 (+12%) | 22 | 9 | - |
+| aspire-lean-plain | 3 | 3/3 | 3/3 | 55 (-9%) | 197,036 (+9%) | 0.107 (-10%) | 18 | 10 | - |
+| aspire-lean-mcp-all | 3 | 3/3 | 3/3 | 41 (-33%) | 236,058 (+31%) | 0.138 (+16%) | 21 | 6 | - |
 
 ## read-only / gpt-6.1-terra
 
@@ -49,7 +84,9 @@ they are listed in trials.jsonl and excluded from every other column.
 | aspire-mcp-compact | 3 | 3/3 | 3/3 | 58 (+2%) | 378,267 (+89%) | 0.079 (+31%) | 25 | 9 | - |
 | aspire-lean-mcp-src | 3 | 3/3 | 3/3 | 61 (+8%) | 340,966 (+71%) | 0.073 (+22%) | 21 | 18 | - |
 | aspire-lean-mcp-compact | 3 | 3/3 | 3/3 | 50 (-11%) | 364,780 (+83%) | 0.081 (+34%) | 19 | 11 | - |
-| aspire-lean-mcp-all | 1 | 1/1 | 1/1 | 50 (-11%) | 297,417 (+49%) | 0.069 (+14%) | 18 | 10 | - |
+| aspire-lean-src | 3 | 3/3 | 3/3 | 62 (+10%) | 270,000 (+35%) | 0.061 (+1%) | 20 | 16 | - |
+| aspire-lean-plain | 3 | 3/3 | 3/3 | 61 (+8%) | 274,848 (+38%) | 0.061 (+2%) | 20 | 16 | - |
+| aspire-lean-mcp-all | 4 | 4/4 | 4/4 | 48 (-15%) | 290,652 (+45%) | 0.071 (+17%) | 18 | 10 | - |
 
 ## slow-sql / gpt-6-luna
 
@@ -67,16 +104,21 @@ they are listed in trials.jsonl and excluded from every other column.
 | aspire-mcp-compact | 3 | 3/3 | 3/3 | 117 (-12%) | 409,494 (-17%) | 0.013 (-12%) | 27 | 53 | - |
 | aspire-lean-mcp-src | 3 | 3/3 | 3/3 | 140 (+6%) | 453,415 (-8%) | 0.014 (-6%) | 33 | 43 | - |
 | aspire-lean-mcp-compact | 3 | 3/3 | 3/3 | 95 (-29%) | 411,936 (-16%) | 0.012 (-21%) | 29 | 35 | - |
-| aspire-lean-plain | 1 | 1/1 | 1/1 | 123 (-7%) | 357,790 (-27%) | 0.011 (-23%) | 34 | 28 | - |
+| aspire-lean-src | 3 | 3/3 | 3/3 | 95 (-28%) | 302,041 (-39%) | 0.010 (-29%) | 27 | 26 | - |
+| aspire-lean-plain | 3 | 3/3 | 3/3 | 84 (-37%) | 270,765 (-45%) | 0.009 (-35%) | 28 | 26 | - |
+| aspire-lean-mcp-all | 3 | 3/3 | 3/3 | 95 (-28%) | 287,268 (-42%) | 0.010 (-32%) | 25 | 30 | - |
 
 ## slow-sql / gpt-6.1-sol
 
 | Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| raw | 3 | 3/3 | 3/3 | 64 (+0%) | 167,867 (+0%) | 0.103 (+0%) | 18 | 16 | - |
-| aspire-skills | 3 | 3/3 | 3/3 | 65 (+3%) | 341,050 (+103%) | 0.146 (+41%) | 24 | 25 | - |
-| aspire-skills-mcp | 3 | 3/3 | 3/3 | 73 (+14%) | 384,594 (+129%) | 0.160 (+55%) | 25 | 29 | - |
-| aspire-lean | 3 | 3/3 | 3/3 | 60 (-5%) | 189,745 (+13%) | 0.096 (-7%) | 16 | 14 | - |
+| raw | 6 | 6/6 | 6/6 | 63 (+0%) | 162,992 (+0%) | 0.104 (+0%) | 18 | 14 | - |
+| aspire-skills | 6 | 6/6 | 6/6 | 67 (+7%) | 334,980 (+106%) | 0.151 (+46%) | 25 | 29 | - |
+| aspire-skills-mcp | 6 | 6/6 | 6/6 | 72 (+15%) | 361,791 (+122%) | 0.149 (+44%) | 24 | 29 | - |
+| aspire-lean | 6 | 6/6 | 6/6 | 60 (-6%) | 190,711 (+17%) | 0.099 (-4%) | 15 | 16 | - |
+| aspire-lean-src | 3 | 3/3 | 3/3 | 59 (-6%) | 192,030 (+18%) | 0.097 (-7%) | 14 | 18 | - |
+| aspire-lean-plain | 3 | 3/3 | 3/3 | 59 (-6%) | 185,275 (+14%) | 0.094 (-9%) | 15 | 14 | - |
+| aspire-lean-mcp-all | 3 | 3/3 | 3/3 | 57 (-10%) | 209,460 (+29%) | 0.111 (+7%) | 16 | 20 | - |
 
 ## slow-sql / gpt-6.1-terra
 
@@ -94,6 +136,7 @@ they are listed in trials.jsonl and excluded from every other column.
 | aspire-mcp-compact | 3 | 3/3 | 3/3 | 59 (+9%) | 309,147 (+88%) | 0.081 (+52%) | 24 | 18 | - |
 | aspire-lean-mcp-src | 3 | 3/3 | 3/3 | 70 (+28%) | 225,608 (+38%) | 0.061 (+13%) | 19 | 25 | - |
 | aspire-lean-mcp-compact | 3 | 3/3 | 3/3 | 65 (+20%) | 266,192 (+62%) | 0.067 (+25%) | 19 | 24 | - |
-| aspire-lean-src | 1 | 1/1 | 1/1 | 67 (+23%) | 252,769 (+54%) | 0.060 (+12%) | 22 | 21 | - |
-| aspire-lean-mcp-all | 1 | 1/1 | 1/1 | 68 (+25%) | 268,227 (+63%) | 0.065 (+22%) | 18 | 25 | - |
+| aspire-lean-src | 4 | 4/4 | 4/4 | 61 (+13%) | 199,281 (+21%) | 0.053 (-2%) | 18 | 23 | - |
+| aspire-lean-plain | 3 | 3/3 | 3/3 | 62 (+14%) | 174,372 (+6%) | 0.046 (-14%) | 17 | 24 | - |
+| aspire-lean-mcp-all | 3 | 3/3 | 3/3 | 62 (+13%) | 218,927 (+33%) | 0.062 (+15%) | 18 | 22 | - |
 

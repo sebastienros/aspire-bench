@@ -779,12 +779,13 @@ established. [Report](bingo-isolation/PILOT.md) retains the full scope boundary.
 **Evidence:** The [telemetry suite](telemetry/README.md) runs two runtime faults
 (`slow-sql`, `read-only`) against the raw app and the aspirified app on the daily build
 `17.1.0-preview.1.26559.1+4954c76a`, with live traffic, outcome-only prompts and an
-HTTP/SQL verifier. [Results](telemetry/RESULTS.md) pool 223 graded trials over rounds
-1, 2 and 5 (6 infrastructure failures recorded separately). With the eight shipped
+HTTP/SQL verifier. [Results](telemetry/RESULTS.md) pool 348 graded trials over five
+rounds (6 infrastructure failures recorded separately). With the eight shipped
 skills and the MCP server, the aspirified app took +28% to +141% agent time and +125%
 to +242% input tokens against the raw app on luna and terra (p ≤ 0.004 in all four
-cells, exact Mann-Whitney). On luna, `read-only`, the root cause was removed in 2 of 6
-trials against 9 of 9 for raw.
+cells, exact Mann-Whitney), and +15% / +3% time with +122% / +92% tokens on sol
+(tokens and cost p ≤ 0.004, 6 vs 6). On luna, `read-only`, the root cause was removed
+in 2 of 6 trials against 9 of 9 for raw.
 
 **Mechanisms observed:** the duration filter that solves `slow-sql` sits three hops deep
 (router, `aspire-monitoring`, its reference) and no shipped-skills trial used it (0 of
@@ -801,15 +802,18 @@ these task types; it does not generalize to faults with no log signal.
 
 **Evidence:** Same suite. `aspire-lean` (new 4.5 KB `aspire-diagnose`, router removed,
 `aspire-monitoring` description narrowed, no MCP) against shipped skills + MCP:
-−29% to −70% agent time and −55% to −84% input tokens, p ≤ 0.004 in all four luna and
-terra cells. `aspire-diagnose` was loaded in 41 of 41 graded trials on three models.
-Adding the skill next to the router (`aspire-plus`) was selected in only 4 of 6 luna
-trials and took 167 s against 93 s on `read-only`.
+−29% to −67% agent time and −55% to −83% input tokens, p ≤ 0.004 in all four luna and
+terra cells; on sol −18% / −11% time and −47% / −35% tokens (`slow-sql` p ≤ 0.004,
+`read-only` not significant, 6 vs 6). `aspire-diagnose` was loaded in 45 of 45 graded
+`aspire-lean` trials on three models (138 of 138 across every `lean`-based arm), and
+every one of its 21 `slow-sql` trials ran the duration filter that 0 of 30
+shipped-skills trials used. Adding the skill next to the router (`aspire-plus`) was
+selected in only 4 of 6 luna trials and took 167 s against 93 s on `read-only`.
 
 **Against the raw app:** a win on luna `slow-sql` (−34% time, −48% tokens, −39% cost;
 p = 0.04 / 0.01 / 0.01, 9 vs 12), a non-significant lead on luna `read-only` (−16% /
-−25% / −20%; p = 0.08 to 0.19, 12 vs 9), 13% slower on terra `slow-sql` (p = 0.02), and
-no difference on terra `read-only` or sol.
+−25% / −20%; p = 0.08 to 0.19, 12 vs 9), 13% slower on terra `slow-sql` (p = 0.02), no
+time difference on terra `read-only` or sol, and 17% to 25% more input tokens on sol.
 
 **Improvement candidate:** Ship `aspire-diagnose`; remove or drastically shrink the
 router; give each skill a symptom-based trigger that excludes its neighbours.
@@ -836,7 +840,12 @@ filtered call to 2,854.
 
 **Measured:** against an unpatched source-built control, agent time fell in all eight
 cells (−6% to −36%); input tokens fell 8% to 62% when MCP was the agent's main route.
-Three trials per arm: a consistent direction, not a proven effect size.
+With both product patches and the lean skills (`aspire-lean-mcp-all`) against the
+same arm on the shipped tool shape: −12% to −32% time in all four luna and terra
+cells, and the agent made MCP its main route (median 5 to 10 MCP calls and one CLI
+call per trial, against 2 to 3 MCP calls and 4 to 7 CLI calls before). That arm is at
+or below the raw app on time in five of six model × scenario cells. Three trials per
+arm: a consistent direction, not a proven effect size.
 
 **Limits / status:** Not upstreamed. The default output shape of `list_traces` changes.
 `list_resources` and `list_console_logs` are untouched and still large.
@@ -852,10 +861,17 @@ on `sebros/agentic-plain-output` (13 lines): no table border and no dashboard li
 output is redirected. `aspire describe` 4,244 → 1,086 bytes; slow-trace list
 6,863 → 1,561 bytes. Endpoint URLs are kept.
 
-**Limits / status:** Output size verified on the live app. Agent-level effect is round 3
-of the suite and was still queued when this entry was written; see
-[RESULTS.md](telemetry/RESULTS.md). The trace detail table still omits the SQL text, so
-the skill has to send agents to JSON for one trace.
+**Measured:** `aspire-lean-plain` against the unpatched source-built control, 3 trials
+per arm, six model × scenario cells: characters returned to the agent by all tools
+−21% to −59%; agent time −12% to +1% (at or below the control in five cells); input
+tokens −23% to +2% (lower in five cells); no cell significant. The lean skill already
+bounds every CLI call, so the borders and links are a small share of a trial's input,
+most of which is the conversation prefix re-sent on each model call.
+
+**Limits / status:** A context saving, not a measurable speed-up on its own; worth
+upstreaming for the bytes. The trace detail table still omits the SQL text, so the
+skill has to send agents to JSON for one trace. See
+[RESULTS.md](telemetry/RESULTS.md#cli-plain-output-when-redirected).
 
 ## F20: Phase timing separates diagnosis from repair-style variance
 
@@ -869,6 +885,28 @@ skills and tools on time-to-cause, not only total time.
 
 **Limits / status:** The markers are scenario-specific regular expressions over tool
 arguments and results.
+
+## F21: Cold start is slower with Aspire whatever the skills; removing the router needs an owner for each former job
+
+**Evidence:** `cold-start` scenario, 5 arms × 3 models × 3 trials, all 45 passed
+([RESULTS.md](telemetry/RESULTS.md#cold-start)). Every Aspire arm is 19% to 63% slower
+than the raw app (raw 33 to 41 s; Aspire 49 to 56 s, except one cell) because the
+agent runs `aspire start`, `aspire wait` for each endpoint and `aspire describe` for
+the URLs where the raw agent runs one start script and `curl`; the CLI with no skills
+is as fast as any skill set. In the `lean` set, which had removed the router without
+adding a start skill, luna selected `aspire-orchestration` 3 of 3 and read its 29 KB of
+references plus a `git status` / `git worktree list` / `aspire ps` detection sequence
+before starting: 82 s and 249k tokens, twice the raw app. With `aspire-start`
+(selected 9 of 9) luna is back at 51 s and 116k tokens, level with the shipped skills
+(52 s) and the bare CLI (49 s); terra and sol are unchanged by it.
+
+**Improvement candidate:** Ship `aspire-start` alongside the router's removal (a
+skill-design rule: every job a router fronted needs an owner skill). For the product,
+a start command that blocks until resources are ready and prints their endpoints
+would remove the `wait` and `describe` steps that every Aspire trial ran.
+
+**Limits / status:** 3 trials per cell (smallest attainable p = 0.10); one
+application; measured, not upstreamed.
 
 ## Recording future findings
 

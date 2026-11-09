@@ -1,11 +1,10 @@
 # Results: does Aspire help an agent fix a misbehaving app?
 
-Status as of 2026-11-09. Rounds 1, 2 and 5 are complete: **229 model trials** (223
-graded, 6 infrastructure failures), all on the requested model, all on the pinned
-agent, none touching grader paths. Rounds 3 and 4 (CLI output patch, cold start, extra
-sol replicates; 111 trials) were submitted and still queued for cloud image builds when
-this was written. Sections that depend on them
-say so. `tools/await-rounds.sh r3 r4 r5` rebuilds every table when they finish.
+Status as of 2026-11-09, all rounds complete: **354 model trials** (348 graded, 6
+infrastructure failures) over three scenarios, sixteen arms and three models, all on
+the requested model, all on the pinned agent, none touching grader paths. Rounds 3
+and 4 sat unstarted in the cloud scheduler for over two hours; they were cancelled and
+resubmitted unchanged as rounds `r3b` and `r4b` (see Integrity).
 
 Full tables: [results/comparison.md](results/comparison.md). Significance tests:
 [results/stats.md](results/stats.md). Per-trial rows with run IDs, URLs and artifact
@@ -15,27 +14,39 @@ hashes: [results/trials.jsonl](results/trials.jsonl).
 
 1. **With the skills and MCP server that ship today, an aspirified app is slower and
    more expensive for an agent to diagnose than the same app without Aspire.** This
-   holds on all three models and is statistically significant on luna and terra
-   (p ≤ 0.004 for time, tokens and cost in every cell). On luna it also lowers the
-   success rate.
+   holds on all three models: tokens and cost are higher with p ≤ 0.004 in every
+   cell, time with p ≤ 0.004 on luna and terra and p = 0.03 on sol `slow-sql` (sol
+   `read-only`: +3%, not significant). On luna it also lowers the success rate.
 2. **A focused skill set removes that penalty.** With one new skill, the router
-   removed and one description narrowed, the aspirified app is 29% to 66% faster and
-   uses 55% to 81% fewer input tokens than with the shipped skills + MCP
-   (p ≤ 0.004 in every luna and terra cell).
+   removed and one description narrowed, the aspirified app is 11% to 67% faster and
+   uses 35% to 83% fewer input tokens than with the shipped skills + MCP
+   (p ≤ 0.004 in every luna and terra cell and on sol `slow-sql`).
 3. **Against the raw app, the improved Aspire setup wins on the cheapest model and
    reaches parity on the stronger ones.** On luna, `slow-sql`: −34% time, −48% input
    tokens, −39% cost (p = 0.04, 0.01, 0.01; 9 vs 12). On luna, `read-only`: −16%,
-   −25%, −20%, not significant (p = 0.11, 0.19, 0.08; 12 vs 9). On terra and sol:
-   parity, and 13% slower on terra `slow-sql`. These two faults leave evidence in the
-   raw app's log file too, and the stronger models read it about as fast as they read
-   traces.
+   −25%, −20%, not significant (p = 0.11, 0.19, 0.08; 12 vs 9). On terra and sol
+   (6 vs 6): time within −8% to +13%, with 17% to 31% more input tokens in three of
+   four cells. These two faults leave evidence in the raw app's log file too, and the
+   stronger models read it about as fast as they read traces.
 4. **MCP output size is a product problem, not a skill problem.** Every `list_traces`,
    `list_structured_logs` and `list_console_logs` call returns about 32 KB. A patch
-   that returns trace summaries cut agent time by 6% to 36% in all eight measured cells.
+   that returns trace summaries cut agent time by 6% to 36% in all eight measured
+   cells. With that patch, lean skills + MCP is faster than the same arm on the shipped
+   tool shape in all four luna and terra cells (−12% to −32%) and at or below the raw
+   app in five of six cells, and the agent switches to MCP as its main route.
+5. **CLI table borders and dashboard links are bytes, not time.** Dropping them when
+   output is redirected cuts what the lean agent reads from tools by 21% to 59%, but
+   agent time moves only −12% to +1% and tokens −23% to +2% (3 trials per arm, none
+   significant). Worth shipping for the context it saves; not a speed-up by itself.
+6. **Cold start is where Aspire costs time, and no skill recovers it.** Every Aspire
+   arm brings the app up 19% to 63% slower than the raw app's one start script, with
+   the bare CLI as fast as any skill set. The new `aspire-start` skill is selected
+   9 of 9 and removes a regression that removing the router caused on luna
+   (82 s → 51 s), which makes it a required part of the proposed set rather than a win.
 
 ## Product comparison: raw app vs aspirified app
 
-Medians; n per cell is 6 (luna `raw`/`aspire-lean`: 9 to 12, sol: 3 to 5). Percentages
+Medians; n per cell is 6 (luna `raw`/`aspire-lean`: 9 to 12). Percentages
 are against `raw`. Infrastructure failures (6, all luna round 5: five `403 Forbidden`
 model calls, one agent-package download reset) are excluded from every cell.
 
@@ -45,18 +56,18 @@ model calls, one agent-package download reset) are excluded from every cell.
 | `read-only` / luna | 105 s · 444k tok · $0.013 · 9/9 | 254 s (+141%) · 1.52M tok (+242%) · $0.033 · **2/6** | 89 s (−16%) · 335k tok (−25%) · $0.011 · 12/12 |
 | `slow-sql` / terra | 54 s · 164k tok · $0.054 · 6/6 | 87 s (+59%) · 556k tok (+239%) · $0.100 · 6/6 | 61 s (+13%) · 215k tok (+31%) · $0.056 · 6/6 |
 | `read-only` / terra | 56 s · 200k tok · $0.060 · 6/6 | 72 s (+28%) · 449k tok (+125%) · $0.088 · 6/6 | 52 s (−8%) · 202k tok (+1%) · $0.051 · 6/6 |
-| `slow-sql` / sol | 64 s · 168k tok · $0.103 · 3/3 | 73 s (+14%) · 385k tok (+129%) · $0.160 · 3/3 | 60 s (−5%) · 190k tok (+13%) · $0.096 · 3/3 |
-| `read-only` / sol | 54 s · 179k tok · $0.115 · 3/3 | 61 s (+14%) · 328k tok (+84%) · $0.147 · 3/3 | 57 s (+6%) · 236k tok (+32%) · $0.130 · 5/5 |
+| `slow-sql` / sol | 63 s · 163k tok · $0.104 · 6/6 | 72 s (+15%) · 362k tok (+122%) · $0.149 · 6/6 | 60 s (−6%) · 191k tok (+17%) · $0.099 · 6/6 |
+| `read-only` / sol | 61 s · 180k tok · $0.119 · 6/6 | 63 s (+3%) · 345k tok (+92%) · $0.151 · 6/6 | 56 s (−8%) · 225k tok (+25%) · $0.125 · 6/6 |
 
 What is and is not established:
 
 | Comparison | Result |
 |---|---|
-| Shipped skills + MCP vs raw | Worse on time, tokens and cost in all six cells. p ≤ 0.004 in the four luna and terra cells. |
-| Proposed vs shipped skills + MCP | Better in all six cells. p ≤ 0.004 in the four luna and terra cells. |
+| Shipped skills + MCP vs raw | Worse on time, tokens and cost in all six cells. Tokens and cost: p ≤ 0.004 in all six. Time: p ≤ 0.004 on luna and terra, p = 0.03 on sol `slow-sql`, not significant on sol `read-only` (+3%). |
+| Proposed vs shipped skills + MCP | Better on time, tokens and cost in all six cells. p ≤ 0.004 on luna, terra and sol `slow-sql`. Sol `read-only`: −11% / −35% / −17%, p = 0.49 / 0.09 / 0.07. |
 | Proposed vs raw, luna | `slow-sql`: −34% time, −48% tokens, −39% cost, p = 0.04 / 0.01 / 0.01 (9 vs 12). `read-only`: −16% / −25% / −20%, p = 0.11 / 0.19 / 0.08 (12 vs 9). |
 | Proposed vs raw, terra | `slow-sql`: 13% slower (7 s) and 31% more tokens, p = 0.02. `read-only`: no difference. |
-| Proposed vs raw, sol | No detectable difference at 3 trials per arm. |
+| Proposed vs raw, sol | Time −6% / −8%, not significant. Tokens +17% (p = 0.04) / +25% (p = 0.07). 6 vs 6. |
 
 ### Success rate
 
@@ -167,33 +178,101 @@ table borders and per-row dashboard links when output is not a terminal.
 | `aspire otel traces -n 15 --search "duration:>500"` | 6,863 bytes | 1,561 bytes (−77%) |
 | `aspire otel spans -n 20` | 3,327 bytes | 1,399 bytes (−58%) |
 
-Agent-level effect (`aspire-lean-plain` vs `aspire-lean-src`, and all changes together
-in `aspire-lean-mcp-all`): **round 3, queued.** See `results/comparison.md` once
-`tools/await-rounds.sh` has run.
+Agent-level effect, `aspire-lean-plain` against the `aspire-lean-src` control (same
+source-built CLI without the patch; 3 trials per arm, 4 for the terra `slow-sql`
+control). "Read" is the characters returned to the model by all tool calls in a trial.
+
+| Scenario / model | Read by the agent | Agent time | Input tokens | Cost |
+|---|---|---|---|---|
+| `slow-sql` / luna | 154k → 107k (−31%) | 95 s → 84 s (−12%) | 302k → 271k (−10%) | −9% |
+| `slow-sql` / terra | 104k → 42k (−59%) | 61 s → 62 s (+1%) | 199k → 174k (−12%) | −12% |
+| `slow-sql` / sol | 110k → 76k (−31%) | 59 s → 59 s (−1%) | 192k → 185k (−4%) | −3% |
+| `read-only` / luna | 135k → 100k (−26%) | 94 s → 86 s (−9%) | 400k → 383k (−4%) | +9% |
+| `read-only` / terra | 88k → 68k (−23%) | 62 s → 61 s (−2%) | 270k → 275k (+2%) | +1% |
+| `read-only` / sol | 139k → 109k (−21%) | 58 s → 55 s (−5%) | 255k → 197k (−23%) | −19% |
+
+The agent reads a quarter to a half less, and the direction is consistent (time at or
+below the control in five of six cells, tokens in five of six), but the effect is small
+and no cell is significant at three trials. The lean skill already keeps every CLI call
+bounded, so borders and links are a minor share of what a trial spends; most input
+tokens are the conversation prefix re-sent on each model call, which this patch does
+not shrink. It is worth shipping for the context it frees, not as a speed-up.
+
+**All product changes together.** `aspire-lean-mcp-all` (lean skills, MCP, both
+patches) against `aspire-lean-mcp-src` (lean skills, MCP, unpatched source build):
+
+| Scenario / model | Agent time | Input tokens | MCP calls → CLI calls (median) |
+|---|---|---|---|
+| `slow-sql` / luna | 140 s → 95 s (−32%) | 453k → 287k (−37%) | 3 → 1 MCP, 7 → 7 CLI |
+| `slow-sql` / terra | 70 s → 62 s (−12%) | 226k → 219k (−3%) | 2 → 5 MCP, 4 → 1 CLI |
+| `read-only` / luna | 123 s → 89 s (−28%) | 563k → 487k (−14%) | 10 → 10 MCP, 6 → 1 CLI |
+| `read-only` / terra | 61 s → 48 s (−22%, p = 0.06) | 341k → 291k (−15%) | 3 → 8.5 MCP, 7 → 1 CLI |
+
+Faster in all four cells. With compact telemetry the agent makes MCP its main route
+(one CLI call per trial, typically `aspire describe`), which it did not do with the
+shipped tool shape. Against the raw app this arm is −28% / −16% (luna), +13% / −15%
+(terra) and −10% / −33% (sol) on time for `slow-sql` / `read-only`: at or below raw in
+five of six cells, 3 trials per cell, p between 0.05 and 0.5.
 
 ## Cold start
 
 Scenario `cold-start`: nothing is running; the agent must bring the app up. Arms:
 `raw`, `aspire-cli`, `aspire-skills`, `aspire-lean`, and `aspire-lean-start` (adds the
 new [`aspire-start`](common/skills/start/aspire-start/SKILL.md) skill). Both local
-reference starts pass the verifier (raw 8 s, Aspire 14 s with warm caches).
-**Round 4, queued.**
+reference starts pass the verifier (raw 8 s, Aspire 14 s with warm caches). Medians
+over 3 trials per cell; all 45 trials passed.
+
+| Model | `raw` | `aspire-cli` | `aspire-skills` | `aspire-lean` | `aspire-lean-start` |
+|---|---|---|---|---|---|
+| luna | 41 s · 64k tok | 49 s (+19%) · 72k | 52 s (+25%) · 126k | **82 s (+100%) · 249k** | 51 s (+23%) · 116k |
+| terra | 33 s · 35k tok | 51 s (+54%) · 75k | 53 s (+58%) · 83k | 51 s (+53%) · 122k | 54 s (+63%) · 116k |
+| sol | 40 s · 62k tok | 50 s (+24%) · 70k | 50 s (+26%) · 121k | 56 s (+39%) · 120k | 54 s (+35%) · 114k |
+
+- **Aspire costs time on a cold start, whatever the skills.** The raw agent runs the
+  app's start script and one or two `curl`s (2 to 3 shell calls). Every Aspire agent
+  runs `aspire start`, waits with `aspire wait` for both endpoints, then needs
+  `aspire describe` to learn the URLs before it can verify (4 to 8 shell calls), and
+  the start itself is slower (14 s against 8 s locally). The CLI with no skills is as
+  fast as any skill set; skills add 10 to 30 KB of reading and no step the CLI arm did
+  not already find.
+- **Removing the router left "start the app" without an owner, and luna paid for it.**
+  In `aspire-lean`, luna loaded `aspire-orchestration` in 3 of 3 trials and then
+  followed its references (`detection.md` 13 KB, `app-commands.md` 16 KB) and a
+  `git status` / `git worktree list` / `aspire ps` detection sequence before starting
+  anything: 82 s and 249k tokens, twice the raw app. With the shipped set luna loaded
+  the same skill but did not read the references (52 s). Terra and sol were unaffected.
+- **`aspire-start` repairs that and nothing more.** Selected in 9 of 9 trials; on luna
+  51 s (−38%) and 116k tokens (−54%) against `aspire-lean`, back level with the shipped
+  skills (−2%) and the bare CLI; on terra and sol within noise of every Aspire arm. It
+  is a required companion of the router's removal, not a speed-up over what ships.
+- The remaining gap to the raw app is in the product, not the skills: a start command
+  that blocks until the resources are ready and prints their endpoints would remove
+  the `wait` and `describe` steps that every Aspire trial ran.
 
 ## Integrity
 
 - Models: every graded trial's `model.call_start` events name only the requested model
-  (109 luna, 90 terra, 24 sol). Copilot CLI `1.0.99-0` in all 223.
+  (142 luna, 125 terra, 81 sol). Copilot CLI `1.0.99-0` in all 348.
 - Six luna trials in round 5 ended in a runner exception before grading (five
   `X_403_MODEL_CALL_FAILURE` from the model service, one agent-package download reset).
   They are in `trials.jsonl` with `infrastructure_failure: true` and in no other number.
+- Rounds 3 and 4 (111 runs) were accepted by the cloud scheduler but had not started
+  after two hours. All of them were cancelled; two had already produced a trial and
+  those are included (hence 4 trials in `aspire-lean-src` / `slow-sql` / terra and
+  `aspire-lean-mcp-all` / `read-only` / terra). The same cells were resubmitted
+  unchanged as rounds `r3b` (78 runs) and `r4b` (45 runs) and ran at once. Cancelled
+  entries stay in `ledger.jsonl` with `cancelled: true` and are never fetched.
 - No tool call in any trial referenced `/opt/benchmark`, the solution, the tests or
   the verifier logs.
 - Before any model ran, each fault was validated on both app kinds: the verifier fails
-  on the broken state and passes after the reference repair, locally and in the cloud
-  (6 remote no-model gates completed, all reward 1; 3 more queued with rounds 3 and 4).
+  on the broken state and passes after the reference repair, locally and in the cloud.
+  Six remote no-model gates completed with reward 1. The three gates submitted with
+  rounds 3 and 4 (`aspire-lean-plain` / `slow-sql`, `raw` and `aspire-lean-start` /
+  `cold-start`) ended without producing a result and were resubmitted at 22:17 UTC;
+  those cells had passed the local fail/repair/pass gate before the model runs.
 - No graded trial was discarded. `aspire-lean-mcp` / `slow-sql` / luna has 4 trials
   because the pipeline probe ran the identical cell and is included.
-- Runner-reported model cost for the 223 graded trials: USD 11.56.
+- Runner-reported model cost for the 348 graded trials: USD 19.45.
 
 ## Limits
 
@@ -205,6 +284,9 @@ reference starts pass the verifier (raw 8 s, Aspire 14 s with warm caches).
   product comparison therefore combines instrumentation with tooling.
 - The source-built CLI arms are managed builds, not NativeAOT like the daily. They are
   only ever compared with each other.
+- The patch arms, the all-changes arm and every cold-start cell have 3 trials per arm,
+  where the smallest attainable p is 0.10. Those sections report direction and
+  magnitude, not significance.
 - The `read-only` verifier separates "root cause removed" from "application works"
   from round 2 on. Round-1 failures were classified from their failure text.
 - Fresh single-turn conversations only. One agent harness (Copilot CLI).
