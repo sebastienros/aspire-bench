@@ -1,4 +1,7 @@
 ARG APP_KIND=aspire
+# official: the pinned daily CLI only. source: additionally build the CLI from source at
+# the same commit (optionally with a patch from common/aspire-patches) and put it on PATH.
+ARG CLI_KIND=official
 FROM node:24.14.0-bookworm-slim AS node
 FROM docker:28.0.4-dind AS docker
 
@@ -37,6 +40,35 @@ ENV DOTNET_CLI_TELEMETRY_OPTOUT=1 \
     Parameters__admin_password=Benchmark1!
 WORKDIR /app
 
+# ---- Optional Aspire CLI built from source at the daily build's commit.
+# CLI_PATCH=control builds the unmodified commit, so a patched arm is compared with a
+# build that differs only by the patch (both are managed, not NativeAOT like the daily).
+FROM mcr.microsoft.com/dotnet/sdk:10.0.100-noble AS cli-source
+ARG ASPIRE_COMMIT=4954c76a62bd091e0edbb02854c0dc2be06e64f5
+ARG ASPIRE_SDK=11.0.100-rc.2.26504.105
+ARG CLI_PATCH=control
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates curl git \
+    && rm -rf /var/lib/apt/lists/* \
+    && curl --fail --silent --show-error --location --retry 5 https://dot.net/v1/dotnet-install.sh -o /tmp/dotnet-install.sh \
+    && bash /tmp/dotnet-install.sh --version "$ASPIRE_SDK" --install-dir /usr/share/dotnet \
+    && git init -q /src && cd /src \
+    && git remote add origin https://github.com/microsoft/aspire.git \
+    && git fetch -q --depth 1 origin "$ASPIRE_COMMIT" && git checkout -q FETCH_HEAD
+RUN --mount=type=bind,from=suite,source=aspire-patches,target=/patches \
+    set -eu; cd /src; \
+    if [ "$CLI_PATCH" != "control" ]; then git apply "/patches/$CLI_PATCH.patch"; fi; \
+    rid="linux-$(dpkg --print-architecture | sed 's/amd64/x64/')"; \
+    dotnet publish src/Aspire.Cli/Aspire.Cli.csproj -c Release -r "$rid" --self-contained \
+        -p:PublishAot=false -p:PublishSingleFile=true \
+        -p:VersionSuffix="agentic.$(printf %s "$CLI_PATCH" | tr -cd 'a-z0-9')" \
+        -p:SourceRevisionId="$ASPIRE_COMMIT" -p:IncludeSourceRevisionInInformationalVersion=true \
+        -p:EnableSourceControlManagerQueries=false -o /out --nologo -v q
+
+FROM base AS cli-official
+RUN mkdir /out
+
+FROM cli-${CLI_KIND} AS cli
+
 # ---- Standard (non-Aspire) application: Compose dependencies + lifecycle scripts.
 FROM base AS app-raw
 COPY --from=raw-app / /app/
@@ -65,6 +97,13 @@ RUN set -eu; arch="$(dpkg --print-architecture)"; \
     aspire --version | tee /etc/aspire-version
 ENV ASPIRE_CLI_TELEMETRY_OPTOUT=1 \
     ASPIRE_CLI_GENERATE_HTTPS_CERTIFICATE=false
+# A source-built CLI replaces the one on PATH (agent, MCP server, harness). The official
+# daily stays at /usr/local/aspire/aspire: it carries the bundle and starts the AppHost.
+COPY --from=cli /out/ /usr/local/aspire-source/
+RUN if [ -x /usr/local/aspire-source/aspire ]; then \
+        ln -sf /usr/local/aspire-source/aspire /usr/local/bin/aspire \
+        && aspire --version | tee /etc/aspire-version; \
+    fi
 COPY --from=aspire-app / /app/
 COPY --from=suite aspire-overlay/ /app/
 RUN rm -rf /app/.github \
