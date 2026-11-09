@@ -1,0 +1,5 @@
+TOOLS 15, schema bytes 10624
+=== list_traces {} -> 8988 chars
+=== list_traces {"search":"duration:>500","limit":5} -> 2854 chars
+=== list_structured_logs {} -> 14455 chars
+=== list_resources {} -> 10321 chars

@@ -20,11 +20,12 @@ def status(run_id):
     out = subprocess.run(["msbench-cli", "status", "--run_id", run_id, "--backend", "ces-staging",
                           "--format", "json"], env=ENV, capture_output=True, text=True, timeout=300).stdout
     start = out.find("{")
-    return json.loads(out[start:]) if start >= 0 else {}
+    # The CLI may print more than one JSON document; the first is this run's status.
+    return json.JSONDecoder().raw_decode(out[start:])[0] if start >= 0 else {}
 
 
 def main():
-    args = sys.argv[1:]
+    args = [arg for arg in sys.argv[1:] if arg != "--quiet"]
     if args[:1] == ["--round"]:
         ledger = [json.loads(line) for line in (SUITE / "results/ledger.jsonl").read_text().splitlines() if line.strip()]
         runs = [entry["run_id"] for entry in ledger if entry["round"] == args[1]]
@@ -43,6 +44,9 @@ def main():
                 pending.discard(run_id)
         if pending:
             time.sleep(45)
+    if "--quiet" in sys.argv:
+        print(f"{len(final)} finished, {len(pending)} still running")
+        return
     for run_id in runs:
         state = final.get(run_id)
         print(run_id, "completed=%s failed=%s" % (state.get("completed"), state.get("failed")) if state else "STILL RUNNING")

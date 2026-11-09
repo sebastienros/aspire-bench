@@ -49,6 +49,11 @@ export const arms = {
     "aspire-plus": { kind: "aspire", skills: "plus", mcp: false },
     "aspire-lean": { kind: "aspire", skills: "lean", mcp: false },
     "aspire-lean-mcp": { kind: "aspire", skills: "lean", mcp: true },
+    // Source-built CLI at the same commit: unpatched control versus the MCP output patch.
+    "aspire-mcp-src": { kind: "aspire", skills: "none", mcp: true, cli: "control" },
+    "aspire-mcp-compact": { kind: "aspire", skills: "none", mcp: true, cli: "mcp-compact-telemetry" },
+    "aspire-lean-mcp-src": { kind: "aspire", skills: "lean", mcp: true, cli: "control" },
+    "aspire-lean-mcp-compact": { kind: "aspire", skills: "lean", mcp: true, cli: "mcp-compact-telemetry" },
 };
 
 const args = Object.fromEntries(process.argv.slice(3).reduce((pairs, value, index, all) =>
@@ -89,7 +94,7 @@ args = ["agent", "mcp", "--non-interactive", "--nologo"]
 ` : ""}`;
 }
 
-function compose(scenario, { kind, skills }, suiteSha) {
+function compose(scenario, { kind, skills, cli }, suiteSha) {
     const git = (sha, path) => `${repo}.git#${sha}:${path}`;
     return `services:
   main:
@@ -98,7 +103,9 @@ function compose(scenario, { kind, skills }, suiteSha) {
       args:
         APP_KIND: ${kind}
         SKILLS: ${skills}
-        FAULT: ${scenario}
+        FAULT: ${scenario}${cli ? `
+        CLI_KIND: source
+        CLI_PATCH: ${cli}` : ""}
       additional_contexts:
         suite: \${TELEMETRY_SUITE_CONTEXT:-${git(suiteSha, "msbench/telemetry/common")}}
         raw-app: \${TELEMETRY_RAW_APP_CONTEXT:-${git(appSha, "msbench/bingo/common/raw-app")}}

@@ -24,7 +24,7 @@ if [[ "$model" == oracle ]]; then
     mode=(--config fix_validation --workers 1 --tag kind=validation-no-model)
 else
     mode=(--agent "$agent_package" --model "$model" --env USE_COPILOT_CLI_VERSION
-        --workers "$repeat" --repeat "$repeat" --parallel_repeats --tag kind=model)
+        --workers 1 --repeat "$repeat" --parallel_repeats --tag kind=model)
 fi
 cd "$repo"
 msbench-cli run "${common[@]}" "${mode[@]}" >"$log" 2>&1 || { tail -30 "$log" >&2; exit 1; }

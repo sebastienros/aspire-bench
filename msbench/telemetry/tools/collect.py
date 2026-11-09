@@ -26,6 +26,14 @@ SUITE = Path(__file__).resolve().parent.parent
 DATA = Path(os.environ.get("TELEMETRY_DATA_DIR", Path.home() / ".aspire-bench/telemetry-runs"))
 VENV = Path.home() / "Library/Application Support/pipx/venvs/msbench-cli/bin"
 PROTECTED = re.compile(r"/opt/benchmark|/solution\b|/tests/test\.sh|/logs/verifier")
+# Phase markers. "seen": the first tool result that puts the root cause on screen.
+# "fix": the first command that changes the system toward a repair.
+PHASES = {
+    "slow-sql": (re.compile(r"square_audit"),
+                 re.compile(r"CREATE\s+(UNIQUE\s+)?INDEX|DROP\s+TRIGGER|DISABLE\s+TRIGGER|CREATE\s+OR\s+REPLACE\s+FUNCTION|ALTER\s+TABLE", re.I)),
+    "read-only": (re.compile(r"read-only transaction|25006|default_transaction_read_only", re.I),
+                  re.compile(r"RESET\s+default_transaction_read_only|default_transaction_read_only\s*(=|TO)\s*'?(off|false)", re.I)),
+}
 ASPIRE_COMMAND = re.compile(
     r"\baspire\s+(otel\s+(?:traces|spans|logs)|describe|logs|resource|export|ps|wait|start|stop|run|docs|doctor|mcp|agent)\b")
 
@@ -120,6 +128,25 @@ def analyze_trial(result_path, entry):
             aspire.update(re.sub(r"\s+", " ", m) for m in ASPIRE_COMMAND.findall(text))
     row["aspire_cli"] = dict(aspire)
     row["protected_path_access"] = protected
+    # Phase timing, relative to the first trajectory event.
+    def stamp(event):
+        value = event.get("timestamp")
+        return parse_time(value) if value else None
+    started = next((stamp(e) for e in events if stamp(e)), None)
+    seen_pattern, fix_pattern = PHASES.get(entry["scenario"], (None, None))
+    if started and seen_pattern:
+        for event in events:
+            if event.get("type") == "tool.execution_complete" and seen_pattern.search(json.dumps(event["data"].get("result", ""))):
+                row["seconds_to_root_cause_seen"] = round((stamp(event) - started).total_seconds(), 1)
+                break
+        for event in events:
+            if event.get("type") == "tool.execution_start" and fix_pattern.search(json.dumps(event["data"].get("arguments", ""))):
+                row["seconds_to_first_fix"] = round((stamp(event) - started).total_seconds(), 1)
+                break
+        seen_index = next((i for i, e in enumerate(events) if e.get("type") == "tool.execution_complete"
+                           and seen_pattern.search(json.dumps(e["data"].get("result", "")))), None)
+        if seen_index is not None:
+            row["tool_calls_to_root_cause_seen"] = sum(e.get("type") == "tool.execution_start" for e in events[:seen_index])
     # Bytes returned to the model by tools: the context the agent had to read.
     row["tool_result_chars"] = sum(len(json.dumps(e["data"].get("result", "")))
                                    for e in events if e.get("type") == "tool.execution_complete")
@@ -141,8 +168,8 @@ def summarize(rows):
              "trials in a cell, including failures; a failed trial keeps its real time and tokens.", ""]
     for scenario, model in sorted({(s, m) for s, m, _ in cells}):
         lines += [f"## {scenario} / {model}", "",
-                  "| Arm | Pass | Agent s | Input tok | Output tok | Cost USD | Tools | Model calls | Skills loaded | MCP calls | Tool output chars |",
-                  "|---|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|"]
+                  "| Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |",
+                  "|---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|"]
         for (s, m, arm), trials in sorted(cells.items()):
             if (s, m) != (scenario, model):
                 continue
@@ -150,14 +177,15 @@ def summarize(rows):
             passed = sum(1 for t in trials if t.get("reward") == 1)
             skills = collections.Counter(skill for t in trials for skill in set(t.get("skills_loaded") or []))
             fmt = lambda v, spec: "-" if v is None else format(v, spec)
-            lines.append("| {} | {}/{} | {} | {} | {} | {} | {} | {} | {} | {} | {} |".format(
+            lines.append("| {} | {}/{} | {} | {} | {} | {} | {} | {} | {} | {} | {} | {} |".format(
                 arm, passed, len(trials),
                 fmt(median([t.get("agent_seconds") for t in valid]), ".0f"),
+                fmt(median([t.get("seconds_to_root_cause_seen") for t in valid]), ".0f"),
+                fmt(median([t.get("seconds_to_first_fix") for t in valid]), ".0f"),
                 fmt(median([t.get("input_tokens") for t in valid]), ",.0f"),
                 fmt(median([t.get("output_tokens") for t in valid]), ",.0f"),
                 fmt(median([t.get("cost_usd") for t in valid]), ".3f"),
                 fmt(median([t.get("tool_calls") for t in valid]), ".0f"),
-                fmt(median([t.get("model_calls") for t in valid]), ".0f"),
                 ", ".join(f"{k}x{v}" for k, v in sorted(skills.items())) or "-",
                 fmt(median([sum((t.get("mcp_calls") or {}).values()) for t in valid]), ".0f"),
                 fmt(median([t.get("tool_result_chars") for t in valid]), ",.0f")))

@@ -14,7 +14,7 @@ build() {
         --build-context "suite=$suite/common" \
         --build-context "aspire-app=$msbench/bingo/common/aspire-app" \
         --build-context "raw-app=$msbench/bingo/common/raw-app" \
-        --build-arg "APP_KIND=$kind" --build-arg "SKILLS=$skills" --build-arg "FAULT=$fault" \
+        --build-arg "APP_KIND=$kind" --build-arg "SKILLS=$skills" --build-arg "FAULT=$fault" ${CLI_PATCH:+--build-arg CLI_KIND=source --build-arg "CLI_PATCH=$CLI_PATCH"} \
         -t "telemetry-$kind-$skills-$fault:dev" "$empty" >/dev/null
     rmdir "$empty"
 }
