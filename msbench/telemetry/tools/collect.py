@@ -196,6 +196,57 @@ def summarize(rows):
     return "\n".join(lines)
 
 
+def functional_pass(trial):
+    """True when the application worked again, whether or not the cause itself was removed."""
+    if trial.get("reward") == 1:
+        return True
+    details = trial.get("verifier_details") or {}
+    checks = details.get("checks")
+    if checks is not None:
+        return bool(checks.get("functional"))
+    # Round 1 verifier stopped at the first failed assertion: a failure that is only the
+    # root-cause assertion means the fresh write had already succeeded.
+    return (details.get("failure") or "").startswith("The read-only default")
+
+
+ARM_ORDER = ["raw", "aspire-cli", "aspire-skills", "aspire-mcp", "aspire-skills-mcp", "aspire-plus",
+             "aspire-lean", "aspire-lean-mcp", "aspire-mcp-src", "aspire-mcp-compact", "aspire-lean-mcp-src",
+             "aspire-lean-mcp-compact", "aspire-lean-src", "aspire-lean-plain", "aspire-lean-mcp-all"]
+
+
+def compare(rows):
+    """Per scenario and model: every arm pooled over rounds, with deltas against the raw app."""
+    cells = collections.defaultdict(list)
+    for row in rows:
+        if row["model_requested"] != "oracle" and row.get("agent_seconds") is not None:
+            cells[(row["scenario"], row["model_requested"], row["arm"])].append(row)
+    lines = ["# Raw app versus aspirified app", "",
+             "All trials of every round are pooled per cell. `Pass` requires the root cause to be removed;",
+             "`App works` only requires the application to work again. Medians include failed trials.",
+             "Percentages compare the arm's median with the `raw` median of the same scenario and model.", ""]
+    pct = lambda value, base: "" if not base or value is None else f" ({(value - base) / base:+.0%})"
+    for scenario, model in sorted({(s, m) for s, m, _ in cells}):
+        base = cells.get((scenario, model, "raw"), [])
+        base_s, base_t, base_c = (median([t.get(k) for t in base]) for k in ("agent_seconds", "input_tokens", "cost_usd"))
+        lines += [f"## {scenario} / {model}", "",
+                  "| Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s |",
+                  "|---|---:|---:|---:|---:|---:|---:|---:|---:|"]
+        arms = sorted({a for s, m, a in cells if (s, m) == (scenario, model)},
+                      key=lambda a: ARM_ORDER.index(a) if a in ARM_ORDER else 99)
+        for arm in arms:
+            trials = cells[(scenario, model, arm)]
+            seconds, tokens, cost = (median([t.get(k) for t in trials]) for k in ("agent_seconds", "input_tokens", "cost_usd"))
+            lines.append("| {} | {} | {}/{} | {}/{} | {:.0f}{} | {:,.0f}{} | {:.3f}{} | {:.0f} | {} |".format(
+                arm, len(trials), sum(t.get("reward") == 1 for t in trials), len(trials),
+                sum(functional_pass(t) for t in trials), len(trials),
+                seconds, pct(seconds, base_s), tokens or 0, pct(tokens, base_t), cost or 0, pct(cost, base_c),
+                median([t.get("tool_calls") for t in trials]) or 0,
+                "-" if median([t.get("seconds_to_root_cause_seen") for t in trials]) is None
+                else format(median([t.get("seconds_to_root_cause_seen") for t in trials]), ".0f")))
+        lines.append("")
+    return "\n".join(lines)
+
+
 def main():
     ledger = [json.loads(line) for line in (SUITE / "results/ledger.jsonl").read_text().splitlines() if line.strip()]
     rows = []
@@ -208,6 +259,7 @@ def main():
         rows += [analyze_trial(path, entry) for path in trials]
     (SUITE / "results/trials.jsonl").write_text("".join(json.dumps(r, sort_keys=True) + "\n" for r in rows))
     (SUITE / "results/summary.md").write_text(summarize(rows) + "\n")
+    (SUITE / "results/comparison.md").write_text(compare(rows) + "\n")
     print(f"{len(rows)} trials from {len(ledger)} ledger entries")
 
 

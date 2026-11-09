@@ -1,0 +1,5 @@
+aspire describe: official 4244 bytes -> plain 1086 bytes
+aspire otel traces -n 15 --search "duration:>500": official 6863 bytes -> plain 1561 bytes
+aspire otel traces: official 31258 bytes -> plain 12280 bytes
+aspire otel spans -n 20: official 3327 bytes -> plain 1399 bytes
+aspire otel logs -n 20: official 3923 bytes -> plain 3923 bytes

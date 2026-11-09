@@ -8,50 +8,84 @@ trials in a cell, including failures; a failed trial keeps its real time and tok
 | Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
 | aspire-cli | 3/3 | 171 | 45 | 126 | 803,469 | 11,849 | 0.021 | 43 | - | 0 | 192,019 |
-| aspire-lean | 3/3 | 93 | 8 | 49 | 308,459 | 6,071 | 0.011 | 27 | aspire-diagnosex3 | 0 | 153,152 |
+| aspire-lean | 6/6 | 93 | 8 | 49 | 300,828 | 5,602 | 0.010 | 26 | aspire-diagnosex6 | 0 | 147,932 |
 | aspire-lean-mcp | 3/3 | 104 | 7 | 59 | 705,048 | 7,036 | 0.018 | 36 | aspire-diagnosex3 | 8 | 412,161 |
+| aspire-lean-mcp-compact | 3/3 | 111 | 9 | 72 | 557,433 | 6,232 | 0.014 | 31 | aspire-diagnosex3 | 12 | 274,789 |
+| aspire-lean-mcp-src | 3/3 | 123 | 12 | 64 | 563,172 | 7,648 | 0.016 | 34 | aspire-diagnosex3 | 10 | 376,762 |
 | aspire-mcp | 1/3 | 165 | 8 | 88 | 977,473 | 12,023 | 0.026 | 54 | - | 12 | 622,418 |
+| aspire-mcp-compact | 3/3 | 126 | 14 | 84 | 730,722 | 7,997 | 0.018 | 42 | - | 11 | 403,219 |
+| aspire-mcp-src | 3/3 | 149 | 15 | 71 | 793,313 | 8,819 | 0.019 | 40 | - | 8 | 442,267 |
 | aspire-plus | 3/3 | 167 | 25 | 99 | 799,193 | 11,838 | 0.020 | 44 | aspirex1, aspire-diagnosex1, aspire-monitoringx1 | 0 | 217,155 |
 | aspire-skills | 3/3 | 207 | 28 | 133 | 1,222,642 | 15,432 | 0.029 | 57 | aspirex1, aspire-monitoringx2, aspire-orchestrationx1 | 0 | 249,429 |
-| aspire-skills-mcp | 0/3 | 218 | 22 | 224 | 1,099,267 | 15,989 | 0.029 | 53 | aspirex3, aspire-monitoringx3, aspire-orchestrationx2 | 23 | 546,068 |
-| raw | 3/3 | 121 | 11 | 87 | 450,826 | 8,928 | 0.015 | 36 | - | 0 | 181,429 |
+| aspire-skills-mcp | 2/6 | 254 | 21 | 224 | 1,518,351 | 16,124 | 0.033 | 56 | aspirex6, aspire-monitoringx6, aspire-orchestrationx3 | 17 | 506,582 |
+| raw | 6/6 | 113 | 10 | 80 | 447,482 | 7,867 | 0.014 | 34 | - | 0 | 162,724 |
+
+## read-only / gpt-6.1-sol
+
+| Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
+| aspire-lean | 3/3 | 63 | 9 | 35 | 236,105 | 2,187 | 0.132 | 21 | aspire-diagnosex3, aspire-orchestrationx1 | 0 | 154,983 |
+| aspire-skills | 3/3 | 57 | 12 | 38 | 270,125 | 2,061 | 0.130 | 22 | aspire-monitoringx3 | 0 | 129,152 |
+| aspire-skills-mcp | 3/3 | 61 | 12 | 42 | 328,459 | 2,284 | 0.147 | 23 | aspirex1, aspire-monitoringx3 | 0 | 142,811 |
+| raw | 3/3 | 54 | 6 | 35 | 178,661 | 2,263 | 0.115 | 18 | - | 0 | 129,178 |
 
 ## read-only / gpt-6.1-terra
 
 | Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
 | aspire-cli | 3/3 | 62 | 12 | 38 | 325,448 | 2,673 | 0.069 | 24 | - | 0 | 118,656 |
-| aspire-lean | 3/3 | 51 | 10 | 37 | 192,302 | 1,869 | 0.051 | 17 | aspire-diagnosex3 | 0 | 98,480 |
+| aspire-lean | 6/6 | 52 | 10 | 35 | 202,007 | 1,864 | 0.051 | 18 | aspire-diagnosex6, aspire-orchestrationx1 | 0 | 99,312 |
 | aspire-lean-mcp | 3/3 | 54 | 8 | 28 | 274,456 | 2,015 | 0.059 | 22 | aspire-diagnosex3, aspire-orchestrationx1 | 6 | 214,070 |
+| aspire-lean-mcp-compact | 3/3 | 50 | 11 | 29 | 364,780 | 1,644 | 0.081 | 19 | aspire-diagnosex3, aspire-orchestrationx1 | 8 | 206,446 |
+| aspire-lean-mcp-src | 3/3 | 61 | 18 | 44 | 340,966 | 2,156 | 0.073 | 21 | aspire-diagnosex3 | 3 | 140,238 |
 | aspire-mcp | 3/3 | 72 | 8 | 43 | 422,811 | 2,784 | 0.083 | 30 | - | 9 | 344,635 |
+| aspire-mcp-compact | 3/3 | 58 | 9 | 37 | 378,267 | 1,965 | 0.079 | 25 | - | 10 | 297,397 |
+| aspire-mcp-src | 3/3 | 79 | 8 | 41 | 461,905 | 2,977 | 0.086 | 33 | - | 11 | 406,825 |
 | aspire-plus | 3/3 | 63 | 10 | 32 | 267,795 | 2,191 | 0.067 | 21 | aspire-diagnosex3, aspire-orchestrationx1 | 0 | 110,925 |
 | aspire-skills | 3/3 | 66 | 20 | 49 | 347,664 | 2,739 | 0.077 | 27 | aspire-monitoringx3 | 0 | 99,842 |
-| aspire-skills-mcp | 3/3 | 67 | 8 | 40 | 431,189 | 2,484 | 0.089 | 29 | aspire-monitoringx3 | 10 | 391,058 |
-| raw | 3/3 | 57 | 8 | 31 | 195,651 | 2,031 | 0.058 | 22 | - | 0 | 111,926 |
+| aspire-skills-mcp | 6/6 | 72 | 9 | 43 | 449,292 | 2,845 | 0.088 | 28 | aspire-monitoringx6 | 8 | 338,962 |
+| raw | 6/6 | 56 | 7 | 31 | 199,784 | 2,553 | 0.060 | 22 | - | 0 | 111,352 |
 
 ## slow-sql / gpt-6-luna
 
 | Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
 | aspire-cli | 3/3 | 191 | 77 | 128 | 910,384 | 13,988 | 0.023 | 57 | - | 0 | 259,310 |
-| aspire-lean | 3/3 | 80 | 26 | 50 | 245,321 | 4,102 | 0.008 | 23 | aspire-diagnosex3 | 0 | 129,285 |
+| aspire-lean | 6/6 | 90 | 28 | 53 | 276,566 | 4,884 | 0.009 | 26 | aspire-diagnosex6 | 0 | 127,170 |
 | aspire-lean-mcp | 4/4 | 141 | 28 | 77 | 624,284 | 7,935 | 0.018 | 38 | aspire-diagnosex4 | 8 | 318,236 |
+| aspire-lean-mcp-compact | 3/3 | 95 | 35 | 61 | 411,936 | 5,192 | 0.012 | 29 | aspire-diagnosex3 | 9 | 192,748 |
+| aspire-lean-mcp-src | 3/3 | 140 | 43 | 84 | 453,415 | 8,122 | 0.014 | 33 | aspire-diagnosex3 | 3 | 197,351 |
 | aspire-mcp | 3/3 | 150 | 60 | 94 | 697,755 | 9,536 | 0.020 | 41 | - | 9 | 492,089 |
+| aspire-mcp-compact | 3/3 | 117 | 53 | 77 | 409,494 | 6,154 | 0.013 | 27 | - | 7 | 249,880 |
+| aspire-mcp-src | 3/3 | 182 | 72 | 112 | 1,069,738 | 10,321 | 0.023 | 54 | - | 12 | 473,001 |
 | aspire-plus | 3/3 | 133 | 34 | 74 | 390,468 | 9,489 | 0.013 | 33 | aspire-diagnosex3 | 0 | 135,859 |
 | aspire-skills | 3/3 | 178 | 58 | 95 | 758,503 | 10,644 | 0.022 | 49 | - | 0 | 222,635 |
-| aspire-skills-mcp | 3/3 | 260 | 104 | 148 | 1,449,176 | 17,425 | 0.031 | 59 | aspirex1, aspire-monitoringx3, aspire-orchestrationx1 | 11 | 577,443 |
-| raw | 3/3 | 116 | 26 | 46 | 444,174 | 7,098 | 0.014 | 34 | - | 0 | 213,166 |
+| aspire-skills-mcp | 5/5 | 260 | 104 | 148 | 1,449,176 | 17,425 | 0.031 | 59 | aspirex2, aspire-monitoringx5, aspire-orchestrationx1 | 11 | 580,025 |
+| raw | 6/6 | 129 | 25 | 62 | 463,250 | 8,378 | 0.015 | 34 | - | 0 | 185,210 |
+
+## slow-sql / gpt-6.1-sol
+
+| Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
+| aspire-lean | 3/3 | 60 | 14 | 31 | 189,745 | 1,966 | 0.096 | 16 | aspire-diagnosex3 | 0 | 109,027 |
+| aspire-skills | 3/3 | 65 | 25 | 42 | 341,050 | 2,223 | 0.146 | 24 | aspirex1, aspire-monitoringx3 | 0 | 118,605 |
+| aspire-skills-mcp | 3/3 | 73 | 29 | 47 | 384,594 | 2,414 | 0.160 | 25 | aspirex1, aspire-monitoringx3 | 0 | 142,213 |
+| raw | 3/3 | 64 | 16 | 28 | 167,867 | 1,736 | 0.103 | 18 | - | 0 | 115,304 |
 
 ## slow-sql / gpt-6.1-terra
 
 | Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
 | aspire-cli | 3/3 | 74 | 20 | 41 | 289,838 | 2,763 | 0.075 | 29 | - | 0 | 181,757 |
-| aspire-lean | 3/3 | 61 | 19 | 36 | 234,503 | 1,867 | 0.059 | 18 | aspire-diagnosex3 | 0 | 110,448 |
+| aspire-lean | 6/6 | 61 | 21 | 37 | 214,882 | 1,872 | 0.056 | 18 | aspire-diagnosex6 | 0 | 111,466 |
 | aspire-lean-mcp | 3/3 | 62 | 22 | 37 | 217,296 | 1,845 | 0.059 | 20 | aspire-diagnosex3 | 3 | 185,421 |
+| aspire-lean-mcp-compact | 3/3 | 65 | 24 | 37 | 266,192 | 1,794 | 0.067 | 19 | aspire-diagnosex3 | 6 | 210,743 |
+| aspire-lean-mcp-src | 3/3 | 70 | 25 | 43 | 225,608 | 1,890 | 0.061 | 19 | aspire-diagnosex3 | 2 | 192,581 |
 | aspire-mcp | 3/3 | 95 | 26 | 40 | 380,060 | 2,986 | 0.081 | 34 | - | 8 | 413,897 |
+| aspire-mcp-compact | 3/3 | 59 | 18 | 35 | 309,147 | 1,914 | 0.081 | 24 | - | 6 | 273,957 |
+| aspire-mcp-src | 3/3 | 90 | 29 | 40 | 393,633 | 3,049 | 0.086 | 34 | - | 8 | 376,763 |
 | aspire-plus | 3/3 | 57 | 22 | 34 | 207,700 | 1,889 | 0.054 | 18 | aspire-diagnosex3 | 0 | 99,097 |
 | aspire-skills | 3/3 | 80 | 29 | 50 | 390,899 | 2,789 | 0.087 | 33 | aspire-monitoringx3 | 0 | 193,661 |
-| aspire-skills-mcp | 3/3 | 91 | 36 | 46 | 564,345 | 2,897 | 0.103 | 37 | aspire-monitoringx3 | 10 | 469,905 |
-| raw | 3/3 | 54 | 15 | 27 | 168,278 | 1,833 | 0.056 | 20 | - | 0 | 112,464 |
+| aspire-skills-mcp | 6/6 | 87 | 35 | 46 | 556,000 | 2,867 | 0.100 | 34 | aspire-monitoringx6 | 8 | 416,946 |
+| raw | 6/6 | 54 | 15 | 27 | 164,064 | 1,850 | 0.054 | 20 | - | 0 | 103,274 |
 

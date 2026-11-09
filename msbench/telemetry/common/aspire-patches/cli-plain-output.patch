@@ -1,0 +1,48 @@
+diff --git a/src/Aspire.Cli/Commands/DescribeCommand.cs b/src/Aspire.Cli/Commands/DescribeCommand.cs
+index 2b5a265009..1c53a06fbb 100644
+--- a/src/Aspire.Cli/Commands/DescribeCommand.cs
++++ b/src/Aspire.Cli/Commands/DescribeCommand.cs
+@@ -406,7 +406,9 @@ private void DisplayResourcesTable(IReadOnlyList<ResourceSnapshot> snapshots, st
+             var healthText = ColorHealth(snapshot.HealthStatus?.EscapeMarkup() ?? "-");
+ 
+             string nameMarkup;
+-            if (!string.IsNullOrEmpty(dashboardBaseUrl))
++            // Redirected output is read by scripts and coding agents: a dashboard URL
++            // repeated on every row is noise there, so only interactive output links the name.
++            if (!string.IsNullOrEmpty(dashboardBaseUrl) && !Console.IsOutputRedirected)
+             {
+                 var resourceUrl = DashboardUrls.CombineUrl(dashboardBaseUrl, DashboardUrls.ResourcesUrl(resource: snapshot.Name));
+                 nameMarkup = MarkupHelpers.SafeLink(InteractionService, resourceUrl, displayName);
+diff --git a/src/Aspire.Cli/Commands/TelemetryCommandHelpers.cs b/src/Aspire.Cli/Commands/TelemetryCommandHelpers.cs
+index c281073278..37bfd2be80 100644
+--- a/src/Aspire.Cli/Commands/TelemetryCommandHelpers.cs
++++ b/src/Aspire.Cli/Commands/TelemetryCommandHelpers.cs
+@@ -598,7 +598,9 @@ public static void DisplayNoData(IInteractionService interactionService, string
+     public static string FormatTraceLink(IInteractionService interactionService, string? dashboardUrl, string traceId, string? displayText = null, string? spanId = null)
+     {
+         var text = displayText ?? OtlpHelpers.ToShortenedId(traceId);
+-        if (string.IsNullOrEmpty(dashboardUrl) || string.IsNullOrEmpty(traceId))
++        // Redirected output is read by scripts and coding agents: the short ID is enough to
++        // fetch the trace with `aspire otel traces --trace-id`, and a dashboard URL on every row is noise.
++        if (string.IsNullOrEmpty(dashboardUrl) || string.IsNullOrEmpty(traceId) || Console.IsOutputRedirected)
+         {
+             return text.EscapeMarkup();
+         }
+diff --git a/src/Aspire.Cli/Interaction/ConsoleInteractionService.cs b/src/Aspire.Cli/Interaction/ConsoleInteractionService.cs
+index 18892245a0..c4fd2249e5 100644
+--- a/src/Aspire.Cli/Interaction/ConsoleInteractionService.cs
++++ b/src/Aspire.Cli/Interaction/ConsoleInteractionService.cs
+@@ -721,6 +721,13 @@ public void DisplayLines(IEnumerable<(OutputLineStream Stream, string Line)> lin
+ 
+     public void DisplayRenderable(IRenderable renderable)
+     {
++        if (renderable is Table table && !_hostEnvironment.SupportsInteractiveOutput)
++        {
++            // Redirected output is read by scripts and coding agents. Box-drawing borders
++            // carry no information there and multiply the size of every row.
++            table.Border = TableBorder.None;
++        }
++
+         MessageConsole.Write(renderable);
+     }
+ 

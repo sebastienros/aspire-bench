@@ -54,6 +54,11 @@ export const arms = {
     "aspire-mcp-compact": { kind: "aspire", skills: "none", mcp: true, cli: "mcp-compact-telemetry" },
     "aspire-lean-mcp-src": { kind: "aspire", skills: "lean", mcp: true, cli: "control" },
     "aspire-lean-mcp-compact": { kind: "aspire", skills: "lean", mcp: true, cli: "mcp-compact-telemetry" },
+    // CLI output patch (plain tables, no dashboard links when redirected), no MCP.
+    "aspire-lean-src": { kind: "aspire", skills: "lean", mcp: false, cli: "control" },
+    "aspire-lean-plain": { kind: "aspire", skills: "lean", mcp: false, cli: "cli-plain-output" },
+    // Everything together: lean skills, MCP, and both patches.
+    "aspire-lean-mcp-all": { kind: "aspire", skills: "lean", mcp: true, cli: "agentic-all" },
 };
 
 const args = Object.fromEntries(process.argv.slice(3).reduce((pairs, value, index, all) =>
