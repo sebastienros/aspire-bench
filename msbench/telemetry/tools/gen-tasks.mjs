@@ -37,6 +37,15 @@ and all existing functionality, and leave the application running. README.md
 describes this workspace. No report is required.
 `,
     },
+    "cold-start": {
+        seed: 63,
+        arms: ["raw", "aspire-cli", "aspire-skills", "aspire-lean", "aspire-lean-start"],
+        instruction: `The Bingo application in /app is not running.
+
+Start it so that the player page and the admin application are both serving, and
+leave it running. README.md describes this workspace. No report is required.
+`,
+    },
 };
 
 // skills: a folder under common/skills, or "none". mcp: declare `aspire agent mcp`.
@@ -59,6 +68,8 @@ export const arms = {
     "aspire-lean-plain": { kind: "aspire", skills: "lean", mcp: false, cli: "cli-plain-output" },
     // Everything together: lean skills, MCP, and both patches.
     "aspire-lean-mcp-all": { kind: "aspire", skills: "lean", mcp: true, cli: "agentic-all" },
+    // lean + the new aspire-start skill (measured on the cold-start scenario).
+    "aspire-lean-start": { kind: "aspire", skills: "lean-start", mcp: false },
 };
 
 const args = Object.fromEntries(process.argv.slice(3).reduce((pairs, value, index, all) =>
@@ -124,6 +135,7 @@ if (process.argv[2] === "tasks") {
     rmSync(join(root, "tasks"), { recursive: true, force: true });
     for (const [scenario, definition] of Object.entries(scenarios)) {
         for (const [arm, config] of Object.entries(arms)) {
+            if (definition.arms ? !definition.arms.includes(arm) : arm === "aspire-lean-start") continue;
             const dir = join(root, "tasks", scenario, arm);
             for (const sub of ["environment", "tests", "solution"]) mkdirSync(join(dir, sub), { recursive: true });
             writeFileSync(join(dir, "task.toml"), taskToml(scenario, arm, definition, config));
@@ -143,14 +155,15 @@ node /opt/benchmark/bench.mjs solve
 `);
         }
     }
-    console.log(`Generated ${Object.keys(scenarios).length * Object.keys(arms).length} tasks pinned to suite ${suiteSha}`);
+    console.log(`Generated tasks pinned to suite ${suiteSha}`);
 } else if (process.argv[2] === "dataset") {
     const taskSha = args["task-sha"];
     if (!/^[0-9a-f]{40}$/.test(taskSha ?? "")) throw new Error("--task-sha <40-hex commit> required");
     const rows = [];
-    for (const scenario of Object.keys(scenarios)) {
+    for (const [scenario, definition] of Object.entries(scenarios)) {
         const logical = `aspire-telemetry-${scenario}`;
         for (const arm of Object.keys(arms)) {
+            if (definition.arms ? !definition.arms.includes(arm) : arm === "aspire-lean-start") continue;
             rows.push(JSON.stringify({
                 benchmark: arm === "raw" ? logical : `${logical}-${arm}`,
                 instance_id: logical,

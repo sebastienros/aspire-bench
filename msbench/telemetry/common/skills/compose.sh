@@ -4,6 +4,7 @@
 #   plus     current + the new aspire-diagnose skill (purely additive)
 #   lean     plus, without the `aspire` router, and with aspire-monitoring's trigger
 #            description narrowed so first-line diagnosis routes to aspire-diagnose
+#   lean-start  lean + the new aspire-start skill
 set -eu
 here="$(cd "$(dirname "$0")" && pwd)"
 set_name="$1"; dest="$2"
@@ -12,6 +13,9 @@ case "$set_name" in
     current) cp -R "$here/current/." "$dest/" ;;
     plus)    cp -R "$here/current/." "$dest/"; cp -R "$here/new/." "$dest/" ;;
     lean)    cp -R "$here/current/." "$dest/"; cp -R "$here/new/." "$dest/"
+             rm -rf "$dest/aspire"
+             cp -R "$here/lean-overrides/." "$dest/" ;;
+    lean-start) cp -R "$here/current/." "$dest/"; cp -R "$here/new/." "$dest/"; cp -R "$here/start/." "$dest/"
              rm -rf "$dest/aspire"
              cp -R "$here/lean-overrides/." "$dest/" ;;
     *) echo "Unknown skill set: $set_name" >&2; exit 1 ;;

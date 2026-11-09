@@ -277,8 +277,24 @@ async function verifyReadOnly(state, endpoints, details) {
     assert.equal(failures.length, 0, failures.join(" | "));
 }
 
+// cold-start: nothing is running when the agent begins. Success is a serving application:
+// both origins respond and a fresh write, call and clear round-trip through the database.
+async function verifyColdStart(endpoints, details) {
+    const id = `verify-${nonce()}`;
+    const imported = await importSquares(endpoints.admin, [square(id, "Cold start probe")]);
+    assert.equal(imported.status, 200, `Fresh import: HTTP ${imported.status}`);
+    const stored = await sql(`SELECT "Label" FROM "BingoSquares" WHERE "Id" = '${id}';`);
+    assert.equal(stored, "Cold start probe", "Fresh write must reach PostgreSQL");
+    const proxied = await http(endpoints.frontend, "/api/version-info");
+    assert.equal(proxied.status, 200, `Player proxy to admin: HTTP ${proxied.status}`);
+    await verifyFunctional(endpoints, id);
+    details.endpoints = endpoints;
+}
+
 async function verify() {
-    const state = JSON.parse(await readFile(statePath, "utf8"));
+    const state = fault === "cold-start"
+        ? { fault, kind, squares: [] }
+        : JSON.parse(await readFile(statePath, "utf8"));
     const details = { fault: state.fault, kind: state.kind, passed: false };
     try {
         await stopTraffic();
@@ -286,6 +302,7 @@ async function verify() {
         await verifyCommon(state, endpoints, details);
         if (state.fault === "slow-sql") await verifySlowSql(state, endpoints, details);
         else if (state.fault === "read-only") await verifyReadOnly(state, endpoints, details);
+        else if (state.fault === "cold-start") await verifyColdStart(endpoints, details);
         details.passed = true;
     } catch (error) {
         details.failure = error.message;
@@ -298,6 +315,10 @@ async function verify() {
 }
 
 async function solve() {
+    if (fault === "cold-start") {
+        await sh("bash", [`/opt/benchmark/bootstrap-${kind}.sh`], { timeout: 1_200_000 });
+        return;
+    }
     const state = JSON.parse(await readFile(statePath, "utf8"));
     if (state.fault === "slow-sql") {
         await sql(`CREATE INDEX IF NOT EXISTS square_audit_square_idx
