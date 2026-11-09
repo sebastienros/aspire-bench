@@ -7,6 +7,6 @@ services:
         SKILLS: current
         FAULT: read-only
       additional_contexts:
-        suite: ${TELEMETRY_SUITE_CONTEXT:-https://github.com/sebastienros/aspire-bench.git#3d5bfe010a144ffe0b99a4db26af6548ccf00d60:msbench/telemetry/common}
+        suite: ${TELEMETRY_SUITE_CONTEXT:-https://github.com/sebastienros/aspire-bench.git#911f47807fc08757c5d4c056b867f2681ff5a9af:msbench/telemetry/common}
         raw-app: ${TELEMETRY_RAW_APP_CONTEXT:-https://github.com/sebastienros/aspire-bench.git#baacba3e17181491c9a4d419db7d0e6763c3d363:msbench/bingo/common/raw-app}
         aspire-app: ${TELEMETRY_ASPIRE_APP_CONTEXT:-https://github.com/sebastienros/aspire-bench.git#baacba3e17181491c9a4d419db7d0e6763c3d363:msbench/bingo/common/aspire-app}
