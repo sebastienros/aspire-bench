@@ -109,7 +109,8 @@ COPY --from=suite aspire-overlay/ /app/
 RUN rm -rf /app/.github \
     && dotnet build src/BingoBoard.Admin/BingoBoard.Admin.csproj --nologo -v q \
     && dotnet build src/BingoBoard.MigrationService/BingoBoard.MigrationService.csproj --nologo -v q \
-    && (cd src/bingo-board && npm ci --no-audit --no-fund)
+    && (cd src/bingo-board && npm ci --no-audit --no-fund) \
+    && (aspire restore --apphost /app/apphost.cs --non-interactive --nologo || true)
 ENV BENCH_APP_KIND=aspire
 
 FROM app-${APP_KIND} AS final

@@ -1,0 +1,25 @@
+schema_version = "1.3"
+
+[metadata]
+suite = "aspire-telemetry"
+scenario = "cold-start"
+variant = "aspire-cli"
+fault_seed = 63
+
+[agent]
+timeout_sec = 900
+
+[verifier]
+timeout_sec = 300
+
+[environment]
+build_timeout_sec = 1800
+cpus = 4
+memory_mb = 8192
+storage_mb = 20480
+workdir = "/app"
+network_mode = "public"
+
+[environment.healthcheck]
+command = "test -f /opt/benchmark/ready && docker info >/dev/null"
+retries = 400
