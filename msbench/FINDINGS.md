@@ -774,6 +774,101 @@ loaded. Neither accessed protected grader paths. Both workflows selected the
 correct target; no observed correctness advantage or Aspire speed gain is
 established. [Report](bingo-isolation/PILOT.md) retains the full scope boundary.
 
+## F16: On Aspire main, the shipped skills and MCP make diagnosis slower and costlier than the raw app
+
+**Evidence:** The [telemetry suite](telemetry/README.md) runs two runtime faults
+(`slow-sql`, `read-only`) against the raw app and the aspirified app on the daily build
+`17.1.0-preview.1.26559.1+4954c76a`, with live traffic, outcome-only prompts and an
+HTTP/SQL verifier. [Results](telemetry/RESULTS.md) pool 205 trials over rounds 1 and 2.
+With the eight shipped skills and the MCP server, the aspirified app took +28% to +125%
+agent time and +125% to +239% input tokens against the raw app on luna and terra
+(p = 0.002 to 0.004 in all four cells, exact Mann-Whitney, 6 vs 6). On luna,
+`read-only`, the root cause was removed in 2 of 6 trials against 6 of 6 for raw.
+
+**Mechanisms observed:** the duration filter that solves `slow-sql` sits three hops deep
+(router, `aspire-monitoring`, its reference) and no shipped-skills trial used it (0 of
+48); luna loaded no skill at all in 4 of 6 skills-only trials; guidance favors unbounded
+output (`aspire otel traces --format Json` is 188 KB here).
+
+**Improvement candidate:** [SKILLS-PROPOSAL.md](telemetry/SKILLS-PROPOSAL.md).
+
+**Limits / status:** One application, two database-side faults, both of which also
+leave a signal in the raw app's log file. This supersedes the n=1 13.6 observations for
+these task types; it does not generalize to faults with no log signal.
+
+## F17: A focused diagnosis skill removes the penalty; removing the router makes it reliable
+
+**Evidence:** Same suite. `aspire-lean` (new 4.5 KB `aspire-diagnose`, router removed,
+`aspire-monitoring` description narrowed, no MCP) against shipped skills + MCP:
+−29% to −66% agent time and −55% to −81% input tokens, p ≤ 0.004 in all four luna and
+terra cells. `aspire-diagnose` was loaded in 32 of 32 trials on three models.
+Adding the skill next to the router (`aspire-plus`) was selected in only 4 of 6 luna
+trials and took 167 s against 93 s on `read-only`.
+
+**Against the raw app:** parity. Luna medians are 18% to 31% lower on time and 33% to
+40% lower on tokens but do not reach significance at 6 vs 6 (more trials queued).
+Terra `slow-sql` is 13% slower than raw (p = 0.02); terra `read-only` and sol show no
+difference.
+
+**Improvement candidate:** Ship `aspire-diagnose`; remove or drastically shrink the
+router; give each skill a symptom-based trigger that excludes its neighbours.
+
+**Limits / status:** Measured, not upstreamed. The router's guardrail role was not
+exercised. The dependency step of the skill names PostgreSQL and Redis only.
+
+## F18: MCP telemetry tools fill an 8k-token budget on every call
+
+**Evidence:** `SharedAIHelpers.MaximumListTokenLength = 8192`. On the live incident
+`list_traces`, `list_structured_logs` and `list_console_logs` each return 30 to 35 KB,
+with or without a `search` filter; `list_resources` returns 10 KB for 8 resources.
+[Captured sizes](telemetry/evidence/agent-surface/mcp-sizes.txt). MCP-only agents read
+about 300 KB of MCP output per trial, and the two arms with the shipped MCP server are
+the only ones that failed `read-only` on luna: they patched the application instead of
+the database.
+
+**Implemented locally:** [0001-mcp-compact-telemetry.patch](telemetry/upstream/0001-mcp-compact-telemetry.patch)
+on `sebros/agentic-telemetry-output` (base `4954c76a`): `list_traces` returns one
+summary per trace (slowest child span with its statement, first failed span) and takes
+`limit` and `traceId`; `list_structured_logs` takes `limit` and `severity`. 25 unit
+tests pass, 5 of them new. `list_traces {}` drops from 31,797 to 8,988 characters and a
+filtered call to 2,854.
+
+**Measured:** against an unpatched source-built control, agent time fell in all eight
+cells (−6% to −36%); input tokens fell 8% to 62% when MCP was the agent's main route.
+Three trials per arm: a consistent direction, not a proven effect size.
+
+**Limits / status:** Not upstreamed. The default output shape of `list_traces` changes.
+`list_resources` and `list_console_logs` are untouched and still large.
+
+## F19: Table borders and dashboard links dominate what an agent reads from the CLI
+
+**Evidence:** In `aspire-lean` trials, 57 KB of the 75 KB read from the Aspire CLI came
+from `aspire describe` and the trace list. Each row carries box-drawing borders and a
+dashboard URL; as a tool result every border character is a multi-byte escape.
+
+**Implemented locally:** [0002-cli-plain-output.patch](telemetry/upstream/0002-cli-plain-output.patch)
+on `sebros/agentic-plain-output` (13 lines): no table border and no dashboard link when
+output is redirected. `aspire describe` 4,244 → 1,086 bytes; slow-trace list
+6,863 → 1,561 bytes. Endpoint URLs are kept.
+
+**Limits / status:** Output size verified on the live app. Agent-level effect is round 3
+of the suite and was still queued when this entry was written; see
+[RESULTS.md](telemetry/RESULTS.md). The trace detail table still omits the SQL text, so
+the skill has to send agents to JSON for one trace.
+
+## F20: Phase timing separates diagnosis from repair-style variance
+
+**Evidence:** Two trials of the same arm can differ by 50 s because one model run also
+writes an EF migration for its index. The collector now records seconds until the root
+cause first appears in a tool result and until the first repair command. On luna
+`slow-sql`: raw 25 s, `aspire-lean` 28 s, shipped skills + MCP 105 s to see the cause.
+
+**Improvement candidate:** Report these phases for every diagnosis scenario and judge
+skills and tools on time-to-cause, not only total time.
+
+**Limits / status:** The markers are scenario-specific regular expressions over tool
+arguments and results.
+
 ## Recording future findings
 
 Give each finding a stable ID and include evidence links, exact observed

@@ -32,7 +32,7 @@ lower the success rate.
 
 | Scenario / model | Raw app | Shipped skills + MCP (`aspire-skills-mcp`) |
 |---|---|---|
-| `slow-sql` / luna | 129 s, 463k input tokens, 6/6 | 260 s (+101%), 1.45M tokens (+213%), 5/5 |
+| `slow-sql` / luna | 129 s, 463k input tokens, 6/6 | 262 s (+102%), 1.49M tokens (+222%), 6/6 |
 | `read-only` / luna | 113 s, 447k tokens, 6/6 | 254 s (+125%), 1.52M tokens (+239%), **2/6** (app works again in 4/6) |
 | `slow-sql` / terra | 54 s, 164k tokens, 6/6 | 87 s (+59%), 556k tokens (+239%), 6/6 |
 | `read-only` / terra | 56 s, 200k tokens, 6/6 | 72 s (+28%), 449k tokens (+125%), 6/6 |

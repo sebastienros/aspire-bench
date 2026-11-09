@@ -8,6 +8,10 @@ ordinary way?** It then measures which Aspire skills and MCP tools contribute.
 It is separate from the earlier 13.6 experiments in this directory. Those remain
 unchanged as historical evidence; see [FINDINGS.md](../FINDINGS.md).
 
+**Start with [RESULTS.md](RESULTS.md)** for what was found and
+[SKILLS-PROPOSAL.md](SKILLS-PROPOSAL.md) for the new, updated and removed skills.
+The two Aspire product patches are in [upstream/](upstream/).
+
 ## What is compared
 
 | Arm | Application | Aspire skills | Aspire MCP |
@@ -20,6 +24,11 @@ unchanged as historical evidence; see [FINDINGS.md](../FINDINGS.md).
 | `aspire-plus` | Aspirified app | `plus` = current + new `aspire-diagnose` | no |
 | `aspire-lean` | Aspirified app | `lean` = plus, router removed, monitoring trigger narrowed | no |
 | `aspire-lean-mcp` | Aspirified app | `lean` | yes |
+| `aspire-lean-start` | Aspirified app | `lean` + new `aspire-start` (cold-start scenario only) | no |
+| `aspire-mcp-src`, `aspire-lean-mcp-src`, `aspire-lean-src` | Aspirified app, CLI built from source at the daily's commit (control) | none / `lean` | yes / yes / no |
+| `aspire-mcp-compact`, `aspire-lean-mcp-compact` | Same, plus the MCP compact-telemetry patch | none / `lean` | yes |
+| `aspire-lean-plain` | Same, plus the CLI plain-output patch | `lean` | no |
+| `aspire-lean-mcp-all` | Same, plus both patches | `lean` | yes |
 
 `raw` versus any Aspire arm is the product comparison. The Aspire arms share one
 application, one AppHost and one toolchain, so differences between them isolate
@@ -55,6 +64,9 @@ describe only the user-visible symptom, and name no endpoint, tool or component.
 | `slow-sql` | An audit trigger's duplicate check filters an unindexed JSON history that has grown to millions of rows. Square writes take seconds. Nothing fails. | Duration of one database call. Aspire: a trace span with the SQL text. Standard app: EF Core's command-duration lines in `admin.log`. |
 | `read-only` | The database default was left read-only. Pages and reads work; every write fails. Health stays green. | An exception with SQLSTATE 25006. Aspire: structured log + failed trace. Standard app: `admin.log`. |
 
+A third scenario, `cold-start`, has no fault: nothing is running and the agent must
+bring the application up. It measures the new `aspire-start` skill.
+
 `slow-sql` self-calibrates: it grows the audit history until one square write costs
 at least 500 ms on the machine at hand, so the incident and its repair are both far
 from the verifier's 600 ms limit for five writes.
@@ -71,9 +83,24 @@ only. It never reads an agent report.
   must be gone at the database level; a second write must succeed after the verifier
   replaces every application session; original squares intact; call/clear/status work.
 
+- `cold-start`: both origins respond and a fresh write, call and clear round-trip
+  through PostgreSQL.
+
 Dropping the trigger, truncating the audit history, or a per-session workaround all
-fail. Each cell was validated locally with `verify` (must fail) → reference repair →
+fail. For `read-only` the verifier records "application works" and "root cause
+removed" separately, so both pass rates can be reported. Each cell was validated locally with `verify` (must fail) → reference repair →
 `verify` (must pass) before any model ran; see [results](results/).
+
+## Custom Aspire builds
+
+Product changes are measured without publishing binaries. When a task sets
+`CLI_KIND=source`, the image clones `microsoft/aspire` at the daily build's commit,
+optionally applies a patch from [`common/aspire-patches`](common/aspire-patches), and
+publishes the CLI. That CLI goes on `PATH` for the agent, the MCP server and the
+harness; `aspire --version` reports for example
+`17.1.0-agentic.mcpcompacttelemetry+4954c76a…`. The official daily still starts the
+AppHost because it carries the bundle. A patched arm is only ever compared with the
+`*-src` control built the same way, since both are managed builds rather than NativeAOT.
 
 ## Reproduce
 
