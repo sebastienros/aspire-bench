@@ -246,20 +246,35 @@ async function verifyReadOnly(state, endpoints, details) {
         assert.equal(stored, label, "Fresh write must reach PostgreSQL");
         return id;
     };
-    const first = await write("Fresh write");
-    const configured = Number(await sql(`
-        SELECT count(*) FROM pg_db_role_setting s, unnest(s.setconfig) c
-        WHERE c ILIKE 'default_transaction_read_only=on';`));
-    assert.equal(configured, 0, "The read-only default must be removed, not worked around per session");
-    assert.equal(await sql("SHOW default_transaction_read_only;", { privileged: false }), "off",
-        "New database sessions must be writable");
-    // The repair must survive new application sessions.
-    await sql(`SELECT pg_terminate_backend(pid) FROM pg_stat_activity
-               WHERE datname = current_database() AND pid <> pg_backend_pid();`);
-    await sleep(2_000);
-    await write("Write after reconnect");
-    details.writes = 2;
-    await verifyFunctional(endpoints, first);
+    // Two independent questions, both recorded: does the application work again
+    // (functional), and was the cause removed where it lives (rootCause)? The reward
+    // requires both; `checks` lets a reader recompute a functional-only pass rate.
+    const checks = details.checks = { functional: false, rootCause: false };
+    const failures = [];
+    try {
+        const first = await write("Fresh write");
+        // The repair must survive new application sessions.
+        await sql(`SELECT pg_terminate_backend(pid) FROM pg_stat_activity
+                   WHERE datname = current_database() AND pid <> pg_backend_pid();`);
+        await sleep(2_000);
+        await write("Write after reconnect");
+        await verifyFunctional(endpoints, first);
+        checks.functional = true;
+    } catch (error) {
+        failures.push(error.message);
+    }
+    try {
+        const configured = Number(await sql(`
+            SELECT count(*) FROM pg_db_role_setting s, unnest(s.setconfig) c
+            WHERE c ILIKE 'default_transaction_read_only=on';`));
+        assert.equal(configured, 0, "The read-only default must be removed, not worked around per session");
+        assert.equal(await sql("SHOW default_transaction_read_only;", { privileged: false }), "off",
+            "New database sessions must be writable");
+        checks.rootCause = true;
+    } catch (error) {
+        failures.push(error.message);
+    }
+    assert.equal(failures.length, 0, failures.join(" | "));
 }
 
 async function verify() {

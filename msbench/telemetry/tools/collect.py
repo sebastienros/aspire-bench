@@ -17,6 +17,7 @@ import hashlib
 import json
 import os
 import re
+import shutil
 import statistics
 import subprocess
 import sys
@@ -66,7 +67,9 @@ def fetch(run_id):
     out = DATA / "extracted" / run_id
     if out.exists() and any(out.rglob("result.json")):
         return out
-    out.mkdir(parents=True, exist_ok=True)
+    # `msbench-cli extract` refuses a non-empty directory; drop partial earlier attempts.
+    shutil.rmtree(out, ignore_errors=True)
+    out.parent.mkdir(parents=True, exist_ok=True)
     env = dict(os.environ, PATH=f"{VENV}:{os.environ['PATH']}", MSBENCH_DISABLE_RUN_ANALYSIS="1")
     subprocess.run(["msbench-cli", "extract", "--run-id", run_id, "--backend", "ces-staging",
                     "--output", str(out)], env=env, capture_output=True, text=True, timeout=1800)
