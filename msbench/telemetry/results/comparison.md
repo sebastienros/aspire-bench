@@ -20,6 +20,7 @@ Percentages compare the arm's median with the `raw` median of the same scenario 
 | aspire-mcp-compact | 3 | 3/3 | 3/3 | 126 (+11%) | 730,722 (+63%) | 0.018 (+26%) | 42 | 14 |
 | aspire-lean-mcp-src | 3 | 3/3 | 3/3 | 123 (+9%) | 563,172 (+26%) | 0.016 (+10%) | 34 | 12 |
 | aspire-lean-mcp-compact | 3 | 3/3 | 3/3 | 111 (-2%) | 557,433 (+25%) | 0.014 (+2%) | 31 | 9 |
+| aspire-lean-mcp-all | 1 | 1/1 | 1/1 | 60 (-47%) | 280,318 (-37%) | 0.009 (-37%) | 24 | 13 |
 
 ## read-only / gpt-6.1-sol
 
@@ -28,7 +29,7 @@ Percentages compare the arm's median with the `raw` median of the same scenario 
 | raw | 3 | 3/3 | 3/3 | 54 (+0%) | 178,661 (+0%) | 0.115 (+0%) | 18 | 6 |
 | aspire-skills | 3 | 3/3 | 3/3 | 57 (+6%) | 270,125 (+51%) | 0.130 (+13%) | 22 | 12 |
 | aspire-skills-mcp | 3 | 3/3 | 3/3 | 61 (+14%) | 328,459 (+84%) | 0.147 (+28%) | 23 | 12 |
-| aspire-lean | 3 | 3/3 | 3/3 | 63 (+18%) | 236,105 (+32%) | 0.132 (+15%) | 21 | 9 |
+| aspire-lean | 5 | 5/5 | 5/5 | 57 (+6%) | 236,105 (+32%) | 0.130 (+13%) | 21 | 8 |
 
 ## read-only / gpt-6.1-terra
 
@@ -46,6 +47,7 @@ Percentages compare the arm's median with the `raw` median of the same scenario 
 | aspire-mcp-compact | 3 | 3/3 | 3/3 | 58 (+2%) | 378,267 (+89%) | 0.079 (+31%) | 25 | 9 |
 | aspire-lean-mcp-src | 3 | 3/3 | 3/3 | 61 (+8%) | 340,966 (+71%) | 0.073 (+22%) | 21 | 18 |
 | aspire-lean-mcp-compact | 3 | 3/3 | 3/3 | 50 (-11%) | 364,780 (+83%) | 0.081 (+34%) | 19 | 11 |
+| aspire-lean-mcp-all | 1 | 1/1 | 1/1 | 50 (-11%) | 297,417 (+49%) | 0.069 (+14%) | 18 | 10 |
 
 ## slow-sql / gpt-6-luna
 
@@ -55,7 +57,7 @@ Percentages compare the arm's median with the `raw` median of the same scenario 
 | aspire-cli | 3 | 3/3 | 3/3 | 191 (+47%) | 910,384 (+97%) | 0.023 (+52%) | 57 | 77 |
 | aspire-skills | 3 | 3/3 | 3/3 | 178 (+37%) | 758,503 (+64%) | 0.022 (+47%) | 49 | 58 |
 | aspire-mcp | 3 | 3/3 | 3/3 | 150 (+16%) | 697,755 (+51%) | 0.020 (+35%) | 41 | 60 |
-| aspire-skills-mcp | 5 | 5/5 | 5/5 | 260 (+101%) | 1,449,176 (+213%) | 0.031 (+110%) | 59 | 104 |
+| aspire-skills-mcp | 6 | 6/6 | 6/6 | 262 (+102%) | 1,493,192 (+222%) | 0.033 (+120%) | 60 | 105 |
 | aspire-plus | 3 | 3/3 | 3/3 | 133 (+3%) | 390,468 (-16%) | 0.013 (-11%) | 33 | 34 |
 | aspire-lean | 6 | 6/6 | 6/6 | 90 (-31%) | 276,566 (-40%) | 0.009 (-39%) | 26 | 28 |
 | aspire-lean-mcp | 4 | 4/4 | 4/4 | 141 (+9%) | 624,284 (+35%) | 0.018 (+18%) | 38 | 28 |
@@ -63,6 +65,7 @@ Percentages compare the arm's median with the `raw` median of the same scenario 
 | aspire-mcp-compact | 3 | 3/3 | 3/3 | 117 (-10%) | 409,494 (-12%) | 0.013 (-15%) | 27 | 53 |
 | aspire-lean-mcp-src | 3 | 3/3 | 3/3 | 140 (+8%) | 453,415 (-2%) | 0.014 (-9%) | 33 | 43 |
 | aspire-lean-mcp-compact | 3 | 3/3 | 3/3 | 95 (-27%) | 411,936 (-11%) | 0.012 (-23%) | 29 | 35 |
+| aspire-lean-plain | 1 | 1/1 | 1/1 | 123 (-5%) | 357,790 (-23%) | 0.011 (-25%) | 34 | 28 |
 
 ## slow-sql / gpt-6.1-sol
 
@@ -89,4 +92,6 @@ Percentages compare the arm's median with the `raw` median of the same scenario 
 | aspire-mcp-compact | 3 | 3/3 | 3/3 | 59 (+9%) | 309,147 (+88%) | 0.081 (+52%) | 24 | 18 |
 | aspire-lean-mcp-src | 3 | 3/3 | 3/3 | 70 (+28%) | 225,608 (+38%) | 0.061 (+13%) | 19 | 25 |
 | aspire-lean-mcp-compact | 3 | 3/3 | 3/3 | 65 (+20%) | 266,192 (+62%) | 0.067 (+25%) | 19 | 24 |
+| aspire-lean-src | 1 | 1/1 | 1/1 | 67 (+23%) | 252,769 (+54%) | 0.060 (+12%) | 22 | 21 |
+| aspire-lean-mcp-all | 1 | 1/1 | 1/1 | 68 (+25%) | 268,227 (+63%) | 0.065 (+22%) | 18 | 25 |
 
