@@ -151,7 +151,7 @@ set differs from `current` by exactly the files listed in
 Each scenario starts the app healthy, injects one runtime fault, and keeps live traffic
 flowing before and during the agent so the incident is in the telemetry the way it would
 be in production. Prompts are identical across arms, describe only the user-visible
-symptom, and name no endpoint, tool or component.
+symptom, and name no endpoint, tool or component; they are quoted in full in §3.4.
 
 | Scenario | Fault | Evidence in the aspirified app | Evidence in the standard app |
 |---|---|---|---|
@@ -164,7 +164,88 @@ symptom, and name no endpoint, tool or component.
 report query costs at least the target on the machine at hand, so the incident and its
 repair are both far from the verifier's limits.
 
-### 3.4 The run pipeline
+### 3.4 What the agent is told
+
+The prompt is the whole task. There is no suite system prompt, no hint file and no
+report template; the agent gets the instruction below, the workspace at `/app` with its
+README, and whatever the arm adds (skills under `.github/skills`, the MCP server
+registered with `aspire agent mcp`). The prompts are in
+[tools/gen-tasks.mjs](tools/gen-tasks.mjs) and are written to each task's `instruction.md`.
+
+`slow-sql` and `slow-redis` share one prompt on purpose: the same user-visible symptom
+with two different causes, one that leaves a line in the standard app's log and one that
+does not. An agent cannot tell from the prompt which it is facing.
+
+```text
+The Bingo application in /app is running and is serving live producer and player traffic.
+
+Producers report that the application has recently become sluggish: some of their
+operations now take several seconds. Nothing fails and no error is shown.
+
+Find the root cause and fix it so that the affected operations are fast again.
+Keep all existing data and all existing functionality, and leave the application
+running. README.md describes this workspace. No report is required.
+```
+
+`read-only`:
+
+```text
+The Bingo application in /app is running and is serving live producer and player traffic.
+
+Producers report that some of their operations recently started failing, although
+every page still loads.
+
+Find the root cause and fix it so that the affected operations work again, and keep
+working after the application reconnects to its dependencies. Keep all existing data
+and all existing functionality, and leave the application running. README.md
+describes this workspace. No report is required.
+```
+
+`cold-start`:
+
+```text
+The Bingo application in /app is not running.
+
+Start it so that the player page and the admin application are both serving, and
+leave it running. README.md describes this workspace. No report is required.
+```
+
+Why they are written this way:
+
+- **Symptom only.** "Sluggish", "several seconds", "failing although every page still
+  loads" is what a producer would say. No endpoint, table, resource, tool or component
+  is named, so the first tool call is the agent's choice and is part of what is measured.
+- **The constraints are the grading rules in plain words.** "Keep all existing data"
+  rules out truncating the audit history or flushing the cache; "all existing
+  functionality" rules out dropping the trigger or disabling the feature; "leave the
+  application running" rules out a fix that needs a restart the agent does not do;
+  "keep working after the application reconnects to its dependencies" (`read-only`)
+  is the sentence that fails a per-session workaround, because the verifier replaces
+  every application session before its second write. An agent that reads the prompt
+  carefully knows what the verifier will check without being told how.
+- **"Find the root cause"** sets the bar above "make the symptom go away", which is what
+  the `slow-redis` failures did (the request got faster in the agent's own test, the
+  cache stayed blocked).
+- **"No report is required"** keeps the trial from ending with a written summary the
+  grader would never read, and removes a source of timing noise.
+- **"README.md describes this workspace"** is the one pointer. It is also where the two
+  app kinds differ, and that difference is part of the product comparison:
+
+| | Standard app README | Aspirified app README |
+|---|---|---|
+| How to start | `CONTAINER_RUNTIME=docker bash scripts/start.sh` | `aspire start --apphost apphost.cs --non-interactive --isolated`, then `aspire wait boardadmin` / `bingoboard` |
+| Where the app is | `http://localhost:$ADMIN_PORT`, `$FRONTEND_PORT` from the environment | "Endpoints are allocated dynamically; `aspire describe` lists them along with resource state and health" |
+| Where to look when it misbehaves | "Process logs are in `.script-state/` (`startup.log`, `admin.log`, `frontend.log`); `docker compose ps` and `docker compose logs` cover the dependencies" | "The Aspire CLI also exposes each resource's console logs and the OpenTelemetry logs and traces collected from the running application" |
+| Shared | The development API (`/api/demo/producer`: import, state, status), what the database and Redis store, the admin username, "the harness owns cleanup" | same |
+
+Both READMEs are in [common/raw-overlay](common/raw-overlay/README.md) and
+[common/aspire-overlay](common/aspire-overlay/README.md). Neither names the fault or the
+component it lives in. The standard README's log pointer is what makes the raw agent
+competitive on the two log-visible faults (it reads `admin.log` within 8 to 14 s in
+every path in §5); the aspirified README's one sentence about telemetry is, without a
+skill, what sends the `aspire-cli` agent on a 77 s search for the right command.
+
+### 3.5 The run pipeline
 
 ```mermaid
 flowchart LR
@@ -185,7 +266,7 @@ flowchart LR
 - Changing anything under `common/` takes three commits (suite, tasks pinned to the suite
   SHA, dataset pinned to the task SHA) so remote builds fetch exact contents.
 
-### 3.5 Grading
+### 3.6 Grading
 
 `verify` decides success from live behaviour only:
 
@@ -202,7 +283,7 @@ flowchart LR
 Dropping the trigger, truncating history, flushing or restarting the cache, swapping the
 cache for memory, or a per-session workaround all fail.
 
-### 3.6 Models, metrics, statistics
+### 3.7 Models, metrics, statistics
 
 | | `gpt-6-luna` | `gpt-6.1-terra` | `gpt-6.1-sol` |
 |---|---|---|---|
