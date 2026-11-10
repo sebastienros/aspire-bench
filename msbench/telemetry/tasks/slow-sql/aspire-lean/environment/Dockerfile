@@ -7,7 +7,7 @@ FROM docker:28.0.4-dind AS docker
 
 FROM mcr.microsoft.com/dotnet/sdk:10.0.100-noble AS base
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    bash ca-certificates curl git gnupg iptables iproute2 jq lsof procps tini unzip xz-utils \
+    bash ca-certificates curl git gnupg iptables iproute2 jq lsof procps redis-tools tini unzip xz-utils \
     && rm -rf /var/lib/apt/lists/*
 RUN curl --fail --silent --show-error --location --retry 3 \
         --connect-timeout 10 --max-time 120 \
@@ -117,6 +117,9 @@ FROM app-${APP_KIND} AS final
 ARG SKILLS=none
 ARG FAULT=none
 COPY --from=suite bench/ /opt/benchmark/
+# Host-side operations tooling, visible to the agent like any installed script.
+COPY --from=suite ops/ /usr/local/lib/bingo-ops/
+RUN chmod +x /usr/local/lib/bingo-ops/*.sh
 RUN --mount=type=bind,from=suite,source=skills,target=/mnt/skills \
     if [ "$SKILLS" != "none" ]; then \
         sh /mnt/skills/compose.sh "$SKILLS" /app/.github/skills \
