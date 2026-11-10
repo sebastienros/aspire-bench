@@ -939,7 +939,8 @@ close that gap, one of which should be done:
    `aspire-terminals` reference row for `redis-cli`.
 
 **Task:** open an issue on `dotnet/aspire` proposing option 1, with option 2 as the
-fallback, citing this finding and the `slow-redis` evidence; link it here when filed.
+fallback. Draft: [upstream-issues/aspire-redis-default-ports.md](upstream-issues/aspire-redis-default-ports.md);
+link the filed issue here.
 
 **Limits / status:** Observed on the pinned daily only; not checked on the 13.x line.
 `aspire-diagnose` updated with the `-p 6380` note before round 6. Not reported upstream.
