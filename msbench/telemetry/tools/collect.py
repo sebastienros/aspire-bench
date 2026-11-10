@@ -26,7 +26,7 @@ from pathlib import Path
 SUITE = Path(__file__).resolve().parent.parent
 DATA = Path(os.environ.get("TELEMETRY_DATA_DIR", Path.home() / ".aspire-bench/telemetry-runs"))
 VENV = Path.home() / "Library/Application Support/pipx/venvs/msbench-cli/bin"
-PROTECTED = re.compile(r"/opt/benchmark|/solution\b|/tests/test\.sh|/logs/verifier")
+PROTECTED = re.compile(r"/opt/benchmark[\w./-]*|/solution\b|/tests/test\.sh|/logs/verifier")
 # Phase markers. "seen": the first tool result that puts the root cause on screen.
 # "fix": the first command that changes the system toward a repair.
 PHASES = {
@@ -78,10 +78,19 @@ def fetch(run_id):
     return out
 
 
+# Rounds whose `raw` arm is the standard app as it ships now (start script and README only).
+# Earlier rounds ran it with an extra scripts/check.sh health script, which an ordinary
+# application does not have; those trials are kept under the arm name `raw-check`.
+CURRENT_RAW_ROUNDS = {"gate", "r6", "r6b", "r7", "r7b"}
+
+
 def analyze_trial(result_path, entry):
     native = json.loads(result_path.read_text())
     trial_dir = result_path.parent
-    row = dict(run_id=entry["run_id"], scenario=entry["scenario"], arm=entry["arm"],
+    arm = entry["arm"]
+    if arm == "raw" and entry["round"] not in CURRENT_RAW_ROUNDS:
+        arm = "raw-check"
+    row = dict(run_id=entry["run_id"], scenario=entry["scenario"], arm=arm,
                model_requested=entry["model"], round=entry["round"],
                trial=native.get("trial_name"),
                url=f"https://msbenchapp.azurewebsites.net/run-analysis/{entry['run_id']}",
@@ -129,13 +138,17 @@ def analyze_trial(result_path, entry):
     row["skills_loaded"] = [t.get("arguments", {}).get("skill") for t in tools if t.get("toolName") == "skill"]
     aspire = collections.Counter()
     protected = 0
+    harness_paths = set()
     for tool in tools:
         text = json.dumps(tool.get("arguments", {}))
-        protected += bool(PROTECTED.search(text))
+        matches = PROTECTED.findall(text)
+        protected += bool(matches)
+        harness_paths.update(m.rstrip("/") for m in matches)
         if tool.get("toolName") in ("bash", "write_bash"):
             aspire.update(re.sub(r"\s+", " ", m) for m in ASPIRE_COMMAND.findall(text))
     row["aspire_cli"] = dict(aspire)
     row["protected_path_access"] = protected
+    row["harness_paths_read"] = sorted(harness_paths)
     # Phase timing, relative to the first trajectory event.
     def stamp(event):
         value = event.get("timestamp")

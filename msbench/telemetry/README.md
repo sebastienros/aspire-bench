@@ -17,6 +17,7 @@ The two Aspire product patches are in [upstream/](upstream/).
 | Arm | Application | Aspire skills | Aspire MCP |
 |---|---|---|---|
 | `raw` | Standard app: Compose dependencies, a start script, log files | none | no |
+| `raw-check` | The same standard app with an extra `scripts/check.sh` health script (rounds 1–5 only; kept for reference, never pooled with `raw`) | none | no |
 | `aspire-cli` | Aspirified app | none | no |
 | `aspire-skills` | Aspirified app | `current` (shipped v0.0.5) | no |
 | `aspire-mcp` | Aspirified app | none | yes |

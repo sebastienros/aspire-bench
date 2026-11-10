@@ -12,7 +12,7 @@ and hashes are in [results/trials.jsonl](results/trials.jsonl).
 
 | Change | Skill | What | Status |
 |---|---|---|---|
-| **New** | `aspire-diagnose` | A 4.5 KB executable recipe for "a running app is slow, failing or unhealthy": locate with a bounded filter, explain one trace as JSON, confirm at the dependency, fix, verify with the same filter. | Measured. Ready to propose. |
+| **New** | `aspire-diagnose` | A 5 KB executable recipe for "a running app is slow, failing or unhealthy": locate with a bounded filter, explain one trace as JSON, confirm at the dependency (database or cache), fix, verify with the same filter. | Measured on three faults and three models. Ready to propose. |
 | **New** | `aspire-start` | A 2 KB recipe to start an app, wait, read URLs, and recover a resource that does not come up. | Measured on `cold-start`: selected 9 of 9; removes the luna regression that the router's removal causes (82 s → 51 s); level with the shipped skills and the bare CLI otherwise. Required with the router gone, not a speed-up. |
 | **Removed** | `aspire` (router) | The 20.7 KB router is removed. Each remaining skill is selected by its own description. | Measured as part of the `lean` set. Leaves "start the app" to `aspire-orchestration`, which luna follows into 29 KB of references; `aspire-start` takes that job. |
 | **Updated** | `aspire-monitoring` | Trigger description narrowed to what the body actually covers (export, standalone dashboard, browser telemetry, deployed-app routing) and it now defers first-line diagnosis to `aspire-diagnose`. Body unchanged. | Measured as part of the `lean` set. |
@@ -27,17 +27,24 @@ v0.0.5 snapshot, so a set differs from `current` by exactly the files listed abo
 ## Why: what the shipped skills do on a diagnosis task
 
 The shipped skills make an aspirified app **slower and more expensive to diagnose than
-the same app without Aspire**, on all three models, and on the cheapest model they also
-lower the success rate.
+the same app without Aspire** whenever the app's own log carries the evidence, on all
+three models, and on the cheapest model they also lower the success rate. When the log
+is silent (`slow-redis`) they fail outright on the cheapest model.
 
 | Scenario / model | Raw app | Shipped skills + MCP (`aspire-skills-mcp`) |
 |---|---|---|
-| `slow-sql` / luna | 132 s, 492k input tokens, 12/12 | 262 s (+97%), 1.49M tokens (+204%), 6/6 |
-| `read-only` / luna | 105 s, 444k tokens, 9/9 | 254 s (+141%), 1.52M tokens (+242%), **2/6** (app works again in 4/6) |
-| `slow-sql` / terra | 54 s, 164k tokens, 6/6 | 87 s (+59%), 556k tokens (+239%), 6/6 |
-| `read-only` / terra | 56 s, 200k tokens, 6/6 | 72 s (+28%), 449k tokens (+125%), 6/6 |
-| `slow-sql` / sol | 63 s, 163k tokens, 6/6 | 72 s (+15%), 362k tokens (+122%), 6/6 |
-| `read-only` / sol | 61 s, 180k tokens, 6/6 | 63 s (+3%), 345k tokens (+92%), 6/6 |
+| `slow-sql` / luna | 84 s, 343k input tokens, 8/9 | 262 s (+210%), 1.49M tokens (+336%), 6/6 |
+| `read-only` / luna | 77 s, 333k tokens, 9/9 | 254 s (+228%), 1.52M tokens (+356%), **2/6** (app works again in 4/6) |
+| `slow-redis` / luna | 207 s, 691k tokens, 1/8 | 161 s, 1.09M tokens (+57%), **0/6** |
+| `slow-sql` / terra | 53 s, 173k tokens, 6/6 | 87 s (+65%), 556k tokens (+221%), 6/6 |
+| `read-only` / terra | 51 s, 198k tokens, 6/6 | 72 s (+42%), 449k tokens (+127%), 6/6 |
+| `slow-redis` / terra | 196 s, 461k tokens, 3/3 | 159 s (−19%), 573k tokens (+24%), 3/3 |
+| `slow-sql` / sol | 53 s, 155k tokens, 6/6 | 72 s (+35%), 362k tokens (+134%), 6/6 |
+| `read-only` / sol | 55 s, 176k tokens, 6/6 | 63 s (+14%), 345k tokens (+96%), 6/6 |
+| `slow-redis` / sol | 119 s, 337k tokens, 3/3 | 158 s (+32%), 689k tokens (+105%), 3/3 |
+
+(The raw app is the round-7 re-run without its `check.sh` script; see
+[RESULTS.md](RESULTS.md#baseline-the-raw-app-with-and-without-checksh).)
 
 Three mechanisms, each visible in the trajectories:
 
@@ -54,6 +61,11 @@ Three mechanisms, each visible in the trajectories:
    parsing" yields a 188 KB response for `aspire otel traces --format Json` on this app,
    and every MCP `list_*` call returns about 32 KB. See
    [evidence/agent-surface](evidence/agent-surface/).
+4. **Nothing in the shipped guidance says what to do at the dependency.** On
+   `slow-redis` no shipped-skills luna trial (0 of 6) ever ran a cache command; all six
+   read the service code and parallelised its reads. The telemetry had shown the slow
+   request with a short database span, which is the cue to look at the other
+   dependency, and the skill set had no step for it.
 
 ## What the proposed set does
 
@@ -62,30 +74,40 @@ Three mechanisms, each visible in the trajectories:
 
 | Scenario / model | Raw app | Shipped skills (`aspire-skills`) | Proposed (`aspire-lean`) |
 |---|---|---|---|
-| `slow-sql` / luna | 132 s, 492k tok, $0.015 | 178 s, 759k tok, $0.022 | **87 s (−34%), 255k tok (−48%), $0.009 (−39%)**, 9/9 |
-| `read-only` / luna | 105 s, 444k tok, $0.013 | 207 s, 1.22M tok, $0.029 | **89 s (−16%), 335k tok (−25%), $0.011 (−20%)**, 12/12 |
-| `slow-sql` / terra | 54 s, 164k tok, $0.054 | 80 s, 391k tok, $0.087 | 61 s (+13%), 215k tok (+31%), $0.056 (+5%), 6/6 |
-| `read-only` / terra | 56 s, 200k tok, $0.060 | 66 s, 348k tok, $0.077 | 52 s (−8%), 202k tok (+1%), $0.051 (−16%), 6/6 |
-| `slow-sql` / sol | 63 s, 163k tok, $0.104 | 67 s, 335k tok, $0.151 | 60 s (−6%), 191k tok (+17%), $0.099 (−4%), 6/6 |
-| `read-only` / sol | 61 s, 180k tok, $0.119 | 62 s, 289k tok, $0.139 | 56 s (−8%), 225k tok (+25%), $0.125 (+6%), 6/6 |
+| `slow-sql` / luna | 84 s, 343k tok, $0.011, 8/9 | 178 s, 759k tok, $0.022 | 87 s (+3%), 255k tok (−26%), $0.009 (−22%), 9/9 |
+| `read-only` / luna | 77 s, 333k tok, $0.011 | 207 s, 1.22M tok, $0.029 | 89 s (+15%), 335k tok (+1%), $0.011 (−3%), 12/12 |
+| `slow-redis` / luna | 207 s, 691k tok, $0.021, **1/8** | (shipped + MCP) 161 s, 1.09M tok, $0.025, **0/6** | **123 s (−41%), 517k tok (−25%), $0.015 (−29%), 5/6** |
+| `slow-sql` / terra | 53 s, 173k tok, $0.054 | 80 s, 391k tok, $0.087 | 61 s (+16%), 215k tok (+24%), $0.056 (+4%), 6/6 |
+| `read-only` / terra | 51 s, 198k tok, $0.058 | 66 s, 348k tok, $0.077 | 52 s (+2%), 202k tok (+2%), $0.051 (−13%), 6/6 |
+| `slow-redis` / terra | 196 s, 461k tok, $0.109 | (shipped + MCP) 159 s, 573k tok, $0.119 | **63 s (−68%), 212k tok (−54%), $0.057 (−48%)**, 3/3 |
+| `slow-sql` / sol | 53 s, 155k tok, $0.099 | 67 s, 335k tok, $0.151 | 60 s (+11%), 191k tok (+23%), $0.099 (0%), 6/6 |
+| `read-only` / sol | 55 s, 176k tok, $0.118 | 62 s, 289k tok, $0.139 | 56 s (+2%), 225k tok (+28%), $0.125 (+7%), 6/6 |
+| `slow-redis` / sol | 119 s, 337k tok, $0.159 | (shipped + MCP) 158 s, 689k tok, $0.232 | **66 s (−45%), 213k tok (−37%), $0.113 (−29%)**, 3/3 |
 
 Percentages are against the raw app. Against the shipped skills the proposed set is
-10% to 55% faster and uses 22% to 75% fewer input tokens in every cell.
+10% to 60% faster and uses 22% to 75% fewer input tokens in every cell.
 
-- `aspire-diagnose` was loaded in **45 of 45** graded `aspire-lean` trials across the
-  three models (138 of 138 counting every `lean`-based arm). Every `slow-sql` trial then
-  ran the duration filter (21 of 21); no shipped-skills `slow-sql` trial (0 of 30) did.
+- `aspire-diagnose` was loaded in **57 of 57** graded `aspire-lean` diagnosis trials
+  across the three models (162 of 162 counting every `lean`-based arm). Every `slow-sql`
+  trial then ran the duration filter (21 of 21 on luna); no shipped-skills `slow-sql`
+  trial (0 of 30) did. Every `slow-redis` lean trial on luna (6 of 6) went on to the
+  cache's `SLOWLOG`; no shipped-skills luna trial (0 of 6) ran any cache command.
 - Against the shipped skills + MCP the improvement is statistically solid: every luna
-  and terra cell and sol `slow-sql` have p ≤ 0.004 on time, tokens and cost (exact
-  Mann-Whitney, 6 vs 6 or more; see [results/stats.md](results/stats.md)). Sol
-  `read-only` goes the same way (−11% time, −35% tokens) without reaching significance.
-- Against the raw app: **a win on the cheapest model, parity on the stronger ones.**
-  On luna `slow-sql` the proposed set is 34% faster with 48% fewer input tokens and 39%
-  lower cost (p = 0.04, 0.01, 0.01; 9 vs 12). On luna `read-only` the medians are 16% to
-  25% lower but do not reach significance (p = 0.08 to 0.19; 12 vs 9). On terra
-  `slow-sql` it is 13% slower than raw (7 s, p = 0.024); on terra `read-only` and on sol
-  (6 vs 6) time does not differ, and sol reads 17% to 25% more input tokens. Stronger
-  models extract the same evidence from the raw app's log file about as quickly.
+  and terra `slow-sql` / `read-only` cell, sol `slow-sql` and luna `slow-redis` have
+  p ≤ 0.004 on time, tokens and cost (exact Mann-Whitney, 6 vs 6 or more; see
+  [results/stats.md](results/stats.md)). The 3-vs-3 cells go the same way.
+- Against the raw app: **parity when the log has the evidence, a decisive win when it
+  does not.** On `slow-sql` and `read-only` the proposed set is within −3% to +16% on
+  time in all six cells (none significant), reads 26% fewer tokens on luna `slow-sql`
+  and 23% to 28% more on terra and sol `slow-sql` and sol `read-only`: the stronger
+  models extract the same evidence from the raw app's log file about as quickly. On
+  `slow-redis`, where the log says nothing, it removed the cause in 5 of 6 luna trials
+  against 1 of 8 for the raw app (−41% time, p = 0.005) and was 45% to 68% faster on
+  terra and sol.
+- A correction: after round 5 this document claimed a 34% luna win over the raw app on
+  `slow-sql`. That baseline ran the raw app with an extra `check.sh` script that slowed
+  the raw agent down; re-run without it (rounds 7 and 7b) the raw app is as fast as the
+  proposed set there. The claim is withdrawn.
 
 ## Why remove the router rather than add next to it
 
@@ -148,23 +170,28 @@ because it makes starting faster than today.
    the skill gives the exact `docker exec … psql` form using `container.id` from
    `aspire describe`, which is where earlier pilots lost time on credentials.
 5. **Trigger descriptions state symptoms, not command names.** "slow, failing,
-   unhealthy, find the root cause" selected the skill 32 of 32; a list of verbs did not.
+   unhealthy, find the root cause" selected the skill 162 of 162; a list of verbs did not.
 6. **A description must exclude what a neighbour owns.** `aspire-monitoring` now says
    "DO NOT USE FOR: finding why a running local app is slow, failing or unhealthy".
 7. **Removing a router means every job it fronted needs an owner.** Without one, the
    cheapest model falls through to the nearest broad skill and reads its references;
    `aspire-start` exists for exactly that reason.
+8. **Say where to look when the trace does not name the culprit.** A slow request whose
+   only child span is a fast database call points at the uninstrumented dependency; the
+   skill's cache step (`SLOWLOG GET`, `CLIENT LIST`, `-p 6380`) is what turned that cue
+   into a fix on luna (6 of 6 used it) where every other arm patched the application.
 
 ## Limits
 
 - One application (Bingo: Blazor/SignalR backend, worker, Vue frontend, PostgreSQL,
-  Redis), two database-side faults and one cold start. Held-out applications and
-  application-code faults are not covered.
+  Redis), two database-side faults, one cache-side fault and one cold start. Held-out
+  applications and application-code faults are not covered.
 - `aspire-diagnose` names PostgreSQL and Redis at the dependency step. The first two
   steps are dependency-neutral; the third needs equivalents for other integrations.
 - The aspirified app has PostgreSQL client tracing and the raw app has none, so the
   product comparison combines instrumentation with tooling.
-- n is 3 to 12 per cell (6 or more for every raw / shipped / `lean` diagnosis cell; 3
-  for the cold-start cells). [results/stats.md](results/stats.md) gives an exact test
+- n is 3 to 12 per cell (6 or more for every raw / shipped / `lean` cell on `slow-sql`
+  and `read-only` and on luna `slow-redis`; 3 for terra and sol `slow-redis` and for
+  the cold-start cells). [results/stats.md](results/stats.md) gives an exact test
   for each headline comparison; cells with 3 trials per arm cannot show significance
   and are reported as medians only.

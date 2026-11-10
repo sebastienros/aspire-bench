@@ -12,7 +12,7 @@ from collections import defaultdict
 from pathlib import Path
 
 SUITE = Path(__file__).resolve().parent.parent
-PAIRS = [("aspire-lean", "raw"), ("aspire-skills-mcp", "raw"), ("aspire-lean", "aspire-skills-mcp"),
+PAIRS = [("raw", "raw-check"), ("aspire-lean", "raw"), ("aspire-skills-mcp", "raw"), ("aspire-lean", "aspire-skills-mcp"),
          ("aspire-mcp-compact", "aspire-mcp-src"), ("aspire-lean-mcp-compact", "aspire-lean-mcp-src"),
          ("aspire-lean-plain", "aspire-lean-src"), ("aspire-lean-mcp-all", "aspire-lean-mcp-src"),
          ("aspire-lean-mcp-all", "raw"), ("aspire-lean-start", "aspire-lean"), ("aspire-lean-start", "aspire-skills"),

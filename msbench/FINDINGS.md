@@ -779,13 +779,15 @@ established. [Report](bingo-isolation/PILOT.md) retains the full scope boundary.
 **Evidence:** The [telemetry suite](telemetry/README.md) runs two runtime faults
 (`slow-sql`, `read-only`) against the raw app and the aspirified app on the daily build
 `17.1.0-preview.1.26559.1+4954c76a`, with live traffic, outcome-only prompts and an
-HTTP/SQL verifier. [Results](telemetry/RESULTS.md) pool 348 graded trials over five
-rounds (6 infrastructure failures recorded separately). With the eight shipped
-skills and the MCP server, the aspirified app took +28% to +141% agent time and +125%
-to +242% input tokens against the raw app on luna and terra (p ≤ 0.004 in all four
-cells, exact Mann-Whitney), and +15% / +3% time with +122% / +92% tokens on sol
-(tokens and cost p ≤ 0.004, 6 vs 6). On luna, `read-only`, the root cause was removed
-in 2 of 6 trials against 9 of 9 for raw.
+HTTP/SQL verifier. [Results](telemetry/RESULTS.md) pool 461 graded trials over
+seven rounds (6 infrastructure failures recorded separately); the raw baseline is the
+round-7 re-run without the app's check script (F24). With the eight shipped skills and
+the MCP server, the aspirified app took +42% to +228% agent time and +127% to +356%
+input tokens against the raw app on luna and terra (p ≤ 0.004 in all four cells, exact
+Mann-Whitney), and +35% / +14% time with +134% / +96% tokens on sol (tokens and cost
+p ≤ 0.004, 6 vs 6). On luna, `read-only`, the root cause was removed in 2 of 6 trials
+against 9 of 9 for raw. On the third fault, `slow-redis` (F23), the shipped set removed
+the cause in 0 of 6 luna trials.
 
 **Mechanisms observed:** the duration filter that solves `slow-sql` sits three hops deep
 (router, `aspire-monitoring`, its reference) and no shipped-skills trial used it (0 of
@@ -804,16 +806,22 @@ these task types; it does not generalize to faults with no log signal.
 `aspire-monitoring` description narrowed, no MCP) against shipped skills + MCP:
 −29% to −67% agent time and −55% to −83% input tokens, p ≤ 0.004 in all four luna and
 terra cells; on sol −18% / −11% time and −47% / −35% tokens (`slow-sql` p ≤ 0.004,
-`read-only` not significant, 6 vs 6). `aspire-diagnose` was loaded in 45 of 45 graded
-`aspire-lean` trials on three models (138 of 138 across every `lean`-based arm), and
-every one of its 21 `slow-sql` trials ran the duration filter that 0 of 30
-shipped-skills trials used. Adding the skill next to the router (`aspire-plus`) was
-selected in only 4 of 6 luna trials and took 167 s against 93 s on `read-only`.
+`read-only` not significant, 6 vs 6); on `slow-redis` −23% to −60% time in all three
+models (luna p = 0.004). `aspire-diagnose` was loaded in 57 of 57 graded `aspire-lean`
+diagnosis trials on three models (162 of 162 across every `lean`-based arm), every one
+of its luna `slow-sql` trials ran the duration filter that 0 of 30 shipped-skills
+trials used, and every one of its luna `slow-redis` trials opened the cache's `SLOWLOG`
+that 0 of 6 shipped-skills trials did. Adding the skill next to the router
+(`aspire-plus`) was selected in only 4 of 6 luna trials and took 167 s against 93 s on
+`read-only`.
 
-**Against the raw app:** a win on luna `slow-sql` (−34% time, −48% tokens, −39% cost;
-p = 0.04 / 0.01 / 0.01, 9 vs 12), a non-significant lead on luna `read-only` (−16% /
-−25% / −20%; p = 0.08 to 0.19, 12 vs 9), 13% slower on terra `slow-sql` (p = 0.02), no
-time difference on terra `read-only` or sol, and 17% to 25% more input tokens on sol.
+**Against the raw app (round-7 baseline, F24):** parity on the two faults whose
+evidence is in the raw app's log (`slow-sql` / `read-only`: −3% to +16% time in all six
+cells, none significant; −26% tokens on luna `slow-sql`, +23% to +28% on terra and sol
+`slow-sql` and sol `read-only`), and a decisive win on the fault whose evidence is not
+(`slow-redis`: luna 5/6 against 1/8, −41% time, p = 0.005; terra −68%, sol −45%, 3 vs
+3). The −34% luna `slow-sql` win recorded here after round 5 was an artefact of the
+check script and is withdrawn.
 
 **Improvement candidate:** Ship `aspire-diagnose`; remove or drastically shrink the
 router; give each skill a symptom-based trigger that excludes its neighbours.
@@ -888,9 +896,9 @@ arguments and results.
 
 ## F21: Cold start is slower with Aspire whatever the skills; removing the router needs an owner for each former job
 
-**Evidence:** `cold-start` scenario, 5 arms × 3 models × 3 trials, all 45 passed
-([RESULTS.md](telemetry/RESULTS.md#cold-start)). Every Aspire arm is 19% to 63% slower
-than the raw app (raw 33 to 41 s; Aspire 49 to 56 s, except one cell) because the
+**Evidence:** `cold-start` scenario, 5 arms × 3 models × 3 trials, all passed
+([RESULTS.md](telemetry/RESULTS.md#cold-start)). Every Aspire arm is 15% to 56% slower
+than the raw app (raw 36 to 43 s; Aspire 49 to 56 s, except one cell) because the
 agent runs `aspire start`, `aspire wait` for each endpoint and `aspire describe` for
 the URLs where the raw agent runs one start script and `curl`; the CLI with no skills
 is as fast as any skill set. In the `lean` set, which had removed the router without
@@ -927,6 +935,60 @@ the incident.
 
 **Limits / status:** Observed on the pinned daily only; not checked on the 13.x line.
 `aspire-diagnose` updated with the `-p 6380` note before round 6. Not reported upstream.
+
+## F23: When the app's log is silent, Aspire telemetry plus a focused skill is the difference between fixing and not fixing
+
+**Evidence:** `slow-redis` scenario ([README](telemetry/README.md#scenarios)): a
+host-side "report exporter" runs a `KEYS`-based Lua count over a grown session keyspace
+back to back, so every cache call the admin makes queues behind it; nothing fails, the
+app logs nothing (request logging is off at the default `Microsoft.AspNetCore: Warning`
+level, the Redis client logs no durations), and the prompt is the same as `slow-sql`.
+Aspire records the slow requests as traces whose only child span is a short database
+call. Results ([RESULTS.md](telemetry/RESULTS.md#product-comparison-raw-app-vs-aspirified-app)):
+
+| Model | raw | `aspire-cli` | shipped skills + MCP | `aspire-lean` | lean + MCP + patches |
+|---|---|---|---|---|---|
+| luna (6 to 8 per arm) | 1/8, 207 s | 0/6, 195 s | 0/6, 161 s | **5/6, 123 s** | 3/6, 166 s |
+| terra (3 per arm) | 3/3, 196 s | 3/3, 118 s | 3/3, 159 s | **3/3, 63 s** | 3/3, 99 s |
+| sol (3 per arm) | 3/3, 119 s | 3/3, 139 s | 3/3, 158 s | **3/3, 66 s** | 3/3, 47 s |
+
+Every failing luna agent (20 of 20 across raw, bare CLI and shipped skills) read the
+service code, parallelised its cache reads, rebuilt and restarted the admin; none of
+the shipped-skills agents ran a single cache command. Every `aspire-lean` luna agent
+followed the skill: duration filter → one trace as JSON → `aspire describe cache` →
+`docker exec … redis-cli -p 6380 SLOWLOG GET` → `CLIENT LIST` → `ps` → `kill`, and found
+the cause in 38 s median. On terra and sol every arm found the exporter (the raw agent's
+first `ps` lists it) and most rewrote it to use `SCAN`; the lean set was still 2 to 3
+times faster because it acted on the cue instead of reading source first.
+
+**Improvement candidate:** Ship the dependency step (what to run at the database, what
+to run at the cache, and the `-p 6380` note from F22) in a first-line diagnosis skill.
+Add Redis client tracing to the aspirified template, so the trace names the cache span
+rather than leaving it to elimination.
+
+**Limits / status:** The cause is outside the application, which favours agents that
+look at dependencies over agents that read code. Terra and sol cells have 3 trials
+(smallest attainable p = 0.10); luna 6 to 8. MCP available to luna made it worse here
+(3 of 6): it read `list_traces` / `list_structured_logs` output and went to the code.
+Not upstreamed.
+
+## F24: A convenience health script in the raw baseline slowed the raw agent down
+
+**Evidence:** Rounds 1 to 5 ran the standard app with a `scripts/check.sh` next to its
+start script; 34 of 45 raw diagnosis trials ran it. Rounds 7 and 7b re-ran the same
+cells without it: luna `slow-sql` 132 s → 84 s (−36%), luna `read-only` 105 s → 77 s
+(−26%, p = 0.024), sol `slow-sql` 63 s → 53 s (−15%, p = 0.04); terra and the cold
+start unchanged ([RESULTS.md](telemetry/RESULTS.md#baseline-the-raw-app-with-and-without-checksh)).
+The script offered a cheap "is it healthy" oracle; agents that had it re-ran it between
+steps and verified more and diagnosed less. The luna "win" of the proposed skill set
+over the raw app in F17 disappeared with the correction.
+
+**Improvement candidate:** Baselines should ship what an ordinary application ships
+(start instructions, logs) and nothing an operator would not already have. Any helper
+added "for fairness" must be measured as a treatment, as this one now has been.
+
+**Limits / status:** The old trials are kept under the arm name `raw-check` and never
+pooled with `raw`. Applied from round 7 on.
 
 ## Recording future findings
 

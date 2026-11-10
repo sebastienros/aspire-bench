@@ -11,7 +11,8 @@ trials in a cell, including failures; a failed trial keeps its real time and tok
 | aspire-lean | 3/3 | 82 | - | - | 249,128 | 2,303 | 0.007 | 17 | aspire-orchestrationx3 | 0 | 48,223 |
 | aspire-lean-start | 3/3 | 51 | - | - | 115,738 | 762 | 0.003 | 11 | aspire-startx3 | 0 | 27,607 |
 | aspire-skills | 3/3 | 52 | - | - | 125,998 | 881 | 0.004 | 8 | aspirex2, aspire-orchestrationx3 | 0 | 18,469 |
-| raw | 3/3 | 41 | - | - | 63,666 | 448 | 0.003 | 5 | - | 0 | 11,867 |
+| raw | 3/3 | 43 | - | - | 77,046 | 781 | 0.003 | 7 | - | 0 | 20,313 |
+| raw-check | 3/3 | 41 | - | - | 63,666 | 448 | 0.003 | 5 | - | 0 | 11,867 |
 
 ## cold-start / gpt-6.1-sol
 
@@ -21,7 +22,8 @@ trials in a cell, including failures; a failed trial keeps its real time and tok
 | aspire-lean | 3/3 | 56 | - | - | 120,322 | 383 | 0.063 | 9 | aspire-orchestrationx3 | 0 | 18,271 |
 | aspire-lean-start | 3/3 | 54 | - | - | 113,978 | 437 | 0.053 | 10 | aspire-startx3 | 0 | 26,489 |
 | aspire-skills | 3/3 | 50 | - | - | 120,700 | 346 | 0.062 | 8 | aspire-orchestrationx3 | 0 | 18,101 |
-| raw | 3/3 | 40 | - | - | 61,822 | 213 | 0.041 | 6 | - | 0 | 19,472 |
+| raw | 3/3 | 36 | - | - | 47,158 | 216 | 0.037 | 4 | - | 0 | 10,548 |
+| raw-check | 3/3 | 40 | - | - | 61,822 | 213 | 0.041 | 6 | - | 0 | 19,472 |
 
 ## cold-start / gpt-6.1-terra
 
@@ -31,7 +33,8 @@ trials in a cell, including failures; a failed trial keeps its real time and tok
 | aspire-lean | 3/3 | 51 | - | - | 122,122 | 397 | 0.032 | 8 | aspire-orchestrationx3 | 0 | 19,607 |
 | aspire-lean-start | 3/3 | 54 | - | - | 116,096 | 460 | 0.027 | 10 | aspire-startx3 | 0 | 27,997 |
 | aspire-skills | 3/3 | 53 | - | - | 83,054 | 289 | 0.029 | 6 | aspire-orchestrationx3 | 0 | 7,341 |
-| raw | 3/3 | 33 | - | - | 35,191 | 194 | 0.018 | 3 | - | 0 | 11,645 |
+| raw | 3/3 | 36 | - | - | 62,561 | 312 | 0.021 | 5 | - | 0 | 19,721 |
+| raw-check | 3/3 | 33 | - | - | 35,191 | 194 | 0.018 | 3 | - | 0 | 11,645 |
 
 ## read-only / gpt-6-luna
 
@@ -51,7 +54,8 @@ trials in a cell, including failures; a failed trial keeps its real time and tok
 | aspire-plus | 3/3 | 167 | 25 | 99 | 799,193 | 11,838 | 0.020 | 44 | aspirex1, aspire-diagnosex1, aspire-monitoringx1 | 0 | 217,155 |
 | aspire-skills | 3/3 | 207 | 28 | 133 | 1,222,642 | 15,432 | 0.029 | 57 | aspirex1, aspire-monitoringx2, aspire-orchestrationx1 | 0 | 249,429 |
 | aspire-skills-mcp | 2/6 | 254 | 21 | 224 | 1,518,351 | 16,124 | 0.033 | 56 | aspirex6, aspire-monitoringx6, aspire-orchestrationx3 | 17 | 506,582 |
-| raw | 9/9 | 105 | 11 | 69 | 444,139 | 6,938 | 0.013 | 33 | - | 0 | 144,018 |
+| raw | 9/9 | 77 | 7 | 44 | 333,166 | 6,121 | 0.011 | 28 | - | 0 | 150,650 |
+| raw-check | 9/9 | 105 | 11 | 69 | 444,139 | 6,938 | 0.013 | 33 | - | 0 | 144,018 |
 
 ## read-only / gpt-6.1-sol
 
@@ -63,7 +67,8 @@ trials in a cell, including failures; a failed trial keeps its real time and tok
 | aspire-lean-src | 3/3 | 58 | 9 | 45 | 254,879 | 2,262 | 0.133 | 22 | aspire-diagnosex3 | 0 | 139,005 |
 | aspire-skills | 6/6 | 62 | 14 | 40 | 289,304 | 2,226 | 0.139 | 22 | aspire-monitoringx6 | 0 | 131,804 |
 | aspire-skills-mcp | 6/6 | 63 | 13 | 45 | 345,428 | 2,360 | 0.151 | 24 | aspirex2, aspire-monitoringx6 | 0 | 155,492 |
-| raw | 6/6 | 61 | 6 | 36 | 179,950 | 2,688 | 0.119 | 18 | - | 0 | 127,968 |
+| raw | 6/6 | 55 | 6 | 33 | 175,903 | 2,610 | 0.118 | 18 | - | 0 | 123,074 |
+| raw-check | 6/6 | 61 | 6 | 36 | 179,950 | 2,688 | 0.119 | 18 | - | 0 | 127,968 |
 
 ## read-only / gpt-6.1-terra
 
@@ -83,7 +88,38 @@ trials in a cell, including failures; a failed trial keeps its real time and tok
 | aspire-plus | 3/3 | 63 | 10 | 32 | 267,795 | 2,191 | 0.067 | 21 | aspire-diagnosex3, aspire-orchestrationx1 | 0 | 110,925 |
 | aspire-skills | 3/3 | 66 | 20 | 49 | 347,664 | 2,739 | 0.077 | 27 | aspire-monitoringx3 | 0 | 99,842 |
 | aspire-skills-mcp | 6/6 | 72 | 9 | 43 | 449,292 | 2,845 | 0.088 | 28 | aspire-monitoringx6 | 8 | 338,962 |
-| raw | 6/6 | 56 | 7 | 31 | 199,784 | 2,553 | 0.060 | 22 | - | 0 | 111,352 |
+| raw | 6/6 | 51 | 8 | 26 | 198,357 | 2,002 | 0.058 | 20 | - | 0 | 107,518 |
+| raw-check | 6/6 | 56 | 7 | 31 | 199,784 | 2,553 | 0.060 | 22 | - | 0 | 111,352 |
+
+## slow-redis / gpt-6-luna
+
+| Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
+| aspire-cli | 0/6 | 195 | 56 | - | 659,818 | 10,431 | 0.018 | 44 | - | 0 | 233,233 |
+| aspire-lean | 5/6 | 123 | 38 | 63 | 517,112 | 8,204 | 0.015 | 40 | aspire-diagnosex6 | 0 | 189,284 |
+| aspire-lean-mcp-all | 3/6 | 166 | 43 | 71 | 782,027 | 10,334 | 0.019 | 42 | aspire-diagnosex6 | 12 | 294,234 |
+| aspire-skills-mcp | 0/6 | 161 | - | - | 1,085,766 | 10,967 | 0.025 | 52 | aspirex5, aspire-monitoringx5, aspire-orchestrationx1 | 13 | 502,166 |
+| raw | 1/8 | 207 | 42 | 158 | 690,791 | 15,089 | 0.021 | 42 | - | 0 | 211,184 |
+
+## slow-redis / gpt-6.1-sol
+
+| Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
+| aspire-cli | 3/3 | 139 | 34 | 83 | 454,143 | 4,321 | 0.189 | 30 | - | 0 | 209,704 |
+| aspire-lean | 3/3 | 66 | 12 | 26 | 212,785 | 1,639 | 0.113 | 18 | aspire-diagnosex3 | 0 | 138,416 |
+| aspire-lean-mcp-all | 3/3 | 47 | 14 | 27 | 262,831 | 1,384 | 0.127 | 20 | aspire-diagnosex3 | 7 | 191,993 |
+| aspire-skills-mcp | 3/3 | 158 | 36 | 83 | 688,768 | 4,290 | 0.232 | 35 | aspire-monitoringx3 | 0 | 207,228 |
+| raw | 3/3 | 119 | 19 | 74 | 336,539 | 3,553 | 0.159 | 25 | - | 0 | 170,066 |
+
+## slow-redis / gpt-6.1-terra
+
+| Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
+| aspire-cli | 3/3 | 118 | 4 | 66 | 429,070 | 6,084 | 0.104 | 28 | - | 0 | 178,003 |
+| aspire-lean | 3/3 | 63 | 17 | 33 | 212,382 | 1,770 | 0.057 | 22 | aspire-diagnosex3 | 0 | 135,464 |
+| aspire-lean-mcp-all | 3/3 | 99 | 20 | 66 | 383,483 | 3,980 | 0.088 | 28 | aspire-diagnosex3 | 8 | 192,126 |
+| aspire-skills-mcp | 3/3 | 159 | 4 | 108 | 572,843 | 5,094 | 0.119 | 32 | aspire-monitoringx3 | 6 | 302,647 |
+| raw | 3/3 | 196 | 3 | 100 | 461,203 | 7,480 | 0.109 | 25 | - | 0 | 105,038 |
 
 ## slow-sql / gpt-6-luna
 
@@ -103,7 +139,8 @@ trials in a cell, including failures; a failed trial keeps its real time and tok
 | aspire-plus | 3/3 | 133 | 34 | 74 | 390,468 | 9,489 | 0.013 | 33 | aspire-diagnosex3 | 0 | 135,859 |
 | aspire-skills | 3/3 | 178 | 58 | 95 | 758,503 | 10,644 | 0.022 | 49 | - | 0 | 222,635 |
 | aspire-skills-mcp | 6/6 | 262 | 105 | 161 | 1,493,192 | 17,600 | 0.033 | 60 | aspirex3, aspire-monitoringx6, aspire-orchestrationx1 | 12 | 628,702 |
-| raw | 12/12 | 132 | 25 | 65 | 491,865 | 7,884 | 0.015 | 35 | - | 0 | 186,004 |
+| raw | 8/9 | 84 | 19 | 41 | 342,587 | 6,092 | 0.011 | 31 | - | 0 | 157,991 |
+| raw-check | 12/12 | 132 | 25 | 65 | 491,865 | 7,884 | 0.015 | 35 | - | 0 | 186,004 |
 
 ## slow-sql / gpt-6.1-sol
 
@@ -115,7 +152,8 @@ trials in a cell, including failures; a failed trial keeps its real time and tok
 | aspire-lean-src | 3/3 | 59 | 18 | 31 | 192,030 | 1,702 | 0.097 | 14 | aspire-diagnosex3 | 0 | 109,911 |
 | aspire-skills | 6/6 | 67 | 29 | 42 | 334,980 | 2,301 | 0.151 | 25 | aspirex1, aspire-monitoringx6 | 0 | 138,890 |
 | aspire-skills-mcp | 6/6 | 72 | 29 | 46 | 361,791 | 2,414 | 0.149 | 24 | aspirex1, aspire-monitoringx6 | 0 | 147,076 |
-| raw | 6/6 | 63 | 14 | 30 | 162,992 | 2,182 | 0.104 | 18 | - | 0 | 119,233 |
+| raw | 6/6 | 53 | 13 | 27 | 154,860 | 1,902 | 0.099 | 18 | - | 0 | 116,946 |
+| raw-check | 6/6 | 63 | 14 | 30 | 162,992 | 2,182 | 0.104 | 18 | - | 0 | 119,233 |
 
 ## slow-sql / gpt-6.1-terra
 
@@ -135,5 +173,6 @@ trials in a cell, including failures; a failed trial keeps its real time and tok
 | aspire-plus | 3/3 | 57 | 22 | 34 | 207,700 | 1,889 | 0.054 | 18 | aspire-diagnosex3 | 0 | 99,097 |
 | aspire-skills | 3/3 | 80 | 29 | 50 | 390,899 | 2,789 | 0.087 | 33 | aspire-monitoringx3 | 0 | 193,661 |
 | aspire-skills-mcp | 6/6 | 87 | 35 | 46 | 556,000 | 2,867 | 0.100 | 34 | aspire-monitoringx6 | 8 | 416,946 |
-| raw | 6/6 | 54 | 15 | 27 | 164,064 | 1,850 | 0.054 | 20 | - | 0 | 103,274 |
+| raw | 6/6 | 53 | 13 | 25 | 173,038 | 1,890 | 0.054 | 20 | - | 0 | 110,035 |
+| raw-check | 6/6 | 54 | 15 | 27 | 164,064 | 1,850 | 0.054 | 20 | - | 0 | 103,274 |
 
