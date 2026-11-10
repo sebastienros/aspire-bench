@@ -363,7 +363,7 @@ Median seconds from the agent's first event, luna, `slow-sql`:
 gantt
     title luna, slow-sql: median seconds to root cause / first fix / done
     dateFormat X
-    axisFormat %s
+    axisFormat %M:%S
     section raw
     to root cause (19 s)      :a1, 0, 19
     to first fix (41 s)       :a2, 19, 41
