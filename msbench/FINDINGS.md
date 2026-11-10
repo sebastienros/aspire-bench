@@ -827,7 +827,7 @@ check script and is withdrawn.
 router; give each skill a symptom-based trigger that excludes its neighbours.
 
 **Limits / status:** Measured, not upstreamed. The router's guardrail role was not
-exercised. The dependency step of the skill names PostgreSQL and Redis only.
+exercised. The dependency step of the skill names PostgreSQL and Redis only. Draft issues: [skills-add-aspire-diagnose.md](upstream-issues/skills-add-aspire-diagnose.md), [skills-remove-router-add-aspire-start.md](upstream-issues/skills-remove-router-add-aspire-start.md), [skills-narrow-aspire-monitoring.md](upstream-issues/skills-narrow-aspire-monitoring.md).
 
 ## F18: MCP telemetry tools fill an 8k-token budget on every call
 
@@ -856,7 +856,7 @@ or below the raw app on time in five of six model × scenario cells. Three trial
 arm: a consistent direction, not a proven effect size.
 
 **Limits / status:** Not upstreamed. The default output shape of `list_traces` changes.
-`list_resources` and `list_console_logs` are untouched and still large.
+`list_resources` and `list_console_logs` are untouched and still large. Draft issue: [aspire-mcp-compact-telemetry.md](upstream-issues/aspire-mcp-compact-telemetry.md).
 
 ## F19: Table borders and dashboard links dominate what an agent reads from the CLI
 
@@ -879,7 +879,7 @@ most of which is the conversation prefix re-sent on each model call.
 **Limits / status:** A context saving, not a measurable speed-up on its own; worth
 upstreaming for the bytes. The trace detail table still omits the SQL text, so the
 skill has to send agents to JSON for one trace. See
-[RESULTS.md](telemetry/RESULTS.md#cli-plain-output-when-redirected).
+[RESULTS.md](telemetry/RESULTS.md#cli-plain-output-when-redirected). Draft issue: [aspire-cli-plain-output.md](upstream-issues/aspire-cli-plain-output.md).
 
 ## F20: Phase timing separates diagnosis from repair-style variance
 
@@ -914,7 +914,7 @@ a start command that blocks until resources are ready and prints their endpoints
 would remove the `wait` and `describe` steps that every Aspire trial ran.
 
 **Limits / status:** 3 trials per cell (smallest attainable p = 0.10); one
-application; measured, not upstreamed.
+application; measured, not upstreamed. Draft issues: [aspire-start-blocking.md](upstream-issues/aspire-start-blocking.md), [skills-remove-router-add-aspire-start.md](upstream-issues/skills-remove-router-add-aspire-start.md).
 
 ## F22: Aspire main's Redis container serves TLS on 6379, so the generic `redis-cli` recipe fails inside it
 
@@ -979,7 +979,7 @@ rather than leaving it to elimination.
 look at dependencies over agents that read code. Terra and sol cells have 3 trials
 (smallest attainable p = 0.10); luna 6 to 8. MCP available to luna made it worse here
 (3 of 6): it read `list_traces` / `list_structured_logs` output and went to the code.
-Not upstreamed.
+Not upstreamed. Draft issue: [skills-aspireify-redis-client-tracing.md](upstream-issues/skills-aspireify-redis-client-tracing.md).
 
 ## F24: A convenience health script in the raw baseline slowed the raw agent down
 
