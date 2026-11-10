@@ -908,6 +908,26 @@ would remove the `wait` and `describe` steps that every Aspire trial ran.
 **Limits / status:** 3 trials per cell (smallest attainable p = 0.10); one
 application; measured, not upstreamed.
 
+## F22: Aspire main's Redis container serves TLS on 6379, so the documented `redis-cli` recipe fails inside it
+
+**Evidence:** On `17.1.0-preview.1.26559.1`, `AddRedis` starts the container with
+`--tls-port 6379 --port 6380 --requirepass $REDIS_PASSWORD` and a generated
+certificate. `docker exec <redis> redis-cli PING` therefore gets `I/O error` /
+`Connection reset by peer`, and the container log shows `SSL routines::wrong version
+number`. The shipped `aspire-terminals` reference lists `redis-cli` as the tool for a
+Redis resource terminal with no port or TLS note, and the first version of this suite's
+`aspire-diagnose` skill carried the same bare command. Found while building the
+`slow-redis` scenario; the harness and the exporter now probe for the plain port.
+
+**Improvement candidate:** Either publish the plain port as the primary one for local
+tooling, or make every Aspire-authored `redis-cli` instruction (skills, docs, MCP tool
+descriptions, dashboard terminal hints) say `-p 6380` or `--tls --insecure`. An agent
+that hits the reset error with no hint spends a diagnosis cycle on the tool instead of
+the incident.
+
+**Limits / status:** Observed on the pinned daily only; not checked on the 13.x line.
+`aspire-diagnose` updated with the `-p 6380` note before round 6. Not reported upstream.
+
 ## Recording future findings
 
 Give each finding a stable ID and include evidence links, exact observed

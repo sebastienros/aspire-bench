@@ -37,7 +37,10 @@ skills and MCP. Skill sets are defined in
 [`compose.sh`](common/skills/compose.sh).
 
 Both applications run the same Bingo business code (`msbench/bingo/common`, commit
-`baacba3`). The aspirified variant adds an AppHost, ServiceDefaults, and PostgreSQL
+`baacba3`). The standard app ships with its start script and README only; a
+`scripts/check.sh` health script that rounds 1 to 5 had left in place was removed before
+round 7 because an ordinary application does not come with one, and the `raw` baseline
+was re-run without it. The aspirified variant adds an AppHost, ServiceDefaults, and PostgreSQL
 client tracing (`Npgsql.OpenTelemetry`); the standard variant has no tracing, which
 is the ordinary state of a non-Aspire app. A win for Aspire here therefore combines
 instrumentation and tooling. Separating the two needs an instrumented raw arm and is
