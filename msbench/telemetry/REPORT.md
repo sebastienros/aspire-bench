@@ -23,9 +23,10 @@ Contents
 7. [Suggested changes and their measured gains](#7-suggested-changes-and-their-measured-gains)
 8. [Aspire versus the raw app, before and after](#8-aspire-versus-the-raw-app-before-and-after)
 9. [Discoveries](#9-discoveries)
-10. [Proposal: tracking the benchmark over time](#10-proposal-tracking-the-benchmark-over-time)
-11. [Next investigations](#11-next-investigations)
-12. [Limits](#12-limits)
+10. [What the Aspire 13.6 experiments established](#10-what-the-aspire-136-experiments-established)
+11. [Proposal: tracking the benchmark over time](#11-proposal-tracking-the-benchmark-over-time)
+12. [Next investigations](#12-next-investigations)
+13. [Limits](#13-limits)
 
 ---
 
@@ -121,7 +122,7 @@ flowchart TB
 
 The aspirified variant also carries PostgreSQL client tracing (`Npgsql.OpenTelemetry`);
 the standard app has no tracing, which is the ordinary state of a non-Aspire app. A win
-for Aspire therefore combines instrumentation and tooling (see [Limits](#12-limits)).
+for Aspire therefore combines instrumentation and tooling (see [Limits](#13-limits)).
 
 ### 3.2 Arms
 
@@ -661,7 +662,7 @@ say where to look when the trace does not name the culprit.
 | Redis client tracing in the aspirified template | The `slow-redis` trace names the cache span instead of implicating it by elimination; the lean agent's 38 s to root cause should drop toward the `slow-sql` 26 s; the MCP route (3/6 on luna) should stop losing agents to source code | Neither app has Redis tracing today | Switch the template to the Aspire Redis client integration; re-run `slow-redis` lean and lean-mcp on luna at n = 6 |
 | Redis plain port on 6379 | Fewer wasted cycles for any agent following a generic recipe | Only the skill-side workaround was measured | Measure an `aspire-cli` (no skills) arm on `slow-redis` before and after |
 | The router's guardrail role | Unknown | No scenario exercises "checks before edits" | A scenario where the agent must not restart a resource with state |
-| `aspire-diagnose` on a second application and on other integrations | Steps 1 and 2 are dependency-neutral; step 3 names PostgreSQL and Redis only | One application | Held-out app (see §11) |
+| `aspire-diagnose` on a second application and on other integrations | Steps 1 and 2 are dependency-neutral; step 3 names PostgreSQL and Redis only | One application | Held-out app (see §12) |
 | Multi-turn and other harnesses | Unknown | Single-turn Copilot CLI only | Same cells on Claude Code or Codex CLI |
 
 ---
@@ -732,10 +733,10 @@ limits in [FINDINGS.md](../FINDINGS.md).
 ### 9.1 What the earlier findings contributed
 
 F01 to F15 come from the 13.6-era suites in `msbench/` (`aspire-startup`, `aspire-health`,
-the `bingo-*` directories): a different Aspire version, different tasks and mostly three
-trials per arm. This suite does not re-report them, and F16 supersedes the 13.6
-observations for the diagnosis task types. Six of them shaped how this suite was built
-or are confirmed by it at larger n:
+the `bingo-*` directories): a different Aspire version, different tasks and mostly one
+to three trials per arm. Their results and how they compare with this suite's are in
+[§10](#10-what-the-aspire-136-experiments-established). Six of them shaped how this
+suite was built or are confirmed by it at larger n:
 
 | Earlier finding | What it said | How it shows up here |
 |---|---|---|
@@ -761,13 +762,103 @@ tool's cost is visible on all three.
 
 ---
 
-## 10. Proposal: tracking the benchmark over time
+## 10. What the Aspire 13.6 experiments established
+
+Between 2026-10-21 and 2026-11-05 the same repository ran eleven experiments against
+Aspire **13.6.0** (CLI and Hosting), recorded in [AGENTIC-RESEARCH.md](../AGENTIC-RESEARCH.md)
+and the per-suite reports. The skills were the seven project skills that `aspire agent init`
+generated with CLI 13.6; compared with the v0.0.5 bundle measured here, only the router,
+`aspire-init` and two reference files differ and `aspire-monitoring` is byte-identical.
+The 13.6 MCP server exposed 14 tools with the same `list_*` shape (it lacked the
+`--apphost` switch). So most of the agent surface is the one this suite measured, and
+those results belong in the same picture. They are kept in their own section because the
+setup differs in ways that change what a number means.
+
+### 10.1 How the setup differed
+
+| | 13.6 experiments | This suite (main) |
+|---|---|---|
+| Aspire | 13.6.0 release | `17.1.0-preview.1.26559.1` daily |
+| Skills | CLI-13.6-generated seven skills (router, init and two references differ from v0.0.5) | v0.0.5 bundle and measured variants |
+| Models | `gpt-6-luna` for startup and health, `gpt-6.1-terra` for every Bingo pilot | luna, terra, sol in every cell |
+| Trials per condition | 3 (startup, health), **1** (every Bingo pilot) | 3 to 12 |
+| Raw baseline | `raw-scripted`: launcher and check scripts plus README (also `raw` and `raw-documented` once) | `raw`: start script and README only (check script removed, F24) |
+| Task shape | Four fresh single-turn steps per trial (start, then check services, database, Redis) for startup and health; one step for the Bingo pilots | One step |
+| Prompts | Outcome-neutral, some naming the editable file (I01) | Symptom only, §3.4 |
+| Faults | D01: Redis `CLIENT PAUSE WRITE` (writes return HTTP 500, pages and reads work); X01: `ACL SETUSER -@write` (NOPERM); plus routing, feature, migration, adoption, publishing and two-app tasks | `slow-sql`, `read-only`, `slow-redis`, cold start |
+| Statistics | None possible at n = 1 | Exact Mann-Whitney where n ≥ 6 |
+
+The one-sample pilots were run as a portfolio on purpose: cover many task types once,
+find the mechanism worth replicating, then replicate it. This suite is that replication
+for the diagnosis type.
+
+### 10.2 What they measured
+
+Startup and health, luna, three trials per cell, medians of agent seconds:
+
+| Experiment | Result |
+|---|---|
+| Four-variant four-step comparison (2026-10-21) | `raw` 197.5 s / 555k tok, `raw-documented` 178.0 / 471k, `raw-scripted` 159.9 / 436k, **`aspire` 242.1 / 936k**. Every Aspire attempt loaded the router and `aspire-orchestration` and made 4 to 10 MCP calls |
+| Startup ablation (none / skills / MCP / both) | 82.6 / 90.3 / 87.2 / 88.8 s. MCP-only trials made no MCP call; all skill trials loaded orchestration. Capability availability, not use |
+| Recipe in a skill vs the same recipe in the README | 72.4 vs 86.3 s; pre-launch 8.9 vs 14.3 s. The skill is loaded first and run at once; README trials searched the workspace |
+| One compact skill replacing seven | 83.7 vs 85.2 s: no gain from word count alone |
+| Orchestration, then the full bundle, next to the startup skill | Startup skill selected 6 of 6 and 3 of 3; no router or reference reads; no routing churn |
+| Three app-specific health skills added to the full bundle | Health-step sum 145.3 → 41.3 s (−71.6%), tokens −63.4%; 9 of 9 loaded the matching skill first |
+| One generic CLI health skill (`aspire describe --format table`) instead | Health-step sum 38.3 → 79.3 s (+107%), tool calls 10 → 35: the command took 0.1 s, the workflow around it did not |
+
+Bingo pilots, terra, **one trial per condition**, agent seconds:
+
+| Scenario | Raw (scripted) | Aspire | Note |
+|---|---:|---|---|
+| I01 frontend routing repair | 74.5 | 80.7 (skills) | No skill loaded, no Aspire command used by either arm |
+| D01 false-health diagnosis (Redis writes paused) | 72.4 | CLI only 127.4 · skills 94.1 · MCP only 120.5 · **skills + MCP 68.1** · generated-13.6 skills 80.6 · narrowed monitoring trigger 81.5 | All seven passed; the combined arm was 4.3 s faster than raw |
+| X01 held-out ACL fault (NOPERM) | 49.5 | skills 82.4 · skills + MCP 98.6 | Combined arm made nine real MCP calls and saw the NOPERM; slower than both |
+| S01 two complete apps, repair one | 56.4 | 68.4 | Both preserved the other app |
+| F01 live catalog feature | 93.1 | 107.4 | Aspire's native 0 was a grader defect (F15); exact source passes the corrected grader |
+| M01 additive migration | 145.1 | 271.9 | Aspire detours: missing EF tooling, credential probes, HTTP 405/400 |
+| A01 cold adoption (add an AppHost) | - | 412.8 (skills) · 535.7 (generated skills) | Both native 0 at an immutability check, both pass the corrected grader |
+| P01 production publishing | 144.4 | 324.5 | Unequal preparation: the Aspire fixture left deployment wiring to the agent |
+
+Model cost of the 22 pilot conditions: USD 2.48. Their stated answer: no general Aspire
+speed or cost advantage over strong raw scripts; directly discoverable executable
+workflows help; MCP being used is not MCP being faster.
+
+### 10.3 Where this suite agrees, at larger n
+
+| 13.6 observation | Here |
+|---|---|
+| The shipped bundle costs time against a scripted raw app: `aspire` +51% on the four-step luna run; D01 CLI-only +76%, skills +30%; X01 +66%; M01 +87% (n = 1 each) | F16: shipped skills + MCP +35% to +228% time, +96% to +356% tokens, p ≤ 0.004 for tokens in all six log-visible cells, n = 6 to 12 |
+| A directly discoverable recipe beats discovery (startup skill −16%, health skills −71.6% on their steps) | `aspire-diagnose`: −11% to −67% against the shipped set in 9 of 9 cells; `aspire-start` recovers the cold-start regression |
+| Shorter is not faster by itself (compact skill 83.7 vs 85.2 s) | CLI plain output: −21% to −59% bytes, −12% to +1% time |
+| A generic command is not a recipe (CLI health skill +107%) | `aspire-cli` with no skill: root cause at 77 s on `slow-sql` against 26 s with the skill |
+| MCP calls are real but not faster (X01 combined 98.6 s, nine calls) | Shipped MCP is the slowest arm in every log-visible cell and the only one that fails `read-only` on luna; compacting its output recovers 6% to 36% |
+| Narrowing `aspire-monitoring`'s trigger alone helped D01 (81.5 vs 94.1 s, n = 1) | Part of the lean set; terra and sol stopped loading monitoring on diagnosis prompts |
+| Integration identity should be visible in `describe` (F03, PR 21279: `cache / Redis`, `db / PostgreSQL Database`) | The daily used here shows those types; every lean agent went from `describe cache` to the container ID without inference |
+
+### 10.4 Where the conclusions differ, and why
+
+| 13.6 conclusion | This suite | Why they differ |
+|---|---|---|
+| **The router need not be removed**: with the full bundle available, the startup skill was still selected directly (F07) | **The router is the problem on diagnosis prompts**: luna loaded it in 14 of 18 shipped-set trials, then `aspire-monitoring`; with `aspire-diagnose` added next to it, luna still picked the router or nothing in 2 of 6 (F17) | A startup prompt matches the startup skill's precise trigger and nothing else. A diagnosis prompt ("slow", "failing") matches the router's verb list and `aspire-monitoring`'s claim as well as the focused skill, and the cheapest model does not resolve that contest consistently. Both results hold; the rule is that a description must exclude what a neighbour owns, not that routers are free |
+| **Skills + MCP was the fastest D01 condition**, 4.3 s under raw (n = 1, terra) | **Skills + MCP is the slowest arm** in all six log-visible cells on all three models, and 0 of 6 on `slow-redis` luna | A single terra trial on a fault that names itself (HTTP 500 at the write path). At n = 6 on terra the same combination is +42% to +65%. The 13.6 program itself flagged this sample as not a general gain, and X01 did not reproduce it |
+| **Scripts in the raw app help**: `raw-scripted` was the fastest raw variant (159.9 s against 197.5) | **A check script in the raw app hurt** on luna (−36% and −26% without it, F24) | The 13.6 task *was* what the scripts did (start, then check services, database, Redis), so a launcher and checker shortened it. In a diagnosis task the agent ran the check script instead of reading the log it needed. A helper is a treatment; it helps when the task is the helper's job |
+| **Raw parity is the ceiling**: Aspire did not beat strong raw scripts anywhere | **Parity where the log has the evidence, decisive where it does not** (`slow-redis`: luna 1/8 → 5/6; terra −68%, sol −45%) | The 13.6 faults all left a direct signal (HTTP 500, NOPERM) that a raw agent reads from a log or a response. `slow-redis` is the first fault in the program with no such signal, and it is the one where telemetry changes the outcome rather than the time |
+| **Does MCP help? Open** | **Not in its shipped shape; yes once compacted, with a caveat for the cheapest model on silent faults** | Larger n and a product patch measured against a source-built control, which the 13.6 program had prepared (F09's source-build pipeline) but not used for MCP |
+
+What the 13.6 program got right that this suite inherits: the infrastructure gate before
+any model trial (F10), setup failures kept apart from model failures (F06), graders that
+check requested behaviour only (F15), the source-build pipeline for product changes
+(F09), and the discipline of one sample first, replication second.
+
+---
+
+## 11. Proposal: tracking the benchmark over time
 
 The suite exists; what is missing is a schedule, a fixed matrix, a stored series and a
 rule for calling a regression. The proposal keeps everything in this repository and uses
 the existing tools.
 
-### 10.1 What to track
+### 12.1 What to track
 
 A **core matrix** small enough to run on every Aspire daily and every `aspire-skills`
 release, and a **full matrix** for releases and for any change to the suite itself.
@@ -786,7 +877,7 @@ release, and a **full matrix** for releases and for any change to the suite itse
 drift and infrastructure drift. **Report every Aspire arm as a ratio to `raw` in the same
 run**, never as an absolute against a past run.
 
-### 10.2 Metrics and regression rule
+### 12.2 Metrics and regression rule
 
 Per cell, per run: pass rate, median agent seconds, median input tokens, median cost,
 median seconds to root cause, skill selection rate (`aspire-diagnose` loaded, or whichever
@@ -807,7 +898,7 @@ the same cell:
 An **improvement** is the mirror image and is recorded the same way, so the series shows
 what each product or skills change bought.
 
-### 10.3 Mechanics
+### 12.3 Mechanics
 
 ```mermaid
 flowchart LR
@@ -852,7 +943,7 @@ Concretely:
    one; do not splice. Because every arm is reported against `raw` in the same run, the
    product series stays comparable across the splice even though absolutes move.
 
-### 10.4 What the series answers
+### 12.4 What the series answers
 
 - Did this Aspire daily make the agent slower (CLI output changed shape, a new MCP tool
   dumps more, a resource takes longer to start)?
@@ -863,12 +954,12 @@ Concretely:
 
 ---
 
-## 11. Next investigations
+## 12. Next investigations
 
 Ranked by expected impact on agentic performance with Aspire, with the reasoning and the
 cheapest experiment that would settle each.
 
-### 11.1 Validate every resource's discoverability and manageability for agents
+### 12.1 Validate every resource's discoverability and manageability for agents
 
 The Redis findings are a sample of one. The skill's dependency step works for PostgreSQL
 and Redis because someone wrote down the container ID property, the credential variable,
@@ -898,14 +989,14 @@ resource" surface** (`aspire describe` exposing the native tool invocation, or a
 `aspire resource <name> exec -- <cmd>` that resolves container, credentials and port), so
 no skill has to know the port of each database.
 
-### 11.2 Put the dependency in the trace
+### 12.2 Put the dependency in the trace
 
 The `slow-redis` lean agent needs 38 s to root cause on luna against 26 s on `slow-sql`,
 and the MCP route loses half its luna trials, because the trace does not name the cache.
 Redis client tracing in the aspirified template is one line; the audit above says how
 many other integrations have the same hole. Measure `slow-redis` again with it.
 
-### 11.3 A held-out application and application-code faults
+### 12.3 A held-out application and application-code faults
 
 One application and three operational faults support the conclusions here; they do not
 support "ship this skill to everyone". A second application with a different stack (say
@@ -919,9 +1010,9 @@ this suite does not cover:
   covered by any child span" is the hypothesis and the raw app's log has nothing.
 
 If `aspire-diagnose` generalises, steps 1 and 2 should carry over unchanged and only step
-3 needs the integration lines from §11.1.
+3 needs the integration lines from §12.1.
 
-### 11.4 Separate instrumentation from tooling
+### 12.4 Separate instrumentation from tooling
 
 A win for Aspire here combines two things: the app emits traces, and Aspire gives tools
 to read them. An **instrumented raw arm** (OpenTelemetry SDK with console or file exporter,
@@ -930,28 +1021,28 @@ no Aspire) says how much of the `slow-redis` result is "have traces" and how muc
 most of the gap, the story is "aspirify to get instrumented"; if not, the CLI and skill
 are the product.
 
-### 11.5 Finish the MCP shape
+### 12.5 Finish the MCP shape
 
 `list_resources` and `list_console_logs` are untouched by patch 0001 and still 10 KB and
 35 KB. Every MCP trial calls both. The compaction of `list_traces` moved time by up to 36%;
 the remaining two are likely worth another 10% and would make the MCP route safe for the
 cheap model. Run the four MCP cells at n = 6 so the effect size is proven, not indicated.
 
-### 11.6 Cold start as a product feature
+### 12.6 Cold start as a product feature
 
 Every Aspire cold start costs four to eight CLI calls against one script. A blocking
 `aspire start` that prints endpoints is a small CLI change with a measured target (raw
 36 to 43 s). It is also the first thing every agent does with Aspire, so it sets the tone
 for the rest of the session.
 
-### 11.7 Other harnesses and multi-turn sessions
+### 12.7 Other harnesses and multi-turn sessions
 
 All 461 trials are single-turn Copilot CLI. Skill discovery, MCP registration and context
 limits differ in Claude Code and Codex CLI, and a real session is several turns on the
 same app. Re-running the core matrix on one more harness tells whether the router's
 cost and the skill's selection rate are harness-specific.
 
-### 11.8 Cheaper to run, so it runs more
+### 12.8 Cheaper to run, so it runs more
 
 The tracking proposal depends on the matrix being cheap. Two things would halve it: the
 no-model gate running locally before any cloud submission (already possible with
@@ -959,7 +1050,7 @@ no-model gate running locally before any cloud submission (already possible with
 
 ---
 
-## 12. Limits
+## 13. Limits
 
 - One application (Bingo), three operational faults and a cold start. Two faults leave a
   signal in the raw app's log, one does not. Cross-service and application-code faults
@@ -972,7 +1063,7 @@ no-model gate running locally before any cloud submission (already possible with
   and are reported as medians.
 - No cold-start cell had the MCP server; the cold-start comparison is CLI and skills only.
 - `aspire-diagnose` names PostgreSQL and Redis at the dependency step; other integrations
-  need their own lines (§11.1).
+  need their own lines (§12.1).
 - The `slow-redis` cause is outside the application, which favours agents that look at
   dependencies over agents that read code; the shipped skills steer towards the latter.
 - The source-built CLI arms are managed builds, not NativeAOT; they are only compared with
