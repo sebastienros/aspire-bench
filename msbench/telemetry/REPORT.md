@@ -729,6 +729,27 @@ limits in [FINDINGS.md](../FINDINGS.md).
 | F23 | When the log is silent, Aspire telemetry plus a focused skill is the difference between fixing and not fixing (luna 1/8 → 5/6) |
 | F24 | A convenience health script in the raw baseline slowed the raw agent (luna −36% / −26% without it); baselines must ship what an ordinary app ships |
 
+### 9.1 What the earlier findings contributed
+
+F01 to F15 come from the 13.6-era suites in `msbench/` (`aspire-startup`, `aspire-health`,
+the `bingo-*` directories): a different Aspire version, different tasks and mostly three
+trials per arm. This suite does not re-report them, and F16 supersedes the 13.6
+observations for the diagnosis task types. Six of them shaped how this suite was built
+or are confirmed by it at larger n:
+
+| Earlier finding | What it said | How it shows up here |
+|---|---|---|
+| F01 | A directly discoverable startup skill beats a README recipe; avoid a router, repository inspection and reference reads | `aspire-start` is that skill. Confirmed on `cold-start`: with the router gone, luna fell into `aspire-orchestration`'s references (82 s) until a self-contained start skill existed (51 s) |
+| F02 | Shorter guidance is not automatically faster; optimize decisions and reference transitions, not word count | The lean set is not faster because it is small but because it removes turns: no router hop, no reference read, bounded commands. The CLI patch (fewer bytes, same turns) moved time by at most 12%, which is the same lesson from the other side |
+| F06 | Setup failures must not become model or Aspire failures | The `infrastructure_failure` flag: six luna round-5 trials with runner exceptions are in `trials.jsonl` and in no other number |
+| F07 | Broad skills next to a narrow one need not add churn; investigate routing before removing the broad skill | Investigated here with `aspire-plus` (new skill next to the router): luna picked the router or nothing in 2 of 6. The broad skill that caused churn was the router, not `aspire-orchestration`, and it was removed on that evidence |
+| F10 | Runtime-diagnosis fixtures must pass the infrastructure gate before any model runs | The fail → reference repair → pass gate on every cell, locally and remotely, before submission |
+| F15 | Independent graders must not expand the requested behaviour | The verifier checks only what the prompt asks (fast again, works again, data and functionality kept, still running); `read-only` records "application works" and "root cause removed" separately so neither is hidden in the other |
+
+The rest (F03 to F05, F08, F09, F11 to F14) concern endpoint discovery, capability
+verification, session continuity, publishing, feature evolution and fault transfer,
+which this suite does not exercise.
+
 Two observations that cut across them. First, **bytes are not time**: the CLI patch cut
 what the agent reads by up to 59% and moved time by at most 12%, because most input
 tokens are the conversation prefix re-sent on every model call (cached prefix is 64% to
