@@ -166,10 +166,13 @@ repair are both far from the verifier's limits.
 
 ### 3.4 What the agent is told
 
-The prompt is the whole task. There is no suite system prompt, no hint file and no
-report template; the agent gets the instruction below, the workspace at `/app` with its
-README, and whatever the arm adds (skills under `.github/skills`, the MCP server
-registered with `aspire agent mcp`). The prompts are in
+The prompt is the whole task. There is no suite system prompt (Copilot CLI's own
+defaults, nothing added by the benchmark), no hint file (no `AGENTS.md`,
+`copilot-instructions.md`, runbook or known-issues note in the workspace) and no report
+template (the agent writes nothing the grader reads; success is checked live); the agent
+gets the instruction below, the workspace at `/app` with its README, and whatever the
+arm adds (skills under `.github/skills`, the MCP server registered with
+`aspire agent mcp`). The prompts are in
 [tools/gen-tasks.mjs](tools/gen-tasks.mjs) and are written to each task's `instruction.md`.
 
 `slow-sql` and `slow-redis` share one prompt on purpose: the same user-visible symptom
