@@ -406,7 +406,8 @@ xychart-beta
 ```
 
 On terra and sol every arm passed `slow-redis`; the difference there is time (raw 196 s
-and 119 s, lean 63 s and 66 s). All 54 cold-start trials passed.
+and 119 s, lean 63 s and 66 s). All 54 cold-start trials passed; none of the five
+cold-start arms had the MCP server.
 
 ### 4.4 Model comparison
 
@@ -648,6 +649,7 @@ say where to look when the trace does not name the culprit.
 |---|---|---|---|
 | Compact `list_resources` (10 KB for 8 resources, mostly command descriptions) and `list_console_logs` (35 KB) | Same as the telemetry compaction for the two tools every MCP trial calls | Not in patch 0001 | Extend the patch; re-run the four MCP cells at n = 6 |
 | Blocking `aspire start` | Cold start within a few seconds of the raw script | Product change not written | Prototype on a source build; `cold-start` on 3 models, `aspire-cli` arm |
+| Cold start through MCP (`wait_for_resources` + `list_resources`) | One wait call instead of two; the endpoint read moves from `describe` to `list_resources` | No `cold-start` cell ran with the MCP server | `aspire-lean-mcp` on `cold-start`, 3 models × 3 trials (about 10 minutes of agent time) |
 | Redis client tracing in the aspirified template | The `slow-redis` trace names the cache span instead of implicating it by elimination; the lean agent's 38 s to root cause should drop toward the `slow-sql` 26 s; the MCP route (3/6 on luna) should stop losing agents to source code | Neither app has Redis tracing today | Switch the template to the Aspire Redis client integration; re-run `slow-redis` lean and lean-mcp on luna at n = 6 |
 | Redis plain port on 6379 | Fewer wasted cycles for any agent following a generic recipe | Only the skill-side workaround was measured | Measure an `aspire-cli` (no skills) arm on `slow-redis` before and after |
 | The router's guardrail role | Unknown | No scenario exercises "checks before edits" | A scenario where the agent must not restart a resource with state |
@@ -693,7 +695,10 @@ Reading it:
   model to source code half the time. Until the cache is in the trace, the CLI-only lean
   set is the safer default for cheap models.
 - **Cold start is a product gap**: four to eight CLI calls where the raw app needs one
-  script. No skill recovers it; the blocking-start proposal would.
+  script. No skill recovers it; the blocking-start proposal would. No cold-start cell
+  had the MCP server, so `wait_for_resources` (one call for several resources) was never
+  available there; it would fold the two `aspire wait` calls into one but still leaves
+  `aspire start` in the shell and the endpoints to a separate `list_resources` call.
 
 ---
 
@@ -934,6 +939,7 @@ no-model gate running locally before any cloud submission (already possible with
   and `read-only` and on luna `slow-redis`; 3 for terra and sol `slow-redis`, for every
   cold-start cell and for every patch arm. Cells with 3 per arm cannot show significance
   and are reported as medians.
+- No cold-start cell had the MCP server; the cold-start comparison is CLI and skills only.
 - `aspire-diagnose` names PostgreSQL and Redis at the dependency step; other integrations
   need their own lines (§11.1).
 - The `slow-redis` cause is outside the application, which favours agents that look at
