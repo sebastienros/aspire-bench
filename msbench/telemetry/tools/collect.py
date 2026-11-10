@@ -34,6 +34,8 @@ PHASES = {
                  re.compile(r"CREATE\s+(UNIQUE\s+)?INDEX|DROP\s+TRIGGER|DISABLE\s+TRIGGER|CREATE\s+OR\s+REPLACE\s+FUNCTION|ALTER\s+TABLE", re.I)),
     "read-only": (re.compile(r"read-only transaction|25006|default_transaction_read_only", re.I),
                   re.compile(r"RESET\s+default_transaction_read_only|default_transaction_read_only\s*(=|TO)\s*'?(off|false)", re.I)),
+    "slow-redis": (re.compile(r"report-exporter|redis\.call\(.KEYS|KEYS.{0,40}report:session", re.I),
+                   re.compile(r"\bpkill\b|\bkillall\b|\bkill\s+(-\w+\s+)?\d+|CLIENT\s+KILL|CLIENT\s+PAUSE|ACL\s+SETUSER|rename-command", re.I)),
 }
 ASPIRE_COMMAND = re.compile(
     r"\baspire\s+(otel\s+(?:traces|spans|logs)|describe|logs|resource|export|ps|wait|start|stop|run|docs|doctor|mcp|agent)\b")

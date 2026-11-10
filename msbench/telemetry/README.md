@@ -16,7 +16,7 @@ The two Aspire product patches are in [upstream/](upstream/).
 
 | Arm | Application | Aspire skills | Aspire MCP |
 |---|---|---|---|
-| `raw` | Standard app: Compose dependencies, lifecycle scripts, log files | none | no |
+| `raw` | Standard app: Compose dependencies, a start script, log files | none | no |
 | `aspire-cli` | Aspirified app | none | no |
 | `aspire-skills` | Aspirified app | `current` (shipped v0.0.5) | no |
 | `aspire-mcp` | Aspirified app | none | yes |
@@ -63,13 +63,14 @@ describe only the user-visible symptom, and name no endpoint, tool or component.
 |---|---|---|
 | `slow-sql` | An audit trigger's duplicate check filters an unindexed JSON history that has grown to millions of rows. Square writes take seconds. Nothing fails. | Duration of one database call. Aspire: a trace span with the SQL text. Standard app: EF Core's command-duration lines in `admin.log`. |
 | `read-only` | The database default was left read-only. Pages and reads work; every write fails. Health stays green. | An exception with SQLSTATE 25006. Aspire: structured log + failed trace. Standard app: `admin.log`. |
+| `slow-redis` | A host-side "attendance report" exporter counts cache sessions with a `KEYS`-based script in a loop; the session keyspace grew, so single-threaded Redis spends most of its time on it and every cache call the admin makes waits. Nothing fails. Same prompt as `slow-sql`. | Duration of requests that touch the cache. Aspire: slow server spans whose database child spans are short. Standard app: **nothing**; request logging is off at the default `Microsoft.AspNetCore: Warning` level and the Redis client logs no durations. Both arms must then read the cache's `SLOWLOG` / `CLIENT LIST`. |
 
 A third scenario, `cold-start`, has no fault: nothing is running and the agent must
 bring the application up. It measures the new `aspire-start` skill.
 
-`slow-sql` self-calibrates: it grows the audit history until one square write costs
-at least 500 ms on the machine at hand, so the incident and its repair are both far
-from the verifier's 600 ms limit for five writes.
+`slow-sql` and `slow-redis` self-calibrate: they grow the audit history or the session
+keyspace until one square write, or one report query, costs at least 500 ms on the
+machine at hand, so the incident and its repair are both far from the verifier's limits.
 
 ## Grading
 
@@ -83,11 +84,16 @@ only. It never reads an agent report.
   must be gone at the database level; a second write must succeed after the verifier
   replaces every application session; original squares intact; call/clear/status work.
 
+- `slow-redis`: eight status reads and eight square calls must each have a median under
+  300 ms, no cache command may take over 100 ms during that window (`SLOWLOG`, at a
+  threshold the verifier sets itself), the session keyspace must be intact, square state
+  must still be stored in the cache, and call/clear/status must work.
 - `cold-start`: both origins respond and a fresh write, call and clear round-trip
   through PostgreSQL.
 
-Dropping the trigger, truncating the audit history, or a per-session workaround all
-fail. For `read-only` the verifier records "application works" and "root cause
+Dropping the trigger, truncating the audit history, flushing or restarting the cache
+(the session keys are gone), swapping the cache for memory, or a per-session workaround
+all fail. For `read-only` the verifier records "application works" and "root cause
 removed" separately, so both pass rates can be reported. Each cell was validated locally with `verify` (must fail) → reference repair →
 `verify` (must pass) before any model ran; see [results](results/).
 

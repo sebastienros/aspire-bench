@@ -13,7 +13,6 @@ and player frontend under a detached supervisor.
 
 Admin: `http://localhost:$ADMIN_PORT` (username `admin`).
 Player: `http://localhost:$FRONTEND_PORT`.
-Run `CONTAINER_RUNTIME=docker bash scripts/check.sh` to check the services.
 Process logs are in `.script-state/` (`startup.log`, `admin.log`,
 `frontend.log`); `docker compose ps` and `docker compose logs` cover the
 dependencies.

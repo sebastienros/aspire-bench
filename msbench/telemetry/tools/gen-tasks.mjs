@@ -11,10 +11,9 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const repo = "https://github.com/sebastienros/aspire-bench";
 const appSha = "baacba3e17181491c9a4d419db7d0e6763c3d363"; // msbench/bingo/common, unchanged business source
 
-export const scenarios = {
-    "slow-sql": {
-        seed: 61,
-        instruction: `The Bingo application in /app is running and is serving live producer and player traffic.
+// slow-sql and slow-redis share one prompt on purpose: the same user-visible symptom with
+// two different causes, one that leaves a line in the raw app's log and one that does not.
+const sluggish = `The Bingo application in /app is running and is serving live producer and player traffic.
 
 Producers report that the application has recently become sluggish: some of their
 operations now take several seconds. Nothing fails and no error is shown.
@@ -22,7 +21,14 @@ operations now take several seconds. Nothing fails and no error is shown.
 Find the root cause and fix it so that the affected operations are fast again.
 Keep all existing data and all existing functionality, and leave the application
 running. README.md describes this workspace. No report is required.
-`,
+`;
+
+export const scenarios = {
+    "slow-sql": { seed: 61, instruction: sluggish },
+    "slow-redis": {
+        seed: 64,
+        arms: ["raw", "aspire-cli", "aspire-skills-mcp", "aspire-lean", "aspire-lean-mcp-all"],
+        instruction: sluggish,
     },
     "read-only": {
         seed: 62,

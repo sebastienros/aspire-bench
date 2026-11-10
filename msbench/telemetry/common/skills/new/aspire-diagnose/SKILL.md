@@ -64,8 +64,11 @@ own tool, running it inside the resource's container so no credentials or ports 
 ```bash
 aspire describe <resource> --format Json   # properties."container.id", urls, healthReports
 docker exec <container.id> sh -c 'PGPASSWORD="$POSTGRES_PASSWORD" psql -U postgres -d <database> -c "<sql>"'
-docker exec <container.id> sh -c 'REDISCLI_AUTH="$REDIS_PASSWORD" redis-cli <command>'
+docker exec <container.id> sh -c 'REDISCLI_AUTH="$REDIS_PASSWORD" redis-cli -p 6380 <command>'
 ```
+
+Aspire's Redis container serves TLS on 6379 and plain TCP on 6380, so a bare `redis-cli`
+inside it fails with an I/O error; use `-p 6380` (or `--tls --insecure`).
 
 For a slow SQL statement run it under `EXPLAIN (ANALYZE, BUFFERS)` in a transaction you
 roll back, and check triggers, indexes, and locks on the table (`\d+ "<table>"`,
@@ -73,6 +76,11 @@ roll back, and check triggers, indexes, and locks on the table (`\d+ "<table>"`,
 a constraint, or a lock rather than the statement itself. For a failing statement, the
 error code tells you whether it is permissions, read-only state, schema, or connectivity;
 check server and database settings (`pg_db_role_setting`, `SHOW <setting>`).
+
+For a slow cache, `SLOWLOG GET 10` lists the commands that blocked the server with their
+duration and client, and `CLIENT LIST` shows every connection and the command it last
+ran. One expensive command repeated by one client is the cause; stop that client, do not
+restart or flush the cache.
 
 ## 4. Fix the cause, then verify with telemetry
 

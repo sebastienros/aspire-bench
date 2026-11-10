@@ -41,6 +41,24 @@ async function sql(query, { privileged = true, timeout = 180_000 } = {}) {
         dbName, query], { timeout });
 }
 
+async function redis() {
+    const rows = (await sh("docker", ["ps", "--format", "{{.Names}}\t{{.Image}}"]))
+        .split("\n").filter(Boolean).map(line => line.split("\t"));
+    const matches = rows.filter(([, image]) => /(^|\/)redis:/.test(image));
+    assert.equal(matches.length, 1, `Exactly one running Redis container expected, found ${matches.length}`);
+    return matches[0][0];
+}
+
+// Runs redis-cli inside the cache container. The container may require a password
+// (REDIS_PASSWORD) and, on Aspire main, serves TLS on 6379 with plain TCP on 6380, so the
+// working port is probed first.
+const redisCliPrelude = '[ -n "${REDIS_PASSWORD:-}" ] && export REDISCLI_AUTH="$REDIS_PASSWORD"; opts=""; for o in "" "-p 6380" "--tls --insecure"; do if redis-cli --no-auth-warning $o PING 2>/dev/null | grep -q PONG; then opts="$o"; break; fi; done; ';
+async function redisCli(args, { timeout = 180_000, raw = true } = {}) {
+    const name = await redis();
+    return sh("docker", ["exec", name, "sh", "-c",
+        `${redisCliPrelude}exec redis-cli --no-auth-warning ${raw ? "" : "--no-raw "}$opts "$@"`, "redis-cli", ...args], { timeout });
+}
+
 export async function resolveEndpoints() {
     if (kind === "raw") {
         return {
@@ -137,6 +155,55 @@ async function injectReadOnly() {
                WHERE datname = current_database() AND pid <> pg_backend_pid();`);
 }
 
+// slow-redis: an "attendance report" exporter installed on the host counts the player
+// sessions in the cache with a KEYS-based script, in a loop. The session keyspace grew,
+// Redis is single-threaded, and now every cache call the application makes waits behind
+// that script. Nothing fails and nothing is logged by the application: the only runtime
+// evidence is the duration of requests that touch the cache, and the cache's own
+// SLOWLOG / CLIENT LIST.
+const reportCountScript =
+    "local total = 0 for _, key in ipairs(redis.call('KEYS', ARGV[1])) do total = total + redis.call('STRLEN', key) end return total";
+const exporterScript = "/usr/local/lib/bingo-ops/report-exporter.sh";
+
+async function injectSlowRedis(endpoints) {
+    const step = 250_000;
+    let keys = 0, scriptMs = 0;
+    // Target 100 ms or more per query. The exporter runs it back to back, so each of the
+    // ~40 cache reads behind a status request queues behind the query in flight: a status
+    // request takes seconds instead of milliseconds, while no single cache command waits
+    // long enough to trip the client's 5 s timeout, so nothing fails and nothing is logged.
+    for (let round = 0; round < 20 && scriptMs < 100; round++) {
+        await redisCli(["EVAL",
+            "for i = tonumber(ARGV[1]), tonumber(ARGV[2]) do redis.call('SET', 'report:session:' .. i, ARGV[3]) end return 1",
+            "0", String(keys + 1), String(keys + step), "{\"client\":\"legacy\",\"squares\":[]}"], { timeout: 600_000 });
+        keys += step;
+        // Time the report query as the exporter runs it; a PING through the same path gives
+        // the docker exec round-trip cost to subtract.
+        const timed = async args => {
+            const started = performance.now();
+            await redisCli(args, { timeout: 600_000 });
+            return performance.now() - started;
+        };
+        const pingMs = median([await timed(["PING"]), await timed(["PING"]), await timed(["PING"])]);
+        scriptMs = Math.max(0, await timed(["EVAL", reportCountScript, "0", "report:session:*"]) - pingMs);
+        console.log(`calibration: ${keys} session keys -> ${scriptMs.toFixed(0)} ms per report query (ping ${pingMs.toFixed(0)} ms)`);
+    }
+    assert(scriptMs >= 100, "Could not reproduce a slow report query");
+    const log = openSync("/logs/environment/report-exporter.log", "a");
+    spawn("bash", [exporterScript, await redis()], { detached: true, stdio: ["ignore", log, log] }).unref();
+    await sleep(3_000);
+    const samples = [];
+    for (let i = 0; i < 3; i++) {
+        const status = await http(endpoints.admin, "/api/demo/producer/status");
+        assert.equal(status.status, 200, `Status failed under load: HTTP ${status.status}`);
+        samples.push(status.ms);
+    }
+    const statusMs = median(samples);
+    console.log(`status endpoint under the exporter: ${statusMs.toFixed(0)} ms`);
+    assert(statusMs >= 400, `The exporter does not slow the application enough (${statusMs.toFixed(0)} ms)`);
+    return { keys, scriptMs, statusMs };
+}
+
 // ---------------------------------------------------------------- lifecycle
 
 async function setup() {
@@ -151,6 +218,7 @@ async function setup() {
     const state = { fault, kind, squares, live, injectedAt: new Date().toISOString() };
     if (fault === "slow-sql") state.audit = await injectSlowSql(endpoints);
     else if (fault === "read-only") await injectReadOnly();
+    else if (fault === "slow-redis") state.cache = await injectSlowRedis(endpoints);
     else assert.equal(fault, "none", `Unknown fault ${fault}`);
     await writeFile(statePath, JSON.stringify(state), { mode: 0o600 });
 
@@ -161,7 +229,7 @@ async function setup() {
     }).unref();
     // Let live traffic exercise the incident so runtime evidence exists before the agent starts.
     await sleep(30_000);
-    console.log(`setup complete: ${JSON.stringify(state.audit ?? {})}`);
+    console.log(`setup complete: ${JSON.stringify(state.audit ?? state.cache ?? {})}`);
 }
 
 async function stopTraffic() {
@@ -277,6 +345,38 @@ async function verifyReadOnly(state, endpoints, details) {
     assert.equal(failures.length, 0, failures.join(" | "));
 }
 
+async function verifySlowRedis(state, endpoints, details) {
+    const size = Number(await redisCli(["DBSIZE"]));
+    assert(size >= state.cache.keys, `Cached report sessions must be preserved (${size} < ${state.cache.keys})`);
+    // Every cache command slower than 100 ms during the measurement is recorded, whatever
+    // the agent did to the threshold.
+    await redisCli(["CONFIG", "SET", "slowlog-log-slower-than", "100000"]);
+    await redisCli(["SLOWLOG", "RESET"]);
+    const id = state.live[0];
+    const statusMs = [], callMs = [];
+    for (let i = 0; i < 8; i++) {
+        const status = await http(endpoints.admin, "/api/demo/producer/status");
+        assert.equal(status.status, 200, `Status: HTTP ${status.status}`);
+        statusMs.push(status.ms);
+        const called = await http(endpoints.admin, `/api/demo/producer/squares/${id}/state/${i % 2 === 0}`, { method: "POST" });
+        assert.equal(called.status, 200, `Calling a square: HTTP ${called.status}`);
+        callMs.push(called.ms);
+    }
+    details.statusMs = statusMs.map(Math.round);
+    details.callMs = callMs.map(Math.round);
+    details.baselineStatusMs = Math.round(state.cache.statusMs);
+    const limit = 300;
+    assert(median(statusMs) < limit, `Status still takes ${median(statusMs).toFixed(0)} ms (limit ${limit})`);
+    assert(median(callMs) < limit, `Calling a square still takes ${median(callMs).toFixed(0)} ms (limit ${limit})`);
+    const blocked = Number(await redisCli(["SLOWLOG", "LEN"]));
+    details.cacheCommandsOver100Ms = blocked;
+    assert.equal(blocked, 0, `${blocked} cache commands took over 100 ms during verification: the cache is still being blocked`);
+    // The application must still keep its state in the cache, not in a replacement.
+    assert.equal(await redisCli(["EXISTS", `global_square_${id}`]), "1", "Square state must still be stored in the cache");
+    await redisCli(["CONFIG", "SET", "slowlog-log-slower-than", "10000"]);
+    await verifyFunctional(endpoints, id);
+}
+
 // cold-start: nothing is running when the agent begins. Success is a serving application:
 // both origins respond and a fresh write, call and clear round-trip through the database.
 async function verifyColdStart(endpoints, details) {
@@ -302,6 +402,7 @@ async function verify() {
         await verifyCommon(state, endpoints, details);
         if (state.fault === "slow-sql") await verifySlowSql(state, endpoints, details);
         else if (state.fault === "read-only") await verifyReadOnly(state, endpoints, details);
+        else if (state.fault === "slow-redis") await verifySlowRedis(state, endpoints, details);
         else if (state.fault === "cold-start") await verifyColdStart(endpoints, details);
         details.passed = true;
     } catch (error) {
@@ -329,6 +430,10 @@ async function solve() {
         await sql(`SELECT pg_terminate_backend(pid) FROM pg_stat_activity
                    WHERE datname = current_database() AND pid <> pg_backend_pid();`);
         await sleep(2_000);
+    } else if (state.fault === "slow-redis") {
+        // Stop the exporter; the report keyspace stays, as it is somebody's data.
+        await run("pkill", ["-f", exporterScript]).catch(() => {});
+        await sleep(3_000);
     }
 }
 
