@@ -593,6 +593,14 @@ traces, two trace JSONs, describe cache, two `redis-cli` commands (root cause at
 |---|---|---|
 | README, `scripts/start.sh`, env; run `start.sh`; wait; curl both origins (7 tool calls) | `aspire-orchestration` skill, then its references `app-commands.md` (16 KB), `detection.md` (13 KB), `safety-guardrails.md`; `git` detection; `aspire ps`; `aspire start --isolated`; `aspire wait` ×2; `aspire describe --format Json` read three times through temp files and `rg` to find the URLs; curl (18 calls) | `aspire-start` skill; `aspire start --isolated`; `describe`; `wait` ×2; `describe`; curl ×3 (12 calls) |
 
+Why every Aspire path ends with `describe` after `wait`: the raw app's ports are fixed
+and known before it starts (`ADMIN_PORT` and `FRONTEND_PORT` come from the environment
+and the README prints the URLs with them), so the raw agent can `curl` as soon as the
+script returns. The aspirified app allocates ports at start, and `--isolated` randomizes
+them; neither `aspire start` nor `aspire wait` prints an endpoint, so the agent has to run
+`aspire describe` to learn the URLs before it can verify anything. Start, wait, describe,
+curl is the information flow, not a habit.
+
 ---
 
 ## 6. Why trials failed, and what fixed it
@@ -640,7 +648,7 @@ say where to look when the trace does not name the culprit.
 |---|---|---|---|---|
 | **Compact MCP telemetry** | `list_traces` returns one summary per trace (slowest child span with its statement, first failed span), takes `limit` and `traceId`; `list_structured_logs` takes `limit` and `severity`. 25 unit tests pass, 5 new | `list_traces {}` 31.8 KB → 9.0 KB; filtered 30.0 KB → 2.9 KB. Agent time −6% to −36% in 8/8 cells; tokens −8% to −62% when MCP is the main route; with lean skills + both patches, MCP becomes the agent's main route and `read-only` luna passes 3/3 | Medium: direction consistent in 8/8, 3 trials per cell | [aspire-mcp-compact-telemetry.md](../upstream-issues/aspire-mcp-compact-telemetry.md), [0001](upstream/0001-mcp-compact-telemetry.patch) |
 | **Plain CLI output when redirected** | 13 lines: no table borders, no per-row dashboard links when stdout is not a TTY | `aspire describe` 4,244 → 1,086 bytes (−74%); slow-trace list −77%; characters read by the agent −21% to −59%; time −12% to +1%, no cell significant | High on bytes, none on time: a context saving | [aspire-cli-plain-output.md](../upstream-issues/aspire-cli-plain-output.md), [0002](upstream/0002-cli-plain-output.patch) |
-| **A start that waits and prints endpoints** | One command that blocks until resources are healthy and prints their URLs | Would remove the `wait` ×2 and `describe` steps every Aspire cold-start trial ran; the gap to raw is 15% to 56% | Not measured (see 7.3) | [aspire-start-blocking.md](../upstream-issues/aspire-start-blocking.md) |
+| **A start that waits and prints endpoints** | One command that blocks until resources are healthy and prints their URLs | Would remove the `wait` ×2 and `describe` steps every Aspire cold-start trial ran (ports are allocated at start and `start`/`wait` print none, so `describe` is the only way to the first `curl`); the gap to raw is 15% to 56% | Not measured (see 7.3) | [aspire-start-blocking.md](../upstream-issues/aspire-start-blocking.md) |
 | **Redis plain port** | Plain on 6379 and TLS on 6380, or a hint wherever an agent would look | Removes a diagnosis cycle spent on the tool rather than the incident | Observed, not measured | [aspire-redis-default-ports.md](../upstream-issues/aspire-redis-default-ports.md) |
 
 ### 7.3 Changes whose impact is not confirmed yet
@@ -695,7 +703,9 @@ Reading it:
   model to source code half the time. Until the cache is in the trace, the CLI-only lean
   set is the safer default for cheap models.
 - **Cold start is a product gap**: four to eight CLI calls where the raw app needs one
-  script. No skill recovers it; the blocking-start proposal would. No cold-start cell
+  script, because ports are allocated at start and neither `aspire start` nor
+  `aspire wait` prints them, so a `describe` is needed before the first `curl`. No skill
+  recovers it; the blocking-start proposal would. No cold-start cell
   had the MCP server, so `wait_for_resources` (one call for several resources) was never
   available there; it would fold the two `aspire wait` calls into one but still leaves
   `aspire start` in the shell and the endpoints to a separate `list_resources` call.
