@@ -796,8 +796,8 @@ output (`aspire otel traces --format Json` is 188 KB here).
 
 **Improvement candidate:** [SKILLS-PROPOSAL.md](telemetry/SKILLS-PROPOSAL.md).
 
-**Limits / status:** One application, two database-side faults, both of which also
-leave a signal in the raw app's log file. This supersedes the n=1 13.6 observations for
+**Limits / status:** One application; the two database-side faults also leave a
+signal in the raw app's log file, the cache-side fault (F23) does not. This supersedes the n=1 13.6 observations for
 these task types; it does not generalize to faults with no log signal.
 
 ## F17: A focused diagnosis skill removes the penalty; removing the router makes it reliable
