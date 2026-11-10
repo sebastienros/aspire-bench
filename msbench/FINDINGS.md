@@ -916,7 +916,7 @@ would remove the `wait` and `describe` steps that every Aspire trial ran.
 **Limits / status:** 3 trials per cell (smallest attainable p = 0.10); one
 application; measured, not upstreamed.
 
-## F22: Aspire main's Redis container serves TLS on 6379, so the documented `redis-cli` recipe fails inside it
+## F22: Aspire main's Redis container serves TLS on 6379, so the generic `redis-cli` recipe fails inside it
 
 **Evidence:** On `17.1.0-preview.1.26559.1`, `AddRedis` starts the container with
 `--tls-port 6379 --port 6380 --requirepass $REDIS_PASSWORD` and a generated
@@ -927,11 +927,19 @@ Redis resource terminal with no port or TLS note, and the first version of this 
 `aspire-diagnose` skill carried the same bare command. Found while building the
 `slow-redis` scenario; the harness and the exporter now probe for the plain port.
 
-**Improvement candidate:** Either publish the plain port as the primary one for local
-tooling, or make every Aspire-authored `redis-cli` instruction (skills, docs, MCP tool
-descriptions, dashboard terminal hints) say `-p 6380` or `--tls --insecure`. An agent
-that hits the reset error with no hint spends a diagnosis cycle on the tool instead of
-the incident.
+**Improvement candidate:** Aspire itself gets this right: `WithRepl()` picks the plain
+port when TLS is on, and the `Aspire.Hosting.Redis` README says so. What fails is the
+generic operator command, which no Aspire surface an agent sees at the point of failure
+(the I/O error, `aspire describe`, the MCP tool descriptions) explains. Two ways to
+close that gap, one of which should be done:
+1. Swap the defaults so the plain port is 6379 (the primary endpoint) and TLS is on
+   6380, which makes the generic command work and keeps TLS for clients that ask for it.
+2. Keep the ports and add a hint where the agent looks: a note in `aspire describe` for
+   the Redis resource, in the MCP resource description, and in the shipped
+   `aspire-terminals` reference row for `redis-cli`.
+
+**Task:** open an issue on `dotnet/aspire` proposing option 1, with option 2 as the
+fallback, citing this finding and the `slow-redis` evidence; link it here when filed.
 
 **Limits / status:** Observed on the pinned daily only; not checked on the 13.x line.
 `aspire-diagnose` updated with the `-p 6380` note before round 6. Not reported upstream.
