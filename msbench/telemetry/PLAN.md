@@ -335,7 +335,8 @@ finding the traffic generator with `ps` ([F26](../FINDINGS.md#f26-agents-find-th
 kept and flagged; without it raw luna slow-sql is 252 s and lean ÷ raw 0.63×, so the verdict does not
 depend on it.
 
-**Ratios to `raw`, round `t02`, n = 6 per cell** (medians over all graded trials; time = agent seconds,
+**Ratios to `raw`, round `t02`, n = 6 per cell** (computed on `t02` alone; since `t02-insample` the
+linked `comparison.md` and `stats.md` pool both rounds, pre- and post-revision; medians over all graded trials; time = agent seconds,
 tokens = input tokens; p = exact Mann-Whitney on time against raw; skill = trials that loaded a skill;
 [comparison.md](results/comparison.md), [stats.md](results/stats.md)):
 
@@ -470,6 +471,13 @@ rule use the reward. The "fast only" rate is reported beside it.
 decides. Luna: `aspire-lean` 235 s against `raw` 288 s, 0.81× (p = 0.39), 6/6 against 5/6. Terra:
 253 s against 412 s, 0.61× (p = 0.065), 6/6 against 6/6. Both conditions hold. The card's original
 "ahead" reading and the amended one do not apply to a log-visible fault, so they cannot disagree here.
+
+**What the gate does not show.** The reserved fault turned out log-visible, the class `t02` had already
+passed (0.67×, 0.85×). No `t02-heldout3` trial used the revised step-1 branch (no `duration:>5000`
+search in any cache cell), so the revision was never exercised out of sample. Its effect on the silent
+symptom that shut the gate is in-sample evidence only, and there the time stayed within round-to-round
+noise. "Open by the card's rule" holds; "the revision generalises to a silent fault" is not shown. A
+held-out **log-silent** fault is the open item that would show it (open item 6).
 The revision did what it was written for on the in-sample silent fault (the lock span reached the
 screen in 12/12 `aspire-lean` trials, against 4/12 in `t02`), but the time to repair did not follow:
 in-sample `aspire-lean` is 0.86× (luna) and 0.83× (terra), and its absolute terra time rose from 90 s to
@@ -504,7 +512,13 @@ rejected once by that check (444 ms) before the target was raised from 500 to 70
 
 **Round health.** 11 of 144 first-pass trials failed before the agent started. The image build could
 not download `packages.microsoft.com`'s signing key (curl exit 22). They are infrastructure failures
-and were re-run once, all completing, in `t02-heldout3-topup` (5) and `t02-insample-topup` (6). No
+and were re-run once, all completing, in `t02-heldout3-topup` (5) and `t02-insample-topup` (6). The
+pre-registered infrastructure rule names timeouts and crashes with 5xx. A build failure before the agent
+starts is not literally in it, but no trial ran, so the same rule was applied. First-pass trials only
+(no top-ups): `aspire-lean` 0.68× (luna, `raw` 3/3) and 0.58× (terra, `raw` 5/5), the same verdict. The
+only raw failure is itself a top-up trial. Failed first-pass IDs: `2026111860490640`, `…491294`,
+`…492562`, `…519368`, `…529308` (cache); `2026111860551988`, `…566096`, `…587400`, `…603846`, `…607896`,
+`…637216` (in-sample). No
 timeout or crash. One model-service 5xx per round (23.9 s lost in `2026111860542120`, `aspire-lean`
 terra cache; 0.6 s in `t02-insample`). No trial read the harness (F26 check).
 
@@ -514,12 +528,12 @@ fast/cause = the verifier's separate checks):
 
 | Model | Arm | Time | Time ÷ raw | Tokens ÷ raw | Pass | Fast / cause | Skill | $/trial | Run IDs |
 |---|---|---:|---:|---:|---|---|---|---:|---|
-| luna | raw | 288 s | — | — | 5/6 | 5/6, 5/6 | 0/6 | 0.023 | `2026111860489978`…`493226`, `862946160`…`946850` |
+| luna | raw | 288 s | — | — | 5/6 | 5/6, 5/6 | 0/6 | 0.023 | `2026111860489978`…`493226` (first pass, 3), top-ups `2026111862945490`, `2026111862946160`, `2026111862946850` |
 | luna | aspire-cli | 214 s | 0.74× (p=0.13) | 0.74× | 6/6 | 6/6, 6/6 | 0/6 | 0.019 | `2026111860497224`…`500564` |
 | luna | aspire-skills-mcp | 176 s | 0.61× (p=0.015) | 1.47× | 6/6 | 6/6, 6/6 | 6/6 | 0.026 | `2026111860504706`…`507956` |
 | luna | **aspire-lean** | 235 s | **0.81×** (p=0.39) | 0.96× | 6/6 | 6/6, 6/6 | 6/6 | 0.021 | `2026111860511998`…`515318` |
-| terra | raw | 412 s | — | — | 6/6 | 6/6, 6/6 | 0/6 | 0.141 | `2026111860520032`…`522640`, `…950076` |
-| terra | aspire-cli | 211 s | 0.51× (p=0.002) | 0.54× | 6/6 | 6/6, 6/6 | 0/6 | 0.095 | `2026111860526628`…`529962`, `…952836` |
+| terra | raw | 412 s | — | — | 6/6 | 6/6, 6/6 | 0/6 | 0.141 | `2026111860520032`…`522640`, top-up `2026111862950076` |
+| terra | aspire-cli | 211 s | 0.51× (p=0.002) | 0.54× | 6/6 | 6/6, 6/6 | 0/6 | 0.095 | `2026111860526628`…`529962`, top-up `2026111862952836` |
 | terra | aspire-skills-mcp | 237 s | 0.57× (p=0.015) | 0.94× | 6/6 | 6/6, 6/6 | 6/6 | 0.126 | `2026111860533994`…`537292` |
 | terra | **aspire-lean** | 253 s | **0.61×** (p=0.065) | 0.69× | 6/6 | 6/6, 6/6 | 6/6 | 0.113 | `2026111860541430`…`544656` |
 
@@ -548,23 +562,23 @@ started on port 18091. It never restarted the live API, which kept serving the o
   rebuild`/`restart` (12/12 `aspire-lean`).
 
 **`t02-insample`, labelled in-sample** (same two faults as `t02`, revised skill, unchanged app, n = 6;
-six top-ups marked by the second range; reported only):
+six top-ups listed by ID; reported only):
 
 | Scenario | Model | Arm | Time | ÷ raw | `t02` ÷ raw | Pass | Run IDs |
 |---|---|---|---:|---:|---:|---|---|
-| heldout-slow-sql | luna | raw | 234 s | — | — | 6/6 | `2026111860548676`…`551340`, `…955526` |
+| heldout-slow-sql | luna | raw | 234 s | — | — | 6/6 | `2026111860548676`…`551340`, top-up `2026111862955526` |
 | heldout-slow-sql | luna | aspire-cli | 128 s | 0.55× (p=0.002) | 0.51× | 6/6 | `2026111860556092`…`559376` |
-| heldout-slow-sql | luna | aspire-skills-mcp | 133 s | 0.57× (p=0.026) | 0.61× | 5/6 | `2026111860563542`…`566742`, `…958292` |
+| heldout-slow-sql | luna | aspire-skills-mcp | 133 s | 0.57× (p=0.026) | 0.61× | 5/6 | `2026111860563542`…`566742`, top-up `2026111862958292` |
 | heldout-slow-sql | luna | **aspire-lean** | 189 s | **0.81×** (p=0.065) | 0.67× | 6/6 | `2026111860570842`…`574076` |
-| heldout-slow-sql | terra | raw | 400 s | — | — | 6/6 | `2026111860608542`…`611198`, `…966454` |
+| heldout-slow-sql | terra | raw | 400 s | — | — | 6/6 | `2026111860608542`…`611198`, top-up `2026111862966454` |
 | heldout-slow-sql | terra | aspire-cli | 311 s | 0.78× (p=0.015) | 0.66× | 6/6 | `2026111860615322`…`618546` |
 | heldout-slow-sql | terra | aspire-skills-mcp | 413 s | 1.03× (p=0.94) | 0.91× | 6/6 | `2026111860622594`…`625796` |
 | heldout-slow-sql | terra | **aspire-lean** | 339 s | **0.85×** (p=0.065) | 0.85× | 6/6 | `2026111860629804`…`633132` |
 | heldout-stuck-orders | luna | raw | 91 s | — | — | 6/6 | `2026111860578066`…`581298` |
-| heldout-stuck-orders | luna | aspire-cli | 120 s | 1.32× (p=0.093) | 1.34× | 6/6 | `2026111860585478`…`588744`, `…961026` |
+| heldout-stuck-orders | luna | aspire-cli | 120 s | 1.32× (p=0.093) | 1.34× | 6/6 | `2026111860585478`…`588744`, top-up `2026111862961026` |
 | heldout-stuck-orders | luna | aspire-skills-mcp | 300 s | 3.30× (p=0.009) | 2.53× | 4/6 | `2026111860592856`…`596260` |
-| heldout-stuck-orders | luna | **aspire-lean** | 78 s | **0.86×** (p=0.39) | 0.99× | 6/6 | `2026111860600402`…`603186`, `…963710` |
-| heldout-stuck-orders | terra | raw | 137 s | — | — | 6/6 | `2026111860637890`…`640540`, `…969212` |
+| heldout-stuck-orders | luna | **aspire-lean** | 78 s | **0.86×** (p=0.39) | 0.99× | 6/6 | `2026111860600402`…`603186`, top-up `2026111862963710` |
+| heldout-stuck-orders | terra | raw | 137 s | — | — | 6/6 | `2026111860637890`…`640540`, top-up `2026111862969212` |
 | heldout-stuck-orders | terra | aspire-cli | 95 s | 0.69× (p=0.18) | 0.76× | 6/6 | `2026111860644564`…`647882` |
 | heldout-stuck-orders | terra | aspire-skills-mcp | 108 s | 0.79× (p=0.39) | 1.12× | 6/6 | `2026111860651886`…`655522` |
 | heldout-stuck-orders | terra | **aspire-lean** | 113 s | **0.83×** (p=0.24) | 0.74× | 6/6 | `2026111860659500`…`662848` |
@@ -600,6 +614,11 @@ $0.095–0.170 each on this app, against the $0.065 the estimate assumed. Gates 
    per-round tables above are computed from `trials.jsonl` per round.
 5. T1.1's held-out cells (`gpt-6.2-sol`, `claude-opus-5.5`) remain, now on `heldout-cache` as the
    held-out fault.
+6. A held-out log-silent fault, built after this revision, to test the step-1 branch out of sample.
+   Not built: the card reserved one third fault, and it turned out log-visible.
+7. `skills_sha` in the ledger did not change with the revision (it records the shipped skills tag), so
+   `series.py` cannot separate pre- and post-revision `aspire-lean` rows; the suite SHA in
+   `task_repo_commit` can.
 
 ### T0.3 Series tooling
 

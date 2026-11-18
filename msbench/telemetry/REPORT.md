@@ -1131,7 +1131,9 @@ in-sample re-run of both faults (`t02-insample`, 96 trials) then put the lock sp
 then judged on a third fault built only after the revision, `heldout-cache`: the catalogue's cache is
 keyed per shopper, so the expensive weekly ranking runs on almost every page view (log-visible, round
 `t02-heldout3`, 48 trials). There `aspire-lean` took 0.81× (luna, 6/6 against 5/6) and 0.61× (terra,
-6/6 each) the raw time, so the ship gate is open. Again the time saved is the restart after the fix,
+6/6 each) the raw time, so the ship gate is open by the card's rule. That fault is log-visible, the
+class that already passed in `t02`, and no trial on it used the revised step-1 branch, so the
+revision's effect on a silent symptom rests on in-sample evidence only. Again the time saved is the restart after the fix,
 not the diagnosis: every arm read the per-shopper key in the source, and agents with and without the
 skill added an index first (luna `aspire-lean` 5/6, luna raw 4/6). Details and open items:
 [PLAN.md, T0.2 results](PLAN.md#t02-results) and [held-out-3 results](PLAN.md#t02-heldout3-results);

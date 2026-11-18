@@ -1154,7 +1154,10 @@ long. Still proposals: a step-2 line for "a call that should not happen at all (
 fixed in the caller", and SQL Server lines in step 3 (`sqlcmd` in the container,
 `sys.dm_exec_requests` with `blocking_session_id`, `sys.dm_tran_locks`), which belong to T1.1.
 
-**Limits / status:** Gate open on one held-out fault, two models, one harness, n = 6. The fault's
+**Limits / status:** Gate open on one held-out fault, two models, one harness, n = 6. That fault is
+log-visible, the class `t02` had already passed, and no trial on it used the revised step-1 branch:
+the revision's effect on a silent symptom is in-sample only, and a held-out log-silent fault is open.
+The fault's
 cause is readable in the source by every arm, so the skill's measured advantage is over restart cost,
 not diagnosis. The re-run without the lock comments is still open. Cost $6.27 (`t02`) + $6.06
 (`t02-insample`) + $3.38 (`t02-heldout3`); 11 trials lost to a `packages.microsoft.com` download
