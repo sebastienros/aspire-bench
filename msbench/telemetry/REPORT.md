@@ -958,6 +958,8 @@ Concretely:
 
 Ranked by expected impact on agentic performance with Aspire, with the reasoning and the
 cheapest experiment that would settle each.
+[PLAN.md](PLAN.md) turns this ranking into task cards, each with its benchmark cells,
+decision rule and cost, after a re-baseline on current main and skills v0.0.6.
 
 ### 12.1 Validate every resource's discoverability and manageability for agents
 

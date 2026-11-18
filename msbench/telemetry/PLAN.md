@@ -30,7 +30,7 @@ These are the user's calls. The plan proceeds on the defaults in the second colu
 
 | Decision | Default assumed here | Why it matters |
 |---|---|---|
-| Model budget per phase | Phase 0 ≈ $8, Phase 1 ≈ $12, Phase 2 ≈ $15, Phase 3 ≈ $25, Phase 4 ≈ $20 (model cost only, from this dataset's per-trial means) | Sets n per cell and how many scenarios the skill audit gets |
+| Model budget per phase | Phase 0 ≈ $12, Phase 1 ≈ $16 plus the second harness, Phase 2 ≈ $15, Phase 3 ≈ $26, Phase 4 ≈ $5 plus ≈ $5 per tracking run (model cost only, summed from the cards' estimates at this dataset's per-trial means) | Sets n per cell and how many scenarios the skill audit gets |
 | Models | `gpt-6-luna` and `gpt-6.1-terra` in every decision cell; `gpt-6.1-sol` only on ship gates | Luna is where guidance decides the outcome; sol costs 7× luna per trial |
 | Skills baseline | `microsoft/aspire-skills` **v0.0.6** (released 2026-11-17) | v0.0.5 is no longer what `aspire agent init` registers |
 | Held-out application | A second Bingo-sized app with a different stack (minimal API + SQL Server + RabbitMQ worker), built in this repo; eShop only if that proves too small | Every "ship" verdict on `aspire-diagnose` is gated on it |
@@ -45,8 +45,8 @@ Checked 2026-11-17 against the 2026-11-09 pins (`4954c76a`, skills `1117facb` = 
 
 | Where | Change | Effect on this plan |
 |---|---|---|
-| `aspire-skills` v0.0.6 | Router, `aspire-orchestration`, `aspireify`, `aspire-init`, `aspire-deployment` bodies changed; `aspire-monitoring` body tweaked (wait before describe, jq path), **trigger description unchanged**; router still routes "something's wrong" to `aspire-monitoring`; every skill now ships `evals/eval.yaml` (vally, prompt-only, LLM-judged rubric, `gpt-5.6-sol`, 3 runs) | The shipped-set arm must be rebuilt from v0.0.6. The proposals (`aspire-diagnose`, router removal, monitoring trigger) are still open. The upstream evals judge advice text, not live outcomes; Phase 3 complements them rather than duplicating them |
-| `microsoft/aspire` main, 107 commits | **Persisted stable AppHost ports** (#21013): generated public ports stored under `.aspire/state`, isolated mode opt-in | May change the cold-start story: on a second start the ports are known. First start unchanged. Task 0.1 measures it |
+| `aspire-skills` v0.0.6 | Router, `aspire-orchestration`, `aspireify`, `aspire-init`, `aspire-deployment` bodies changed; `aspire-monitoring` body tweaked (wait before describe, jq path), **trigger description unchanged**; router still routes "something's wrong" to `aspire-monitoring`; the compare also touched `evals/eval.yaml` under `aspire`, `aspireify` (plus a new `evals/safety`), `aspire-init`, `aspire-monitoring` and `aspire-orchestration`, so those evals predate v0.0.6 (vally, prompt-only, LLM-judged rubric, `gpt-5.6-sol`, 3 runs); the diff showed none for deployment, terminals or v2-migration. The repository also has a top-level `evals/` tree (`csharp-apphost`, `ts-apphost`, `go-apphost`, `non-aspire`, `terminals`, `project-v2-migration`, `service-defaults-template`, `version-preservation`) and a `grade-routing-entry.mjs` routing grader | The shipped-set arm must be rebuilt from v0.0.6. The proposals (`aspire-diagnose`, router removal, monitoring trigger) are still open. The upstream evals judge advice text, not live outcomes, and the routing grader is the closest thing to T3.9; Phase 3 complements them rather than duplicating them, and T3.9 should reuse that grader's prompt set where it fits |
+| `microsoft/aspire` main, 107 commits | **Persisted stable AppHost ports** (#21013): generated public ports stored under `.aspire/state`; **isolated mode skips persistence by default** (`portAllocation.persistInIsolatedMode` opts in) | The aspirified README tells the agent to start with `--isolated`, so the measured cold start still gets fresh ports. A first start is unchanged in any case. T0.1 adds a warm-start cell without `--isolated` to see whether a known port removes the `describe` step |
 | | `aspire agent init` registers the plugin and offers to **remove static skill copies** (#22080); telemetry hooks installed for Aspire-configured agents (#22078, #22093) | How skills reach the agent changed, not their content. The benchmark's copy into `.github/skills` stays representative of content; the arm table must say so |
 | | `aspire describe` table shows exit codes (#22054) | Output shape changed; the plain-output patch needs a rebase and the byte counts a re-measure |
 | | Redis `WithArgs` forwarded in publish mode (#21447); no change to the TLS-on-6379 default | F22 stands |
@@ -103,8 +103,8 @@ Nothing in later phases is interpretable until these three are done.
 | Arms | `raw`, `aspire-cli`, `aspire-skills-mcp` (v0.0.6), `aspire-lean` (v0.0.6 base) |
 | Cells | `slow-sql`, `read-only`, `slow-redis`, `cold-start` × luna, terra × n = 6 |
 | Decision rule | None; this is the new baseline. Report every cell as a ratio to raw next to the 11-09 ratio. A cell that moved more than 25% gets a one-line cause from the trajectories |
-| Also answer | Did #21013 change `cold-start`? (first start on a fresh clone: no; measure a **warm** cold start, second `aspire start` in the same workspace, as an extra 3-trial cell.) Did #22054 change `describe` bytes? |
-| Trials / cost | 4 scenarios × 4 arms × 2 models × 6 = 192 trials ≈ $7.80 |
+| Also answer | Did #21013 change `cold-start`? A first start on a fresh clone cannot differ; measure a **warm** cold start (second `aspire start` in the same workspace, **without** `--isolated`, or with `persistInIsolatedMode`) as an extra 3-trial cell on luna. Did #22054 change `describe` bytes (no model)? Does **plugin delivery** change selection (F04): one 3-trial luna `slow-sql` cell where the image registers the plugin through `aspire agent init` instead of copying into `.github/skills`; selection must match the copy within one trial, otherwise the arm definition changes |
+| Trials / cost | 4 scenarios × 4 arms × 2 models × 6 = 192 trials + 6 extra ≈ $7.90 |
 | Results | pending |
 
 ### T0.2 Held-out application and fault
@@ -112,11 +112,11 @@ Nothing in later phases is interpretable until these three are done.
 | | |
 |---|---|
 | Hypothesis | `aspire-diagnose` was written against the app and faults it is scored on; its first two steps are stack-neutral and should carry over, its third needs integration lines |
-| Change | A second application in `msbench/`: minimal API + SQL Server + RabbitMQ consumer + static frontend, raw (Compose + start script + README) and aspirified (AppHost + ServiceDefaults), same calibration and verifier style as the telemetry suite. Two faults: a slow SQL Server query (log-visible: EF Core) and a RabbitMQ consumer stalled by a poisoned message (log-silent: nothing fails, queue depth grows). No skill edit before the first run |
+| Change | A second application in `msbench/`: minimal API + SQL Server + RabbitMQ consumer + static frontend, raw (Compose + start script + README) and aspirified (AppHost + ServiceDefaults), same calibration and verifier style as the telemetry suite. Three faults, of which **two run first**: a slow SQL Server query (log-visible: EF Core) and a RabbitMQ consumer blocked on an advisory lock held by a stalled process (log-silent: no exception, no error line, queue depth grows). The **third** (a cache-side fault on that app) is **reserved** and runs only if the skill is revised after the first two, so the gate is never judged on an in-sample fault. Setup asserts the silent fault's silence: zero error-level lines in the raw app's logs during the fault window, or the fixture is rejected. No skill edit before the first run |
 | Arms | `raw`, `aspire-cli`, `aspire-skills-mcp`, `aspire-lean` |
 | Cells | 2 faults × luna, terra × n = 6 |
-| Decision rule | `aspire-lean` within +20% of raw on the log-visible fault and ahead on the silent one on both models: steps 1 and 2 generalise, ship gate open. Otherwise record what the agent needed and fix the skill *then* re-run once, labelled as a second version |
-| Trials / cost | 2 × 4 × 2 × 6 = 96 ≈ $3.90, plus the fixture work (the largest engineering item in the plan) |
+| Decision rule | `aspire-lean` within +20% of raw on the log-visible fault and ahead on the silent one on both models: steps 1 and 2 generalise, ship gate open. Otherwise record what the agent needed, revise the skill once, label the re-run on the same two faults **in-sample**, and judge the gate on the reserved third fault only |
+| Trials / cost | 2 × 4 × 2 × 6 = 96 ≈ $3.90, plus 48 ≈ $1.90 if the reserved fault runs, plus the fixture work (the largest engineering item in the plan) |
 | Results | pending |
 
 ### T0.3 Series tooling
@@ -139,7 +139,7 @@ baseline, with its guard cells, and a verdict.
 | | |
 |---|---|
 | Measured so far | vs shipped: −11% to −67% time in 9/9 cells; `slow-redis` luna 0/6 → 5/6; selected 162/162 ([REPORT §7.1](REPORT.md#71-microsoftaspire-skills)) |
-| Remaining | T0.2 (held-out) and sol on the held-out silent fault, n = 3 |
+| Remaining | T0.2 (held-out) and sol on the held-out silent fault, `raw` and `aspire-lean`, n = 3 (6 trials ≈ $0.70) |
 | Decision rule | Ship if T0.2 passes its rule. Revise step 3 only; steps 1 and 2 are frozen unless T0.2 shows a stack-neutral failure |
 | Issue draft | [skills-add-aspire-diagnose.md](../upstream-issues/skills-add-aspire-diagnose.md) |
 | Results | 11-09 pins: done; v0.0.6 + held-out: pending |
@@ -161,10 +161,10 @@ baseline, with its guard cells, and a verdict.
 |---|---|
 | Measured so far | `aspire-plus` (router + new skill) vs `aspire-lean` (no router + new skill): luna selection 4/6 → 12/12 |
 | Change | Arm `aspire-skills-norouter`: v0.0.6 bundle minus the `aspire` skill, nothing added |
-| Cells | `slow-sql`, `read-only`, `cold-start` × luna, terra × 6, against `aspire-skills` |
+| Cells | `slow-sql`, `read-only`, `cold-start` × luna, terra × 6, against `aspire-skills`; guard `slow-redis` luna × 6 on both arms |
 | Decision rule | Confirms the router's cost if luna time drops ≥ 20% on the diagnosis scenarios. Confirms F21 if `cold-start` luna regresses ≥ 20%, which keeps `aspire-start` a required companion. Either way the verdict is "remove, with an owner per job" |
-| Guard | The router's guardrail role: run T3.8's guardrail scenario in the same round |
-| Trials / cost | 3 × 2 × 2 × 6 = 72 ≈ $2.90 |
+| Guard | The router's guardrail role: run T3.8's guardrail scenario in the same round (T3.8's fixture is therefore a prerequisite of this card) |
+| Trials / cost | 3 × 2 × 2 × 6 = 72 + 12 guard = 84 ≈ $3.10 |
 | Issue draft | [skills-remove-router-add-aspire-start.md](../upstream-issues/skills-remove-router-add-aspire-start.md) |
 | Results | pending |
 
@@ -177,7 +177,7 @@ baseline, with its guard cells, and a verdict.
 | Arms | `aspire-mcp-compact` vs `aspire-mcp-src`; `aspire-lean-mcp-compact` vs `aspire-lean-mcp-src` |
 | Cells | `slow-sql`, `read-only` × luna, terra × 6; **guard** `slow-redis` luna × 6 on both lean arms |
 | Decision rule | Ship if time improves with p < 0.05 in the MCP-only cells on luna and the guard cell's pass rate is not below the lean CLI-only arm by more than one trial. If the guard fails, T2.8 (MCP dependency step) becomes a prerequisite of shipping |
-| Trials / cost | 2 × 2 × 2 × 2 × 6 = 96 + 12 guard = 108 ≈ $4.60 |
+| Trials / cost | 2 × 2 × 2 × 2 × 6 = 96 + 12 guard = 108 ≈ $4.10 |
 | Issue draft | [aspire-mcp-compact-telemetry.md](../upstream-issues/aspire-mcp-compact-telemetry.md) |
 | Results | 11-09 pins n = 3: done; decision n: pending |
 
@@ -208,7 +208,7 @@ baseline, with its guard cells, and a verdict.
 | Hypothesis | Router cost and `aspire-diagnose` selection are properties of the skills, not of Copilot CLI |
 | Cells | `slow-sql`, `slow-redis` × luna (or the closest model the harness offers) × `raw`, `aspire-skills-mcp`, `aspire-lean` × 6 on Claude Code |
 | Decision rule | Same direction as Copilot in both scenarios: the proposals are harness-neutral. Different: record which harness-specific mechanism (skill discovery path, MCP registration, context budget) explains it before any further harness work |
-| Trials / cost | 2 × 3 × 6 = 36, cost depends on the harness's model pricing |
+| Trials / cost | 2 × 3 × 6 = 36, cost depends on the harness's model pricing. Check MSBench's agent and model catalogue first and keep the **same model** if the harness offers it; a harness-and-model change together cannot be attributed to either |
 | Results | pending |
 
 ---
@@ -226,7 +226,7 @@ source build against its `-src` control.
 | Change | `list_resources`: name, type, state, health, URLs, one line per resource; command names only, descriptions on request. `list_console_logs`: `limit` (default 50) and `severity`/`search` honoured server-side |
 | Cells | `slow-sql`, `read-only` × luna, terra × 6, `aspire-mcp-compact2` vs `aspire-mcp-compact`; guard `slow-redis` luna |
 | Decision rule | Ship if characters read drop ≥ 30% and time does not regress; the time gain is expected to be small and is not the gate |
-| Trials / cost | 2 × 2 × 2 × 6 + 6 = 54 ≈ $2.30 |
+| Trials / cost | 2 × 2 × 2 × 6 + 6 = 54 ≈ $2.00 |
 | Results | pending |
 
 ### T2.2 Blocking start that prints endpoints
@@ -247,9 +247,9 @@ source build against its `-src` control.
 |---|---|
 | Hypothesis | The skill sends agents to JSON for one trace only because the table omits `db.query.text`; with it, step 2 becomes one bounded table read |
 | Change | `aspire otel traces -t <id>` table gains a truncated statement/URL column |
-| Cells | `slow-sql` × luna, terra × 6, `aspire-lean-src` patched vs unpatched |
+| Cells | `slow-sql` × luna, terra × 6, `aspire-lean-src` patched vs unpatched; guard `slow-redis` luna × 6 on both |
 | Decision rule | Ship if characters read drop and time to root cause does not rise; drop if agents still go to JSON (the table is then not the issue) |
-| Trials / cost | 2 × 2 × 6 = 24 ≈ $1.00 |
+| Trials / cost | 2 × 2 × 6 = 24 + 12 guard = 36 ≈ $1.20 |
 | Results | pending |
 
 ### T2.4 Redis plain port, or a hint where the agent looks
@@ -294,9 +294,9 @@ source build against its `-src` control.
 |---|---|
 | Hypothesis | Five of fifteen tools were never called in 152 MCP-arm trials and two others fewer than four times; their 9.5 KB schema is paid on every model call |
 | Change | Measure first: a build that registers only the eight used tools. Then decide between lazy registration (`refresh_tools` already exists), grouping docs tools behind one, and shorter descriptions |
-| Cells | `slow-sql`, `read-only` × luna × 6, `aspire-mcp-src` with 8 tools vs 15 |
+| Cells | `slow-sql`, `read-only` × luna × 6, `aspire-mcp-src` with 8 tools vs 15; guard `slow-redis` luna × 6 on both |
 | Decision rule | Pursue if input tokens drop ≥ 5% with no change in route or pass rate; drop if under 2% (the prefix is dominated by other things) |
-| Trials / cost | 2 × 6 × 2 = 24 ≈ $0.40 |
+| Trials / cost | 2 × 6 × 2 = 24 + 12 guard = 36 ≈ $0.60 |
 | Results | pending |
 
 ### T2.8 An MCP route to the dependency
@@ -305,9 +305,20 @@ source build against its `-src` control.
 |---|---|
 | Hypothesis | Agents in MCP never leave MCP; on a silent fault they patch code because no tool points at the cache. The CLI skill's step 3 has no MCP equivalent |
 | Change | Either a tool (`get_resource_connection` returning container, credentials env, tool invocation) or `list_resources` descriptions that name the CLI step, or `aspire-diagnose` text that says "for step 3 leave MCP and run …" |
-| Cells | `slow-redis` × luna × 6, `aspire-lean-mcp-all` with each variant vs the current one |
-| Decision rule | Ship the variant that brings luna to ≥ 5/6; if none does, the recommendation stands as "CLI-only lean for cheap models on silent faults" |
-| Trials / cost | 3 variants × 6 = 18 ≈ $0.30 |
+| Cells | `slow-redis` × luna × 6, `aspire-lean-mcp-all` with each variant vs the current one; guard `slow-sql` luna × 6 on every variant (a hint that sends agents to the dependency too early would show there) |
+| Decision rule | Ship the variant that brings luna to ≥ 5/6 on `slow-redis` without a time regression above 15% on `slow-sql`; if none does, the recommendation stands as "CLI-only lean for cheap models on silent faults" |
+| Trials / cost | 3 variants × 6 = 18 + 24 guard = 42 ≈ $0.70 |
+| Results | pending |
+
+### T2.9 Cold start through MCP
+
+| | |
+|---|---|
+| Hypothesis | `wait_for_resources` takes a list, so the MCP route folds the two `aspire wait` calls into one; the endpoint read moves to `list_resources`; `aspire start` stays in the shell. Net: one call fewer, more bytes read. No cold-start cell has had the MCP server (REPORT §7.3) |
+| Arms | `aspire-lean-mcp` on `cold-start`, against T1.6's `aspire-lean`, `aspire-lean-start` and `aspire-cli` cells from the same round |
+| Cells | `cold-start` × luna, terra, sol × 6 |
+| Decision rule | Informational for the blocking-start card: if the MCP route is within 10% of `aspire-lean-start`, the gap to raw is the start itself and T2.2 is the only lever; if it is faster, `aspire-start` should say so |
+| Trials / cost | 3 × 6 = 18 ≈ $1.20 |
 | Results | pending |
 
 ---
@@ -331,6 +342,11 @@ such, not as "keep".
 Scenario sources: the 13.6 fixtures already gated in this repo are ported to main and
 their raw arms stripped of check scripts (F24) before use.
 
+**Guards in this phase.** A `bundle-minus` arm is a changed route for every other prompt,
+so the two skills whose removal would change the diagnosis route (`aspire-orchestration`,
+`aspireify`, the largest bodies) also run their `bundle-minus` arm on luna `slow-sql` and
+`slow-redis` × 6 (24 trials ≈ $0.40). The router's removal is already guarded in T1.3.
+
 | Card | Skill (v0.0.6 size, references) | Jobs it claims | Scenario(s) and source | Can the harness exercise it? | Trials / cost | Results |
 |---|---|---|---|---|---|---|
 | T3.1 | `aspire-orchestration` (22 KB, 5 refs) | start/stop/wait, resource restart, file locks, port conflicts, worktrees, VS Code sessions | `cold-start`; **restart-after-change** (edit one project, restart only it, verify); **two-app isolation** (port of S01: two apps up, repair one); **port conflict** (a stray process holds the app's port) | Yes for the four; VS Code flows: `no verdict` | 4 × 5 × 2 × 6 = 240 ≈ $9.70 | pending |
@@ -341,16 +357,17 @@ their raw arms stripped of check scripts (F24) before use.
 | T3.6 | `aspire-terminals` (10 KB, 4 refs) | `WithTerminal`, REPLs, tapes, terminal CLI | No live-outcome scenario fits the harness | **`no verdict`** on outcome; selection only (T3.9) | 0 | selection: pending |
 | T3.7 | `aspire-project-v2-migration` (14 KB, 2 refs) | migrate `AddProject` to `DotnetProjectResource` APIs with assessment and approval | **Migration** (an AppHost with three `AddProject` calls; "assess and migrate to the v2 project APIs"; grader: builds, starts, same resources healthy, same endpoints) | Yes, single-turn means the "explicit approval" step is pre-granted in the prompt | 1 × 4 × 2 × 6 = 48 ≈ $1.90 | pending |
 | T3.8 | `aspire` router (21 KB, 2 refs) | detect AppHosts, guardrails ("investigate before editing", "never edit `.aspire/modules`"), route | Its routing cost is T1.3. Its guardrail job: **guardrail scenario** ("the db container looks stuck, restart it" on an app whose database holds unsaved state; grader: state preserved, no `docker rm`, no `aspire stop` of the whole app). Arms: `bundle`, `bundle-minus` (no router), `lean` | Yes for this one guardrail; the others: `no verdict` | 1 × 3 × 2 × 6 = 36 ≈ $1.50 | pending |
-| T3.9 | **Selection benchmark** (all skills) | | Prompt-only runs with no app: 5 prompts per skill's claimed jobs plus 10 non-Aspire distractors, each run once per model with the bundle advertised; record which skill is loaded first. Cheap (no environment, ~30 s per run) and the direct measure of trigger quality that the design rules in REPORT §7.1 assume | Yes | ~50 prompts × 2 models × 3 = 300 short runs ≈ $2 | pending |
+| T3.9 | **Selection benchmark** (all skills) | | Runs against a **static copy of the Bingo workspace** (files present, nothing running) so the model sees what it would see in a trial, and the run is stopped after the first skill load or first command. Prompt set: **6 prompts per skill's claimed jobs** (48), the suite's own diagnosis and cold-start prompts (4), and 12 non-Aspire distractors; 2 runs each on luna and terra. Record the first skill loaded. **Calibration before use:** on the shipped bundle it must reproduce the rates the full trials measured (router first in 14 of 18 luna `aspire-skills-mcp` diagnosis trials; `aspire-diagnose` 27 of 27 in `aspire-lean`) within a binomial 90% interval, or it is not used as a proxy. Reuse the upstream `grade-routing-entry.mjs` prompt set where it overlaps | Yes | 64 prompts × 2 models × 2 runs = 256 short runs ≈ $2 | pending |
 
 Decision rules for the audit, applied per skill after its cells and T3.9:
 
 | Observation | Verdict |
 |---|---|
-| Selected ≥ 5/6 on its own prompts, ≤ 1/6 on others', and `skill-only` beats `aspire-cli` on time or pass rate with p < 0.05 on luna | `keep` |
+| Selected on ≥ 10 of its 12 own-prompt runs per model, on ≤ 2 of 12 runs of other skills' prompts, and `skill-only` beats `aspire-cli` on time or pass rate with p < 0.05 on luna | `keep` |
 | Beats `aspire-cli` but reads ≥ 2 references per trial on the main path | `shrink`: move the main path into the body |
-| Selected on others' prompts ≥ 2/6 | `split` or narrow the trigger; re-run T3.9 only |
-| `skill-only` within noise of `aspire-cli` on every cell | `remove` from the default set (keep the content as docs) |
+| Selected on ≥ 3 of 12 runs of other skills' prompts | `split` or narrow the trigger; re-run T3.9 only |
+| `skill-only` **equivalent** to `aspire-cli` on every cell: median ratio within ±10% and its bootstrap 90% interval inside ±25% on time, no pass-rate difference, **and** `bundle-minus` not worse than `bundle` by more than 10% on time or one trial on pass rate | `remove` from the default set (keep the content as docs) |
+| `skill-only` not better than `aspire-cli` but the interval does not fit inside ±25% (luna's within-cell spread reaches 30%) | `no verdict`; add 6 trials or stop |
 | Two skills selected interchangeably on the same prompts | `merge` |
 | Harness cannot exercise the job | `no verdict`; say what harness would |
 
@@ -377,6 +394,7 @@ flowchart LR
     T02["T0.2 held-out app"] --> T11["T1.1 diagnose ship gate"]
     T03["T0.3 series tooling"] --> P1
     T01 --> T02
+    T38["T3.8 guardrail fixture"] --> T13["T1.3 router removal"]
     P1 --> P2["Phase 2: product<br/>T2.1–T2.8"]
     T41["T4.1 integration audit<br/>(no model, in parallel)"] --> T26["T2.6 reach-this-resource"]
     T41 --> T25["T2.5 Redis tracing"]
@@ -403,13 +421,13 @@ Order of work:
 
 Budget at the assumed defaults:
 
-| Phase | Trials | Model cost | Dominant other cost |
+| Phase | Trials (sum of the cards) | Model cost | Dominant other cost |
 |---|---:|---:|---|
-| 0 | ≈ 290 | ≈ $12 | Held-out app fixtures |
-| 1 | ≈ 460 | ≈ $18 | Two to three CES rounds |
-| 2 | ≈ 300 | ≈ $13 | Eight product patches on source builds |
-| 3 | ≈ 580 + 300 short | ≈ $25 | Four fixture ports, two new graders |
-| 4 | ≈ 120 per tracking run + 120 | ≈ $5 + $5 | Audit fixtures (16 AppHosts) |
+| 0 | 198 + 96 (+ 48 reserved) | ≈ $12 (+ $2) | Held-out app fixtures |
+| 1 | 84 + 72 + 108 + 72 + 6 + 36 = 378 | ≈ $16 + second harness | Two to three CES rounds |
+| 2 | 54 + 54 + 36 + 24 + 96 + 24 + 36 + 42 + 18 = 384 | ≈ $15 | Nine product patches on source builds |
+| 3 | 240 + 96 + 48 + 60 + 48 + 48 + 36 + 24 guard = 600, plus 256 short | ≈ $26 | Four fixture ports, two new graders |
+| 4 | 48 + 48 + 24 = 120, plus 120 per tracking run | ≈ $5, plus ≈ $5 per run | Audit fixtures (16 AppHosts) |
 
 For scale, the whole dataset behind REPORT.md was 467 trials and $26.34.
 
