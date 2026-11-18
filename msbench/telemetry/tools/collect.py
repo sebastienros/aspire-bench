@@ -172,10 +172,17 @@ def analyze_trial(result_path, entry):
     # Model-service health: wall time spent in model calls that ended in a 5xx (a 504 after a
     # 240 s hang on 2026-11-18). A trial that timed out or crashed after such failures says
     # nothing about the arm; it is an infrastructure failure like one that never got a grade.
-    failures = [e["data"] for e in events if e.get("type") == "model.call_failure"
-                and (e.get("data", {}).get("statusCode") or 0) >= 500]
+    # The wait counts the failed call itself plus the retry backoff until the next model call.
+    failures, wait = [], 0.0
+    for index, event in enumerate(events):
+        if event.get("type") == "model.call_failure" and (event.get("data", {}).get("statusCode") or 0) >= 500:
+            failures.append(event["data"])
+            wait += (event["data"].get("durationMs") or 0) / 1000
+            following = next((e for e in events[index + 1:] if e.get("type") == "model.call_start"), None)
+            if following and following.get("timestamp") and event.get("timestamp"):
+                wait += (parse_time(following["timestamp"]) - parse_time(event["timestamp"])).total_seconds()
     row["model_service_5xx"] = len(failures)
-    row["model_service_wait_seconds"] = round(sum(f.get("durationMs") or 0 for f in failures) / 1000, 1)
+    row["model_service_wait_seconds"] = round(wait, 1)
     if failures and row["exception"]:
         row["infrastructure_failure"] = True
     row["models_called"] = sorted({e["data"].get("model") for e in events
