@@ -1,0 +1,29 @@
+Scanning for running AppHosts...
+20:59:13.686 OK     1.51s boardadmin: POST /api/demo/producer/squares/import ee5f5b4 
+(http://localhost:43409/traces/detail/0a1508317504fa5a5579832ff96d9926?spanId=ee5f5b46505a0369)
+20:59:13.686 OK    0.53ms boardadmin: postgresql f8d6383 (http://localhost:43409/traces/detail/0a1508317504fa5a5579832ff96d9926?spanId=f8d638399c95713c)
+20:59:13.687 OK     0.2ms boardadmin: postgresql 4626aec (http://localhost:43409/traces/detail/0a1508317504fa5a5579832ff96d9926?spanId=4626aec5cfdad0f1)
+20:59:13.687 OK     1.51s boardadmin: postgresql 1e56ca4 (http://localhost:43409/traces/detail/0a1508317504fa5a5579832ff96d9926?spanId=1e56ca43e9bcdb54)
+20:59:15.199 OK    0.27ms boardadmin: postgresql ca3060d (http://localhost:43409/traces/detail/0a1508317504fa5a5579832ff96d9926?spanId=ca3060d5730cd546)
+20:59:16.705 OK   16.22ms boardadmin: GET /api/demo/producer/status 3c647c3 
+(http://localhost:43409/traces/detail/3104bbbb89387bd82926bd89466f9e9d?spanId=3c647c38fd578e52)
+20:59:16.708 OK    1.29ms boardadmin: postgresql 37ba7ab (http://localhost:43409/traces/detail/3104bbbb89387bd82926bd89466f9e9d?spanId=37ba7abd1dd93b6f)
+20:59:16.723 OK    1.95ms boardadmin: POST /api/demo/producer/squares/{squareId}/state/{isChecked:bool} ee7b3ce 
+(http://localhost:43409/traces/detail/3cab74edf6f5dbec06e7d6eda59732db?spanId=ee7b3ced403e49c0)
+20:59:16.723 OK    0.57ms boardadmin: postgresql 0cdb28a (http://localhost:43409/traces/detail/3cab74edf6f5dbec06e7d6eda59732db?spanId=0cdb28a57457d4dd)
+20:59:16.726 OK    0.07ms boardadmin: GET /api/version-info 8533114 
+(http://localhost:43409/traces/detail/e9be20c2b9fe0b2ed3cef2a1d3356282?spanId=85331148a15c854c)
+20:59:18.228 OK   13.19ms boardadmin: GET /api/demo/producer/status eedb122 
+(http://localhost:43409/traces/detail/b5b1025fb8ca7bcb072d4e398007f26f?spanId=eedb12281d3b2646)
+20:59:18.229 OK    0.64ms boardadmin: postgresql a641d26 (http://localhost:43409/traces/detail/b5b1025fb8ca7bcb072d4e398007f26f?spanId=a641d26758278b01)
+20:59:18.243 OK    1.65ms boardadmin: POST /api/demo/producer/squares/{squareId}/state/{isChecked:bool} ec94bb1 
+(http://localhost:43409/traces/detail/2178e2daac3b1feaaab72f4416c8e91e?spanId=ec94bb1cd57d752b)
+20:59:18.244 OK    0.55ms boardadmin: postgresql 3ddab41 (http://localhost:43409/traces/detail/2178e2daac3b1feaaab72f4416c8e91e?spanId=3ddab41184bb66c0)
+20:59:18.247 OK    0.12ms boardadmin: GET /api/version-info 76a38c2 
+(http://localhost:43409/traces/detail/8e9eeee4f5a6e9412f9e7430fc9ec2cc?spanId=76a38c2ca037c42a)
+20:59:18.248 OK     1.45s boardadmin: POST /api/demo/producer/squares/import 4568067 
+(http://localhost:43409/traces/detail/667578d268e1560eb63227c233d2af95?spanId=4568067eb61cb647)
+20:59:18.248 OK    0.55ms boardadmin: postgresql 4a08476 (http://localhost:43409/traces/detail/667578d268e1560eb63227c233d2af95?spanId=4a0847638d0f51c0)
+20:59:18.249 OK    0.25ms boardadmin: postgresql 8146694 (http://localhost:43409/traces/detail/667578d268e1560eb63227c233d2af95?spanId=814669407fac5ea7)
+20:59:18.249 OK     1.45s boardadmin: postgresql aefc250 (http://localhost:43409/traces/detail/667578d268e1560eb63227c233d2af95?spanId=aefc250e9dcb12b0)
+20:59:19.696 OK    0.26ms boardadmin: postgresql bc9001f (http://localhost:43409/traces/detail/667578d268e1560eb63227c233d2af95?spanId=bc9001f4887330bd)

@@ -847,7 +847,47 @@ baseline, with its guard cells, and a verdict.
 | Measured so far | −21% to −59% bytes read, −12% to +1% time, none significant at n = 3 |
 | Decision | No further agent runs. Verdict: ship for the context it frees, claim no speed-up. Rebase on #22054 and re-measure the byte counts only (no model) |
 | Issue draft | [aspire-cli-plain-output.md](../upstream-issues/aspire-cli-plain-output.md) |
-| Results | [REPORT §7.2](REPORT.md#72-dotnetaspire); rebase: **not needed**. Patch 0002 applies cleanly to `30326eb8` (`git apply --check`, exit 0, 2026-11-17): #22054 writes the exit code into the State cell (`Finished (exit code: 0)`), which 0002 does not touch; 0002 drops the per-row dashboard link when output is redirected, and on the new daily that link is what wraps to a third line. Official-daily byte counts are in T0.1; the patched re-measure needs a source build and is pending |
+| Results | **Ship** (for the context it frees; no speed-up claimed). Re-measured 2026-11-18 at pin `2026-11-17`, no model: [T1.5 results](#t15-results) below. Redirected `aspire describe` 5,282 → 1,221 bytes (−77 %) against the source control; `--format Json` unchanged (24,868 bytes, byte-identical across official, control and patched). Rebase not needed (patch 0002 applies to `30326eb8`; #22054's exit code is in the State cell, which 0002 does not touch) |
+
+#### T1.5 results
+
+**Build.** One local cell, `CLI_PATCH=cli-plain-output bash tools/local.sh up aspire lean slow-sql` (suite
+`305a8ed`, the same `Dockerfile` the `aspire-lean-plain` arm builds remotely, arm64). The image keeps the
+official daily at `/usr/local/aspire/aspire` (it starts the AppHost) and puts the patched build on `PATH`;
+the unpatched control (`Dockerfile` stage `cli-source`, `CLI_PATCH=control`) was built separately and
+copied into the same container. So all three CLIs read **one running AppHost** under live traffic, back to
+back, from `/app`, stdout redirected to a file. Versions: `17.1.0-preview.1.26567.3+30326eb8…`,
+`17.1.0-agentic.control+30326eb8…`, `17.1.0-agentic.cliplainoutput+30326eb8…`.
+
+| Command (stdout, bytes) | official daily | source control | patched (0002) | patched vs control |
+|---|---:|---:|---:|---:|
+| `aspire describe` | 5,282 | 5,282 | 1,221 | −77 % |
+| `aspire describe --format Json` | 24,868 | 24,868 | 24,868 | 0, byte-identical |
+| `aspire otel traces -n 15 --search duration:>500` | 6,863 | 6,863 | 1,561 | −77 % |
+| `aspire otel traces` | 31,258 | 31,258 | 12,280 | −61 % |
+| `aspire otel spans -n 20` | 3,327 | 3,386 | 1,456 | −57 % |
+| `aspire otel logs -n 20` | 3,916 | 3,916 | 3,916 | 0 |
+
+- **Reproduces T0.1.** The official table is 5,282 bytes, as T0.1 recorded. T0.1's JSON figure, 24,902, is
+  this run's 24,868 plus the 33-byte `Scanning for running AppHosts...` line: `describe --format Json`
+  writes that line to stderr, the table form to stdout. Official and control output are byte-identical for
+  both `describe` forms (`cmp`), so the source build adds nothing and the difference is the patch alone.
+- **What the patch removes.** Borders and the per-resource dashboard link
+  (`http://localhost:<dashboard>/?resource=…`), which on this daily wraps every row onto a third line
+  because #22054 widened the State column. Every endpoint URL is kept (`http://…/`, `…/squares-management`,
+  `tcp://`, `rediss://`). The patched table is 15 % larger than on the 11-09 pin (1,086 bytes) because of the
+  exit-code text; it is still space-padded.
+- **JSON is untouched.** 0002 only changes table rendering; the agent's JSON reads (`describe <resource>
+  --format Json` in the lean skill's step 3, the 28 KB spill-and-grep loop T0.1 saw on `cold-start`) do not
+  get smaller.
+
+**Verdict: ship, for the context it frees, no speed-up claimed** (the card's decision; no agent run).
+On the 11-09 pin the same patch cut characters read by −21 % to −59 % with time −12 % to +1 %, no cell
+significant ([REPORT §7.2](REPORT.md#72-dotnetaspire)); on the new pin the table it trims is 24 % larger,
+so the saving per `describe` is 4.1 KB instead of 3.2 KB. Evidence:
+[evidence/agent-surface/2026-11-18/](evidence/agent-surface/2026-11-18/) (outputs, `measure.sh`, versions).
+
+**Cost.** No model; one local build (about 6 min with cached layers).
 
 ### T1.6 `aspire-start` against v0.0.6 orchestration
 

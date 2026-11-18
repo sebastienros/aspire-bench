@@ -1,0 +1,26 @@
+Scanning for running AppHosts...
+┌──────────────────────────────────────────────────┬─────────────────────┬─────────────────────────┬─────────┬─────────────────────────────────────────────────┐
+│ Name                                             │ Type                │ State                   │ Health  │ URLs                                            │
+├──────────────────────────────────────────────────┼─────────────────────┼─────────────────────────┼─────────┼─────────────────────────────────────────────────┤
+│ admin-password                                   │ Parameter           │ Running                 │ Healthy │ -                                               │
+│ (http://localhost:43409/?resource=admin-password │                     │                         │         │                                                 │
+│ )                                                │                     │                         │         │                                                 │
+│ bingoboard                                       │ Vite                │ Running                 │ Healthy │ Play bingo (http://localhost:42149/)            │
+│ (http://localhost:43409/?resource=bingoboard-srb │                     │                         │         │                                                 │
+│ dtrpr)                                           │                     │                         │         │                                                 │
+│ bingoboard-installer                             │ Executable          │ Finished (exit code: 0) │ -       │ -                                               │
+│ (http://localhost:43409/?resource=bingoboard-ins │                     │                         │         │                                                 │
+│ taller-kcwmqxuv)                                 │                     │                         │         │                                                 │
+│ boardadmin                                       │ Project             │ Running                 │ Healthy │ Manage squares                                  │
+│ (http://localhost:43409/?resource=boardadmin-fdc │                     │                         │         │ (http://localhost:36651/squares-management)     │
+│ zdjgk)                                           │                     │                         │         │                                                 │
+│ cache                                            │ Redis               │ Running                 │ Healthy │ tcp://localhost:33387, rediss://localhost:45227 │
+│ (http://localhost:43409/?resource=bingo-redis)   │                     │                         │         │                                                 │
+│ db (http://localhost:43409/?resource=db)         │ PostgreSQL Database │ Running                 │ Healthy │ -                                               │
+│ migrations                                       │ Project             │ Finished (exit code: 0) │ -       │ -                                               │
+│ (http://localhost:43409/?resource=migrations-uky │                     │                         │         │                                                 │
+│ hchsf)                                           │                     │                         │         │                                                 │
+│ postgres                                         │ PostgreSQL Server   │ Running                 │ Healthy │ tcp://localhost:39309                           │
+│ (http://localhost:43409/?resource=bingo-postgres │                     │                         │         │                                                 │
+│ )                                                │                     │                         │         │                                                 │
+└──────────────────────────────────────────────────┴─────────────────────┴─────────────────────────┴─────────┴─────────────────────────────────────────────────┘

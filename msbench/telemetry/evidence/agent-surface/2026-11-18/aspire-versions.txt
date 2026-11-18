@@ -1,0 +1,3 @@
+/usr/local/aspire/aspire 17.1.0-preview.1.26567.3+30326eb876d6897b1feadc8bc800f78e466b1b52
+/usr/local/aspire-control/aspire 17.1.0-agentic.control+30326eb876d6897b1feadc8bc800f78e466b1b52
+/usr/local/aspire-source/aspire 17.1.0-agentic.cliplainoutput+30326eb876d6897b1feadc8bc800f78e466b1b52

@@ -22,9 +22,16 @@ link. Endpoint URLs are kept.
 
 | Command | Shipped | Patched |
 |---|---:|---:|
-| `aspire describe` | 4,244 bytes | 1,086 bytes (−74%) |
+| `aspire describe` | 5,282 bytes | 1,221 bytes (−77%) |
 | `aspire otel traces -n 15 --search "duration:>500"` | 6,863 bytes | 1,561 bytes (−77%) |
-| `aspire otel spans -n 20` | 3,327 bytes | 1,399 bytes (−58%) |
+| `aspire otel traces` | 31,258 bytes | 12,280 bytes (−61%) |
+| `aspire otel spans -n 20` | 3,386 bytes | 1,456 bytes (−57%) |
+| `aspire describe --format Json` | 24,868 bytes | unchanged |
+
+Measured on `17.1.0-preview.1.26567.3+30326eb8` (2026-11-18), patched source build against the
+unpatched source build of the same commit, one running app. Since #22054 put the exit code in the
+State cell, the per-row dashboard link wraps every `describe` row onto a third line, which is what the
+patch removes; on the earlier daily (`4954c76a`) `describe` was 4,244 → 1,086 bytes.
 
 Related: the trace detail table omits the span's SQL text, so an agent that wants the
 statement has to re-run the command with `--format Json` (188 KB unfiltered). Showing

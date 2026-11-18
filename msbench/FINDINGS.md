@@ -916,6 +916,14 @@ row's dashboard link onto a third line; `--format Json` is 24,902 bytes. Patch 0
 the per-row link when redirected) still applies cleanly and removes exactly the wrapped
 part. Evidence: [evidence/agent-surface/2026-11-17/](telemetry/evidence/agent-surface/2026-11-17/).
 
+**2026-11-18 re-measure (T1.5):** patch 0002 built from source at `30326eb8` and measured against the
+unpatched source control and the official daily on one running AppHost: redirected `describe`
+5,282 → 1,221 bytes (−77 %), slow-trace list 6,863 → 1,561 (−77 %), full trace list 31,258 → 12,280
+(−61 %), spans −57 %; `--format Json` byte-identical (24,868 bytes; T0.1's 24,902 included the 33-byte
+`Scanning for running AppHosts...` line, which the JSON form writes to stderr and the table form to
+stdout). Control and official output are byte-identical. Verdict unchanged: ship for the bytes, no
+speed-up claimed. Evidence: [evidence/agent-surface/2026-11-18/](telemetry/evidence/agent-surface/2026-11-18/).
+
 ## F20: Phase timing separates diagnosis from repair-style variance
 
 **Evidence:** Two trials of the same arm can differ by 50 s because one model run also

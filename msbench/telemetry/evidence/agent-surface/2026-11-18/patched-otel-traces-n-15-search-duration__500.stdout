@@ -1,0 +1,18 @@
+Scanning for running AppHosts...
+Timestamp    Name                                                       Spans Duration Status
+20:58:13.612 boardadmin: POST /api/demo/producer/squares/import e7f423d 5     1.5s     OK    
+20:58:18.157 boardadmin: POST /api/demo/producer/squares/import 5186aa1 5     1.65s    OK    
+20:58:22.857 boardadmin: POST /api/demo/producer/squares/import dfb798a 5     1.57s    OK    
+20:58:27.465 boardadmin: POST /api/demo/producer/squares/import b646428 5     1.43s    OK    
+20:58:31.978 boardadmin: POST /api/demo/producer/squares/import 03feff2 5     1.59s    OK    
+20:58:36.614 boardadmin: POST /api/demo/producer/squares/import 083aa1a 5     2.33s    OK    
+20:58:41.993 boardadmin: POST /api/demo/producer/squares/import 82fa005 5     1.91s    OK    
+20:58:46.946 boardadmin: POST /api/demo/producer/squares/import 1c23563 5     1.41s    OK    
+20:58:51.410 boardadmin: POST /api/demo/producer/squares/import 61a1491 5     1.35s    OK    
+20:58:55.814 boardadmin: POST /api/demo/producer/squares/import 3a1d4e9 5     1.35s    OK    
+20:59:00.211 boardadmin: POST /api/demo/producer/squares/import b8e360e 5     1.62s    OK    
+20:59:04.880 boardadmin: POST /api/demo/producer/squares/import 6a5ff44 5     1.32s    OK    
+20:59:09.247 boardadmin: POST /api/demo/producer/squares/import 4ebbc9d 5     1.39s    OK    
+20:59:13.686 boardadmin: POST /api/demo/producer/squares/import 0a15083 5     1.51s    OK    
+20:59:18.248 boardadmin: POST /api/demo/producer/squares/import 667578d 5     1.45s    OK    
+Showing 15 of 48 traces

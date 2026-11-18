@@ -1,0 +1,63 @@
+Scanning for running AppHosts...
+20:59:13.682 INFO boardadmin Updated square this-wont-work globally (no connected clients with bingo sets)
+20:59:16.709 INFO boardadmin Loaded 43 squares from database
+20:59:16.724 INFO boardadmin Loaded 43 squares from database
+20:59:16.724 INFO boardadmin Updated square vibe-coding globally (no connected clients with bingo sets)
+20:59:18.230 INFO boardadmin Loaded 43 squares from database
+20:59:18.244 INFO boardadmin Loaded 43 squares from database
+20:59:18.245 INFO boardadmin Updated square amazing globally (no connected clients with bingo sets)
+20:59:21.200 INFO boardadmin Loaded 43 squares from database
+20:59:21.213 INFO boardadmin Loaded 43 squares from database
+20:59:21.214 INFO boardadmin Updated square app-bug globally (no connected clients with bingo sets)
+20:59:13.687 INFO boardadmin Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+20:59:15.199 INFO boardadmin Executed DbCommand (1,512ms) [Parameters=[@p2='?', @p0='?', @p1='?' (DbType = DateTime), @p5='?', @p3='?', @p4='?' (DbType = 
+DateTime), @p8='?', @p6='?', @p7='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+UPDATE "BingoSquares" SET "Label" = @p0, "UpdatedAt" = @p1
+WHERE "Id" = @p2;
+UPDATE "BingoSquares" SET "Label" = @p3, "UpdatedAt" = @p4
+WHERE "Id" = @p5;
+UPDATE "BingoSquares" SET "Label" = @p6, "UpdatedAt" = @p7
+WHERE "Id" = @p8;
+20:59:16.709 INFO boardadmin Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"
+20:59:16.723 INFO boardadmin Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"
+20:59:18.230 INFO boardadmin Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"
+20:59:18.244 INFO boardadmin Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"
+20:59:18.249 INFO boardadmin Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+20:59:19.696 INFO boardadmin Executed DbCommand (1,447ms) [Parameters=[@p2='?', @p0='?', @p1='?' (DbType = DateTime), @p5='?', @p3='?', @p4='?' (DbType = 
+DateTime), @p8='?', @p6='?', @p7='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='30']
+UPDATE "BingoSquares" SET "Label" = @p0, "UpdatedAt" = @p1
+WHERE "Id" = @p2;
+UPDATE "BingoSquares" SET "Label" = @p3, "UpdatedAt" = @p4
+WHERE "Id" = @p5;
+UPDATE "BingoSquares" SET "Label" = @p6, "UpdatedAt" = @p7
+WHERE "Id" = @p8;
+20:59:21.200 INFO boardadmin Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"
+20:59:21.213 INFO boardadmin Executed DbCommand (0ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT b."Id", b."CreatedAt", b."DisplayOrder", b."IsActive", b."Label", b."Type", b."UpdatedAt"
+FROM "BingoSquares" AS b
+WHERE b."IsActive"
+ORDER BY b."DisplayOrder"

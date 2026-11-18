@@ -1,0 +1,10 @@
+Scanning for running AppHosts...
+Name                 Type                State                   Health  URLs                                                      
+admin-password       Parameter           Running                 Healthy -                                                         
+bingoboard           Vite                Running                 Healthy Play bingo (http://localhost:42149/)                      
+bingoboard-installer Executable          Finished (exit code: 0) -       -                                                         
+boardadmin           Project             Running                 Healthy Manage squares (http://localhost:36651/squares-management)
+cache                Redis               Running                 Healthy tcp://localhost:33387, rediss://localhost:45227           
+db                   PostgreSQL Database Running                 Healthy -                                                         
+migrations           Project             Finished (exit code: 0) -       -                                                         
+postgres             PostgreSQL Server   Running                 Healthy tcp://localhost:39309                                     

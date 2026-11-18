@@ -1138,3 +1138,12 @@ not the diagnosis: every arm read the per-shopper key in the source, and agents 
 skill added an index first (luna `aspire-lean` 5/6, luna raw 4/6). Details and open items:
 [PLAN.md, T0.2 results](PLAN.md#t02-results) and [held-out-3 results](PLAN.md#t02-heldout3-results);
 [FINDINGS F27](../FINDINGS.md#f27-on-a-held-out-app-the-diagnosis-skill-carries-over-for-a-slow-call-but-not-for-work-that-silently-stops).
+
+**Phase 1, T1.5: CLI plain output (no model).** Patch 0002 was built from source at the pin and
+measured against the unpatched source build and the official daily on one running AppHost. The
+redirected `aspire describe` table drops from 5,282 to 1,221 bytes (−77 %), the slow-trace list from
+6,863 to 1,561 (−77 %), the full trace list from 31,258 to 12,280 (−61 %); every endpoint URL is kept,
+and the JSON form is byte-identical (24,868 bytes), so the lean skill's JSON reads gain nothing. The
+source build alone changes no byte. Verdict as the card states it: ship for the context it frees, no
+speed-up claimed (time −12 % to +1 %, no cell significant on the 11-09 pin).
+[PLAN.md, T1.5 results](PLAN.md#t15-results).

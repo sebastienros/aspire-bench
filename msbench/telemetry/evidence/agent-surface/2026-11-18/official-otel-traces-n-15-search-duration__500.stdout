@@ -1,0 +1,36 @@
+Scanning for running AppHosts...
+┌──────────────┬───────────────────────────────────────────────────────────────────────────────────────────────────────────────────┬───────┬──────────┬────────┐
+│ Timestamp    │ Name                                                                                                              │ Spans │ Duration │ Status │
+├──────────────┼───────────────────────────────────────────────────────────────────────────────────────────────────────────────────┼───────┼──────────┼────────┤
+│ 20:58:09.031 │ boardadmin: POST /api/demo/producer/squares/import ccd8115                                                        │ 5     │ 1.54s    │ OK     │
+│              │ (http://localhost:43409/traces/detail/ccd81158a4495ab2b05d7e6fe3b0334e)                                           │       │          │        │
+│ 20:58:13.612 │ boardadmin: POST /api/demo/producer/squares/import e7f423d                                                        │ 5     │ 1.5s     │ OK     │
+│              │ (http://localhost:43409/traces/detail/e7f423de8249cb97be0a1723e2c40eba)                                           │       │          │        │
+│ 20:58:18.157 │ boardadmin: POST /api/demo/producer/squares/import 5186aa1                                                        │ 5     │ 1.65s    │ OK     │
+│              │ (http://localhost:43409/traces/detail/5186aa18d19a66a3975429fd701baa23)                                           │       │          │        │
+│ 20:58:22.857 │ boardadmin: POST /api/demo/producer/squares/import dfb798a                                                        │ 5     │ 1.57s    │ OK     │
+│              │ (http://localhost:43409/traces/detail/dfb798a287bc2956fa5e21574e2f39d5)                                           │       │          │        │
+│ 20:58:27.465 │ boardadmin: POST /api/demo/producer/squares/import b646428                                                        │ 5     │ 1.43s    │ OK     │
+│              │ (http://localhost:43409/traces/detail/b6464288462d21b9d6319ad15b0ba92d)                                           │       │          │        │
+│ 20:58:31.978 │ boardadmin: POST /api/demo/producer/squares/import 03feff2                                                        │ 5     │ 1.59s    │ OK     │
+│              │ (http://localhost:43409/traces/detail/03feff23063ca296ed794ebd86156b02)                                           │       │          │        │
+│ 20:58:36.614 │ boardadmin: POST /api/demo/producer/squares/import 083aa1a                                                        │ 5     │ 2.33s    │ OK     │
+│              │ (http://localhost:43409/traces/detail/083aa1ac4500bb3d25fa38d64f4a08fe)                                           │       │          │        │
+│ 20:58:41.993 │ boardadmin: POST /api/demo/producer/squares/import 82fa005                                                        │ 5     │ 1.91s    │ OK     │
+│              │ (http://localhost:43409/traces/detail/82fa005f4cdb7df3be059862a583e3a8)                                           │       │          │        │
+│ 20:58:46.946 │ boardadmin: POST /api/demo/producer/squares/import 1c23563                                                        │ 5     │ 1.41s    │ OK     │
+│              │ (http://localhost:43409/traces/detail/1c23563c184bdd9d82aab560f9a3697b)                                           │       │          │        │
+│ 20:58:51.410 │ boardadmin: POST /api/demo/producer/squares/import 61a1491                                                        │ 5     │ 1.35s    │ OK     │
+│              │ (http://localhost:43409/traces/detail/61a1491e01a800b6f75eed37590de653)                                           │       │          │        │
+│ 20:58:55.814 │ boardadmin: POST /api/demo/producer/squares/import 3a1d4e9                                                        │ 5     │ 1.35s    │ OK     │
+│              │ (http://localhost:43409/traces/detail/3a1d4e9221d20cc7d15c4a0319539e90)                                           │       │          │        │
+│ 20:59:00.211 │ boardadmin: POST /api/demo/producer/squares/import b8e360e                                                        │ 5     │ 1.62s    │ OK     │
+│              │ (http://localhost:43409/traces/detail/b8e360e9be6d47cfd00fb7b4e5088e02)                                           │       │          │        │
+│ 20:59:04.880 │ boardadmin: POST /api/demo/producer/squares/import 6a5ff44                                                        │ 5     │ 1.32s    │ OK     │
+│              │ (http://localhost:43409/traces/detail/6a5ff4403cdd38614c61309035ac8920)                                           │       │          │        │
+│ 20:59:09.247 │ boardadmin: POST /api/demo/producer/squares/import 4ebbc9d                                                        │ 5     │ 1.39s    │ OK     │
+│              │ (http://localhost:43409/traces/detail/4ebbc9d2a3cd730b095fd436876eb789)                                           │       │          │        │
+│ 20:59:13.686 │ boardadmin: POST /api/demo/producer/squares/import 0a15083                                                        │ 5     │ 1.51s    │ OK     │
+│              │ (http://localhost:43409/traces/detail/0a1508317504fa5a5579832ff96d9926)                                           │       │          │        │
+└──────────────┴───────────────────────────────────────────────────────────────────────────────────────────────────────────────────┴───────┴──────────┴────────┘
+Showing 15 of 47 traces
