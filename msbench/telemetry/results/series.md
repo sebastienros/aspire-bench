@@ -16,6 +16,7 @@ infrastructure failures are left out.
 | github-copilot-cli | t01b | 20261118 | 2026-11-17 | t01b, t01b-plugin, t01b-solbridge, t01b-warm | 17.1.0-preview.1.26567.3+30326eb8 | v0.0.6 | T0.1 |
 | vscode | t04 | 20261118 | 2026-11-17 | t04-check, t04-probe | 17.1.0-preview.1.26567.3+30326eb8 | v0.0.6 | T0.4 |
 | github-copilot-cli | t02 | 20261118 | 2026-11-17 | 5 rounds pooled | 17.1.0-preview.1.26567.3+30326eb8 | v0.0.6 | T0.2 |
+| github-copilot-cli | t11 | 20261118 | 2026-11-17 | t11 | 17.1.0-preview.1.26567.3+30326eb8 | v0.0.6 | T1.1 |
 
 ## cold-start / claude-opus-5.5
 
@@ -76,6 +77,13 @@ infrastructure failures are left out.
 |---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---|
 | aspire-lean | t01b | 3 | 3/3 | 64 (2) | 297,826 | – | – | – | – | 100% | 0 | 99,034 | no-raw |  |
 
+## heldout-cache / claude-opus-5.5
+
+| Arm | Run | n | Pass | Agent s (MAD) | Input tok | Time × raw | trail | Tokens × raw | trail | Skill sel. | MCP calls | Chars read | Flags | Time ratio |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---|
+| raw | t11 | 3 | 3/3 | 101 (11) | 378,361 | – | – | – | – | 0% | 0 | 61,446 |  |  |
+| aspire-lean | t11 | 3 | 3/3 | 96 (1) | 475,832 | 0.95× | – | 1.26× | – | 100% | 0 | 60,642 |  | ▄ |
+
 ## heldout-cache / gpt-6-luna
 
 | Arm | Run | n | Pass | Agent s (MAD) | Input tok | Time × raw | trail | Tokens × raw | trail | Skill sel. | MCP calls | Chars read | Flags | Time ratio |
@@ -93,6 +101,13 @@ infrastructure failures are left out.
 | aspire-cli | t02 | 6 | 6/6 | 211 (25) | 395,952 | 0.51× | – | 0.54× | – | 0% | 0 | 160,799 |  | ▄ |
 | aspire-skills-mcp | t02 | 6 | 6/6 | 237 (19) | 687,594 | 0.57× | – | 0.94× | – | 100% | 6 | 200,758 |  | ▄ |
 | aspire-lean | t02 | 6 | 6/6 | 253 (19) | 506,354 | 0.61× | – | 0.69× | – | 100% | 0 | 147,240 |  | ▄ |
+
+## heldout-cache / gpt-6.2-sol
+
+| Arm | Run | n | Pass | Agent s (MAD) | Input tok | Time × raw | trail | Tokens × raw | trail | Skill sel. | MCP calls | Chars read | Flags | Time ratio |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---|
+| raw | t11 | 3 | 3/3 | 165 (2) | 289,840 | – | – | – | – | 0% | 0 | 88,742 |  |  |
+| aspire-lean | t11 | 3 | 3/3 | 110 (1) | 450,370 | 0.67× | – | 1.55× | – | 100% | 0 | 142,098 |  | ▄ |
 
 ## heldout-slow-sql / gpt-6-luna
 

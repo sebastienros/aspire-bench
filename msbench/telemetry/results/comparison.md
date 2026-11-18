@@ -219,6 +219,13 @@ they are listed in trials.jsonl and excluded from every other column.
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | aspire-lean | 3 | 3/3 | 3/3 | 64 | 297,826 | 0.008 | 16 | - | - |
 
+## heldout-cache / claude-opus-5.5
+
+| Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| raw | 3 | 3/3 | 3/3 | 101 (+0%) | 378,361 (+0%) | 0.351 (+0%) | 13 | 6 | - |
+| aspire-lean | 3 | 3/3 | 3/3 | 96 (-5%) | 475,832 (+26%) | 0.363 (+4%) | 15 | 16 | - |
+
 ## heldout-cache / gpt-6-luna
 
 | Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
@@ -236,6 +243,13 @@ they are listed in trials.jsonl and excluded from every other column.
 | aspire-cli | 6 | 6/6 | 6/6 | 211 (-49%) | 395,952 (-46%) | 0.092 (-37%) | 32 | 14 | 1 |
 | aspire-skills-mcp | 6 | 6/6 | 6/6 | 237 (-43%) | 687,594 (-6%) | 0.125 (-15%) | 35 | 24 | - |
 | aspire-lean | 6 | 6/6 | 6/6 | 253 (-39%) | 506,354 (-31%) | 0.109 (-26%) | 34 | 43 | - |
+
+## heldout-cache / gpt-6.2-sol
+
+| Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| raw | 3 | 3/3 | 3/3 | 165 (+0%) | 289,840 (+0%) | 0.286 (+0%) | 28 | 8 | - |
+| aspire-lean | 3 | 3/3 | 3/3 | 110 (-33%) | 450,370 (+55%) | 0.410 (+43%) | 30 | 15 | - |
 
 ## heldout-slow-sql / gpt-6-luna
 
