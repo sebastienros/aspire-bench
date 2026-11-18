@@ -9,7 +9,8 @@ It is separate from the earlier 13.6 experiments in this directory. Those remain
 unchanged as historical evidence; see [FINDINGS.md](../FINDINGS.md).
 
 **Start with [REPORT.md](REPORT.md)** for the consolidated report (goals, methodology,
-results, resolution paths, suggested changes, a tracking proposal and next investigations),
+results, resolution paths, suggested changes, a tracking proposal and next investigations)
+and [PLAN.md](PLAN.md) for the proposed next work with a benchmark attached to each task,
 then [RESULTS.md](RESULTS.md) for what was found and
 [SKILLS-PROPOSAL.md](SKILLS-PROPOSAL.md) for the new, updated and removed skills.
 The two Aspire product patches are in [upstream/](upstream/).
