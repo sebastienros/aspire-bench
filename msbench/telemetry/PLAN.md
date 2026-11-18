@@ -30,11 +30,11 @@ These are the user's calls. The plan proceeds on the defaults in the second colu
 
 | Decision | Default assumed here | Why it matters |
 |---|---|---|
-| Model budget per phase | Phase 0 ≈ $12, Phase 1 ≈ $16 plus the second harness, Phase 2 ≈ $15, Phase 3 ≈ $26, Phase 4 ≈ $5 plus ≈ $5 per tracking run (model cost only, summed from the cards' estimates at this dataset's per-trial means) | Sets n per cell and how many scenarios the skill audit gets |
-| Models | `gpt-6-luna` and `gpt-6.1-terra` in every decision cell; `gpt-6.1-sol` only on ship gates | Luna is where guidance decides the outcome; sol costs 7× luna per trial |
+| Model budget per phase | Phase 0 ≈ $14, Phase 1 ≈ $46 (Opus and the VS Code lane are $23 of it), Phase 2 ≈ $15, Phase 3 ≈ $26, Phase 4 ≈ $5 plus ≈ $5 per tracking run (model cost only, summed from the cards' estimates at this dataset's per-trial means; Opus at an assumed $0.25 per trial until T1.8's probe) | Sets n per cell and how many scenarios the skill audit gets |
+| Models | `gpt-6-luna` and `gpt-6.1-terra` in every decision cell; **`gpt-6.2-sol` replaces `gpt-6.1-sol`** and **`claude-opus-5.5` is added**; both run on ship gates and on their own lane (T1.8), not in every cell | Luna is where guidance decides the outcome. Catalogue prices per 1M input tokens: luna 10, terra 100, sol 200 (6.1 and 6.2 alike), Opus 5.5 400; Opus 4.8 and 5 are marked for deprecation, so 5.5 is the Opus to use. A one-trial probe of each new model on `cold-start`/`raw` was submitted on 2026-11-17 (round `probe-models`, runs 2026111804679602 and 2026111804682600); result in T1.8 |
 | Skills baseline | `microsoft/aspire-skills` **v0.0.6** (released 2026-11-17) | v0.0.5 is no longer what `aspire agent init` registers |
 | Held-out application | A second Bingo-sized app with a different stack (minimal API + SQL Server + RabbitMQ worker), built in this repo; eShop only if that proves too small | Every "ship" verdict on `aspire-diagnose` is gated on it |
-| Second agent harness | Claude Code, one phase-1 cell set only | Tells whether router cost and skill selection are Copilot-specific |
+| Second agent harness | **VS Code** gets its own lane (T1.9) with two variants: `vscode` (VS Code agent mode) and `vscode-copilot-cli` (VS Code driving the Copilot CLI engine); Claude Code stays as one cell set (T1.7) | VS Code is where most users meet the skills and the MCP server; the `vscode-copilot-cli` variant separates the VS Code surface from the engine already measured |
 | Filing upstream issues | Not before Phase 1 confirms (user: "Not now") | Drafts stay in `upstream-issues/` with `status: draft` |
 
 ---
@@ -50,6 +50,7 @@ Checked 2026-11-17 against the 2026-11-09 pins (`4954c76a`, skills `1117facb` = 
 | | `aspire agent init` registers the plugin and offers to **remove static skill copies** (#22080); telemetry hooks installed for Aspire-configured agents (#22078, #22093) | How skills reach the agent changed, not their content. The benchmark's copy into `.github/skills` stays representative of content; the arm table must say so |
 | | `aspire describe` table shows exit codes (#22054) | Output shape changed; the plain-output patch needs a rebase and the byte counts a re-measure |
 | | Redis `WithArgs` forwarded in publish mode (#21447); no change to the TLS-on-6379 default | F22 stands |
+| MSBench catalogue (checked 2026-11-17) | Models through CAPI include `gpt-6.2-sol`, `gpt-6.2-astra`, `claude-opus-5.5`, `claude-sonnet-5.5`, `claude-haiku-5.5`; `claude-opus-4.8` and `claude-opus-5` carry a deprecation notice. Special agents available: `github-copilot-cli` (used so far), `claude-code`, `codex-cli`, `cursor-cli`, `gemini-cli`, `opencode`, `openhands`, and four VS Code variants: `vscode` (VS Code agent mode via `@vscode/vscode-copilot-evaluation-agent`), `vscode-copilot-cli` (session target `copilotcli`), `vscode-ahp` (`agent-host-copilotcli`), `vscode-claude` (Claude agent host). The VS Code plugin takes `--model` as a `modelSelector` and accepts a `user-overrides.yaml` through `--agent_assets` for settings such as `chat.tools.global.autoApprove` | Opus and GPT-6.2 Sol can be added without new tooling; the VS Code lane needs adapters (T0.4) |
 | MCP server | 15 tools: `list_apphosts`, `select_apphost`, `list_resources`, `list_traces`, `list_trace_structured_logs`, `list_structured_logs`, `list_console_logs`, `execute_resource_command`, `wait_for_resources`, `doctor`, `get_doc`, `list_docs`, `search_docs`, `list_integrations`, `refresh_tools`; schema 9.5 KB | Measured use over 152 MCP-arm trials: `list_traces` 386 calls, `list_resources` 252, `list_structured_logs` 205, `list_console_logs` 135, `list_apphosts` 88, `execute_resource_command` 68, `wait_for_resources` 65, `list_trace_structured_logs` 58, `select_apphost` 3, `get_doc` 1, the other five **never**. Bottom-up candidates in Task 2.7 |
 
 ---
@@ -80,8 +81,11 @@ harness-path leaks (must be 0).
 "drop" look like in numbers. A result that misses the rule is recorded, not re-run until
 it passes.
 
-**Cost.** From this dataset: $0.016 (luna), $0.065 (terra), $0.118 (sol) per trial. A
-"decision cell" of 6 trials costs about $0.10 on luna and $0.39 on terra. Wall time is
+**Cost.** From this dataset: $0.016 (luna), $0.065 (terra), $0.118 (sol 6.1) per trial;
+`gpt-6.2-sol` is priced like 6.1 and is assumed equal until T1.8 measures it; `claude-opus-5.5`
+is priced at twice sol's input rate and is assumed at $0.25 per trial until measured. A
+"decision cell" of 6 trials costs about $0.10 on luna, $0.39 on terra, $0.71 on sol and
+$1.50 on Opus. Wall time is
 dominated by the CES queue, 1 to 2 hours per round.
 
 **Record.** Every run lands in `results/ledger.jsonl` with a `task` field naming the card
@@ -101,10 +105,10 @@ Nothing in later phases is interpretable until these three are done.
 | Hypothesis | The 2026-11-09 numbers still describe current main and v0.0.6; if not, the deltas below change |
 | Change | Pin the current daily and skills v0.0.6; rebuild `current` under `common/skills`; regenerate `lean` from it (same three edits); rebase patch 0002 on the describe exit-code change; re-pin the three-commit task graph |
 | Arms | `raw`, `aspire-cli`, `aspire-skills-mcp` (v0.0.6), `aspire-lean` (v0.0.6 base) |
-| Cells | `slow-sql`, `read-only`, `slow-redis`, `cold-start` × luna, terra × n = 6 |
+| Cells | `slow-sql`, `read-only`, `slow-redis`, `cold-start` × luna, terra × n = 6; plus a **sol bridge**: `slow-sql` × `raw`, `aspire-lean` × `gpt-6.1-sol` and `gpt-6.2-sol` × 3, so the series can splice 6.1 to 6.2 |
 | Decision rule | None; this is the new baseline. Report every cell as a ratio to raw next to the 11-09 ratio. A cell that moved more than 25% gets a one-line cause from the trajectories |
 | Also answer | Did #21013 change `cold-start`? A first start on a fresh clone cannot differ; measure a **warm** cold start (second `aspire start` in the same workspace, **without** `--isolated`, or with `persistInIsolatedMode`) as an extra 3-trial cell on luna. Did #22054 change `describe` bytes (no model)? Does **plugin delivery** change selection (F04): one 3-trial luna `slow-sql` cell where the image registers the plugin through `aspire agent init` instead of copying into `.github/skills`; selection must match the copy within one trial, otherwise the arm definition changes |
-| Trials / cost | 4 scenarios × 4 arms × 2 models × 6 = 192 trials + 6 extra ≈ $7.90 |
+| Trials / cost | 4 scenarios × 4 arms × 2 models × 6 = 192 trials + 6 extra + 12 sol bridge ≈ $9.30 |
 | Results | pending |
 
 ### T0.2 Held-out application and fault
@@ -127,6 +131,16 @@ Nothing in later phases is interpretable until these three are done.
 | Decision rule | Not a benchmark. Done when T0.1's round appears in `series.md` next to the 11-09 round |
 | Results | pending |
 
+### T0.4 Harness adapters for the VS Code lane
+
+| | |
+|---|---|
+| Change | `tools/submit.sh` takes an agent (`github-copilot-cli` pinned as today, `vscode`, `vscode-copilot-cli`, `claude-code`) and records it in the ledger; `gen-tasks.mjs` emits the MCP registration the chosen harness reads (`.vscode/mcp.json` for VS Code, the Copilot CLI config as today) and keeps skills in `.github/skills`, which VS Code agent mode and Copilot CLI both discover; a `user-overrides.yaml` asset with `chat.tools.global.autoApprove: true` so VS Code runs unattended; `tools/collect.py` gains a trajectory reader for the VS Code agent's event format so phase markers, skill loads and MCP calls are derived the same way |
+| Check | Three luna `slow-sql` trials on `aspire-lean` under `vscode`: the skill is loaded, the trajectory parses, the verifier grades. Three under `vscode-copilot-cli` likewise |
+| Decision rule | Done when both checks pass and a `vscode` row in `trials.jsonl` has every field a Copilot CLI row has |
+| Trials / cost | 6 ≈ $0.10 |
+| Results | pending |
+
 ---
 
 ## 5. Phase 1: confirm what is already measured
@@ -139,7 +153,7 @@ baseline, with its guard cells, and a verdict.
 | | |
 |---|---|
 | Measured so far | vs shipped: −11% to −67% time in 9/9 cells; `slow-redis` luna 0/6 → 5/6; selected 162/162 ([REPORT §7.1](REPORT.md#71-microsoftaspire-skills)) |
-| Remaining | T0.2 (held-out) and sol on the held-out silent fault, `raw` and `aspire-lean`, n = 3 (6 trials ≈ $0.70) |
+| Remaining | T0.2 (held-out) and the ship-gate models (`gpt-6.2-sol`, `claude-opus-5.5`) on the held-out silent fault, `raw` and `aspire-lean`, n = 3 (12 trials ≈ $2.20) |
 | Decision rule | Ship if T0.2 passes its rule. Revise step 3 only; steps 1 and 2 are frozen unless T0.2 shows a stack-neutral failure |
 | Issue draft | [skills-add-aspire-diagnose.md](../upstream-issues/skills-add-aspire-diagnose.md) |
 | Results | 11-09 pins: done; v0.0.6 + held-out: pending |
@@ -196,7 +210,7 @@ baseline, with its guard cells, and a verdict.
 |---|---|
 | Measured so far | 82 s → 51 s on luna with the v0.0.5 orchestration skill as the fall-through |
 | Change | Same `aspire-start`; v0.0.6 changed `aspire-orchestration` (31/11 lines, `detection.md` +47) |
-| Cells | `cold-start` × luna, terra, sol × 6: `aspire-skills` (v0.0.6), `aspire-lean`, `aspire-lean-start`, `aspire-cli` |
+| Cells | `cold-start` × luna, terra, `gpt-6.2-sol` × 6: `aspire-skills` (v0.0.6), `aspire-lean`, `aspire-lean-start`, `aspire-cli` |
 | Decision rule | `aspire-start` stays if luna `aspire-lean` without it is still ≥ 20% slower than with it. If v0.0.6 orchestration closed the gap by itself, drop `aspire-start` from the proposal and say so |
 | Trials / cost | 4 × 3 × 6 = 72 ≈ $4.80 |
 | Results | pending |
@@ -206,9 +220,35 @@ baseline, with its guard cells, and a verdict.
 | | |
 |---|---|
 | Hypothesis | Router cost and `aspire-diagnose` selection are properties of the skills, not of Copilot CLI |
-| Cells | `slow-sql`, `slow-redis` × luna (or the closest model the harness offers) × `raw`, `aspire-skills-mcp`, `aspire-lean` × 6 on Claude Code |
+| Cells | `slow-sql`, `slow-redis` × luna × `raw`, `aspire-skills-mcp`, `aspire-lean` × 6 on the `claude-code` special agent (the catalogue serves the same CAPI models to every agent, so the model stays fixed) |
 | Decision rule | Same direction as Copilot in both scenarios: the proposals are harness-neutral. Different: record which harness-specific mechanism (skill discovery path, MCP registration, context budget) explains it before any further harness work |
-| Trials / cost | 2 × 3 × 6 = 36, cost depends on the harness's model pricing. Check MSBench's agent and model catalogue first and keep the **same model** if the harness offers it; a harness-and-model change together cannot be attributed to either |
+| Trials / cost | 2 × 3 × 6 = 36 ≈ $0.60. Same model, different harness, so a difference is attributable to the harness |
+| Results | pending |
+
+### T1.8 Model lane: Opus 5.5 and GPT-6.2 Sol
+
+| | |
+|---|---|
+| Hypothesis | The three findings that carry the proposals (shipped set slower than raw where the log has the evidence; lean at parity there; lean decisive on the silent fault) hold on the strongest models, and the cheapest-model effects (router mis-selection, patching the app on `slow-redis`) do not appear |
+| Probe | One `cold-start`/`raw` trial per model submitted 2026-11-17 under the pinned Copilot CLI package to confirm the IDs run: result recorded below before any cell is scheduled |
+| Arms | `raw`, `aspire-skills-mcp` (v0.0.6), `aspire-lean` |
+| Cells | `slow-sql`, `read-only`, `slow-redis` × `claude-opus-5.5`, `gpt-6.2-sol` × 6 |
+| Decision rule | Informational for the proposals, decisive for the model table in REPORT §4.4: each model gets a row. If Opus or 6.2-sol fail `slow-redis` on any arm, that arm's failure path is added to §6 of the report. If `aspire-lean` is slower than `raw` by more than 20% on a strong model with p < 0.05, the skill is costing a model that did not need it and the trigger or body is revised for that case |
+| Trials / cost | 3 × 3 × 2 × 6 = 108: sol 54 ≈ $6.40, Opus 54 ≈ $13.50 (assumed; the probe gives the first real number) |
+| Results | probe: pending; cells: pending |
+
+### T1.9 VS Code lane
+
+| | |
+|---|---|
+| Hypothesis | The shipped set's penalty, `aspire-diagnose`'s gain and the router's mis-selection are properties of the skills and tools, not of the Copilot CLI harness. VS Code is where most users meet them |
+| Variants | `vscode` (VS Code agent mode, the product's own agent loop) and `vscode-copilot-cli` (VS Code hosting the Copilot CLI engine). The second differs from the measured harness only by the VS Code surface (skill discovery, tool approval, MCP registration), so a gap between the two variants is the surface and a gap between `vscode-copilot-cli` and the Copilot CLI rows is the integration |
+| Prerequisite | T0.4 |
+| Arms | `raw`, `aspire-skills-mcp` (v0.0.6), `aspire-lean` |
+| Cells | `slow-sql`, `slow-redis`, `cold-start` × luna, terra × 6 × 2 variants |
+| Decision rule | Harness-neutral if, per variant, the ratio to `raw` of each Aspire arm is within 15 points of the Copilot CLI ratio from T0.1 in every cell and `slow-redis` luna pass counts differ by at most one trial. Otherwise the trajectories name the mechanism (skill not discovered, approval prompt, MCP not registered, different tool set) and that becomes a card of its own before any skill verdict is called general |
+| Guard | None beyond the cells; `slow-redis` luna is in the set |
+| Trials / cost | 3 × 3 × 2 × 6 × 2 = 216 ≈ $8.70 |
 | Results | pending |
 
 ---
@@ -235,7 +275,7 @@ source build against its `-src` control.
 |---|---|
 | Hypothesis | The cold-start gap (15% to 56%) is the start / wait / describe sequence, not the AppHost's start time |
 | Change | `aspire start --wait [<resources>]` (or a default when `--non-interactive`) that returns when the named resources are healthy and prints their URLs; nothing else |
-| Cells | `cold-start` × luna, terra, sol × 6, `aspire-cli-src` (no skill, patched) vs `aspire-cli-src`; and `aspire-lean-start` with the skill rewritten to one command |
+| Cells | `cold-start` × luna, terra, `gpt-6.2-sol` × 6, `aspire-cli-src` (no skill, patched) vs `aspire-cli-src`; and `aspire-lean-start` with the skill rewritten to one command |
 | Decision rule | Ship if the no-skill arm closes at least half the gap to raw on all three models. Also report the warm start from T0.1 |
 | Trials / cost | 3 × 3 × 6 = 54 ≈ $3.60 |
 | Issue draft | [aspire-start-blocking.md](../upstream-issues/aspire-start-blocking.md) |
@@ -316,7 +356,7 @@ source build against its `-src` control.
 |---|---|
 | Hypothesis | `wait_for_resources` takes a list, so the MCP route folds the two `aspire wait` calls into one; the endpoint read moves to `list_resources`; `aspire start` stays in the shell. Net: one call fewer, more bytes read. No cold-start cell has had the MCP server (REPORT §7.3) |
 | Arms | `aspire-lean-mcp` on `cold-start`, against T1.6's `aspire-lean`, `aspire-lean-start` and `aspire-cli` cells from the same round |
-| Cells | `cold-start` × luna, terra, sol × 6 |
+| Cells | `cold-start` × luna, terra, `gpt-6.2-sol` × 6 |
 | Decision rule | Informational for the blocking-start card: if the MCP route is within 10% of `aspire-lean-start`, the gap to raw is the start itself and T2.2 is the only lever; if it is faster, `aspire-start` should say so |
 | Trials / cost | 3 × 6 = 18 ≈ $1.20 |
 | Results | pending |
@@ -393,6 +433,9 @@ flowchart LR
     T01["T0.1 re-pin + baseline"] --> P1["Phase 1: confirm<br/>T1.1–T1.7"]
     T02["T0.2 held-out app"] --> T11["T1.1 diagnose ship gate"]
     T03["T0.3 series tooling"] --> P1
+    T04["T0.4 harness adapters"] --> T19["T1.9 VS Code lane"]
+    T01 --> T18["T1.8 Opus + 6.2 Sol lane"]
+    T01 --> T19
     T01 --> T02
     T38["T3.8 guardrail fixture"] --> T13["T1.3 router removal"]
     P1 --> P2["Phase 2: product<br/>T2.1–T2.8"]
@@ -412,7 +455,7 @@ Order of work:
    fixtures start in parallel because they are the long pole.
 2. **T3.9 runs right after T0.1**: it is the cheapest run in the plan and its selection
    matrix feeds T1.2, T1.3 and every Phase 3 card.
-3. **Phase 1 in one or two rounds** once T0.1 is in; T1.1's verdict waits for T0.2.
+3. **Phase 1 in three or four rounds** once T0.1 is in; T1.1's verdict waits for T0.2. The model lane (T1.8) can go in T0.1's round since it needs nothing new; the VS Code lane (T1.9) waits for T0.4.
 4. **Phase 2** product patches are built while Phase 1 runs and measured after, each
    with its guard cells; T2.6 and T2.5 wait for T4.1's matrix.
 5. **Phase 3** scenario ports (A01, S01, P01 preconfigured) are fixture work that can
@@ -423,8 +466,8 @@ Budget at the assumed defaults:
 
 | Phase | Trials (sum of the cards) | Model cost | Dominant other cost |
 |---|---:|---:|---|
-| 0 | 198 + 96 (+ 48 reserved) | ≈ $12 (+ $2) | Held-out app fixtures |
-| 1 | 84 + 72 + 108 + 72 + 6 + 36 = 378 | ≈ $16 + second harness | Two to three CES rounds |
+| 0 | 210 + 96 + 6 (+ 48 reserved) | ≈ $13.50 (+ $2) | Held-out app fixtures, harness adapters |
+| 1 | 84 + 72 + 108 + 72 + 12 + 36 + 108 + 216 = 708 | ≈ $46 (of which Opus ≈ $14, VS Code ≈ $9) | Three to four CES rounds; VS Code trajectory adapter |
 | 2 | 54 + 54 + 36 + 24 + 96 + 24 + 36 + 42 + 18 = 384 | ≈ $15 | Nine product patches on source builds |
 | 3 | 240 + 96 + 48 + 60 + 48 + 48 + 36 + 24 guard = 600, plus 256 short | ≈ $26 | Four fixture ports, two new graders |
 | 4 | 48 + 48 + 24 = 120, plus 120 per tracking run | ≈ $5, plus ≈ $5 per run | Audit fixtures (16 AppHosts) |
