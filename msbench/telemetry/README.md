@@ -224,7 +224,9 @@ about 186 s to a failed WebSocket attempt before each of its first three model c
 **Runs.** `series.py` groups rounds into runs: the first pin is one pooled run; later, a run is the
 round name up to the first `-` (`t01b`, `t01b-solbridge`, `t01b-plugin` are run `t01b`). Name a new
 run's rounds `<run>[-<part>]` and give every run a `raw` cell, since every Aspire arm is divided by
-the `raw` median of the same run.
+the `raw` median of the same run. When a skill changes without a re-pin, the results files keep the
+two revisions apart: an arm with two skill fingerprints in one pin (derived from the ledger's
+`task_repo_commit`) is shown as `<arm> (tasks <first task commit>)`.
 
 Changing anything under `common/` needs three commits so remote builds can fetch
 exact contents: commit `common/`, run `gen-tasks.mjs tasks --suite-sha <that commit>`

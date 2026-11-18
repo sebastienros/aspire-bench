@@ -610,15 +610,17 @@ $0.095–0.170 each on this app, against the $0.065 the estimate assumed. Gates 
    just as plainly, so every arm reads the cause in the source; telemetry's lead is over the restart.
 3. The `heldout-cache` "fix" marker only matches a constant-key `GetOrCreate` call (0–4/6 matches in
    cells that passed 6/6). It is not quoted.
-4. `results/comparison.md` and `stats.md` pool `t02` and `t02-insample` (same Aspire pin). The
-   per-round tables above are computed from `trials.jsonl` per round.
+4. `results/comparison.md` and `stats.md` pooled `t02` and `t02-insample` (same Aspire pin). Since the
+   T0.3 follow-up they split `aspire-lean` by skill revision (the other arms' skills did not change);
+   the per-round tables above are computed from `trials.jsonl` per round.
 5. T1.1's held-out cells (`gpt-6.2-sol`, `claude-opus-5.5`) remain, now on `heldout-cache` as the
    held-out fault.
 6. A held-out log-silent fault, built after this revision, to test the step-1 branch out of sample.
    Not built: the card reserved one third fault, and it turned out log-visible.
 7. `skills_sha` in the ledger did not change with the revision (it records the shipped skills tag), so
-   `series.py` cannot separate pre- and post-revision `aspire-lean` rows; the suite SHA in
-   `task_repo_commit` can.
+   `series.py` could not separate pre- and post-revision `aspire-lean` rows. Resolved: the results
+   files now key cells on the skill content derived from `task_repo_commit` (T0.3 results, "Skill
+   revisions within a pin").
 
 ### T0.3 Series tooling
 
@@ -648,6 +650,19 @@ to the first `-`: `t01b`, `t01b-solbridge`, `t01b-plugin` and `t01b-warm` form r
 plugin cell divides by the `t01b` raw. A cell with no `raw` in its run is flagged `no-raw`
 (`cold-start-warm`, which has no raw arm). Ratios reproduce the T0.1 table to the second decimal
 (for example `slow-sql`/luna/`aspire-cli` 2.26× → 1.97× time, 2.66× → 2.76× tokens).
+
+**Skill revisions within a pin (added after T0.2).** The ledger's `skills_sha` records only the
+shipped skills tag, so a skill revised without a re-pin (T0.2 step 1, suite `305a8ed`) left pre- and
+post-revision trials in one cell. `collect.py` now fingerprints the skill files each trial's image
+received (the task's skill set, composed from the suite commit its `task_repo_commit` builds from)
+and, where one pin, scenario, model, harness and arm holds two fingerprints, labels the arm with the
+first task commit that carried each (`cell_arm` in `trials.jsonl`). `summary.md`, `comparison.md`,
+`stats.md` and `series.md` key cells on it; lines without `task_repo_commit` (the first pin) keep
+their grouping. Today this splits four cells: held-out `heldout-slow-sql` and `heldout-stuck-orders`
+× luna and terra × `aspire-lean`, into `(tasks 916a57ce)` (round `t02`, old step 1) and
+`(tasks 1479041e)` (`t02-insample`, revised). No Bingo trial has run on the revised tasks yet. In the
+series the revised row is a second point of run `t02`; it flags `regress-time` on
+`heldout-stuck-orders`/terra (0.69× → 0.86×, n = 6 against 6).
 
 **Flags.** As REPORT §11.2, against the median of the cell's last five earlier runs: a pass drop of
 at least 0.4 × n trials with binomial p < 0.05, a time or token ratio 25 % above the trailing median

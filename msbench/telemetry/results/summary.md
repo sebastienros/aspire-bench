@@ -240,7 +240,8 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 | Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
 | aspire-cli | 12/12 | 125 | 8 | 62 | 425,453 | 8,342 | 0.014 | 36 | - | 0 | 157,422 |
-| aspire-lean | 12/12 | 183 | 10 | 78 | 516,818 | 13,138 | 0.016 | 33 | aspire-diagnosex12, aspire-orchestrationx2 | 0 | 126,316 |
+| aspire-lean (tasks 1479041e) | 6/6 | 189 | 10 | 78 | 566,072 | 13,350 | 0.017 | 32 | aspire-diagnosex6, aspire-orchestrationx2 | 0 | 135,400 |
+| aspire-lean (tasks 916a57ce) | 6/6 | 160 | 11 | 79 | 511,722 | 11,384 | 0.015 | 33 | aspire-diagnosex6 | 0 | 123,708 |
 | aspire-skills-mcp | 11/12 | 140 | 13 | 61 | 768,637 | 8,988 | 0.019 | 38 | aspirex10, aspire-monitoringx11, aspire-orchestrationx5 | 13 | 401,808 |
 | raw | 12/12 | 234 | 7 | 71 | 516,411 | 14,690 | 0.018 | 36 | - | 0 | 113,666 |
 
@@ -249,7 +250,8 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 | Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
 | aspire-cli | 12/12 | 269 | 12 | 110 | 634,788 | 8,280 | 0.130 | 36 | - | 0 | 170,700 |
-| aspire-lean | 12/12 | 330 | 21 | 142 | 712,775 | 8,764 | 0.137 | 38 | aspire-diagnosex12, aspire-orchestrationx11 | 0 | 118,736 |
+| aspire-lean (tasks 1479041e) | 6/6 | 339 | 22 | 178 | 655,200 | 8,642 | 0.132 | 36 | aspire-diagnosex6, aspire-orchestrationx5 | 0 | 116,589 |
+| aspire-lean (tasks 916a57ce) | 6/6 | 278 | 20 | 126 | 803,665 | 9,700 | 0.145 | 42 | aspire-diagnosex6, aspire-orchestrationx6 | 0 | 131,196 |
 | aspire-skills-mcp | 12/12 | 324 | 16 | 126 | 970,250 | 9,823 | 0.163 | 49 | aspire-monitoringx12, aspire-orchestrationx12 | 12 | 345,314 |
 | raw | 12/12 | 377 | 14 | 108 | 743,705 | 11,476 | 0.140 | 41 | - | 0 | 111,096 |
 
@@ -258,7 +260,8 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 | Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
 | aspire-cli | 11/12 | 118 | 63 | 103 | 467,298 | 8,009 | 0.014 | 35 | - | 0 | 145,890 |
-| aspire-lean | 12/12 | 78 | 38 | 60 | 300,006 | 5,447 | 0.010 | 30 | aspire-diagnosex12 | 0 | 138,669 |
+| aspire-lean (tasks 1479041e) | 6/6 | 78 | 36 | 60 | 294,766 | 5,646 | 0.010 | 28 | aspire-diagnosex6 | 0 | 138,669 |
+| aspire-lean (tasks 916a57ce) | 6/6 | 81 | 39 | 59 | 318,161 | 5,134 | 0.010 | 32 | aspire-diagnosex6 | 0 | 133,057 |
 | aspire-skills-mcp | 8/12 | 255 | 203 | 249 | 1,833,792 | 17,434 | 0.038 | 60 | aspirex12, aspire-monitoringx12, aspire-orchestrationx4 | 22 | 480,450 |
 | raw | 12/12 | 87 | 36 | 67 | 284,495 | 5,934 | 0.010 | 31 | - | 0 | 112,704 |
 
@@ -267,7 +270,8 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 | Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
 | aspire-cli | 12/12 | 95 | 8 | 69 | 222,742 | 2,274 | 0.063 | 24 | - | 0 | 133,464 |
-| aspire-lean | 12/12 | 99 | 50 | 75 | 304,635 | 2,866 | 0.071 | 27 | aspire-diagnosex12 | 0 | 140,766 |
+| aspire-lean (tasks 1479041e) | 6/6 | 113 | 54 | 83 | 301,804 | 2,866 | 0.070 | 26 | aspire-diagnosex6 | 0 | 140,766 |
+| aspire-lean (tasks 916a57ce) | 6/6 | 90 | 44 | 70 | 310,502 | 2,916 | 0.075 | 28 | aspire-diagnosex6 | 0 | 140,733 |
 | aspire-skills-mcp | 12/12 | 119 | 43 | 81 | 443,659 | 3,310 | 0.097 | 29 | aspirex1, aspire-monitoringx12 | 7 | 255,727 |
 | raw | 12/12 | 131 | 8 | 88 | 336,867 | 3,468 | 0.072 | 24 | - | 0 | 100,020 |
 

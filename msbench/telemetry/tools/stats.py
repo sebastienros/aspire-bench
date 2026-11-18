@@ -51,7 +51,7 @@ def main():
                 and not row.get("infrastructure_failure") and not row.get("excluded")):
             # Rows written before T0.4 carry no agent: Copilot CLI. Harnesses are never pooled.
             agent = row.get("agent") or DEFAULT_AGENT
-            pins[(row["pin"], agent)][(row["scenario"], row["model_requested"], row["arm"])].append(row)
+            pins[(row["pin"], agent)][(row["scenario"], row["model_requested"], row.get("cell_arm") or row["arm"])].append(row)
     lines = ["# Significance of the headline comparisons", "",
              "Exact two-sided Mann-Whitney test on per-trial values. `A vs B` reports the change of A's",
              "median relative to B's. p is the probability of a rank separation at least this large if",
@@ -64,13 +64,17 @@ def main():
     print("\n".join(lines[6:]))
 
 
+def variants(cells, scenario, model, arm):
+    return sorted(c for s, m, c in cells if (s, m) == (scenario, model) and c.split(" (")[0] == arm)
+
+
 def table(cells, pairs):
     lines = ["| Scenario | Model | A vs B | n | Agent seconds | Input tokens | Cost |", "|---|---|---|---|---|---|---|"]
     for (scenario, model) in sorted({(s, m) for s, m, _ in cells}):
-        for a, b in pairs:
-            first, second = cells.get((scenario, model, a)), cells.get((scenario, model, b))
-            if not first or not second:
-                continue
+        # An arm split by a skill revision (collect.label_skill_variants) is compared per variant.
+        for cell_a, cell_b in ((x, y) for a, b in pairs for x, y in itertools.product(
+                variants(cells, scenario, model, a), variants(cells, scenario, model, b))):
+            first, second = cells[(scenario, model, cell_a)], cells[(scenario, model, cell_b)]
             parts = []
             for key, _ in METRICS:
                 x = [t[key] for t in first if t.get(key) is not None]
@@ -80,7 +84,7 @@ def table(cells, pairs):
                     continue
                 change = (statistics.median(x) - statistics.median(y)) / statistics.median(y)
                 parts.append(f"{change:+.0%} (p={mann_whitney(x, y):.3f})")
-            lines.append(f"| {scenario} | {model} | {a} vs {b} | {len(first)} vs {len(second)} | " + " | ".join(parts) + " |")
+            lines.append(f"| {scenario} | {model} | {cell_a} vs {cell_b} | {len(first)} vs {len(second)} | " + " | ".join(parts) + " |")
     return lines
 
 

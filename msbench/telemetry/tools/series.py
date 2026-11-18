@@ -10,6 +10,9 @@ A cell is (agent, scenario, model, arm). A run is one measurement of the matrix:
   whole matrix with its own `raw`);
 - on later pins a run is the round name up to the first `-`, so `t01b`, `t01b-solbridge`,
   `t01b-plugin` and `t01b-warm` are run `t01b`. Name the rounds of a new run `<run>[-<part>]`.
+When an arm's skill content changed within a pin (a skill revised without a re-pin), a run that
+holds both revisions has one row per revision, labelled with the first task commit that carried
+it (`cell_arm` in trials.jsonl, from collect.label_skill_variants); both stay in the arm's series.
 
 Every Aspire arm is reported against the `raw` cell of the same agent, scenario, model and run.
 The trailing window of a cell is its last five earlier runs (WINDOW); a suite change that makes
@@ -122,6 +125,7 @@ def load():
         row["submitted_at"] = entry.get("submitted_at")
         row["task_repo_commit"] = entry.get("task_repo_commit")
         row["run"] = run_of(row)
+        row["cell_arm"] = row.get("cell_arm") or row["arm"]
         trials.append(row)
     return trials
 
@@ -152,23 +156,28 @@ def cell_metrics(trials):
 def build(trials):
     groups = collections.defaultdict(list)
     for t in trials:
-        groups[(t["agent"], t["scenario"], t["model_requested"], t["arm"], t["run"])].append(t)
+        # cell_arm splits an arm whose skill content changed within a pin (collect.label_skill_variants),
+        # so one run can hold two rows of the same arm, one per skill revision.
+        groups[(t["agent"], t["scenario"], t["model_requested"], t["arm"], t["run"], t["cell_arm"])].append(t)
     runs = collections.defaultdict(list)
     for t in trials:
         runs[(t["agent"], t["run"])].append(t)
     # A run's place in the series: when its first trial was submitted.
     order = {key: min(t["submitted_at"] or "" for t in rows) for key, rows in runs.items()}
     rows = []
-    for (agent, scenario, model, arm, run), cell in groups.items():
+    for (agent, scenario, model, arm, run, cell_arm), cell in groups.items():
         row = {"agent": agent, "scenario": scenario, "model": model, "arm": arm, "run": run,
-               "run_started": order[(agent, run)], "pin": cell[0]["pin"],
+               "skills_variant": cell_arm[len(arm):].strip(" ()") or None,
+               "skills_content": sorted({t["skills_content"] for t in cell if t.get("skills_content")}),
+               "run_started": order[(agent, run)], "cell_started": min(t["submitted_at"] or "" for t in cell),
+               "pin": cell[0]["pin"],
                "rounds": sorted({t["round"] for t in cell}),
                "aspire_build": sorted({t.get("aspire_build") for t in cell if t.get("aspire_build")}),
                "skills_sha": sorted({t.get("skills_sha") for t in cell if t.get("skills_sha")}),
                "task": sorted({t["task"] for t in cell if t.get("task")}),
                "task_repo_commit": sorted({t["task_repo_commit"] for t in cell if t.get("task_repo_commit")}),
                **cell_metrics(cell)}
-        raw = groups.get((agent, scenario, model, "raw", run))
+        raw = groups.get((agent, scenario, model, "raw", run, "raw"))
         row["raw_n"] = len(raw) if raw else 0
         for key in ("agent_seconds", "input_tokens", "cost_usd"):
             base = median([t.get(key) for t in raw]) if raw else None
@@ -180,7 +189,8 @@ def build(trials):
         row["_trial_tokens"] = [t["input_tokens"] / base_t for t in cell if t.get("input_tokens") is not None] if base_t else []
         rows.append(row)
     rows.sort(key=lambda r: (r["agent"] != DEFAULT_AGENT, r["agent"], r["scenario"], r["model"],
-                             ARM_ORDER.index(r["arm"]) if r["arm"] in ARM_ORDER else 99, r["run_started"]))
+                             ARM_ORDER.index(r["arm"]) if r["arm"] in ARM_ORDER else 99, r["run_started"],
+                             r["cell_started"]))
     flag(rows)
     return rows
 
@@ -268,7 +278,8 @@ def render(rows):
                   "|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---|"]
         for r in members:
             lines.append("| {} | {} | {} | {}/{} | {} ({}) | {} | {} | {} | {} | {} | {} | {} | {} | {} | {} |".format(
-                r["arm"], r["run"], r["n"], r["passed"], r["n"], fmt(r["agent_seconds"], ".0f"),
+                r["arm"], r["run"] + (f" (tasks {r['skills_variant'].split()[-1]})" if r["skills_variant"] else ""),
+                r["n"], r["passed"], r["n"], fmt(r["agent_seconds"], ".0f"),
                 fmt(r["agent_seconds_mad"], ".0f"), fmt(r["input_tokens"], ",.0f"),
                 "–" if r["arm"] == "raw" else ratio(r["ratio_agent_seconds"]),
                 ratio(r.get("trailing_ratio_agent_seconds")) if r["arm"] != "raw" else "–",

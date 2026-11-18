@@ -13,6 +13,7 @@ tokens from Harbor's native result, and tool/skill/MCP use from the trajectory e
 """
 import collections
 import datetime
+import functools
 import hashlib
 import json
 import os
@@ -120,6 +121,48 @@ def cell_title(scenario, model, agent):
     return f"## {scenario} / {model}" + ("" if agent == DEFAULT_AGENT else f" / {agent}")
 
 
+REPO = SUITE.parent.parent
+SKILL_SETS = {  # what common/skills/compose.sh copies for each set, in order; `aspire` is removed in lean sets
+    "current": ["current"], "plus": ["current", "new"],
+    "lean": ["current", "new", "-aspire", "lean-overrides"],
+    "lean-start": ["current", "new", "start", "-aspire", "lean-overrides"],
+}
+
+
+@functools.lru_cache(maxsize=None)
+def skills_content(task_commit, scenario, arm):
+    """Fingerprint of the skill files a task's image receives: the set named by the task's SKILLS
+    build arg, composed as common/skills/compose.sh does from the suite commit the task builds from.
+    None when the ledger line names no task commit (the first pin) or the task cannot be read."""
+    if not task_commit:
+        return None
+    git = lambda *args: subprocess.run(["git", "-C", str(REPO), *args], capture_output=True, text=True)
+    compose = git("show", f"{task_commit}:msbench/telemetry/tasks/{scenario}/{arm}/environment/docker-compose.yaml")
+    if compose.returncode:
+        return None
+    skill_set = re.search(r"^\s+SKILLS:\s*(\S+)", compose.stdout, re.M)
+    skill_set = skill_set.group(1) if skill_set else "none"
+    if skill_set not in SKILL_SETS:
+        return skill_set  # none, or plugin (the shipped tag, recorded in skills_sha)
+    suite = re.search(r"#([0-9a-f]{40}):msbench/telemetry/common", compose.stdout).group(1)
+    tree = git("ls-tree", "-r", f"{suite}:msbench/telemetry/common/skills")
+    blobs = collections.defaultdict(dict)
+    for line in tree.stdout.splitlines():
+        meta, path = line.split("\t", 1)
+        top, _, rest = path.partition("/")
+        if rest:
+            blobs[top][rest] = meta.split()[2]
+    files = {}
+    for step in SKILL_SETS[skill_set]:
+        if step.startswith("-"):
+            files = {path: blob for path, blob in files.items() if not path.startswith(step[1:] + "/")}
+        else:
+            files.update(blobs[step])
+    files.pop("LICENSE", None)
+    digest = hashlib.sha256("".join(f"{p} {b}\n" for p, b in sorted(files.items())).encode()).hexdigest()
+    return f"{skill_set} {digest[:12]}"
+
+
 def pin_of(entry):
     """The pin date, from the Arcade build number in the daily's version (yy*1000 + MM*50 + dd)."""
     build = entry.get("aspire_build")
@@ -161,6 +204,8 @@ def analyze_trial(result_path, entry):
                model_requested=entry["model"], round=entry["round"], pin=pin,
                agent=agent_of(entry), agent_package=entry.get("agent_package"), task=entry.get("task"),
                aspire_build=entry.get("aspire_build"), skills_sha=entry.get("skills_sha"),
+               task_repo_commit=entry.get("task_repo_commit"),
+               skills_content=skills_content(entry.get("task_repo_commit"), entry["scenario"], entry["arm"]),
                excluded=entry.get("excluded"),
                trial=native.get("trial_name"),
                url=f"https://msbenchapp.azurewebsites.net/run-analysis/{entry['run_id']}",
@@ -593,7 +638,7 @@ def summarize_pin(rows):
     cells = collections.defaultdict(list)
     for row in rows:
         if row["model_requested"] != "oracle" and not row.get("infrastructure_failure"):
-            cells[(row["scenario"], row["model_requested"], row["agent"], row["arm"])].append(row)
+            cells[(row["scenario"], row["model_requested"], row["agent"], row["cell_arm"])].append(row)
     lines = []
     for scenario, model, agent in sorted({(s, m, g) for s, m, g, _ in cells}, key=lambda k: (k[2] != DEFAULT_AGENT, k)):
         lines += [cell_title(scenario, model, agent), "",
@@ -642,6 +687,27 @@ ARM_ORDER = ["raw", "aspire-cli", "aspire-skills", "aspire-mcp", "aspire-skills-
              "raw-check", "aspire-lean-start", "aspire-skills-plugin"]
 
 
+def arm_order(cell_arm):
+    arm = cell_arm.split(" (")[0]
+    return (ARM_ORDER.index(arm) if arm in ARM_ORDER else 99, cell_arm)
+
+
+def label_skill_variants(rows):
+    """`cell_arm` is the arm, plus the first task commit that carried its skill content when one
+    pin, scenario, model, harness and arm holds trials with different skill content (a skill
+    revised within a pin). Tables, stats and series key cells on it, so revisions are not pooled."""
+    first = {}
+    for row in rows:  # ledger order: the first task commit seen with each content
+        if row.get("skills_content") and row.get("task_repo_commit"):
+            first.setdefault(row["skills_content"], row["task_repo_commit"][:8])
+    contents = collections.defaultdict(set)
+    for row in rows:
+        contents[(row["pin"], row["scenario"], row["model_requested"], row["agent"], row["arm"])].add(row.get("skills_content"))
+    for row in rows:
+        split = len(contents[(row["pin"], row["scenario"], row["model_requested"], row["agent"], row["arm"])]) > 1
+        row["cell_arm"] = f"{row['arm']} (tasks {first.get(row.get('skills_content'), 'none')})" if split else row["arm"]
+
+
 def compare(rows):
     """Per pin, scenario and model: every arm pooled over the pin's rounds, with deltas against raw."""
     lines = ["# Raw app versus aspirified app", "",
@@ -661,7 +727,7 @@ def compare_pin(rows):
     for row in rows:
         if row["model_requested"] == "oracle":
             continue
-        key = (row["scenario"], row["model_requested"], row["agent"], row["arm"])
+        key = (row["scenario"], row["model_requested"], row["agent"], row["cell_arm"])
         if row.get("infrastructure_failure"):
             infra[key] += 1
         elif row.get("agent_seconds") is not None:
@@ -675,7 +741,7 @@ def compare_pin(rows):
                   "| Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |",
                   "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|"]
         arms = sorted({a for s, m, g, a in cells if (s, m, g) == (scenario, model, agent)},
-                      key=lambda a: ARM_ORDER.index(a) if a in ARM_ORDER else 99)
+                      key=arm_order)
         for arm in arms:
             trials = cells[(scenario, model, agent, arm)]
             seconds, tokens, cost = (median([t.get(k) for t in trials]) for k in ("agent_seconds", "input_tokens", "cost_usd"))
@@ -703,6 +769,7 @@ def main():
             print(f"pending/no result: {entry['run_id']} {entry['scenario']} {entry['arm']} {entry['model']}", file=sys.stderr)
             continue
         rows += [analyze_trial(path, entry) for path in trials]
+    label_skill_variants(rows)
     (SUITE / "results/trials.jsonl").write_text("".join(json.dumps(r, sort_keys=True) + "\n" for r in rows))
     (SUITE / "results/summary.md").write_text(summarize(rows) + "\n")
     (SUITE / "results/comparison.md").write_text(compare(rows) + "\n")
