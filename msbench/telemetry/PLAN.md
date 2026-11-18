@@ -265,6 +265,28 @@ in all against the card's $9.30.
 | Trials / cost | 2 × 4 × 2 × 6 = 96 ≈ $3.90, plus 48 ≈ $1.90 if the reserved fault runs, plus the fixture work (the largest engineering item in the plan) |
 | Results | pending |
 
+#### T0.2 decision rule, as computed (written 2026-11-18, before round `t02`)
+
+The card's rule in numbers, fixed before any model trial:
+
+- **Cells.** Round `t02`, scenarios `heldout-slow-sql` (log-visible) and `heldout-stuck-orders`
+  (log-silent), models `gpt-6-luna` and `gpt-6.1-terra` (the terra ID every `t01b` cell used), n = 6
+  per arm. A trial that `collect.py` marks as an infrastructure failure (timeout or crash with
+  model-service 5xx) is re-run once in `t02-topup`; nothing else is re-run.
+- **Time ratio** = median agent seconds of `aspire-lean` ÷ median agent seconds of `raw`, same
+  scenario and model, over every graded trial (passed and failed), as `comparison.md` computes it.
+  Medians over passing trials only are reported next to it but do not decide.
+- **Within +20 % (log-visible)**, on each model: time ratio ≤ 1.20 **and** `aspire-lean` passes no
+  more than one trial fewer than `raw`.
+- **Ahead (log-silent)**, on each model: `aspire-lean` passes more trials than `raw`, **or** passes as
+  many and the time ratio is < 1.00.
+- **Gate open** only if all four model × fault conditions hold. Mann-Whitney p values are reported
+  (floor 0.002 at 6 vs 6) and do not change the verdict.
+- **Otherwise**: read the `aspire-lean` trajectories for what the agent needed, revise
+  `aspire-diagnose` once, re-run both faults labelled `in-sample` (round `t02-insample`), and judge the
+  gate on the reserved cache-side fault only, under the same two definitions with that fault counted
+  as log-silent if the raw app's logs show nothing during its window and as log-visible otherwise.
+
 ### T0.3 Series tooling
 
 | | |

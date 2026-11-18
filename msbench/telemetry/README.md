@@ -83,6 +83,30 @@ describe only the user-visible symptom, and name no endpoint, tool or component.
 | `read-only` | The database default was left read-only. Pages and reads work; every write fails. Health stays green. | An exception with SQLSTATE 25006. Aspire: structured log + failed trace. Standard app: `admin.log`. |
 | `slow-redis` | A host-side "attendance report" exporter counts cache sessions with a `KEYS`-based script in a loop; the session keyspace grew, so single-threaded Redis spends most of its time on it and every cache call the admin makes waits. Nothing fails. Same prompt as `slow-sql`. | Duration of requests that touch the cache. Aspire: slow server spans whose database child spans are short. Standard app: **nothing**; request logging is off at the default `Microsoft.AspNetCore: Warning` level and the Redis client logs no durations. Both arms must then read the cache's `SLOWLOG` / `CLIENT LIST`. |
 
+**Held-out application (PLAN card T0.2).** A second application with a different stack, built so
+that `aspire-diagnose` is scored on an app and faults it was not written against: **Shop**, a
+minimal API that also serves a static storefront, SQL Server 2022, RabbitMQ 4.3, and an order
+worker that allocates stock under a SQL Server application lock (`sp_getapplock`). Business code is
+in [`msbench/heldout/app`](../heldout/app); the packagings are
+[`common/heldout/raw-overlay`](common/heldout/raw-overlay) (Compose, start script, README, process
+logs in `.script-state/`) and [`common/heldout/aspire-overlay`](common/heldout/aspire-overlay)
+(AppHost, ServiceDefaults, and `servicedefaults.patch`, the only change to the business code: the
+same `Aspire:UseServiceDefaults` gate as Bingo). The aspirified app gets the client tracing Aspire's
+SQL Server and RabbitMQ client integrations enable (`AddSqlClientInstrumentation`, the RabbitMQ.Client
+publisher and subscriber sources); the raw app has none. Its harness is
+[`common/heldout/bench`](common/heldout/bench/bench.mjs) and image
+[`Dockerfile.heldout`](tools/templates/Dockerfile.heldout), which must carry the same pins as the main
+template (`gen-tasks.mjs` checks). Arms: `raw`, `aspire-cli`, `aspire-skills-mcp`, `aspire-lean`.
+
+| Scenario | Fault | Where the evidence is |
+|---|---|---|
+| `heldout-slow-sql` (log-visible) | Carrier tracking webhooks are stored as raw JSON; the order page finds an order's updates with `JSON_VALUE` over the whole history, which nothing indexes. The history grew; every order page takes seconds. Nothing fails. | Aspire: a SQL span with the statement and its duration. Standard app: EF Core's `Executed DbCommand (NNNN ms)` line with the statement in `api.log` (setup asserts it is there). |
+| `heldout-stuck-orders` (log-silent) | A host-side stock reconciliation job (`/usr/local/lib/shop-ops/stock-reconcile.sh`) took the inventory lock in an open transaction and is stalled waiting for its supplier feed. The worker waits 15 s for the lock, gives up silently (Debug log only) and retries the same message forever; orders stay `Pending`, the queue grows. | Aspire: 15 s SQL spans on `sp_getapplock` in the worker. Standard app: **nothing**; setup rejects the fixture if the raw app writes a single error-level line in the fault window. Both arms can see the wait and its holder in SQL Server (`sys.dm_exec_requests`, `sys.dm_tran_locks`) and the queue depth in RabbitMQ. |
+
+A third held-out fault (cache-side, on the API's catalogue cache) is reserved: it is implemented and
+run only if `aspire-diagnose` is revised after the first two, so the ship gate is never judged on an
+in-sample fault.
+
 A third scenario, `cold-start`, has no fault: nothing is running and the agent must
 bring the application up. It measures the new `aspire-start` skill. `cold-start-warm`
 (aspirified app only) has the same prompt, but setup has already started and stopped the
@@ -111,6 +135,17 @@ only. It never reads an agent report.
   must still be stored in the cache, and call/clear/status must work.
 - `cold-start`: both origins respond and a fresh write, call and clear round-trip
   through PostgreSQL.
+- `heldout-slow-sql`: five live and five year-old order pages must each have a median under
+  300 ms; the carrier history and every existing order must be intact; an order page must still
+  show its latest 20 updates and a webhook posted by the verifier at once (no stale cache); fresh
+  orders are confirmed (median under 3 s) and stock still matches confirmed orders.
+- `heldout-stuck-orders`: recorded as two checks, both required. Root cause: the verifier can take
+  the inventory lock (three times, 5 s timeout). Application: every order placed before the repair
+  is confirmed and the queue is empty (the backlog is customers' orders, so purging it fails), fresh
+  orders are confirmed (median under 3 s), an order placed while the verifier holds the lock stays
+  `Pending` until it is released (removing the lock from the worker fails), and stock still matches
+  confirmed orders (confirming orders by hand in SQL fails). Ending the job's SQL session (`KILL`),
+  stopping the job, or restarting SQL Server all pass.
 
 Dropping the trigger, truncating the audit history, flushing or restarting the cache
 (the session keys are gone), swapping the cache for memory, or a per-session workaround

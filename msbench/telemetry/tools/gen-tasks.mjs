@@ -30,6 +30,29 @@ Start it so that the player page and the admin application are both serving, and
 leave it running. README.md describes this workspace. No report is required.
 `;
 
+// Held-out application (PLAN card T0.2): the Shop app in msbench/heldout, a different stack
+// (minimal API, SQL Server, RabbitMQ worker) with its own faults. Its two faults have different
+// user-visible symptoms, so each has its own prompt; neither names an endpoint, tool or component.
+const heldoutArms = ["raw", "aspire-cli", "aspire-skills-mcp", "aspire-lean"];
+const heldoutSlow = `The shop application in /app is running and is serving live customer traffic.
+
+Customers report that the shop has recently become sluggish: some pages now take
+several seconds to load. Nothing fails and no error is shown.
+
+Find the root cause and fix it so that the affected pages are fast again.
+Keep all existing data and all existing functionality, and leave the application
+running. README.md describes this workspace. No report is required.
+`;
+const heldoutStuck = `The shop application in /app is running and is serving live customer traffic.
+
+Customers report that the orders they place are no longer being confirmed: placing an
+order still succeeds, but the order stays pending. Nothing fails and no error is shown.
+
+Find the root cause and fix it so that orders are confirmed again, including the ones
+already waiting. Keep all existing data and all existing functionality, and leave the
+application running. README.md describes this workspace. No report is required.
+`;
+
 export const scenarios = {
     "slow-sql": { seed: 61, instruction: sluggish },
     "slow-redis": {
@@ -62,7 +85,45 @@ describes this workspace. No report is required.
         arms: ["aspire-lean"],
         instruction: coldStart,
     },
+    // Log-visible: a slow SQL Server statement that EF Core logs with its duration.
+    "heldout-slow-sql": { seed: 66, app: "heldout", arms: heldoutArms, instruction: heldoutSlow },
+    // Log-silent: the order worker waits on an inventory lock held by a stalled job.
+    "heldout-stuck-orders": { seed: 67, app: "heldout", arms: heldoutArms, instruction: heldoutStuck },
+    // Reserved, not emitted: a cache-side fault on the Shop app, run only if aspire-diagnose is
+    // revised after the first two held-out faults (PLAN T0.2). bench.mjs rejects it.
+    // "heldout-cache": { seed: 68, app: "heldout", arms: heldoutArms, instruction: ... },
 };
+
+// Applications: the image template and the build contexts each one needs.
+const apps = {
+    bingo: {
+        dockerfile: "Dockerfile",
+        contexts: () => ({
+            "raw-app": ["TELEMETRY_RAW_APP_CONTEXT", appSha, "msbench/bingo/common/raw-app"],
+            "aspire-app": ["TELEMETRY_ASPIRE_APP_CONTEXT", appSha, "msbench/bingo/common/aspire-app"],
+        }),
+    },
+    // The Shop business code is pinned at the suite commit, which must include msbench/heldout.
+    heldout: {
+        dockerfile: "Dockerfile.heldout",
+        contexts: suiteSha => ({ "heldout-app": ["TELEMETRY_HELDOUT_APP_CONTEXT", suiteSha, "msbench/heldout/app"] }),
+    },
+};
+
+// Both templates must carry the same toolchain pins (base images, Aspire daily, its commit).
+function assertSamePins() {
+    const pins = file => {
+        const text = readFileSync(join(root, "tools/templates", file), "utf8");
+        return JSON.stringify({
+            images: [...new Set([...text.matchAll(/^FROM (\S+:\S+)/gm)].map(m => m[1]))].sort(),
+            args: Object.fromEntries([...text.matchAll(/^ARG (ASPIRE_(?:VERSION|SHA256_AMD64|SHA256_ARM64|COMMIT))=(\S+)/gm)].map(m => [m[1], m[2]]).sort()),
+        });
+    };
+    const [main, ...others] = [...new Set(Object.values(apps).map(app => app.dockerfile))];
+    for (const other of others) {
+        if (pins(other) !== pins(main)) throw new Error(`Toolchain pins differ between ${main} and ${other}: ${pins(main)} vs ${pins(other)}`);
+    }
+}
 
 // skills: a folder under common/skills, or "none". mcp: declare `aspire agent mcp`.
 export const arms = {
@@ -166,8 +227,10 @@ args = [${aspireMcp.args.map(a => JSON.stringify(a)).join(", ")}]
 ` : ""}`;
 }
 
-function compose(scenario, { kind, skills, cli }, suiteSha) {
+function compose(scenario, { kind, skills, cli }, suiteSha, app) {
     const git = (sha, path) => `${repo}.git#${sha}:${path}`;
+    const contexts = Object.entries(apps[app].contexts(suiteSha))
+        .map(([name, [variable, sha, path]]) => `\n        ${name}: \${${variable}:-${git(sha, path)}}`).join("");
     return `services:
   main:
     privileged: true
@@ -179,15 +242,14 @@ function compose(scenario, { kind, skills, cli }, suiteSha) {
         CLI_KIND: source
         CLI_PATCH: ${cli}` : ""}
       additional_contexts:
-        suite: \${TELEMETRY_SUITE_CONTEXT:-${git(suiteSha, "msbench/telemetry/common")}}
-        raw-app: \${TELEMETRY_RAW_APP_CONTEXT:-${git(appSha, "msbench/bingo/common/raw-app")}}
-        aspire-app: \${TELEMETRY_ASPIRE_APP_CONTEXT:-${git(appSha, "msbench/bingo/common/aspire-app")}}
+        suite: \${TELEMETRY_SUITE_CONTEXT:-${git(suiteSha, "msbench/telemetry/common")}}${contexts}
 `;
 }
 
 if (process.argv[2] === "tasks") {
     const suiteSha = args["suite-sha"];
     if (!/^[0-9a-f]{40}$/.test(suiteSha ?? "")) throw new Error("--suite-sha <40-hex commit> required");
+    assertSamePins();
     rmSync(join(root, "tasks"), { recursive: true, force: true });
     for (const [scenario, definition] of Object.entries(scenarios)) {
         for (const [arm, config] of Object.entries(arms)) {
@@ -196,8 +258,9 @@ if (process.argv[2] === "tasks") {
             for (const sub of ["environment", "tests", "solution"]) mkdirSync(join(dir, sub), { recursive: true });
             writeFileSync(join(dir, "task.toml"), taskToml(scenario, arm, definition, config));
             writeFileSync(join(dir, "instruction.md"), definition.instruction);
-            cpSync(join(root, "tools/templates/Dockerfile"), join(dir, "environment/Dockerfile"));
-            writeFileSync(join(dir, "environment/docker-compose.yaml"), compose(scenario, config, suiteSha));
+            const app = definition.app ?? "bingo";
+            cpSync(join(root, "tools/templates", apps[app].dockerfile), join(dir, "environment/Dockerfile"));
+            writeFileSync(join(dir, "environment/docker-compose.yaml"), compose(scenario, config, suiteSha, app));
             writeFileSync(join(dir, "tests/test.sh"), `#!/usr/bin/env bash
 set -euo pipefail
 mkdir -p /logs/verifier

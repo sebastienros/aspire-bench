@@ -10,12 +10,22 @@ msbench="$(cd "$suite/.." && pwd)"
 build() {
     local kind="$1" skills="$2" fault="$3" empty
     empty="$(mktemp -d)"
-    docker build -q -f "$suite/tools/templates/Dockerfile" \
-        --build-context "suite=$suite/common" \
-        --build-context "aspire-app=$msbench/bingo/common/aspire-app" \
-        --build-context "raw-app=$msbench/bingo/common/raw-app" \
-        --build-arg "APP_KIND=$kind" --build-arg "SKILLS=$skills" --build-arg "FAULT=$fault" ${CLI_PATCH:+--build-arg CLI_KIND=source --build-arg "CLI_PATCH=$CLI_PATCH"} \
-        -t "telemetry-$kind-$skills-$fault:dev" "$empty" >/dev/null
+    if [[ "$fault" == heldout-* ]]; then
+        # Held-out Shop application (T0.2). SQL Server has no arm64 image, so on an arm64 host
+        # set LOCAL_PLATFORM=linux/amd64 (the whole cell then runs emulated).
+        docker build -q -f "$suite/tools/templates/Dockerfile.heldout" ${LOCAL_PLATFORM:+--platform "$LOCAL_PLATFORM"} \
+            --build-context "suite=$suite/common" \
+            --build-context "heldout-app=$msbench/heldout/app" \
+            --build-arg "APP_KIND=$kind" --build-arg "SKILLS=$skills" --build-arg "FAULT=$fault" \
+            -t "telemetry-$kind-$skills-$fault:dev" "$empty" >/dev/null
+    else
+        docker build -q -f "$suite/tools/templates/Dockerfile" \
+            --build-context "suite=$suite/common" \
+            --build-context "aspire-app=$msbench/bingo/common/aspire-app" \
+            --build-context "raw-app=$msbench/bingo/common/raw-app" \
+            --build-arg "APP_KIND=$kind" --build-arg "SKILLS=$skills" --build-arg "FAULT=$fault" ${CLI_PATCH:+--build-arg CLI_KIND=source --build-arg "CLI_PATCH=$CLI_PATCH"} \
+            -t "telemetry-$kind-$skills-$fault:dev" "$empty" >/dev/null
+    fi
     rmdir "$empty"
 }
 
@@ -24,8 +34,8 @@ case "${1:-}" in
         kind="$2"; skills="$3"; fault="$4"; name="tele-$kind-$fault"
         build "$kind" "$skills" "$fault"
         docker rm -f "$name" >/dev/null 2>&1 || true
-        docker run -d --name "$name" --privileged "telemetry-$kind-$skills-$fault:dev" >/dev/null
-        for _ in $(seq 1 240); do
+        docker run -d --name "$name" --privileged ${LOCAL_PLATFORM:+--platform "$LOCAL_PLATFORM"} "telemetry-$kind-$skills-$fault:dev" >/dev/null
+        for _ in $(seq 1 480); do
             if docker exec "$name" test -f /opt/benchmark/ready 2>/dev/null; then echo "READY $name"; exit 0; fi
             if [[ "$(docker inspect -f '{{.State.Running}}' "$name")" != true ]]; then
                 docker logs "$name" 2>&1 | tail -40; echo "EXITED $name"; exit 1

@@ -1,0 +1,26 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-CU28-ubuntu-22.04
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${SQL_PASSWORD:?SQL_PASSWORD required}
+      MSSQL_MEMORY_LIMIT_MB: "2048"
+    ports:
+      - "127.0.0.1:${SQL_PORT:?SQL_PORT required}:1433"
+    volumes:
+      - shop-sql-data:/var/opt/mssql
+
+  rabbitmq:
+    image: rabbitmq:4.3-management
+    environment:
+      RABBITMQ_DEFAULT_USER: shop
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:?RABBITMQ_PASSWORD required}
+    ports:
+      - "127.0.0.1:${RABBITMQ_PORT:?RABBITMQ_PORT required}:5672"
+      - "127.0.0.1:${RABBITMQ_MANAGEMENT_PORT:?RABBITMQ_MANAGEMENT_PORT required}:15672"
+    volumes:
+      - shop-rabbitmq-data:/var/lib/rabbitmq
+
+volumes:
+  shop-sql-data:
+  shop-rabbitmq-data:

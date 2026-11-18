@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Trailhead Outfitters</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Trailhead Outfitters</h1>
+    <label>Signed in as <input id="customer" value="guest" maxlength="64"></label>
+  </header>
+  <main>
+    <section>
+      <h2>Products</h2>
+      <ul id="products" class="cards"></ul>
+    </section>
+    <section>
+      <h2>My orders</h2>
+      <table>
+        <thead><tr><th>Order</th><th>Product</th><th>Qty</th><th>Status</th><th>Placed</th></tr></thead>
+        <tbody id="orders"></tbody>
+      </table>
+    </section>
+    <section id="detail" hidden>
+      <h2>Order <span id="detail-number"></span></h2>
+      <p id="detail-status"></p>
+      <ol id="tracking"></ol>
+    </section>
+  </main>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

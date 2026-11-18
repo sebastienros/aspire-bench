@@ -36,6 +36,13 @@ PHASES = {
                   re.compile(r"RESET\s+default_transaction_read_only|default_transaction_read_only\s*(=|TO)\s*'?(off|false)", re.I)),
     "slow-redis": (re.compile(r"report-exporter|redis\.call\(.KEYS|KEYS.{0,40}report:session", re.I),
                    re.compile(r"\bpkill\b|\bkillall\b|\bkill\s+(-\w+\s+)?\d+|CLIENT\s+KILL|CLIENT\s+PAUSE|ACL\s+SETUSER|rename-command", re.I)),
+    # Held-out Shop app (T0.2). slow-sql: the JSON_VALUE statement on screen (EF Core log line,
+    # trace span or plan); fix: an index or computed column. stuck-orders: the lock wait or its
+    # holder on screen (wait type, the job, its sqlcmd session); fix: ending the holder.
+    "heldout-slow-sql": (re.compile(r"JSON_VALUE\s*\(\s*\[?Payload", re.I),
+                         re.compile(r"CREATE\s+(UNIQUE\s+)?(NONCLUSTERED\s+)?INDEX|ALTER\s+TABLE", re.I)),
+    "heldout-stuck-orders": (re.compile(r"LCK_M_X|stock-reconcile|\bSQLCMD\b"),
+                             re.compile(r"\bKILL\s+\d+|\bpkill\b|\bkillall\b|\bkill\s+(-\w+\s+)?\d+", re.I)),
 }
 ASPIRE_COMMAND = re.compile(
     r"\baspire\s+(otel\s+(?:traces|spans|logs)|describe|logs|resource|export|ps|wait|start|stop|run|docs|doctor|mcp|agent)\b")
