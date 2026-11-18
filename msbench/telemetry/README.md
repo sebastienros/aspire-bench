@@ -29,6 +29,7 @@ The two Aspire product patches are in [upstream/](upstream/).
 | `aspire-lean` | Aspirified app | `lean` = plus, router removed, monitoring trigger narrowed | no |
 | `aspire-lean-mcp` | Aspirified app | `lean` | yes |
 | `aspire-lean-start` | Aspirified app | `lean` + new `aspire-start` (cold-start scenario only) | no |
+| `aspire-skills-plugin` | Aspirified app | `current` content delivered as the plugin `aspire agent init` registers for Copilot CLI (marketplace pinned to the skills tag), not copied (slow-sql only) | no |
 | `aspire-mcp-src`, `aspire-lean-mcp-src`, `aspire-lean-src` | Aspirified app, CLI built from source at the daily's commit (control) | none / `lean` | yes / yes / no |
 | `aspire-mcp-compact`, `aspire-lean-mcp-compact` | Same, plus the MCP compact-telemetry patch | none / `lean` | yes |
 | `aspire-lean-plain` | Same, plus the CLI plain-output patch | `lean` | no |
