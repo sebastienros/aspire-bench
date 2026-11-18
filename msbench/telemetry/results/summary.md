@@ -191,3 +191,5 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 | raw | 6/6 | 53 | 13 | 25 | 173,038 | 1,890 | 0.054 | 20 | - | 0 | 110,035 |
 | raw-check | 6/6 | 54 | 15 | 27 | 164,064 | 1,850 | 0.054 | 20 | - | 0 | 103,274 |
 
+# Pin 2026-11-17: Aspire 17.1.0-preview.1.26567.3+30326eb8, aspire-skills v0.0.6 (e529b608)
+

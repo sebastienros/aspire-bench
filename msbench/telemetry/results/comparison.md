@@ -193,3 +193,5 @@ they are listed in trials.jsonl and excluded from every other column.
 | aspire-lean-mcp-all | 3 | 3/3 | 3/3 | 62 (+17%) | 218,927 (+27%) | 0.062 (+14%) | 18 | 22 | - |
 | raw-check | 6 | 6/6 | 6/6 | 54 (+3%) | 164,064 (-5%) | 0.054 (-1%) | 20 | 15 | - |
 
+# Pin 2026-11-17: Aspire 17.1.0-preview.1.26567.3+30326eb8, aspire-skills v0.0.6 (e529b608)
+
