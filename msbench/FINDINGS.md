@@ -1156,11 +1156,20 @@ in-sample, and the gate was judged on a third held-out fault built after the rev
   is the cause" reads as "make the call faster" when the call should not happen at all. An index
   alone fails the verifier (422 ms, still a read per shopper).
 
+**Strong models (Task T1.1, round `t11`, n = 3, direction-finding):** on `heldout-cache`,
+`aspire-lean` against raw was 0.67× on `gpt-6.2-sol` (110 s vs 165 s) and 0.95× on `claude-opus-5.5` (96 s
+vs 101 s), 12/12 trials passed ([PLAN.md, T1.1 results](telemetry/PLAN.md#t11-results)). Every `aspire-lean` agent
+reached SQL Server inside its container without a step-3 line for it (`/opt/mssql-tools18/bin/sqlcmd -C`,
+at most two calls lost), so the SQL Server step-3 proposal has no measured gap behind it on any model.
+None of the six added an index before fixing the key, against luna 5/6. Sol's gain is again the restart after the
+fix; Opus was level.
+
 **Improvement candidate:** (done, `5be0a4d`) a step-1 branch for "stuck, nothing fails": long spans
 of any kind (`--search "duration:>5000"`), and the follow-on operation's recent traces when nothing is
 long. Still proposals: a step-2 line for "a call that should not happen at all (cached, batched) is
 fixed in the caller", and SQL Server lines in step 3 (`sqlcmd` in the container,
-`sys.dm_exec_requests` with `blocking_session_id`, `sys.dm_tran_locks`), which belong to T1.1.
+`sys.dm_exec_requests` with `blocking_session_id`, `sys.dm_tran_locks`). T1.1 found no trial that needed
+them, so they are not proposed for now.
 
 **Limits / status:** Gate open on one held-out fault, two models, one harness, n = 6. That fault is
 log-visible, the class `t02` had already passed, and no trial on it used the revised step-1 branch:
