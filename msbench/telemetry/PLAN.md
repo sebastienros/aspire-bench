@@ -1162,9 +1162,24 @@ every ATIF row. T4.7 lists these as reader changes.
 **Cells run anyway.** Round `t17-copilot` was submitted before the probe returned, as the card's
 same-round Copilot CLI reference: `slow-sql`, `slow-redis` × luna × `raw`, `aspire-skills-mcp`,
 `aspire-lean` × 6, 36 trials. It is kept as Copilot CLI luna cells on tasks `1479041`, the first luna
-`slow-sql`/`slow-redis` cells with the revised step 1, and decides nothing for T1.7. Results: pending.
+`slow-sql`/`slow-redis` cells with the revised step 1, and decides nothing for T1.7. 36 of 36 graded, no
+5xx (n = 6; time = agent seconds, median; p = exact Mann-Whitney against raw; `t01b` ÷ raw is the same cell
+on tasks `0dfaf98f`, before the step-1 revision):
 
-**Cost.** Probes $0.07. `t17-copilot`: pending (about $0.60 at luna's rate).
+| Scenario | Arm | Time | ÷ raw | `t01b` ÷ raw | Pass (`t01b`) | Skills loaded | Run IDs |
+|---|---|---:|---:|---:|---|---|---|
+| slow-sql | raw | 99 s | — | — | 6/6 (6/6) | — | `2026111875714410`…`717580` |
+| slow-sql | aspire-skills-mcp | 232 s | 2.34× (p=0.0022) | 2.24× | 5/6 (6/6) | `aspire-monitoring` 5/6, `aspire` 4/6 | `2026111875721784`…`725000` |
+| slow-sql | aspire-lean | 125 s | 1.26× (p=0.49) | 1.39× | 6/6 (6/6) | `aspire-diagnose` 6/6 | `2026111875729204`…`732400` |
+| slow-redis | raw | 220 s | — | — | 0/6 (1/6) | — | `2026111875736700`…`739832` |
+| slow-redis | aspire-skills-mcp | 170 s | 0.77× (p=0.31) | 0.39× | 0/6 (0/6) | `aspire` 4/6, `aspire-monitoring` 4/6 | `2026111875744180`…`747432` |
+| slow-redis | aspire-lean | 103 s | 0.47× (p=0.065) | 0.41× | **5/6** (4/6) | `aspire-diagnose` 6/6 | `2026111875751704`…`754982` |
+
+They repeat `t01b` on luna. The shipped set with MCP is 2.3× raw on `slow-sql` and fails `slow-redis` 0/6.
+`aspire-lean` passes `slow-redis` 5/6 against raw's 0/6, the luna result that carries `aspire-diagnose`.
+The revised step 1 did not cost these cells anything. These are per-trial numbers; the trajectories were not read.
+
+**Cost.** Probes $0.07; `t17-copilot` $0.74.
 
 ### T1.8 Model lane: Opus 5.5 and GPT-6.2 Sol
 
