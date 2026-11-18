@@ -1213,6 +1213,44 @@ treat the subagent model as part of the VS Code arm (it is what a user gets by d
 was found, and no setting was found that moves the subagent to the requested model. Not reported
 upstream. Details in [PLAN.md T0.4](telemetry/PLAN.md#t04-harness-adapters-for-the-vs-code-lane).
 
+## F29: Under the `claude-code` harness no skill and no MCP server reach the agent, and only Claude models run
+
+**Evidence:** Task T1.7 probes ([PLAN.md, T1.7 results](telemetry/PLAN.md#t17-results)), two trials on
+`slow-sql`/`aspire-skills-mcp` with MSBench's `claude-code` special agent (package `v0.33.1794879102`):
+`2026111875131536` (`gpt-6-luna`) and `2026111875815010` (`claude-haiku-5.5`). Observations:
+
+- **GPT models cannot run.** The runner sends every model call to `/v1/messages` through the CES proxy,
+  and the luna trial failed on its first call with `400 no model endpoints available given user
+  constraints`. The CAPI catalogue lists luna, terra and sol 6.2 with `/responses` endpoints only, and the
+  Claude 5.5 models with `/v1/messages` and `/chat/completions`.
+- **The task's MCP server is not registered.** Harbor uploads `task.toml`'s `[[environment.mcp_servers]]`
+  to `/drop/mcp-config.json` and exports `MSBENCH_MCP_CONFIG`, which Copilot CLI uses. The `claude`
+  command the runner builds passes no `--mcp-config`, and Claude Code's `init` event reports
+  `"mcp_servers": []` in both trials.
+- **The skills are not discovered.** The image places the skill set in `/app/.github/skills` and in the
+  task's `skills_dir` (`/opt/agent-skills`). Claude Code reads `.claude/skills` and its config directory,
+  and listed only its 18 built-in skills. The haiku agent saw the `.github/skills` files in its first
+  listing, filtered `.github/` out of the next one, and solved the fault without any skill (reward 1,
+  111 s, $0.067).
+- **The CLI is not pinned.** The package pin fixes the special agent, but the Claude Code CLI inside it
+  resolves to `latest` (2.1.327 on 2026-11-18, `agent_settings.json`).
+- What works: the trial runs unattended with a Claude model, the verifier grades it, and the generic ATIF
+  reader in `collect.py` derives a full row (tools, `aspire` commands, phase markers, tokens, cost) from
+  `trajectories/trajectory.json`.
+
+**Improvement candidate:** For the benchmark: emit claude-code variants that also copy the skill set
+into `/app/.claude/skills` and register the MCP server in the agent user's `~/.claude.json` (as Harbor's own
+`claude_code` agent does), pin the CLI version, and map Claude Code's `Skill` and `mcp__aspire__*` tools in
+the reader. Proposed as PLAN T4.7, not built. For MSBench's `claude-code` runner: honour
+`MSBENCH_MCP_CONFIG` and the task's `skills_dir` the way the Copilot CLI runner does. For Aspire:
+`aspire agent init` registers skills per agent, and the copy in `.github/skills` does not reach Claude
+Code, so where the skills are copied decides whether an agent can use them at all.
+
+**Limits / status:** Two probe trials, one scenario, one package version. Whether a later package honours
+`MSBENCH_MCP_CONFIG` or `skills_dir` is unknown. Whether Copilot CLI also reads `/app/.claude/skills` (which
+would double-register skills if the copy went into the shared images) is unverified. T1.7 closed as
+"no verdict"; nothing filed upstream.
+
 ## Recording future findings
 
 Give each finding a stable ID and include evidence links, exact observed

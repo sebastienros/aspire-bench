@@ -1020,7 +1020,7 @@ so the saving per `describe` is 4.1 KB instead of 3.2 KB. Evidence:
 | Cells | `slow-sql`, `slow-redis` × luna × `raw`, `aspire-skills-mcp`, `aspire-lean` × 6 on the `claude-code` special agent (the catalogue serves the same CAPI models to every agent, so the model stays fixed) |
 | Decision rule | Same direction as Copilot in both scenarios: the proposals are harness-neutral. Different: record which harness-specific mechanism (skill discovery path, MCP registration, context budget) explains it before any further harness work |
 | Trials / cost | 2 × 3 × 6 = 36 ≈ $0.60. Same model, different harness, so a difference is attributable to the harness |
-| Results | pending |
+| Results | **no verdict** (2026-11-18): two probes showed the card cannot run as written. `claude-code` reaches only `/v1/messages`, which no GPT model serves, so luna cannot run under it. The task's MCP server and skills never reach Claude Code. The package pin does not pin the Claude Code CLI. [T1.7 results](#t17-results); the adapter is proposed as [T4.7](#t47-claude-code-adapter-proposed). Cost $0.07 (probes) |
 
 #### T1.7 decision rule, as computed (written 2026-11-18, before round `t17` was submitted)
 
@@ -1042,6 +1042,63 @@ so the saving per `describe` is 4.1 KB instead of 3.2 KB. Evidence:
   and the trajectories name the harness mechanism (skill discovery path, MCP registration, context budget)
   before further harness work.
 - **Infrastructure.** As T1.1, top-ups in `t17-topup`.
+
+#### T1.7 results
+
+**Verdict: `no verdict`.** The probe step stopped the card. Under the `claude-code` harness the card's
+model cannot run, and neither the skills nor the MCP server reach the agent. The cells would have
+compared raw with an aspirified app that carries no skill and no MCP, which cannot speak to the
+hypothesis ("router cost and `aspire-diagnose` selection are properties of the skills"). The session
+that started this lane therefore closed the card without running them. T1.9 (VS Code agent mode, same
+models) carries the harness-neutrality question in this phase. The adapter that would make the card
+runnable is proposed as [T4.7](#t47-claude-code-adapter-proposed) and not built.
+
+**Probes** (both `slow-sql`/`aspire-skills-mcp`, tasks `1479041`, package `claude-code=v0.33.1794879102`;
+both rows are kept in `trials.jsonl` with an `excluded` reason, outside every cell):
+
+| Round | Run ID | Model | Outcome | Agent s | Input tokens | Cost |
+|---|---|---|---|---:|---:|---:|
+| `probe-t17` | `2026111875131536` | `gpt-6-luna` | No model call succeeded: `API Error: 400 no model endpoints available given user constraints`, `X_AGENT_FAILURE` (an infrastructure-type row: no grade) | 5.8 | 0 | $0 |
+| `probe-t17b` | `2026111875815010` | `claude-haiku-5.5` | Reward 1 (5 imports 6–10 ms, 5 updates 6–8 ms against a 571 ms baseline); 26 tool calls (`Bash` 25, `Read` 1), one `aspire describe`, no skill, no MCP call | 110.7 | 2.13 M | $0.067 |
+
+**The three gaps, as observed.**
+1. **GPT models are unreachable under `claude-code`.** The runner configures "direct /v1/messages API
+   via CES proxy" (`runner.log`), and the CAPI sidecar log shows `POST /api/copilot/v1/messages` → 400.
+   The catalogue (`msbench-cli registry list models`) lists `supported_endpoints` per model: `gpt-6-luna`
+   and `gpt-6.1-terra` serve `/responses` and `ws:/responses`, `gpt-6.2-sol` `/responses` only, and every
+   Claude 5.5 model `/v1/messages` and `/chat/completions`. The card's premise ("the catalogue serves the
+   same CAPI models to every agent") does not hold for this harness: under it, only Claude models run.
+   `claude-haiku-5.5` is priced like luna (10 / 50 per 1M input / output tokens).
+2. **The task's MCP server and skills are not discovered.** Harbor uploads `task.toml`'s server to
+   `/drop/mcp-config.json` and exposes it as `MSBENCH_MCP_CONFIG` (`harbor-setup-log.txt`). The `claude`
+   command line the runner builds has no `--mcp-config`, and Claude Code's `init` event reports
+   `"mcp_servers": []` in both probes. The image puts the skill set in `/app/.github/skills` (which Copilot
+   CLI and VS Code read) and in `/opt/agent-skills` (the task's `skills_dir`). Claude Code reads
+   `.claude/skills` (project) and its config directory's `skills/`, and its `init` lists only its 18 built-in
+   skills. The haiku agent never used the Aspire skills. Its first file listing showed the `.github/skills`
+   files (34 paths), and its third call filtered them out (`grep -v '^\.github/'`). Its trajectory has no
+   `SKILL.md` read.
+   Harbor's own `claude_code` agent would copy `skills_dir` into `$CLAUDE_CONFIG_DIR/skills` and write the
+   MCP servers to `~/.claude.json`, but the MSBench special agent runs its own runner (`msbench_adapter_agent`
+   → `run-claude-code-cli.sh`) and does neither.
+3. **The package pin does not pin the CLI.** `agent_settings.json` records `agent_version_requested:
+   "latest"` (source: default) and `agent_version_used: "2.1.327"`. `submit.sh` pins the special-agent
+   package, but the Claude Code CLI inside it is whatever is latest on the day of the run.
+
+**The ATIF reader works on a `claude-code` row.** `collect.py`'s generic reader filled the haiku probe's row
+from `trajectories/trajectory.json`: tool counts, `models_called` (`claude-haiku-5-5`, the provider's
+spelling), `aspire_cli`, phase markers (root cause seen 34 s, first fix 74 s), `agent_loop_seconds` 100.9 s,
+and tokens and cost from Harbor's `agent_result`. Not exercised, because neither occurred: skill loads
+(Claude Code's tool is `Skill`, not Copilot's `skill`) and MCP calls (Claude Code names them
+`mcp__<server>__<tool>`, which `canonical_tool` does not map yet). `model_service_5xx` stays empty, as for
+every ATIF row. T4.7 lists these as reader changes.
+
+**Cells run anyway.** Round `t17-copilot` was submitted before the probe returned, as the card's
+same-round Copilot CLI reference: `slow-sql`, `slow-redis` × luna × `raw`, `aspire-skills-mcp`,
+`aspire-lean` × 6, 36 trials. It is kept as Copilot CLI luna cells on tasks `1479041`, the first luna
+`slow-sql`/`slow-redis` cells with the revised step 1, and decides nothing for T1.7. Results: pending.
+
+**Cost.** Probes $0.07. `t17-copilot`: pending (about $0.60 at luna's rate).
 
 ### T1.8 Model lane: Opus 5.5 and GPT-6.2 Sol
 
@@ -1289,6 +1346,19 @@ Decision rules for the audit, applied per skill after its cells and T3.9:
 | T4.4 | **Multi-turn session** | All 461 trials are single turn; a real session reuses context | Two-step task: diagnose, then a follow-up change on the same running app; only if the runner demonstrably keeps the conversation (F05) | 24 ≈ $1.00 after the runner check | pending |
 | T4.5 | **Tracking schedule** (REPORT §11) | Every later product daily and skills release gets the core matrix | Workflow on this repo: re-pin, gate, submit core matrix, collect, series, open an issue on a flag | 120 trials ≈ $5 per run | pending |
 | T4.6 | **Cheaper rounds** | The plan's cost is bounded by queue time more than money | Local gate before every cloud submission; one image per app kind with skill sets mounted at run time instead of baked | none | pending |
+| T4.7 | **Claude Code adapter** (proposed 2026-11-18, not built) | T1.7 found that no skill and no MCP server reach the `claude-code` harness, and that only Claude models run under it | Skills copied to `/app/.claude/skills`, the MCP server registered the way Harbor's `claude_code` agent does it, a real CLI version pin; `claude-haiku-5.5` on both harnesses: [card below](#t47-claude-code-adapter-proposed) | 72 ≈ $5 plus a re-pin and gates | proposed |
+
+### T4.7 Claude Code adapter (proposed)
+
+| | |
+|---|---|
+| Why | [T1.7](#t17-results) could not test whether the skill findings are harness-neutral on Claude Code. Under `claude-code`, Claude Code's `init` reported `mcp_servers: []` and only its built-in skills, because it reads neither `/app/.github/skills` nor `MSBENCH_MCP_CONFIG`. GPT models are unreachable (it calls `/v1/messages` only), and the package resolves the CLI to `latest` (2.1.327 on 2026-11-18). [FINDINGS F29](../FINDINGS.md#f29-under-the-claude-code-harness-no-skill-and-no-mcp-server-reach-the-agent-and-only-claude-models-run) |
+| Change | (1) **Skills:** the image also composes the arm's skill set into `/app/.claude/skills`, the project skill folder Claude Code reads. (2) **MCP:** the same `aspire agent mcp` server written where Claude Code reads it without a prompt: `mcpServers` in the agent user's `~/.claude.json`, as Harbor's `claude_code` agent does (`_build_register_mcp_servers_command`); a project `/app/.mcp.json` needs explicit enablement. (3) **Version pin:** find the setting behind `agent_version_requested` (`agent_settings.json` shows it with source `default`) and pass a fixed Claude Code CLI version from `submit.sh` the way `USE_COPILOT_CLI_VERSION` pins Copilot CLI; if no such setting exists, record the version every trial used and keep the rounds within a day. (4) **Reader:** `collect.py` maps Claude Code's `Skill` tool to a skill load and `mcp__aspire__<tool>` to `aspire-<tool>`. Emit (1) and (2) only in new claude-code variants of the three arms (for example `aspire-skills-mcp-cc`, `aspire-lean-cc`), so every existing Copilot CLI and VS Code image stays byte-identical. Copilot CLI may also read `.claude/skills`, which would double-register skills; that is unverified, which is why the files go into separate variants. The change touches `common/` and task emission, so it needs a re-pin and remote gates, coordinated with whichever session owns the pin |
+| Check before cells | One `claude-code` probe per new variant on `slow-sql`: `init` lists the aspire MCP server with its 15 tools and the Aspire skills; `aspire-diagnose` is loaded on `aspire-lean-cc`; the reader fills `skills_loaded` and `mcp_calls`; the verifier grades |
+| Cells | `slow-sql`, `slow-redis` × `claude-haiku-5.5` × `raw`, `aspire-skills-mcp`, `aspire-lean` × 6 under `claude-code` (with the `-cc` variants), **and the same 36 cells under Copilot CLI with `claude-haiku-5.5`**, in one round. Model and harness are then not confounded. Haiku is priced like luna (10 / 50 per 1M tokens) and, like luna, is the model where guidance should decide the outcome |
+| Decision rule | T1.7's rule, within one model. Harness-neutral (`ship`) if, per scenario, each Aspire arm's time ratio to `raw` under `claude-code` lies on the same side of 1.00 as under Copilot CLI (0.90–1.10 counts as level), the two Aspire arms order the same way, and the `slow-redis` pass counts of `aspire-lean` and `raw` order the same way. Otherwise `no verdict`, and the trajectories name the mechanism (skill selection, MCP use, context budget) |
+| Trials / cost | 72 graded trials ≈ $5 (the haiku probe under `claude-code` cost $0.067 on `slow-sql`, 2.1 M input tokens mostly cached; Copilot CLI haiku not yet measured) + 2–3 probes; gates model-free |
+| Results | proposed, not built |
 
 ---
 
