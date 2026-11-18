@@ -1160,3 +1160,15 @@ about 66 s against 110 s from the first edit), not the diagnosis: both arms read
 the source. Opus restarted in about the same time either way. No `aspire-lean` trial added an index first (luna
 5/6 in T0.2). Cost $4.31, Opus about $0.37 and sol about $0.35 per trial on this app.
 [PLAN.md, T1.1 results](PLAN.md#t11-results).
+
+**Phase 1, T1.7: second harness (Claude Code).** Closed as **no verdict** without cells. Two probes on
+MSBench's `claude-code` agent found the card could not run as written. Claude Code sends every call to
+`/v1/messages`, which no GPT model serves, so luna failed on its first call. A `claude-haiku-5.5` trial ran and
+passed, but Claude Code's `init` listed no MCP server and only its built-in skills: it reads neither the
+task's MCP config nor `.github/skills`, and that agent solved the fault without either. The package pin
+also leaves the Claude Code CLI at `latest` (2.1.327). Cells run under it would have compared the raw app
+with an aspirified one carrying no skill and no MCP, which says nothing about the skills, so none were
+run. T1.9 (VS Code) carries the harness question in this phase. The adapter (skills in
+`/app/.claude/skills`, MCP in `~/.claude.json`, a CLI pin, Haiku on both harnesses) is proposed as T4.7.
+[PLAN.md, T1.7 results](PLAN.md#t17-results);
+[FINDINGS F29](../FINDINGS.md#f29-under-the-claude-code-harness-no-skill-and-no-mcp-server-reach-the-agent-and-only-claude-models-run).
