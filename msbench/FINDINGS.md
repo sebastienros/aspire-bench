@@ -1060,6 +1060,33 @@ that runs stop then start, hits without any hint in the CLI output.
 either. Not reported upstream (user: not yet). The suite's setup now waits; see
 [PLAN.md T0.1](telemetry/PLAN.md#t01-re-pin-and-re-baseline).
 
+## F26: Agents find the traffic generator through `ps` and read it; only a per-run leak check catches it
+
+**Evidence:** The series tooling (T0.3) fails a run on any trial whose tool arguments touch a
+harness path, and its first pass over existing results flagged three trials that the per-card
+reviews had not reported: on pin 2026-11-17, `t01b-plugin` `slow-sql`/luna/`aspire-skills`
+`2026111819752052` ran `sed -n '1,260p' /opt/benchmark/traffic.mjs` and then `cat
+/opt/benchmark/state.json` and `endpoints.json` (steps 20 and 23), and `t01b` `read-only`/luna/`raw`
+`2026111819659130` grepped `traffic.mjs` for `read.only|transaction|reconnect`; on pin 2026-11-09
+`r6` `slow-redis`/luna/`raw` `2026111002618380` read `traffic.mjs`, `state.json` and `endpoints.json`
+(steps 16 and 22). None of these opened the verifier, and the traffic generator holds no fix. One
+more trial, in the excluded incident round, went further: `t01` `slow-sql`/luna/`aspire-cli`
+`2026111811249160` ran `find /opt/benchmark -maxdepth 2 -type f`, viewed `traffic.mjs` and then
+`/opt/benchmark/bench.mjs` (step 32, 334 bytes returned), the file that holds `verify`. The
+live-traffic process is discoverable from `ps`, its source names the endpoints the verifier
+exercises, and the verifier itself is readable from inside the agent's container.
+
+**Improvement candidate:** Keep the verifier out of the image: Harbor uploads `tests/` only after
+the agent finishes, so `verify` belongs there rather than in `/opt/benchmark/bench.mjs`. Run the
+traffic generator from a path and process name that do not advertise the benchmark, keep its
+state files out of reach, and make the leak counter part of every gate review rather than only of
+the series.
+
+**Limits / status:** Four of 932 trials, one of them excluded. Whether a read helped a repair was
+not checked beyond the commands quoted (the `bench.mjs` view returned a 334-byte fragment). The
+fixture is unchanged; recorded in
+[PLAN.md T0.3](telemetry/PLAN.md#t03-series-tooling).
+
 ## Recording future findings
 
 Give each finding a stable ID and include evidence links, exact observed

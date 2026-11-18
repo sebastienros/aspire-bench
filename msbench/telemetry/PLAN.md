@@ -271,7 +271,54 @@ in all against the card's $9.30.
 |---|---|
 | Change | `tools/series.py` and `results/series.jsonl` as specified in REPORT §11.3: one row per cell per round with ratio to raw, trailing medians, flags; `ledger.jsonl` rows gain `task`, `aspire_build`, `skills_sha` |
 | Decision rule | Not a benchmark. Done when T0.1's round appears in `series.md` next to the 11-09 round |
-| Results | pending |
+| Results | Done 2026-11-18: [T0.3 results](#t03-results) below. `results/series.md` shows run `t01b` next to the pooled 11-09 run for every cell, with the incident rounds left out; the first pass flagged four trials that read harness files ([F26](../FINDINGS.md#f26-agents-find-the-traffic-generator-through-ps-and-read-it-only-a-per-run-leak-check-catches-it)) |
+
+#### T0.3 results
+
+**What exists.** [`tools/series.py`](tools/series.py) reads `trials.jsonl` and the ledger (`task`,
+`submitted_at`, `task_repo_commit`; `aspire_build` and `skills_sha` reach the rows through
+`collect.py`) and writes [`results/series.jsonl`](results/series.jsonl) (154 rows, one per cell per
+run) and [`results/series.md`](results/series.md) (a runs table, then one table per scenario × model
+× harness with n, pass, median seconds and their MAD, tokens, ratio to `raw`, the trailing median of
+that ratio, skill selection, MCP calls, characters read, flags and a spark line of the time ratio).
+A cell is (harness, scenario, model, arm); `submit.sh` already wrote `task`, `aspire_build` and
+`skills_sha` since T0.1, and T0.4 adds `agent`. Oracle gates, infrastructure failures and every row
+with an `excluded` reason are left out, so `t01`, `t01-solbridge`, `t01-plugin`, `t01-warm` and
+`t01-topup` do not appear.
+
+**What a run is.** No round of the first pin has the whole matrix with its own `raw` (rounds `r1`
+to `r5` ran `raw-check`; `raw` exists only in `r6`, `r6b`, `r7`, `r7b`), so the first pin is one
+pooled run, exactly as `comparison.md` and the T0.1 table pool it. Later runs are the round name up
+to the first `-`: `t01b`, `t01b-solbridge`, `t01b-plugin` and `t01b-warm` form run `t01b`, so the
+plugin cell divides by the `t01b` raw. A cell with no `raw` in its run is flagged `no-raw`
+(`cold-start-warm`, which has no raw arm). Ratios reproduce the T0.1 table to the second decimal
+(for example `slow-sql`/luna/`aspire-cli` 2.26× → 1.97× time, 2.66× → 2.76× tokens).
+
+**Flags.** As REPORT §11.2, against the median of the cell's last five earlier runs: a pass drop of
+at least 0.4 × n trials with binomial p < 0.05, a time or token ratio 25 % above the trailing median
+with a rank-sum p < 0.05 of the run's per-trial ratios (trial ÷ same-run raw median) against the
+pooled window's, the mirror images as `improve-*`, skill selection under 80 % on an arm that ships
+skills, and any harness-path access. The rank-sum test is exact up to 200,000 permutations and a
+tie-corrected normal approximation beyond. A suite change that breaks comparability starts a new
+window through `WINDOW_STARTS` (a re-pin does not). With only the pooled 11-09 run behind it, `t01b`
+gets: `improve-time` on `slow-sql`/luna/`aspire-skills-mcp` (3.10× → 2.24×), `read-only`/luna
+`aspire-cli` and `aspire-lean`, and `slow-redis`/luna `aspire-cli` and `aspire-skills-mcp`;
+`regress-time` on `slow-redis`/terra/`aspire-cli` (0.60× → 1.03×, p = 0.048 against an n = 3 window);
+`regress-tokens` on `cold-start`/luna/`aspire-cli` and `cold-start`/terra/`aspire-lean`;
+`selection-low` on luna `slow-sql` `aspire-skills` and `aspire-skills-plugin` and on luna
+`read-only` and `slow-redis` `aspire-skills-mcp`. Every one of these is a cell T0.1 already explained
+(mostly the raw denominator moving). Until the window holds several runs, a flag says "look", not
+"regression"; on luna §11.3's rule (repeat the cell before an issue) applies.
+
+**Leaks.** `leak` flagged `t01b` `read-only`/luna/`raw`, `t01b-plugin` `slow-sql`/luna/`aspire-skills`
+and 11-09 `slow-redis`/luna/`raw`: agents found `/opt/benchmark/traffic.mjs` through `ps` and read it
+and its state files, and one excluded trial also opened `/opt/benchmark/bench.mjs`, the verifier.
+None of the per-card reviews had reported them, since `protected_path_access` was in `trials.jsonl`
+but in no table ([F26](../FINDINGS.md#f26-agents-find-the-traffic-generator-through-ps-and-read-it-only-a-per-run-leak-check-catches-it)).
+The fixture is unchanged; moving `verify` into `tests/` is the fix proposed there.
+
+**Not done.** The schedule (§11.3 step 3) and opening an issue on a flag are not built; the first
+flagged run should be read by hand.
 
 ### T0.4 Harness adapters for the VS Code lane
 
