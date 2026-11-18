@@ -440,13 +440,14 @@ One row per model; columns as in the table above, plus cost:
 | Model | Shipped set loads a skill on a diagnosis prompt | Proposed set loads `aspire-diagnose` | Shipped set vs raw (time, `slow-sql` / `read-only`) | Proposed set vs raw (time) | `slow-redis` pass, raw → shipped → proposed | `slow-redis` time, raw → proposed | Cold start, raw | $ per trial (Bingo) |
 |---|---|---|---|---|---|---|---|---:|
 | `gpt-6.2-sol` | `aspire-monitoring` 18/18, router 6/18 | 18/18 | +20 % (p = 0.011) / +44 % (p = 0.002) | +3 % / +21 % (n.s.) | 6/6 → 6/6 → 6/6 | 147 → 83 s (p = 0.004) | 55 s; Aspire arms 0.91×–1.00× (T1.6, n = 6) | 0.287 |
-| `claude-opus-5.5` | router 9/18, `aspire-monitoring` 4/18, none 5/18 | 18/18 | +30 % (p = 0.065) / +91 % (p = 0.002) | **+45 % (p = 0.026)** / +35 % (n.s.) | 6/6 → 6/6 → 6/6 | 266 → 113 s (p = 0.065) | 48 s (probe, n = 1) | 0.370 |
+| `claude-opus-5.5` | router 9/18, `aspire-monitoring` 4/18, none 5/18 | 18/18 | +30 % (p = 0.065) / +91 % (p = 0.002) | **+45 % (p = 0.026)** / +35 % (n.s.) | 6/6 → 6/6 → 6/6 | 266 → 113 s (p = 0.065) | 48 s (probe, n = 1, pin 2026-11-09) | 0.370 |
 
 On the strongest models the shipped set still costs time where the log has the evidence, and the lean
 set wins the silent cache fault on time (no strong model failed it on any arm, so it does not win on pass rate). The
-lean set is at parity on sol but not on Opus. Opus follows step 4 ("confirm on fresh traffic") literally, with
-30–45 s sleeps before querying traces, and so takes 1.45× raw's time on `slow-sql`; sol confirms with a request.
-That is the one place the proposal costs a model that did not need it, and a step-4 edit is proposed (PLAN T1.8).
+lean set is at parity on sol but not on Opus. Opus sleeps 15–45 s for new telemetry before confirming a fix,
+with or without a skill. Step 4 ("confirm on fresh traffic") makes that the route and doubles the wait on
+`slow-sql`, where Opus takes 1.45× raw's time; sol confirms with a request. That is the one place the proposal
+costs a model that did not need it. A step-4 edit, with an Opus no-skill control, is proposed (PLAN T1.8).
 With the shipped set Opus loads the router or nothing in 14/18 diagnosis trials, so router mis-selection is not
 only a luna effect. Patching the app on `slow-redis` is: no strong-model trial did it. Both strong models
 barely used MCP when it was offered (0.39 and 0.06 calls per trial).
@@ -1197,22 +1198,23 @@ shipped set is still slower than raw where the log has the evidence on both stro
 The lean set wins the silent cache fault on time (0.57× sol, p = 0.004; 0.42× Opus, p = 0.065), not on pass
 rate, because raw passed 6/6 too. It is at parity on sol, but on Opus `slow-sql` it is 1.45× raw (p = 0.026),
 which trips the card's 20 % rule: verdict **revise**. Opus finds and fixes the cause sooner than raw, then
-follows step 4 ("confirm on fresh traffic") literally, sleeping 15–45 s before querying traces, where raw
-confirms with a request. A step-4 edit (confirm by request, trace filter only when the agent cannot call the
-operation, no waiting) is proposed and not applied. Router mis-selection with the shipped set appears on
+sleeps 15–45 s before re-reading telemetry, where raw confirms with a request. It also does this with the
+shipped set, even without a skill, so step 4 ("confirm on fresh traffic") is only part of the cause; it doubles
+the wait on `slow-sql`. A step-4 edit (confirm by request, trace filter only when the agent cannot call the
+operation, no waiting) is proposed with an Opus `aspire-cli` control and is not applied. Router mis-selection with the shipped set appears on
 Opus too (router or no skill in 14/18). Patching the app on `slow-redis` does not appear (0/36), and MCP was
 barely used (≤ 0.39 calls per trial). No strong model failed `slow-redis`, so §6 gains no row. The model table
 in §4.4 has one row per model. Measured cost per trial: sol $0.287 and Opus $0.370, against the $0.118 and $0.25
 the plan assumed. T1.8 cost $35.43 against $19.90, and the Phase 1 budget is re-estimated from about $42 to about $60.
 [PLAN.md, T1.8 results](PLAN.md#t18-results);
-[FINDINGS F30](../FINDINGS.md#f30-a-strong-model-follows-confirm-on-fresh-traffic-literally-and-waits-for-traces-which-costs-it-parity).
+[FINDINGS F30](../FINDINGS.md#f30-a-strong-model-waits-for-new-telemetry-before-confirming-a-fix-and-confirm-on-fresh-traffic-adds-to-the-wait).
 
 **Phase 1, T1.6: `aspire-start` against v0.0.6 orchestration.** 90 cold-start trials (round `t16`, n = 6;
 luna, terra, `gpt-6.2-sol` × raw, `aspire-cli`, shipped skills, lean, lean with `aspire-start`), every trial
 passed. On luna the lean set without `aspire-start` took 61 s, against 53 s with it: a gap of 1.16× (p = 0.004),
 under the card's 20 %, where 11-09 measured 82 s against 51 s. Verdict: **drop**. v0.0.6's
 `aspire-orchestration` still has the agent read two or three references first, but it reaches `aspire start`
-within 13 s, against 5–8 s with `aspire-start`; after that both arms wait the same 40 s for the AppHost. Terra and
+within 13 s, against 5–8 s with `aspire-start`; after that both arms wait 46–49 s for the AppHost. Terra and
 sol show no gap (0.94×, 0.99×), and the shipped set with its router is level with lean (60 s), so removing the
 router no longer needs a cold-start companion skill. Cold start is still slower with Aspire than raw on luna and
 terra (1.12×–1.42×, p ≤ 0.017 in every skilled cell) and level or faster on sol (0.91×–1.00×). Cost $5.36,

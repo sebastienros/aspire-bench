@@ -1128,6 +1128,14 @@ it passed, and its cell's verdict is unchanged without it. One of 96 `t02` trial
 already keeps the fault name out of the environment (no `BENCH_FAULT`; root-only
 `/opt/benchmark/fault`) but its harness still lives in `/opt/benchmark` like Bingo's.
 
+**Update 2026-11-18 (T1.8, strong models, round `t18`):** 9 of 108 trials touched `/opt/benchmark`, all on
+`slow-redis`, where the exporter shows in `ps`. Five `gpt-6.2-sol` raw trials read `traffic.mjs`. One
+`claude-opus-5.5` raw trial (`2026111875517718`) grepped the verifier `bench.mjs` for `report|exporter`. The
+lines it got back state that the session keyspace must be preserved and that stopping the exporter is the
+reference repair; it had already killed the exporter one step earlier, and passed. The leak counter caught all
+nine. No rule excludes them, so they stay in the cells and are named in [PLAN.md, T1.8 results](telemetry/PLAN.md#t18-results).
+The improvement candidate (verifier out of the image) stands; strong models find the harness more often.
+
 ## F27: On a held-out app the diagnosis skill carries over for a slow call but not for work that silently stops
 
 **Evidence:** Task T0.2 ([PLAN.md, T0.2 results](telemetry/PLAN.md#t02-results)), round `t02`,
@@ -1268,7 +1276,7 @@ Code, so where the skills are copied decides whether an agent can use them at al
 would double-register skills if the copy went into the shared images) is unverified. T1.7 closed as
 "no verdict"; nothing filed upstream.
 
-## F30: A strong model follows "confirm on fresh traffic" literally and waits for traces, which costs it parity
+## F30: A strong model waits for new telemetry before confirming a fix, and "confirm on fresh traffic" adds to the wait
 
 **Evidence:** Task T1.8 ([PLAN.md, T1.8 results](telemetry/PLAN.md#t18-results)), round `t18`, pin
 2026-11-17, n = 6 per cell. `claude-opus-5.5` with `aspire-lean` against the raw app: `slow-sql` 86 s
@@ -1282,15 +1290,19 @@ against 59 s, 1.45× (p = 0.026); `read-only` 1.35× (p = 0.065). `gpt-6.2-sol` 
   fresh traffic as the skill's step 4 says ("Then confirm on fresh traffic, using the same filter that showed
   the problem"). Raw Opus confirmed with `curl` requests.
 - Sol never ran step 4's filter (0/18) and confirmed by request, so the same text costs it nothing.
-- With the shipped set Opus also slept 20–45 s on `read-only`, part of its 1.91× there.
+- The wait is not step 4 alone. With the shipped set, which has no step 4, Opus also slept before re-reading
+  telemetry: on `slow-sql` in 5/6 trials (median 15 s), and on `read-only` in 6/6 (median 32 s). That includes
+  trials that loaded no skill (`2026111875501782`, `2026111875502452`). Step 4 doubles the wait on `slow-sql`
+  (30 s against 15 s) and adds nothing on `read-only` (34 s against 32 s).
 
 **Improvement candidate:** Step 4 of `aspire-diagnose`: confirm with one request to the affected
 operation when the agent can make one, use the trace filter only when it cannot, and say that live traffic
-yields new traces within seconds, so no sleep is needed. Proposed in PLAN T1.8, not applied. It must be measured
-on the Opus cells that failed, with luna `slow-sql`/`slow-redis` guard cells, before it ships.
+yields new traces within seconds, so no sleep is needed. Proposed in PLAN T1.8, not applied. It may not restore parity
+alone, so it must be measured on the Opus cells that failed, together with an Opus `aspire-cli` control (no
+skill) and luna `slow-sql`/`slow-redis` guard cells, before it ships.
 
 **Limits / status:** One model, one round, two scenarios. The sleep lengths are the model's choice, and a
-different Opus build may wait less. A literal instruction costs most on the model that follows instructions
+different Opus build may wait less. How much of the wait comes with the aspirified app whatever the skill says needs an Opus `aspire-cli` cell, which does not exist yet. An instruction to confirm through telemetry costs most on the model that follows instructions
 most closely. Not applied, not upstreamed.
 
 ## Recording future findings

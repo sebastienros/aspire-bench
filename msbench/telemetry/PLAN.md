@@ -30,7 +30,7 @@ These are the user's calls. The plan proceeds on the defaults in the second colu
 
 | Decision | Default assumed here | Why it matters |
 |---|---|---|
-| Model budget per phase | Phase 0 ≈ $14, Phase 1 ≈ $42 at the cards' estimates, re-estimated to ≈ $60 after T1.1 and T1.8 cost $39.74 against $22.10 (sol $0.287 and Opus $0.370 per trial measured, not $0.118 and $0.25), Phase 2 ≈ $15, Phase 3 ≈ $26, Phase 4 ≈ $5 plus ≈ $5 per tracking run (model cost only, summed from the cards' estimates at this dataset's per-trial means; Opus assumed at $0.25 per trial before T1.8 measured $0.370) | Sets n per cell and how many scenarios the skill audit gets |
+| Model budget per phase | Phase 0 ≈ $14, Phase 1 ≈ $42 at the cards' estimates, re-estimated to ≈ $60 after the model lane (T1.1, T1.6, T1.7, T1.8) cost $45.91 against $27.50 (sol $0.287 and Opus $0.370 per trial on Bingo measured, not $0.118 and $0.25; sol cold start $0.15, so the sol cold-start cells of T2.2 and T2.9 keep their estimates), Phase 2 ≈ $15, Phase 3 ≈ $26, Phase 4 ≈ $5 plus ≈ $5 per tracking run (model cost only, summed from the cards' estimates at this dataset's per-trial means; Opus assumed at $0.25 per trial before T1.8 measured $0.370) | Sets n per cell and how many scenarios the skill audit gets |
 | Models | `gpt-6-luna` and `gpt-6.1-terra` in every decision cell; **`gpt-6.2-sol` replaces `gpt-6.1-sol`** and **`claude-opus-5.5` is added**; both run on ship gates and on their own lane (T1.8), not in every cell | Luna is where guidance decides the outcome. Catalogue prices per 1M input tokens: luna 10, terra 100, sol 200 (6.1 and 6.2 alike), Opus 5.5 400; Opus 4.8 and 5 are marked for deprecation, so 5.5 is the Opus to use. A one-trial probe of each on `cold-start`/`raw` (round `probe-models`) passed on 2026-11-17 under the pinned Copilot CLI; numbers in T1.8 |
 | Skills baseline | `microsoft/aspire-skills` **v0.0.6** (released 2026-11-17) | v0.0.5 is no longer what `aspire agent init` registers |
 | Held-out application | A second Bingo-sized app with a different stack (minimal API + SQL Server + RabbitMQ worker), built in this repo; eShop only if that proves too small | Every "ship" verdict on `aspire-diagnose` is gated on it |
@@ -1025,7 +1025,10 @@ same pair was 82 s against 51 s (1.61×, n = 3). The other models show no gap: t
 **Round health.** Round `t16`, `cold-start`, tasks `1479041` (Bingo; `aspire-diagnose`'s revision does not
 reach this scenario, since no trial loads it), Copilot CLI 1.0.99. 90 of 90 trials graded on the first pass: no
 top-up, no timeout, no crash, no model-service 5xx, no harness-path access. The four luna `raw` folders that
-another worktree had extracted early were deleted and fetched again after ingestion finalized.
+another worktree had extracted early were deleted and fetched again after ingestion finalized. Series flags
+(`series.md`): only `regress-tokens` on luna `aspire-skills`. Its tokens are 2.58× raw against 1.64× in the
+11-09 n = 3 cell, which ran the v0.0.5 shipped set; with v0.0.6 the router also loaded in 4/6 trials. That
+comes from per-trial numbers; the trajectories were not read.
 
 **`t16`** (n = 6 per cell; time = agent seconds, median over all graded trials; p = exact Mann-Whitney
 against raw; `raw` is the deviation the rule names; IDs are the first and last of each repeat group):
@@ -1055,8 +1058,9 @@ against raw; `raw` is the deviation the rule names; IDs are the first and last o
 - **Without it**: the agent loads `aspire-orchestration` (6/6) and reads two or three of its references
   (`detection.md` and `app-commands.md` in 5/6; also `agent-workflows.md` or `safety-guardrails.md`), plus
   a git detection. It runs `aspire start` 9–13 s in, using 127k–271k input tokens.
-- **After `aspire start`** the two arms are the same, about 40 s, mostly the AppHost bringing up PostgreSQL,
-  Redis and two projects.
+- **After `aspire start`** the arms are close: a median 49 s (`aspire-lean`) against 46 s (`aspire-lean-start`),
+  mostly the AppHost bringing up PostgreSQL, Redis and two projects. Of the 8 s gap, about 5.5 s comes before
+  `aspire start` (the reference reading) and about 2.5 s after it.
 - **The 11-09 penalty is mostly gone.** There `aspire-lean` followed 29 KB of references and a git detection
   sequence for 82 s. In `t16` it reads about as much (37 KB for the usual pair) and still starts within 13 s, so v0.0.6 changed how
   directly the orchestration skill leads to `aspire start`, not whether it is read. `t01b` (same v0.0.6, no
@@ -1178,6 +1182,9 @@ on tasks `0dfaf98f`, before the step-1 revision):
 They repeat `t01b` on luna. The shipped set with MCP is 2.3× raw on `slow-sql` and fails `slow-redis` 0/6.
 `aspire-lean` passes `slow-redis` 5/6 against raw's 0/6, the luna result that carries `aspire-diagnose`.
 The revised step 1 did not cost these cells anything. These are per-trial numbers; the trajectories were not read.
+`series.md` flags `selection-low` on `slow-redis` `aspire-skills-mcp`: a skill loaded in 4/6 trials, which
+made a median of 10 MCP calls. One `aspire-lean` `slow-redis` trial ran 738 s (`2026111875754982`, passed);
+it was not read.
 
 **Cost.** Probes $0.07; `t17-copilot` $0.74.
 
@@ -1191,7 +1198,7 @@ The revised step 1 did not cost these cells anything. These are per-trial number
 | Cells | `slow-sql`, `read-only`, `slow-redis` × `claude-opus-5.5`, `gpt-6.2-sol` × 6 |
 | Decision rule | Informational for the proposals, decisive for the model table in REPORT §4.4: each model gets a row. If Opus or 6.2-sol fail `slow-redis` on any arm, that arm's failure path is added to §6 of the report. If `aspire-lean` is slower than `raw` by more than 20% on a strong model with p < 0.05, the skill is costing a model that did not need it and the trigger or body is revised for that case |
 | Trials / cost | 3 × 3 × 2 × 6 = 108: sol 54 ≈ $6.40, Opus 54 ≈ $13.50 (assumed; the probe gives the first real number) |
-| Results | **Probe passed** for both: `gpt-6.2-sol` reward 1 in 47 s, 94k input tokens, $0.114; `claude-opus-5.5` reward 1 in 48 s, 131k input tokens, $0.168 (one `cold-start`/`raw` trial each, Copilot CLI 1.0.99, rows in `trials.jsonl` round `probe-models`). For scale, `gpt-6.1-sol` cost $0.037 to $0.041 on the same cell, so both new models look two to four times dearer per trial than assumed; the budget lines are re-estimated after the first T1.8 cells. **Cells: `revise`** (2026-11-18, round `t18`, 108 trials, every cell 6/6): Opus `slow-sql` `aspire-lean` 1.45× raw (p = 0.026) trips the 20 % rule, because Opus follows step 4's "confirm on fresh traffic" with 30–45 s sleeps; a step-4 edit is proposed, not applied. Shipped set 1.20×–1.91× raw on the log-visible faults, lean 0.57×/0.42× on `slow-redis`; [T1.8 results](#t18-results). Cost $35.43 (sol $0.287, Opus $0.370 per trial) |
+| Results | **Probe passed** for both: `gpt-6.2-sol` reward 1 in 47 s, 94k input tokens, $0.114; `claude-opus-5.5` reward 1 in 48 s, 131k input tokens, $0.168 (one `cold-start`/`raw` trial each, Copilot CLI 1.0.99, rows in `trials.jsonl` round `probe-models`). For scale, `gpt-6.1-sol` cost $0.037 to $0.041 on the same cell, so both new models look two to four times dearer per trial than assumed; the budget lines are re-estimated after the first T1.8 cells. **Cells: `revise`** (2026-11-18, round `t18`, 108 trials, every cell 6/6): Opus `slow-sql` `aspire-lean` 1.45× raw (p = 0.026) trips the 20 % rule, because Opus sleeps 15–45 s for new telemetry before confirming a fix. Step 4's "confirm on fresh traffic" adds to the wait but is not its only cause: Opus also waits with the shipped set. A step-4 edit with an Opus `aspire-cli` control is proposed, not applied. Shipped set 1.20×–1.91× raw on the log-visible faults, lean 0.57×/0.42× on `slow-redis`; [T1.8 results](#t18-results). Cost $35.43 (sol $0.287, Opus $0.370 per trial) |
 
 #### T1.8 decision rule, as computed (written 2026-11-18, before round `t18` returned any trial)
 
@@ -1214,17 +1221,33 @@ The revised step 1 did not cost these cells anything. These are per-trial number
 #### T1.8 results
 
 **Verdict: `revise`.** One cell trips the 20 % rule. On `claude-opus-5.5` `slow-sql`, `aspire-lean`
-took 86 s against raw's 59 s, 1.45× (p = 0.026). The cause, read from the trajectories, is step 4 of
-`aspire-diagnose` ("confirm on fresh traffic, using the same filter"): Opus follows it literally, sleeping
-for new traces before it queries them. The revision is proposed below; the skill is not edited in this lane.
+took 86 s against raw's 59 s, 1.45× (p = 0.026). The cause, read from the trajectories, is Opus waiting for new
+telemetry: whenever it confirms a fix through traces or logs, it sleeps 15–45 s first. It does this with
+the shipped set too, including trials that loaded no skill. Step 4 of `aspire-diagnose` ("confirm on fresh
+traffic, using the same filter") makes telemetry the confirmation route in every lean trial and adds to the
+wait on `slow-sql`, so it is **part** of the cause. A step-4 revision is proposed below, with a control; the
+skill is not edited in this lane.
 Every other cell is within the rule:
 - Opus `read-only` 1.35× (p = 0.065), the same mechanism, not significant.
 - Sol `read-only` 1.21× (p = 0.093) and sol `slow-sql` 1.03×.
 - `aspire-lean` passed 6/6 in all six cells, as did every raw and shipped-set cell, so no pass-rate condition applies.
 
 **Round health.** Round `t18`, tasks `1479041` (`aspire-lean` carries the revised step 1), Copilot CLI
-1.0.99. 108 of 108 trials graded on the first pass: no top-up, no timeout, no crash, no model-service 5xx,
-no harness-path access.
+1.0.99. 108 of 108 trials graded on the first pass: no top-up, no timeout, no crash, no model-service 5xx.
+**Harness-path access in 9 trials, all on `slow-redis`**, whose exporter process is visible in `ps` (the F26 route):
+- `gpt-6.2-sol` raw: 5/6 read `/opt/benchmark/traffic.mjs` (two also `endpoints.json`).
+- sol `aspire-skills-mcp` 1 and Opus `aspire-lean` 1 listed `/opt/benchmark`.
+- Opus `aspire-skills-mcp` 1 read `entrypoint.sh`.
+- One trial read the verifier: Opus raw `2026111875517718` ran `grep "report|exporter" /opt/benchmark/bench.mjs`
+  (step 13). That returned the lines saying the session keyspace must be preserved and that stopping the
+  exporter is the reference repair. The agent had already killed the exporter at step 12. It then rewrote the
+  exporter to use `SCAN`, restarted it, and passed.
+
+No pre-registered rule covers a leak, so every trial stays in the table. Without `2026111875517718`, Opus
+`slow-redis` `aspire-lean` is 0.49× raw instead of 0.42×. No cell that decides the verdict involves these trials.
+[F26](../FINDINGS.md#f26-agents-find-the-traffic-generator-through-ps-and-read-it-only-a-per-run-leak-check-catches-it) is updated.
+Series flags (`series.md`): `leak` on the six `slow-redis` cells above, and `selection-low` on Opus `read-only`
+`aspire-skills-mcp`, where a skill loaded in only 2/6 trials (the router).
 
 **`t18`** (n = 6 per cell; time = agent seconds, median over all graded trials; p = exact Mann-Whitney
 against raw; IDs are the first and last of each repeat group, every ID is in `ledger.jsonl` with `round: t18`):
@@ -1276,16 +1299,27 @@ to `sleep 45` (median total 30 s and 34 s), in 11 of the 12 followed by `aspire 
 fresh traffic as step 4 says ("Then confirm on fresh traffic, using the same filter that showed the problem").
 Raw Opus confirmed with `curl` requests to the endpoint (for example `2026111875420550`, steps 7–8, about 36 s from fix to end).
 Sol never ran step 4's filter (0/18 trials) and confirmed by request, which is why sol is at parity on the
-same skill text. Opus also sleeps 20–45 s with the shipped set on `read-only`, part of its 1.91×.
+same skill text.
 
-**Proposal (step 4 only, not applied).** Replace "Then confirm on fresh traffic, using the same filter
+**The wait is not step 4 alone.** With the shipped set, which has no step 4, Opus also slept before re-reading
+telemetry: on `slow-sql` in 5/6 trials (median total 15 s, `sleep 15`/`sleep 20` then `aspire otel traces
+boardadmin --search import`), and on `read-only` in 6/6 (median 32 s, then `aspire otel logs`). On `read-only`
+that includes trials that loaded no skill at all: `2026111875501782` ran `sleep 15` and then `sleep 10`, and
+`2026111875502452` ran `sleep 45`. So Opus waits for new telemetry whenever telemetry is how it checks a
+fix. Step 4 makes that the route in every `aspire-lean` trial and doubles the wait on `slow-sql` (30 s against
+15 s with the shipped set). On `read-only` it adds nothing over the shipped set (34 s against 32 s). This is
+also part of the shipped set's 1.91× on `read-only`.
+
+**Proposal (step 4 only, not applied; it may not restore parity alone).** Replace "Then confirm on fresh traffic, using the same filter
 that showed the problem" with a confirmation that does not wait: "Confirm with one request to the affected
 operation if you can make one (its time or status shows the fix). Use `aspire otel traces -n 5 --search
 "name:<operation fragment>"` only when you cannot call it yourself; live traffic produces new traces within
 seconds, so do not sleep before querying." Steps 1–3 are untouched (step 1 is frozen per T1.1). The edit
 touches the route every model takes, so before it ships it runs as an `aspire-lean` variant on Opus
-`slow-sql` and `read-only` (the cells that failed) with luna `slow-sql` and `slow-redis` guard cells (PLAN §3).
-It must keep luna's `slow-redis` pass count.
+`slow-sql` and `read-only` (the cells that failed) with luna `slow-sql` and `slow-redis` guard cells (PLAN §3),
+**and an Opus `aspire-cli` control** on the same two scenarios (aspirified app, no skill; no such cell exists
+yet). The control shows how much of the wait comes with the aspirified app whatever the skill says. The edit
+must keep luna's `slow-redis` pass count.
 
 **`slow-redis` failure paths for REPORT §6: none.** Every strong-model trial on every arm passed. Opus raw is
 the slow cell (266 s): it reads the source, then runs `redis-cli` commands such as `DBSIZE` against the blocked
@@ -1574,7 +1608,7 @@ Budget at the assumed defaults:
 | Phase | Trials (sum of the cards) | Model cost | Dominant other cost |
 |---|---:|---:|---|
 | 0 | 210 + 96 + 3 (+ 48 reserved) | ≈ $13.40 (+ $2) | Held-out app fixtures, harness adapters |
-| 1 | 84 + 72 + 108 + 72 + 12 + 36 + 108 + 108 = 600 | ≈ $42 estimated (of which Opus ≈ $14, VS Code ≈ $4); **≈ $60 re-estimated** 2026-11-18 with T1.1 ($4.31) and T1.8 ($35.43) at actual cost, the other cards at their estimates | Three to four CES rounds; VS Code trajectory adapter |
+| 1 | 84 + 72 + 108 + 72 + 12 + 36 + 108 + 108 = 600 | ≈ $42 estimated (of which Opus ≈ $14, VS Code ≈ $4); **≈ $60 re-estimated** 2026-11-18 with T1.1 ($4.31), T1.6 ($5.36), T1.7 ($0.81) and T1.8 ($35.43) at actual cost, the other cards at their estimates | Three to four CES rounds; VS Code trajectory adapter |
 | 2 | 54 + 54 + 36 + 24 + 96 + 24 + 36 + 42 + 18 = 384 | ≈ $15 | Nine product patches on source builds |
 | 3 | 240 + 96 + 48 + 60 + 48 + 48 + 36 + 24 guard = 600, plus 256 short | ≈ $26 | Four fixture ports, two new graders |
 | 4 | 48 + 48 + 24 = 120, plus 120 per tracking run | ≈ $5, plus ≈ $5 per run | Audit fixtures (16 AppHosts) |
