@@ -97,6 +97,7 @@ publisher and subscriber sources); the raw app has none. Its harness is
 [`common/heldout/bench`](common/heldout/bench/bench.mjs) and image
 [`Dockerfile.heldout`](tools/templates/Dockerfile.heldout), which must carry the same pins as the main
 template (`gen-tasks.mjs` checks). Arms: `raw`, `aspire-cli`, `aspire-skills-mcp`, `aspire-lean`.
+Results (round `t02`): [PLAN.md, T0.2 results](PLAN.md#t02-results).
 
 | Scenario | Fault | Where the evidence is |
 |---|---|---|
@@ -144,8 +145,8 @@ only. It never reads an agent report.
   is confirmed and the queue is empty (the backlog is customers' orders, so purging it fails), fresh
   orders are confirmed (median under 3 s), an order placed while the verifier holds the lock stays
   `Pending` until it is released (removing the lock from the worker fails), and stock still matches
-  confirmed orders (confirming orders by hand in SQL fails). Ending the job's SQL session (`KILL`) or
-  stopping the job passes; a SQL Server restart also released the lock and passed in a local check
+  confirmed orders (confirming orders by hand in SQL fails). Ending the job's SQL session (`KILL`),
+  stopping the job, or closing its supplier feed so it commits (the route most terra agents took) passes; a SQL Server restart also released the lock and passed in a local check
   (run without live traffic during the restart). Purging the queue and confirming orders in SQL were
   each run once locally and fail.
 

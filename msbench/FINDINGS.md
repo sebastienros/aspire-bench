@@ -1016,6 +1016,15 @@ look at dependencies over agents that read code. Terra and sol cells have 3 tria
 (3 of 6): it read `list_traces` / `list_structured_logs` output and went to the code.
 Not upstreamed. Draft issue: [skills-aspireify-redis-client-tracing.md](upstream-issues/skills-aspireify-redis-client-tracing.md).
 
+**Update 2026-11-18 (T0.2, held-out app): not reproduced.** On a second log-silent fault, a worker
+blocked on a SQL Server application lock held by a stalled host job, the raw app was not at a
+disadvantage: raw passed 6/6 on luna and terra, and `aspire-lean` was level on luna (0.99×) and 0.74×
+on terra. The silence did not decide the outcome there because the cause sits in the database's own
+session views, which every arm queried, and the source names the lock; the skill's step 1 also missed
+the lock span in 8 of 12 trials ([F27](#f27-on-a-held-out-app-the-diagnosis-skill-carries-over-for-a-slow-call-but-not-for-work-that-silently-stops)).
+The shipped skills with MCP again did worst on luna (4/6, 2.53× raw), reading the trace and going to
+the code, as on `slow-redis`.
+
 ## F24: A convenience health script in the raw baseline slowed the raw agent down
 
 **Evidence:** Rounds 1 to 5 ran the standard app with a `scripts/check.sh` next to its
@@ -1086,6 +1095,49 @@ the series.
 not checked beyond the commands quoted (the `bench.mjs` view returned a 334-byte fragment). The
 fixture is unchanged; recorded in
 [PLAN.md T0.3](telemetry/PLAN.md#t03-series-tooling).
+
+**Update 2026-11-18 (T0.2, held-out app):** the same route recurs on a different application:
+`t02` `heldout-slow-sql`/luna/`raw` `2026111832109234` found the traffic generator with `ps`, read
+`/opt/benchmark/traffic.mjs` (step 11) and loaded `/opt/benchmark/state.json` in a script (step 28);
+it passed, and its cell's verdict is unchanged without it. One of 96 `t02` trials. The held-out image
+already keeps the fault name out of the environment (no `BENCH_FAULT`; root-only
+`/opt/benchmark/fault`) but its harness still lives in `/opt/benchmark` like Bingo's.
+
+## F27: On a held-out app the diagnosis skill carries over for a slow call but not for work that silently stops
+
+**Evidence:** Task T0.2 ([PLAN.md, T0.2 results](telemetry/PLAN.md#t02-results)), round `t02`,
+96 trials at n = 6 on the Shop app (minimal API, SQL Server, RabbitMQ worker; `msbench/heldout`).
+`aspire-lean` against the raw app, time ratio and pass: log-visible slow SQL 0.67× (luna, p = 0.093)
+and 0.85× (terra, p = 0.24), 6/6 each; log-silent lock wait 0.99× (luna, 81 s vs 82 s, p = 0.82) and
+0.74× (terra, p = 0.041), 6/6 each. The shipped skills with MCP were 2.53× and 4/6 on luna on the
+silent fault. Observations from the trajectories:
+
+- Every trial in every arm read the application source (96/96), and the source shows both mechanisms
+  (the `JSON_VALUE` statement, the `sp_getapplock` call and, in its comments, the reconciliation job
+  that shares the lock).
+- Log-visible: `aspire-lean` went to telemetry before the source in 12/12 trials and telemetry put the
+  slow statement on screen in 11/12, so the skill's steps 1 and 2 carried over. The time saved over raw
+  came after the fix: every trial patched code and restarted the API, and raw agents spent 166–228 s
+  doing that around the start script's supervisor against 60–193 s with `aspire resource`.
+- Log-silent: `aspire-lean` loaded the skill 12/12 and went to telemetry first 12/12, but the 15 s lock
+  span reached the screen in 4/12. Step 1 picks a filter by symptom, "slow" or "failing"; "orders stay
+  pending, nothing fails" is neither, and the error filters it chose return nothing. Agents then found
+  the holder through SQL Server's session views (12/12, as raw) and ended it. No arm's advantage came
+  from the trace on this fault.
+- The Aspire side of the silent fault exists only because the worker's lock wait is bounded (15 s): the
+  SQL span is exported when the command ends. An unbounded wait would leave no span at all.
+
+**Improvement candidate:** Give step 1 of `aspire-diagnose` a branch for "work is not progressing,
+nothing fails": long spans of any kind (`--search duration:>5000`), and consumers or workers with no
+recent successful traces, instead of the error filters; add SQL Server lines to step 3 (`sqlcmd` in
+the container; `sys.dm_exec_requests` with `blocking_session_id`, `sys.dm_tran_locks`). Both are
+proposals; the skill was not edited.
+
+**Limits / status:** The ship gate opened by the pre-registered rule, but only because the luna
+silent cell's 0.99× counts as "ahead"; with the probe trial pooled it is +4 % and the gate would not
+open. The source naming the lock's other user gives every arm a route the card did not intend; a
+re-run without those comments is open. Two models, one harness, n = 6. Cost $6.27 against $3.90
+estimated (terra trials longer than on Bingo). Not upstreamed.
 
 ## Recording future findings
 

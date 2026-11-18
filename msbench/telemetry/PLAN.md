@@ -1,6 +1,6 @@
 # Plan: improving agentic performance with Aspire (CLI, MCP, skills)
 
-Status: proposal, 2026-11-17. T0.1 (re-pin and re-baseline) done 2026-11-18; no other card has run, and no issue has been filed.
+Status: proposal, 2026-11-17. T0.1 (re-pin and re-baseline), T0.2 (held-out application) and T0.3 (series tooling) done 2026-11-18; no issue has been filed.
 Each task below is a card with the same fields; a card's **Results** field is either a
 link to measured numbers or `pending`. Nothing in a Results field is predicted.
 
@@ -263,7 +263,7 @@ in all against the card's $9.30.
 | Cells | 2 faults × luna, terra × n = 6 |
 | Decision rule | `aspire-lean` within +20% of raw on the log-visible fault and ahead on the silent one on both models: steps 1 and 2 generalise, ship gate open. Otherwise record what the agent needed, revise the skill once, label the re-run on the same two faults **in-sample**, and judge the gate on the reserved third fault only |
 | Trials / cost | 2 × 4 × 2 × 6 = 96 ≈ $3.90, plus 48 ≈ $1.90 if the reserved fault runs, plus the fixture work (the largest engineering item in the plan) |
-| Results | pending |
+| Results | Done 2026-11-18: [T0.2 results](#t02-results) below. Gate **open** by the pre-registered rule, but the luna log-silent condition is a tie (0.99×, 6/6 vs 6/6, p = 0.82); step 1 of the skill did not carry over to the silent symptom; $6.27 against $3.90 |
 
 #### T0.2 decision rule, as computed (written 2026-11-18, before round `t02`)
 
@@ -286,6 +286,132 @@ The card's rule in numbers, fixed before any model trial:
   `aspire-diagnose` once, re-run both faults labelled `in-sample` (round `t02-insample`), and judge the
   gate on the reserved cache-side fault only, under the same two definitions with that fault counted
   as log-silent if the raw app's logs show nothing during its window and as log-visible otherwise.
+
+#### T0.2 results
+
+**Verdict: gate open by the pre-registered rule, on a tie in the deciding cell.** All four conditions
+hold, so `aspire-diagnose` is not revised, nothing is re-run in-sample and the reserved cache-side fault
+stays unimplemented. But the luna log-silent condition ("ahead") is met by 0.8 s: `aspire-lean` 81.4 s
+against `raw` 82.2 s, both 6/6, p = 0.82. That is a tie, and the verdict rests on it; whether a tie
+should count as "ahead" is the user's call (open item 1). The trajectories also show that step 1 of the
+skill did **not** carry over to this symptom (below), so "steps 1 and 2 generalise" holds for the
+log-visible fault only.
+
+**Application and faults.** Shop (`msbench/heldout/app`; packagings in `common/heldout/`): minimal API
+that also serves a static storefront, SQL Server 2022 CU28, RabbitMQ 4.3, an order worker that allocates
+stock under `sp_getapplock('inventory')`. Business code is identical in both packagings except
+`servicedefaults.patch` (the `Aspire:UseServiceDefaults` gate, as in Bingo); the aspirified app gets the
+SQL Server and RabbitMQ client tracing Aspire's client integrations enable (`AddSqlClientInstrumentation`,
+`RabbitMQ.Client.Publisher`/`Subscriber`), the raw app none. `heldout-slow-sql` (log-visible): carrier
+webhooks stored as raw JSON, the order page filters them with `JSON_VALUE` and no index; calibrated to
+≥ 500 ms per page (remote gates: 912–922 ms; local, emulated amd64: 1 M rows, 690–770 ms); setup asserts
+EF Core's `Executed DbCommand (N ms)` line with the statement is in the raw `api.log`.
+`heldout-stuck-orders` (log-silent): a host job (`stock-reconcile.sh`) holds the lock in an open
+transaction, stalled on its supplier feed; the worker waits 15 s, logs at Debug only and retries the
+same message. Setup rejects the fixture on any error-level line in the window; a 22-minute local soak
+under the fault logged none, and 409 queued messages survived ~80 redeliveries and drained after the
+repair. In the aspirified app the wait shows as 15 s `deliver orders` spans whose child `EXEC` span
+carries the `sp_getapplock` text, inside the API's `POST /api/orders` trace (only because the worker's
+lock timeout ends each wait; an unbounded wait would export no span). Prompts: in
+`gen-tasks.mjs`, symptom only.
+
+**Gates.** Local, every cell (2 faults × `raw`, `aspire-cli`/`none`, `aspire-skills-mcp`/`current`,
+`aspire-lean`/`lean`): verify fails → reference repair → verify passes, 8/8. Must-fail repairs run once
+each, all failed as intended: purge the queue then kill the holder (backlog never confirmed), confirm
+pending orders in SQL (stock invariant), delete carrier history (history check). Remote `gate-t02`, all
+reward 1: `heldout-slow-sql` `2026111831021442` (raw), `…023818`, `…026032`, `…028462`;
+`heldout-stuck-orders` `…030812` (raw), `…033058`, `…035276`, `…037424`. Probe `probe-t02` (one luna
+`raw` trial per fault, `2026111831539882`, `…542474`): both passed, no timeout, no 5xx; tagged
+`excluded` in the ledger because the rule is computed on round `t02` only (pooled, see below).
+
+**Round health (`t02`, 96 trials, tasks `c4c67064`, pin `2026-11-17`).** No timeout, no crash, no
+exclusion; one luna trial saw a model-service 5xx (2.8 s lost); median 5xx wait 0 s. One luna `raw`
+slow-sql trial (`2026111832109234`, passed) read `/opt/benchmark/traffic.mjs` and `state.json` after
+finding the traffic generator with `ps` ([F26](../FINDINGS.md#f26-agents-find-the-traffic-generator-through-ps-and-read-it-only-a-per-run-leak-check-catches-it));
+kept and flagged; without it raw luna slow-sql is 252 s and lean ÷ raw 0.63×, so the verdict does not
+depend on it.
+
+**Ratios to `raw`, round `t02`, n = 6 per cell** (medians over all graded trials; time = agent seconds,
+tokens = input tokens; p = exact Mann-Whitney on time against raw; skill = trials that loaded a skill;
+[comparison.md](results/comparison.md), [stats.md](results/stats.md)):
+
+| Scenario | Model | Arm | Time | Time ÷ raw | Tokens | Tokens ÷ raw | Pass | Skill | $/trial | Run IDs |
+|---|---|---|---:|---:|---:|---:|---|---|---:|---|
+| heldout-slow-sql | luna | raw | 237 s | — | 553k | — | 6/6 | 0/6 | 0.018 | `2026111832107808`…`111082` |
+| heldout-slow-sql | luna | aspire-cli | 120 s | 0.51× (p=0.015) | 420k | 0.76× | 6/6 | 0/6 | 0.013 | `2026111832114908`…`118094` |
+| heldout-slow-sql | luna | aspire-skills-mcp | 145 s | 0.61× (p=0.002) | 720k | 1.30× | 6/6 | 5/6 | 0.018 | `2026111832122042`…`125310` |
+| heldout-slow-sql | luna | **aspire-lean** | 160 s | **0.67×** (p=0.093) | 512k | 0.92× | 6/6 | 6/6 | 0.015 | `2026111832129224`…`132588` |
+| heldout-slow-sql | terra | raw | 328 s | — | 744k | — | 6/6 | 0/6 | 0.138 | `2026111832165438`…`168682` |
+| heldout-slow-sql | terra | aspire-cli | 216 s | 0.66× (p=0.009) | 571k | 0.77× | 6/6 | 0/6 | 0.113 | `2026111832172780`…`176000` |
+| heldout-slow-sql | terra | aspire-skills-mcp | 298 s | 0.91× (p=0.394) | 859k | 1.15× | 6/6 | 6/6 | 0.156 | `2026111832179852`…`182948` |
+| heldout-slow-sql | terra | **aspire-lean** | 278 s | **0.85×** (p=0.240) | 804k | 1.08× | 6/6 | 6/6 | 0.145 | `2026111832186934`…`190174` |
+| heldout-stuck-orders | luna | raw | 82 s | — | 313k | — | 6/6 | 0/6 | 0.010 | `2026111832136640`…`139806` |
+| heldout-stuck-orders | luna | aspire-cli | 110 s | 1.34× (p=0.240) | 383k | 1.22× | 5/6 | 0/6 | 0.013 | `2026111832143742`…`147238` |
+| heldout-stuck-orders | luna | aspire-skills-mcp | 208 s | 2.53× (p=0.002) | 1,489k | 4.76× | 4/6 | 6/6 | 0.031 | `2026111832151172`…`154290` |
+| heldout-stuck-orders | luna | **aspire-lean** | 81 s | **0.99×** (p=0.818) | 318k | 1.02× | 6/6 | 6/6 | 0.010 | `2026111832158228`…`161536` |
+| heldout-stuck-orders | terra | raw | 122 s | — | 325k | — | 6/6 | 0/6 | 0.075 | `2026111832194042`…`197214` |
+| heldout-stuck-orders | terra | aspire-cli | 92 s | 0.76× (p=0.240) | 271k | 0.83× | 6/6 | 0/6 | 0.073 | `2026111832201106`…`204212` |
+| heldout-stuck-orders | terra | aspire-skills-mcp | 137 s | 1.12× (p=0.818) | 496k | 1.53× | 6/6 | 6/6 | 0.102 | `2026111832208020`…`211086` |
+| heldout-stuck-orders | terra | **aspire-lean** | 90 s | **0.74×** (p=0.041) | 311k | 0.96× | 6/6 | 6/6 | 0.075 | `2026111832214960`…`218074` |
+
+Rule check: log-visible 0.67× (luna) and 0.85× (terra), 6/6 against 6/6, within +20 %; log-silent
+0.74× (terra, ahead) and 0.99× (luna, ahead only by the letter of the rule). With the probe trial pooled
+into `raw` (n = 7, as the pooled tables would show it without the exclusion), luna log-silent is
+`aspire-lean` +4 % (p = 1.0) and the condition fails; luna log-visible is −28 % (p = 0.14). Passing-trial
+medians equal the all-trial medians in every `aspire-lean` and `raw` cell (no failures there).
+
+**What the agents did, read from the trajectories** (tallies over every `t02` trial):
+
+- **Every trial in every arm read the application source** (96/96). The source shows both mechanisms:
+  the `JSON_VALUE` statement is in `Program.cs`, the lock call in `InventoryLock.cs`, and the lock's
+  comments name "the stock reconciliation job" as its other user. This is the same in every arm, but it
+  gives the raw agent a route the card did not intend; a comment-free re-run is open item 2. The raw
+  agent's own "seen" marker on slow-sql fires on that source read (8.8 s luna, 12.4 s terra), so the
+  log line the fault was built around was never what led the raw agent to the cause.
+- **Log-visible: steps 1 and 2 carried over.** Every `aspire-lean` trial went to telemetry before the
+  source (12/12) and telemetry put the slow statement on screen in 6/6 (luna) and 5/6 (terra) trials,
+  e.g. `2026111832129224`. The time difference against raw is not diagnosis: the culprit was on screen
+  within 8–20 s in every arm. It is the restart after the fix. Every slow-sql trial in every arm
+  patched code (an EF-mapped computed column or a rewritten query; 48/48, half of them also ran the DDL
+  by hand) and restarted the API; raw's start script supervises the processes and stops everything if the API exits, so
+  raw agents spent 166 s (luna) and 228 s (terra) after the first fix restarting safely, one building its
+  own supervisor and a scratch database (`2026111832165438`, steps 29–45), against 60–77 s (luna) and
+  110–193 s (terra) with `aspire resource api restart/rebuild`. `aspire-cli` is fastest for the same
+  reason with the least reading (no skill text).
+- **Log-silent: step 1 did not carry over.** All 6 luna and 6 terra `aspire-lean` trials loaded
+  `aspire-diagnose` and went to telemetry first, but the 15 s `sp_getapplock` span reached the screen in
+  only 2/6 per model. Step 1 offers "slow: `--search duration:>500`" or "failing: `--has-error`,
+  `--severity Error`"; "orders stay pending, nothing fails" is neither, and most trials picked the error
+  filters, which return nothing for a silent fault (`2026111832160860` steps 3–4). They recovered as raw
+  did: source, then SQL Server sessions (`sys.dm_exec_sessions`/`dm_exec_requests`/`dm_tran_locks`; 12/12
+  lean, 12/12 raw), then ended the holder: `KILL <spid>` (luna lean 6/6, luna raw 5/6, terra lean 5/6),
+  or, the route terra preferred elsewhere (raw 6/6, `aspire-cli` and `aspire-skills-mcp` 4/6 each),
+  closing the job's empty supplier feed so the job committed and released the lock itself
+  (`2026111832194042` step 17), which the verifier accepts. The skill's step 3 has no SQL Server line; agents wrote `sqlcmd`
+  calls themselves, which is the step-3 gap the card predicted.
+- **The shipped set with MCP is the outlier.** Luna `aspire-skills-mcp` on the silent fault: 2.53× time,
+  4.76× tokens, 4/6. The MCP `list_traces` output carried the lock span in 6/6 trials (42 KB per call in
+  `2026111832151172`), but 5/6 trials read it as a worker bug and patched `OrderConsumer.cs`; both failures
+  rebuilt the worker and never ended the holder (verifier: lock still held, 81–82 orders unconfirmed).
+  The one `aspire-cli` luna failure (`2026111832145844`) did the same.
+- Phase-marker caveat: on `heldout-stuck-orders` the "seen" marker also fires on a `ps` listing that
+  shows `stock-reconcile.sh` (e.g. `aspire-cli` luna 3.2–4.9 s), the flaw T0.1 noted; it is not quoted.
+
+**Proposal (not acted on; the gate is open).** Step 1 of `aspire-diagnose` needs a branch for "work is
+not progressing, nothing fails": look for long spans of any kind (`--search duration:>5000`) and for
+consumers with no recent successful traces, rather than error filters. The gap is stack-neutral, which
+is the condition under which T1.1 unfreezes steps 1 and 2; it would need its own held-out check.
+
+**Cost.** Model cost recorded: $6.25 for `t02` (luna $0.84, terra $5.41) plus $0.02 for the probe; gates
+are model-free. The card estimated $3.90: terra cost $0.113 per trial against the $0.065 assumed from the
+Bingo cells, because held-out terra trials are longer (slow-sql raw 328 s, 744k input tokens).
+
+**Open items.** (1) Decide whether a 0.99× tie meets "ahead" for the luna log-silent cell; if not, the
+card's "otherwise" branch applies (revise step 1 once, re-run in-sample, implement the reserved fault).
+(2) Re-run both faults with the lock comments removed from the source, so the raw route cannot read the
+holder's name, before T1.1 relies on this gate. (3) The time-to-root-cause marker needs the `ps` fix
+before it can be quoted for this scenario. (4) T1.1's held-out cells (`gpt-6.2-sol`, `claude-opus-5.5`)
+remain.
 
 ### T0.3 Series tooling
 

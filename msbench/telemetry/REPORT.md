@@ -1109,3 +1109,20 @@ and the `describe` table is 24 % larger with the exit-code column ([F19](../FIND
 first baseline round ran during a model-service incident and is excluded
 ([F06](../FINDINGS.md#f06-setup-failures-must-not-become-model-or-aspire-failures)).
 
+
+**Held-out application (Task T0.2).** `aspire-diagnose` was scored on an application and faults it was
+not written against: Shop (minimal API, SQL Server, RabbitMQ worker; `msbench/heldout/app`), with a
+log-visible fault (an unindexed `JSON_VALUE` lookup that EF Core logs with its duration) and a log-silent
+one (the worker blocked on an application lock held by a stalled host job; setup rejects the fixture on
+any error line). In round `t02` (96 trials, n = 6) `aspire-lean` against the raw app took 0.67× (luna) and
+0.85× (terra) the time on the log-visible fault and 0.74× (terra, p = 0.041) and 0.99× (luna, 81 s vs
+82 s, p = 0.82) on the silent one, every cell 6/6. That opens the ship gate by the rule written before the
+run, but the luna silent cell is a tie and decides it. The trajectories qualify the verdict: on the
+log-visible fault the skill's first two steps carried over (telemetry first in 12/12 trials, the slow
+statement on screen in 11/12), and the time saved came from restarting the patched API with `aspire
+resource`, not from finding the cause, which every arm read in the source within 20 s. On the silent fault
+step 1 did not carry over: its filters are for "slow" and "failing", and "orders stay pending" is
+neither, so the 15 s lock span reached the screen in 4/12 trials and agents found the holder through SQL
+Server's session views as raw agents did. The shipped skills with MCP were 2.53× slower than raw on luna
+(4/6). Details and open items: [PLAN.md, T0.2 results](PLAN.md#t02-results);
+[FINDINGS F27](../FINDINGS.md#f27-on-a-held-out-app-the-diagnosis-skill-carries-over-for-a-slow-call-but-not-for-work-that-silently-stops).

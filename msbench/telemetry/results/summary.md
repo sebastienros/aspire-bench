@@ -224,7 +224,7 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 | aspire-cli | 6/6 | 120 | 8 | 62 | 420,248 | 7,984 | 0.013 | 38 | - | 0 | 161,875 |
 | aspire-lean | 6/6 | 160 | 11 | 79 | 511,722 | 11,384 | 0.015 | 33 | aspire-diagnosex6 | 0 | 123,708 |
 | aspire-skills-mcp | 6/6 | 145 | 13 | 60 | 719,512 | 9,456 | 0.018 | 38 | aspirex4, aspire-monitoringx5, aspire-orchestrationx2 | 14 | 417,810 |
-| raw | 7/7 | 222 | 7 | 69 | 516,411 | 13,277 | 0.017 | 35 | - | 0 | 114,516 |
+| raw | 6/6 | 237 | 9 | 71 | 553,278 | 14,236 | 0.018 | 36 | - | 0 | 112,034 |
 
 ## heldout-slow-sql / gpt-6.1-terra
 
@@ -242,7 +242,7 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 | aspire-cli | 5/6 | 110 | 5 | 81 | 383,196 | 7,160 | 0.013 | 36 | - | 0 | 166,358 |
 | aspire-lean | 6/6 | 81 | 39 | 59 | 318,161 | 5,134 | 0.010 | 32 | aspire-diagnosex6 | 0 | 133,057 |
 | aspire-skills-mcp | 4/6 | 208 | 230 | 170 | 1,489,142 | 15,358 | 0.031 | 56 | aspirex6, aspire-monitoringx6, aspire-orchestrationx2 | 20 | 456,286 |
-| raw | 7/7 | 78 | 36 | 60 | 305,701 | 5,491 | 0.010 | 32 | - | 0 | 118,324 |
+| raw | 6/6 | 82 | 37 | 62 | 312,816 | 5,730 | 0.010 | 34 | - | 0 | 116,165 |
 
 ## heldout-stuck-orders / gpt-6.1-terra
 
