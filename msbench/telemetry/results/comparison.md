@@ -6,6 +6,12 @@ Percentages compare the arm's median with the `raw` median of the same scenario 
 `Infra` counts trials that ended in a runner, setup or model-service exception before any grade;
 they are listed in trials.jsonl and excluded from every other column.
 
+## cold-start / claude-opus-5.5
+
+| Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| raw-check | 1 | 1/1 | 1/1 | 48 | 131,342 | 0.168 | 5 | - | - |
+
 ## cold-start / gpt-6-luna
 
 | Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
@@ -14,8 +20,8 @@ they are listed in trials.jsonl and excluded from every other column.
 | aspire-cli | 3 | 3/3 | 3/3 | 49 (+15%) | 72,301 (-6%) | 0.003 (-7%) | 7 | - | - |
 | aspire-skills | 3 | 3/3 | 3/3 | 52 (+22%) | 125,998 (+64%) | 0.004 (+58%) | 8 | - | - |
 | aspire-lean | 3 | 3/3 | 3/3 | 82 (+94%) | 249,128 (+223%) | 0.007 (+143%) | 17 | - | - |
-| aspire-lean-start | 3 | 3/3 | 3/3 | 51 (+19%) | 115,738 (+50%) | 0.003 (+19%) | 11 | - | - |
 | raw-check | 3 | 3/3 | 3/3 | 41 (-3%) | 63,666 (-17%) | 0.003 (+4%) | 5 | - | - |
+| aspire-lean-start | 3 | 3/3 | 3/3 | 51 (+19%) | 115,738 (+50%) | 0.003 (+19%) | 11 | - | - |
 
 ## cold-start / gpt-6.1-sol
 
@@ -25,8 +31,8 @@ they are listed in trials.jsonl and excluded from every other column.
 | aspire-cli | 3 | 3/3 | 3/3 | 50 (+39%) | 70,339 (+49%) | 0.040 (+9%) | 7 | - | - |
 | aspire-skills | 3 | 3/3 | 3/3 | 50 (+42%) | 120,700 (+156%) | 0.062 (+68%) | 8 | - | - |
 | aspire-lean | 3 | 3/3 | 3/3 | 56 (+56%) | 120,322 (+155%) | 0.063 (+69%) | 9 | - | - |
-| aspire-lean-start | 3 | 3/3 | 3/3 | 54 (+51%) | 113,978 (+142%) | 0.053 (+43%) | 10 | - | - |
 | raw-check | 3 | 3/3 | 3/3 | 40 (+12%) | 61,822 (+31%) | 0.041 (+11%) | 6 | - | - |
+| aspire-lean-start | 3 | 3/3 | 3/3 | 54 (+51%) | 113,978 (+142%) | 0.053 (+43%) | 10 | - | - |
 
 ## cold-start / gpt-6.1-terra
 
@@ -36,8 +42,14 @@ they are listed in trials.jsonl and excluded from every other column.
 | aspire-cli | 3 | 3/3 | 3/3 | 51 (+42%) | 75,025 (+20%) | 0.022 (+5%) | 8 | - | - |
 | aspire-skills | 3 | 3/3 | 3/3 | 53 (+45%) | 83,054 (+33%) | 0.029 (+34%) | 6 | - | - |
 | aspire-lean | 3 | 3/3 | 3/3 | 51 (+41%) | 122,122 (+95%) | 0.032 (+49%) | 8 | - | - |
-| aspire-lean-start | 3 | 3/3 | 3/3 | 54 (+50%) | 116,096 (+86%) | 0.027 (+27%) | 10 | - | - |
 | raw-check | 3 | 3/3 | 3/3 | 33 (-8%) | 35,191 (-44%) | 0.018 (-16%) | 3 | - | - |
+| aspire-lean-start | 3 | 3/3 | 3/3 | 54 (+50%) | 116,096 (+86%) | 0.027 (+27%) | 10 | - | - |
+
+## cold-start / gpt-6.2-sol
+
+| Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| raw-check | 1 | 1/1 | 1/1 | 47 | 94,058 | 0.114 | 9 | - | - |
 
 ## read-only / gpt-6-luna
 
