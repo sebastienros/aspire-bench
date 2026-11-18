@@ -1,0 +1,11 @@
+services:
+  main:
+    privileged: true
+    build:
+      args:
+        APP_KIND: aspire
+        SKILLS: lean
+        FAULT: heldout-slow-sql
+      additional_contexts:
+        suite: ${TELEMETRY_SUITE_CONTEXT:-https://github.com/sebastienros/aspire-bench.git#aa6763b9aa3184ec1f9a31e2288eac61bcc19c5e:msbench/telemetry/common}
+        heldout-app: ${TELEMETRY_HELDOUT_APP_CONTEXT:-https://github.com/sebastienros/aspire-bench.git#aa6763b9aa3184ec1f9a31e2288eac61bcc19c5e:msbench/heldout/app}
