@@ -46,7 +46,8 @@ def main():
     pins = defaultdict(lambda: defaultdict(list))
     for line in (SUITE / "results/trials.jsonl").read_text().splitlines():
         row = json.loads(line)
-        if row["model_requested"] != "oracle" and row.get("agent_seconds") is not None and not row.get("infrastructure_failure"):
+        if (row["model_requested"] != "oracle" and row.get("agent_seconds") is not None
+                and not row.get("infrastructure_failure") and not row.get("excluded")):
             pins[row["pin"]][(row["scenario"], row["model_requested"], row["arm"])].append(row)
     lines = ["# Significance of the headline comparisons", "",
              "Exact two-sided Mann-Whitney test on per-trial values. `A vs B` reports the change of A's",
@@ -70,6 +71,9 @@ def table(cells, pairs):
             for key, _ in METRICS:
                 x = [t[key] for t in first if t.get(key) is not None]
                 y = [t[key] for t in second if t.get(key) is not None]
+                if not x or not y or not statistics.median(y):
+                    parts.append("-")
+                    continue
                 change = (statistics.median(x) - statistics.median(y)) / statistics.median(y)
                 parts.append(f"{change:+.0%} (p={mann_whitney(x, y):.3f})")
             lines.append(f"| {scenario} | {model} | {a} vs {b} | {len(first)} vs {len(second)} | " + " | ".join(parts) + " |")

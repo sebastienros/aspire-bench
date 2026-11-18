@@ -114,9 +114,12 @@ def pin_label(rows, pin):
 
 
 def by_pin(rows):
+    """Rows per pin for the tables. Rows whose ledger entry carries `excluded` (a reason) stay in
+    trials.jsonl and are left out of every table."""
     pins = collections.defaultdict(list)
     for row in rows:
-        pins[row["pin"]].append(row)
+        if not row.get("excluded"):
+            pins[row["pin"]].append(row)
     return sorted(pins.items())
 
 
@@ -130,6 +133,7 @@ def analyze_trial(result_path, entry):
     row = dict(run_id=entry["run_id"], scenario=entry["scenario"], arm=arm,
                model_requested=entry["model"], round=entry["round"], pin=pin,
                aspire_build=entry.get("aspire_build"), skills_sha=entry.get("skills_sha"),
+               excluded=entry.get("excluded"),
                trial=native.get("trial_name"),
                url=f"https://msbenchapp.azurewebsites.net/run-analysis/{entry['run_id']}",
                native_result_sha256=sha256(result_path))
@@ -165,6 +169,15 @@ def analyze_trial(result_path, entry):
         return row
     row["trajectory_sha256"] = sha256(trajectory)
     events = load_events(trajectory)
+    # Model-service health: wall time spent in model calls that ended in a 5xx (a 504 after a
+    # 240 s hang on 2026-11-18). A trial that timed out or crashed after such failures says
+    # nothing about the arm; it is an infrastructure failure like one that never got a grade.
+    failures = [e["data"] for e in events if e.get("type") == "model.call_failure"
+                and (e.get("data", {}).get("statusCode") or 0) >= 500]
+    row["model_service_5xx"] = len(failures)
+    row["model_service_wait_seconds"] = round(sum(f.get("durationMs") or 0 for f in failures) / 1000, 1)
+    if failures and row["exception"]:
+        row["infrastructure_failure"] = True
     row["models_called"] = sorted({e["data"].get("model") for e in events
                                    if e.get("type") == "model.call_start" and e.get("data", {}).get("model")})
     row["model_calls"] = sum(e.get("type") == "model.call_start" for e in events)
