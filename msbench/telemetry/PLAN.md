@@ -425,18 +425,21 @@ this definition `t02` fails on luna log-silent (0.99×) and passes the other thr
 
 **What follows, in this order.**
 
-1. Revise `aspire-diagnose` once, from what the `t02` `aspire-lean` trajectories needed, in
-   stack-neutral wording, and commit it before the cache-side fault is designed. Steps 1 and 2 only;
-   step 3 (dependency-specific lines) belongs to T1.1 and is not touched, so no SQL Server or RabbitMQ
-   line is added. The skill lives in `common/skills/new/`, so the revision also reaches the `plus`,
-   `lean` and `lean-start` sets on the Bingo scenarios from the next re-pin on.
-2. Round `t02-insample`: both held-out faults, `raw` and `aspire-lean` only (the other two arms do not
-   load `aspire-diagnose`), luna and `gpt-6.1-terra`, n = 6, labelled in-sample. It is reported and
-   decides nothing.
-3. Scenario `heldout-cache` (the reserved fault) and round `t02-cache`: all four arms, both models,
-   n = 6. **The gate is judged on this round only**, with "within +20 %" if the raw app's logs show the
-   fault during its window and the amended "ahead" if they show nothing; setup asserts which one holds
-   before any trial. Same infrastructure re-run rule as `t02` (`t02-cache-topup`).
+1. Revise step 1 of `aspire-diagnose` once, from the proposal above (what the `t02` `aspire-lean`
+   trajectories needed): its triggers and its symptom list also cover work that is stuck, pending or
+   not progressing, in stack-neutral wording; nothing else in the skill changes (steps 2–4 and the
+   dependency lines of step 3, which belong to T1.1, stay as they are). The revision is committed before
+   the cache-side fault is designed. The skill lives in `common/skills/new/`, so it also reaches the
+   `plus`, `lean` and `lean-start` sets on the Bingo scenarios from this re-pin on.
+2. Round `t02-insample`: both held-out faults, all four arms (`aspire-skills-mcp` carries the unchanged
+   shipped skills and serves as the control), luna and `gpt-6.1-terra`, n = 6, the app unchanged (lock
+   comments included) so that it compares with `t02`. Labelled in-sample; it is reported and decides
+   nothing.
+3. Scenario `heldout-cache` (the reserved fault) and round `t02-heldout3`: the same four arms × two
+   models × n = 6. **The gate is judged on this round only**, with "within +20 %" if the raw app's logs
+   show the fault during its window and the amended "ahead" if they show nothing; setup asserts which one
+   holds before any trial. The card's original reading of "ahead" (ratio < 1.00) is reported next to it.
+   Same infrastructure re-run rule as `t02` (`t02-heldout3-topup`).
 
 ### T0.3 Series tooling
 
