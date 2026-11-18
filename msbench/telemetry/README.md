@@ -144,8 +144,10 @@ only. It never reads an agent report.
   is confirmed and the queue is empty (the backlog is customers' orders, so purging it fails), fresh
   orders are confirmed (median under 3 s), an order placed while the verifier holds the lock stays
   `Pending` until it is released (removing the lock from the worker fails), and stock still matches
-  confirmed orders (confirming orders by hand in SQL fails). Ending the job's SQL session (`KILL`),
-  stopping the job, or restarting SQL Server all pass.
+  confirmed orders (confirming orders by hand in SQL fails). Ending the job's SQL session (`KILL`) or
+  stopping the job passes; a SQL Server restart also released the lock and passed in a local check
+  (run without live traffic during the restart). Purging the queue and confirming orders in SQL were
+  each run once locally and fail.
 
 Dropping the trigger, truncating the audit history, flushing or restarting the cache
 (the session keys are gone), swapping the cache for memory, or a per-session workaround
