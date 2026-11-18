@@ -1,6 +1,6 @@
 #!/bin/sh
 # Materializes a named skill set into a destination directory.
-#   current  the eight skills shipped by microsoft/aspire-skills v0.0.5, unchanged
+#   current  the eight skills shipped by microsoft/aspire-skills v0.0.6, unchanged
 #   plus     current + the new aspire-diagnose skill (purely additive)
 #   lean     plus, without the `aspire` router, and with aspire-monitoring's trigger
 #            description narrowed so first-line diagnosis routes to aspire-diagnose

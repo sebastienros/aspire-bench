@@ -1,10 +1,12 @@
 # Raw app versus aspirified app
 
-All trials of every round are pooled per cell. `Pass` requires the root cause to be removed;
+All trials of every round of one pin are pooled per cell; pins are never pooled. `Pass` requires the root cause to be removed;
 `App works` only requires the application to work again. Medians include failed trials.
-Percentages compare the arm's median with the `raw` median of the same scenario and model.
+Percentages compare the arm's median with the `raw` median of the same pin, scenario and model.
 `Infra` counts trials that ended in a runner, setup or model-service exception before any grade;
 they are listed in trials.jsonl and excluded from every other column.
+
+# Pin 2026-11-09: Aspire 17.1.0-preview.1.26559.1+4954c76a, aspire-skills v0.0.5 (1117facb); the pin REPORT.md measured
 
 ## cold-start / claude-opus-5.5
 

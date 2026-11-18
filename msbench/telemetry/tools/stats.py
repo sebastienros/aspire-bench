@@ -17,6 +17,10 @@ PAIRS = [("raw", "raw-check"), ("aspire-lean", "raw"), ("aspire-skills-mcp", "ra
          ("aspire-lean-plain", "aspire-lean-src"), ("aspire-lean-mcp-all", "aspire-lean-mcp-src"),
          ("aspire-lean-mcp-all", "raw"), ("aspire-lean-start", "aspire-lean"), ("aspire-lean-start", "aspire-skills"),
          ("aspire-lean-start", "raw")]
+# Pairs added with the 2026-11-17 re-pin; they are computed for later pins only, so the first
+# pin's table stays exactly as REPORT.md quoted it.
+LATER_PIN_PAIRS = [("aspire-cli", "raw"), ("aspire-skills-plugin", "aspire-skills")]
+FIRST_PIN = "2026-11-09"
 METRICS = [("agent_seconds", "s"), ("input_tokens", "tok"), ("cost_usd", "$")]
 
 
@@ -39,18 +43,26 @@ def mann_whitney(a, b):
 
 
 def main():
-    cells = defaultdict(list)
+    pins = defaultdict(lambda: defaultdict(list))
     for line in (SUITE / "results/trials.jsonl").read_text().splitlines():
         row = json.loads(line)
         if row["model_requested"] != "oracle" and row.get("agent_seconds") is not None and not row.get("infrastructure_failure"):
-            cells[(row["scenario"], row["model_requested"], row["arm"])].append(row)
+            pins[row["pin"]][(row["scenario"], row["model_requested"], row["arm"])].append(row)
     lines = ["# Significance of the headline comparisons", "",
              "Exact two-sided Mann-Whitney test on per-trial values. `A vs B` reports the change of A's",
              "median relative to B's. p is the probability of a rank separation at least this large if",
-             "both arms came from the same distribution. Cells with 3 trials per arm cannot go below p = 0.10.", "",
-             "| Scenario | Model | A vs B | n | Agent seconds | Input tokens | Cost |", "|---|---|---|---|---|---|---|"]
+             "both arms came from the same distribution. Cells with 3 trials per arm cannot go below p = 0.10.",
+             "Each pin (toolchain) has its own table; trials of different pins are never compared.", ""]
+    for pin, cells in sorted(pins.items()):
+        lines += [f"## Pin {pin}", ""] + table(cells, PAIRS if pin == FIRST_PIN else PAIRS + LATER_PIN_PAIRS) + [""]
+    (SUITE / "results/stats.md").write_text("\n".join(lines).rstrip("\n") + "\n")
+    print("\n".join(lines[6:]))
+
+
+def table(cells, pairs):
+    lines = ["| Scenario | Model | A vs B | n | Agent seconds | Input tokens | Cost |", "|---|---|---|---|---|---|---|"]
     for (scenario, model) in sorted({(s, m) for s, m, _ in cells}):
-        for a, b in PAIRS:
+        for a, b in pairs:
             first, second = cells.get((scenario, model, a)), cells.get((scenario, model, b))
             if not first or not second:
                 continue
@@ -61,8 +73,7 @@ def main():
                 change = (statistics.median(x) - statistics.median(y)) / statistics.median(y)
                 parts.append(f"{change:+.0%} (p={mann_whitney(x, y):.3f})")
             lines.append(f"| {scenario} | {model} | {a} vs {b} | {len(first)} vs {len(second)} | " + " | ".join(parts) + " |")
-    (SUITE / "results/stats.md").write_text("\n".join(lines) + "\n")
-    print("\n".join(lines[6:]))
+    return lines
 
 
 if __name__ == "__main__":

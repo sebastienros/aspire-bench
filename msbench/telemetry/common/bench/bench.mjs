@@ -12,6 +12,8 @@ import { promisify } from "node:util";
 const run = promisify(execFile);
 const kind = process.env.BENCH_APP_KIND;
 const fault = process.env.BENCH_FAULT ?? "none";
+// cold-start-warm is graded and repaired like cold-start; only its setup differs.
+const coldStart = fault.startsWith("cold-start");
 const statePath = "/opt/benchmark/state.json";
 const endpointsPath = "/opt/benchmark/endpoints.json";
 const dbName = kind === "aspire" ? "db" : "bingo";
@@ -392,7 +394,7 @@ async function verifyColdStart(endpoints, details) {
 }
 
 async function verify() {
-    const state = fault === "cold-start"
+    const state = coldStart
         ? { fault, kind, squares: [] }
         : JSON.parse(await readFile(statePath, "utf8"));
     const details = { fault: state.fault, kind: state.kind, passed: false };
@@ -403,7 +405,7 @@ async function verify() {
         if (state.fault === "slow-sql") await verifySlowSql(state, endpoints, details);
         else if (state.fault === "read-only") await verifyReadOnly(state, endpoints, details);
         else if (state.fault === "slow-redis") await verifySlowRedis(state, endpoints, details);
-        else if (state.fault === "cold-start") await verifyColdStart(endpoints, details);
+        else if (state.fault.startsWith("cold-start")) await verifyColdStart(endpoints, details);
         details.passed = true;
     } catch (error) {
         details.failure = error.message;
@@ -416,7 +418,7 @@ async function verify() {
 }
 
 async function solve() {
-    if (fault === "cold-start") {
+    if (coldStart) {
         await sh("bash", [`/opt/benchmark/bootstrap-${kind}.sh`], { timeout: 1_200_000 });
         return;
     }

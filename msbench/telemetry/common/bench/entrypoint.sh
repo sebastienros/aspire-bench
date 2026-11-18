@@ -14,11 +14,24 @@ for _ in {1..90}; do
 done
 [[ "$ready" == 1 ]] || { cat /logs/environment/docker.log >&2; exit 1; }
 
-if [[ "${BENCH_FAULT:-}" == cold-start ]]; then
+if [[ "${BENCH_FAULT:-}" == cold-start* ]]; then
     # The agent starts the application itself. Only dependency images are warmed, as they
     # would be on a developer machine, so image pulls do not dominate either arm.
     docker pull -q postgres:18.3 >/logs/environment/application-setup.log 2>&1
     docker pull -q redis:8.6 >>/logs/environment/application-setup.log 2>&1
+    if [[ "$BENCH_FAULT" == cold-start-warm ]]; then
+        # Warm workspace: the AppHost already ran once with persisted ports in isolated mode
+        # (Aspire #21013), then stopped; generated ports stay in /app/.aspire/state.
+        {
+            cd /app
+            /usr/local/aspire/aspire config set portAllocation.persistInIsolatedMode true --non-interactive --nologo
+            bash /opt/benchmark/bootstrap-aspire.sh
+            /usr/local/aspire/aspire stop --apphost /app/apphost.cs --non-interactive --nologo
+            cd - >/dev/null
+        } >>/logs/environment/application-setup.log 2>&1 || {
+            cat /logs/environment/application-setup.log >&2; exit 1;
+        }
+    fi
     touch /opt/benchmark/ready
     exec "$@"
 fi

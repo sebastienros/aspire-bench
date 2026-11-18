@@ -22,7 +22,7 @@ The two Aspire product patches are in [upstream/](upstream/).
 | `raw` | Standard app: Compose dependencies, a start script, log files | none | no |
 | `raw-check` | The same standard app with an extra `scripts/check.sh` health script (rounds 1–5 only; kept for reference, never pooled with `raw`) | none | no |
 | `aspire-cli` | Aspirified app | none | no |
-| `aspire-skills` | Aspirified app | `current` (shipped v0.0.5) | no |
+| `aspire-skills` | Aspirified app | `current` (shipped v0.0.6; v0.0.5 before the 2026-11-17 re-pin) | no |
 | `aspire-mcp` | Aspirified app | none | yes |
 | `aspire-skills-mcp` | Aspirified app | `current` | yes |
 | `aspire-plus` | Aspirified app | `plus` = current + new `aspire-diagnose` | no |
@@ -53,8 +53,18 @@ not done yet.
 ## Toolchain
 
 Aspire CLI, AppHost SDK and Hosting packages are the official daily build of
-`microsoft/aspire` `main`: **`17.1.0-preview.1.26559.1+4954c76a62bd091e0edbb02854c0dc2be06e64f5`**
-(built 2026-11-09, two unrelated commits behind `main` HEAD `72d62597` at the time).
+`microsoft/aspire` `main`: **`17.1.0-preview.1.26567.3+30326eb876d6897b1feadc8bc800f78e466b1b52`**
+(built 2026-11-17, three commits behind `main` HEAD `27c59c34` at the time; source builds use
+.NET SDK `11.0.100` from that commit's `global.json`), with `microsoft/aspire-skills`
+**v0.0.6** (`e529b608`) as the shipped skill set. This is pin `2026-11-17` (Task T0.1 in
+[PLAN.md](PLAN.md)).
+
+[REPORT.md](REPORT.md) measured the previous pin, `2026-11-09`:
+`17.1.0-preview.1.26559.1+4954c76a62bd091e0edbb02854c0dc2be06e64f5` (built 2026-11-09) with
+aspire-skills v0.0.5 (`1117facb`). Every result file keeps the two pins in separate sections and
+never pools them; `tools/collect.py` derives a trial's pin from the `aspire_build` that
+`tools/submit.sh` records in the ledger (entries without it are the first pin).
+
 The CLI archive is pinned by versioned URL and SHA-256 in the
 [Dockerfile](tools/templates/Dockerfile); packages come from the public `dotnet9`
 daily feed. `aspire --version` is recorded in every image at `/etc/aspire-version`.
@@ -73,7 +83,10 @@ describe only the user-visible symptom, and name no endpoint, tool or component.
 | `slow-redis` | A host-side "attendance report" exporter counts cache sessions with a `KEYS`-based script in a loop; the session keyspace grew, so single-threaded Redis spends most of its time on it and every cache call the admin makes waits. Nothing fails. Same prompt as `slow-sql`. | Duration of requests that touch the cache. Aspire: slow server spans whose database child spans are short. Standard app: **nothing**; request logging is off at the default `Microsoft.AspNetCore: Warning` level and the Redis client logs no durations. Both arms must then read the cache's `SLOWLOG` / `CLIENT LIST`. |
 
 A third scenario, `cold-start`, has no fault: nothing is running and the agent must
-bring the application up. It measures the new `aspire-start` skill.
+bring the application up. It measures the new `aspire-start` skill. `cold-start-warm`
+(aspirified app only) has the same prompt, but setup has already started and stopped the
+AppHost once with `portAllocation.persistInIsolatedMode` set, so the agent's
+`aspire start --isolated` reuses persisted ports (Aspire #21013).
 
 `slow-sql` and `slow-redis` self-calibrate: they grow the audit history or the session
 keyspace until one square write, or one report query, costs at least 500 ms on the

@@ -23,6 +23,12 @@ Keep all existing data and all existing functionality, and leave the application
 running. README.md describes this workspace. No report is required.
 `;
 
+const coldStart = `The Bingo application in /app is not running.
+
+Start it so that the player page and the admin application are both serving, and
+leave it running. README.md describes this workspace. No report is required.
+`;
+
 export const scenarios = {
     "slow-sql": { seed: 61, instruction: sluggish },
     "slow-redis": {
@@ -45,12 +51,15 @@ describes this workspace. No report is required.
     },
     "cold-start": {
         seed: 63,
-        arms: ["raw", "aspire-cli", "aspire-skills", "aspire-lean", "aspire-lean-start"],
-        instruction: `The Bingo application in /app is not running.
-
-Start it so that the player page and the admin application are both serving, and
-leave it running. README.md describes this workspace. No report is required.
-`,
+        arms: ["raw", "aspire-cli", "aspire-skills", "aspire-skills-mcp", "aspire-lean", "aspire-lean-start"],
+        instruction: coldStart,
+    },
+    // Same prompt as cold-start, but setup has already started and stopped the AppHost once with
+    // portAllocation.persistInIsolatedMode on, so `aspire start --isolated` reuses persisted ports.
+    "cold-start-warm": {
+        seed: 65,
+        arms: ["aspire-lean"],
+        instruction: coldStart,
     },
 };
 
@@ -76,7 +85,12 @@ export const arms = {
     "aspire-lean-mcp-all": { kind: "aspire", skills: "lean", mcp: true, cli: "agentic-all" },
     // lean + the new aspire-start skill (measured on the cold-start scenario).
     "aspire-lean-start": { kind: "aspire", skills: "lean-start", mcp: false },
+    // The shipped skills delivered the way Aspire main does it: `aspire agent init` registers the
+    // aspire-skills plugin for Copilot CLI (.github/copilot/settings.json), pinned to the tag in
+    // PROVENANCE.md, instead of copying the skills into .github/skills (slow-sql only).
+    "aspire-skills-plugin": { kind: "aspire", skills: "plugin", mcp: false },
 };
+const onlyIn = { "aspire-lean-start": ["cold-start"], "aspire-skills-plugin": ["slow-sql"] };
 
 const args = Object.fromEntries(process.argv.slice(3).reduce((pairs, value, index, all) =>
     value.startsWith("--") ? [...pairs, [value.slice(2), all[index + 1]]] : pairs, []));
@@ -103,7 +117,7 @@ memory_mb = 8192
 storage_mb = 20480
 workdir = "/app"
 network_mode = "public"
-${skills === "none" ? "" : 'skills_dir = "/opt/agent-skills"\n'}
+${skills === "none" || skills === "plugin" ? "" : 'skills_dir = "/opt/agent-skills"\n'}
 [environment.healthcheck]
 command = "test -f /opt/benchmark/ready && docker info >/dev/null"
 retries = 400
@@ -141,7 +155,7 @@ if (process.argv[2] === "tasks") {
     rmSync(join(root, "tasks"), { recursive: true, force: true });
     for (const [scenario, definition] of Object.entries(scenarios)) {
         for (const [arm, config] of Object.entries(arms)) {
-            if (definition.arms ? !definition.arms.includes(arm) : arm === "aspire-lean-start") continue;
+            if (definition.arms ? !definition.arms.includes(arm) : onlyIn[arm] && !onlyIn[arm].includes(scenario)) continue;
             const dir = join(root, "tasks", scenario, arm);
             for (const sub of ["environment", "tests", "solution"]) mkdirSync(join(dir, sub), { recursive: true });
             writeFileSync(join(dir, "task.toml"), taskToml(scenario, arm, definition, config));
@@ -168,10 +182,12 @@ node /opt/benchmark/bench.mjs solve
     const rows = [];
     for (const [scenario, definition] of Object.entries(scenarios)) {
         const logical = `aspire-telemetry-${scenario}`;
+        // The default variant carries the logical name: raw, or the first arm of a scenario without raw.
+        const defaultVariant = definition.arms && !definition.arms.includes("raw") ? definition.arms[0] : "raw";
         for (const arm of Object.keys(arms)) {
-            if (definition.arms ? !definition.arms.includes(arm) : arm === "aspire-lean-start") continue;
+            if (definition.arms ? !definition.arms.includes(arm) : onlyIn[arm] && !onlyIn[arm].includes(scenario)) continue;
             rows.push(JSON.stringify({
-                benchmark: arm === "raw" ? logical : `${logical}-${arm}`,
+                benchmark: arm === defaultVariant ? logical : `${logical}-${arm}`,
                 instance_id: logical,
                 run_platform: "linux_container",
                 container_registry: "msbenchstaging.azurecr.io",
@@ -181,7 +197,7 @@ node /opt/benchmark/bench.mjs solve
                 task_repo_commit: taskSha,
                 variant_of_benchmark: logical,
                 benchmark_variant: arm,
-                default_variant: "raw",
+                default_variant: defaultVariant,
             }));
         }
     }

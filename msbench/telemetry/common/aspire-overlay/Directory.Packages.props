@@ -3,9 +3,9 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
   <ItemGroup>
-    <PackageVersion Include="Aspire.Hosting.JavaScript" Version="17.1.0-preview.1.26559.1" />
-    <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="17.1.0-preview.1.26559.1" />
-    <PackageVersion Include="Aspire.Hosting.Redis" Version="17.1.0-preview.1.26559.1" />
+    <PackageVersion Include="Aspire.Hosting.JavaScript" Version="17.1.0-preview.1.26567.3" />
+    <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="17.1.0-preview.1.26567.3" />
+    <PackageVersion Include="Aspire.Hosting.Redis" Version="17.1.0-preview.1.26567.3" />
     <PackageVersion Include="Azure.Identity" Version="1.21.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.12" />
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.12" />

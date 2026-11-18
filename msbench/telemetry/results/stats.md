@@ -3,6 +3,9 @@
 Exact two-sided Mann-Whitney test on per-trial values. `A vs B` reports the change of A's
 median relative to B's. p is the probability of a rank separation at least this large if
 both arms came from the same distribution. Cells with 3 trials per arm cannot go below p = 0.10.
+Each pin (toolchain) has its own table; trials of different pins are never compared.
+
+## Pin 2026-11-09
 
 | Scenario | Model | A vs B | n | Agent seconds | Input tokens | Cost |
 |---|---|---|---|---|---|---|
