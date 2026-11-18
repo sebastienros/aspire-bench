@@ -93,6 +93,20 @@ FIRST_PIN_ROUNDS = {"gate", "probe", "probe-models", "r1", "r2", "r3", "r3b", "r
 PIN_LABELS = {FIRST_PIN: "Aspire 17.1.0-preview.1.26559.1+4954c76a, aspire-skills v0.0.5 (1117facb); the pin REPORT.md measured"}
 
 
+# The harness a trial ran under. Ledger entries written before T0.4 carry no `agent`: all of them
+# ran Copilot CLI. An oracle gate runs no harness.
+DEFAULT_AGENT = "github-copilot-cli"
+
+
+def agent_of(entry):
+    return "oracle" if entry["model"] == "oracle" else entry.get("agent") or DEFAULT_AGENT
+
+
+def cell_title(scenario, model, agent):
+    """Section title of a cell group; Copilot CLI keeps the titles every earlier table used."""
+    return f"## {scenario} / {model}" + ("" if agent == DEFAULT_AGENT else f" / {agent}")
+
+
 def pin_of(entry):
     """The pin date, from the Arcade build number in the daily's version (yy*1000 + MM*50 + dd)."""
     build = entry.get("aspire_build")
@@ -132,6 +146,7 @@ def analyze_trial(result_path, entry):
         arm = "raw-check"
     row = dict(run_id=entry["run_id"], scenario=entry["scenario"], arm=arm,
                model_requested=entry["model"], round=entry["round"], pin=pin,
+               agent=agent_of(entry), agent_package=entry.get("agent_package"), task=entry.get("task"),
                aspire_build=entry.get("aspire_build"), skills_sha=entry.get("skills_sha"),
                excluded=entry.get("excluded"),
                trial=native.get("trial_name"),
@@ -163,6 +178,8 @@ def analyze_trial(result_path, entry):
     versions = {json.loads(p.read_text()).get("resolvedVersion") for p in trial_dir.rglob("cli-provenance.json")}
     row["copilot_cli"] = sorted(v for v in versions if v)
 
+    if row["agent"] not in (DEFAULT_AGENT, "oracle"):
+        return analyze_atif(trial_dir, entry, row)
     trajectory = next((p for p in trial_dir.rglob("copilot-cli.jsonl")), None)
     if trajectory is None:
         row["trajectory"] = None
@@ -229,6 +246,125 @@ def analyze_trial(result_path, entry):
     # Bytes returned to the model by tools: the context the agent had to read.
     row["tool_result_chars"] = sum(len(json.dumps(e["data"].get("result", "")))
                                    for e in events if e.get("type") == "tool.execution_complete")
+    # tool_result_chars counts Copilot's whole result object, whose `detailedContent` (shown to the
+    # user, not the model) roughly doubles it. The content alone is what an ATIF trajectory records,
+    # so this is the measure to compare across harnesses.
+    row["tool_result_content_chars"] = sum(
+        len(json.dumps(atif_text(result.get("content")) if isinstance(result, dict) else result))
+        for e in events if e.get("type") == "tool.execution_complete"
+        for result in [e["data"].get("result", "")])
+    return row
+
+
+# ATIF (Harbor's Agent Trajectory Interchange Format) is what the VS Code agent writes
+# (vsc-output/trajectories/trajectory.json, copied to <output>/trajectories/). It has one timestamp
+# per step, not per tool: the moment the step's model call returned, which is when its tools start.
+# A step's model call began `metrics.extra.model_call_duration_ms` earlier when the harness reports
+# it, and a tool's result is back when the next step's model call begins.
+SKILL_FILE = re.compile(r"(?:^|/)\.github/skills/([^/]+)/SKILL\.md$")
+VSCODE_MCP_TOOL = re.compile(r"^mcp_aspire_(.+)$")
+
+
+def atif_steps(trajectory):
+    """Main-session steps followed by every subagent's, each tagged with its trajectory."""
+    steps = list(trajectory.get("steps") or [])
+    for sub in trajectory.get("subagent_trajectories") or []:
+        steps += atif_steps(sub)
+    return steps
+
+
+def atif_text(content):
+    if isinstance(content, list):
+        return "".join(part.get("text", "") if isinstance(part, dict) else str(part) for part in content)
+    return "" if content is None else str(content)
+
+
+def canonical_tool(name):
+    """Tool names as the Copilot CLI rows spell them, so tool_counts and mcp_calls compare."""
+    match = VSCODE_MCP_TOOL.match(name or "")
+    return f"aspire-{match.group(1)}" if match else name
+
+
+def skill_of(call):
+    """A skill load: Copilot's `skill` tool, or VS Code reading a SKILL.md under .github/skills."""
+    if call["name"] == "skill":
+        return call["arguments"].get("skill")
+    for value in call["arguments"].values():
+        match = SKILL_FILE.search(str(value)) if isinstance(value, str) else None
+        if match:
+            return match.group(1)
+    return None
+
+
+def analyze_atif(trial_dir, entry, row):
+    path = next((p for p in sorted(trial_dir.rglob("trajectories/trajectory.json"))
+                 if "harbor_logs" not in p.parts), None) or next(iter(trial_dir.rglob("trajectory.json")), None)
+    if path is None:
+        row["trajectory"] = None
+        return row
+    row["trajectory_sha256"] = sha256(path)
+    trajectory = json.loads(path.read_text())
+    steps = atif_steps(trajectory)
+    stamps = [parse_time(s["timestamp"]) if s.get("timestamp") else None for s in steps]
+    def began(index):
+        duration = (((steps[index].get("metrics") or {}).get("extra") or {}).get("model_call_duration_ms") or 0)
+        return stamps[index] - datetime.timedelta(milliseconds=duration) if stamps[index] else None
+    # Model-service failures are not in ATIF; the fields stay None rather than claiming zero.
+    row["model_service_5xx"] = None
+    row["model_service_wait_seconds"] = None
+    agent_steps = [s for s in steps if s.get("source") == "agent"]
+    row["models_called"] = sorted({s["model_name"] for s in agent_steps if s.get("model_name")})
+    row["model_calls"] = sum(s.get("llm_call_count") or 1 for s in agent_steps)
+    calls = []
+    for index, step in enumerate(steps):
+        results = {r.get("source_call_id"): r for r in ((step.get("observation") or {}).get("results") or [])}
+        done = next((began(j) for j in range(index + 1, len(steps)) if stamps[j]), stamps[index])
+        for call in step.get("tool_calls") or []:
+            arguments = call.get("arguments")
+            arguments = arguments if isinstance(arguments, dict) else {"raw": arguments}
+            result = results.get(call.get("tool_call_id"))
+            calls.append({"name": canonical_tool(call.get("function_name")), "arguments": arguments,
+                          "result": atif_text(result.get("content")) if result else "",
+                          "started": stamps[index], "finished": done, "step": index})
+    counts = collections.Counter(c["name"] for c in calls)
+    row["tool_calls"] = len(calls)
+    row["tool_counts"] = dict(counts)
+    row["mcp_calls"] = {name: n for name, n in counts.items() if name and name.startswith("aspire-")}
+    row["skills_loaded"] = [skill for skill in map(skill_of, calls) if skill]
+    aspire, protected, harness_paths = collections.Counter(), 0, set()
+    for call in calls:
+        text = json.dumps(call["arguments"])
+        matches = PROTECTED.findall(text)
+        protected += bool(matches)
+        harness_paths.update(m.rstrip("/") for m in matches)
+        if "command" in call["arguments"]:  # a terminal tool: bash, run_in_terminal, ...
+            aspire.update(re.sub(r"\s+", " ", m) for m in ASPIRE_COMMAND.findall(text))
+    row["aspire_cli"] = dict(aspire)
+    row["protected_path_access"] = protected
+    row["harness_paths_read"] = sorted(harness_paths)
+    started = next((began(i) for i in range(len(steps)) if stamps[i]), None)
+    if started and len([t for t in stamps if t]) > 1:
+        row["agent_loop_seconds"] = round((max(t for t in stamps if t) - started).total_seconds(), 1)
+    seen_pattern, fix_pattern = PHASES.get(entry["scenario"], (None, None))
+    if started and seen_pattern:
+        seen = next((i for i, c in enumerate(calls) if seen_pattern.search(json.dumps(c["result"]))), None)
+        if seen is not None:
+            row["seconds_to_root_cause_seen"] = round((calls[seen]["finished"] - started).total_seconds(), 1)
+            # Every call of the seen call's step started before any of its results came back, the
+            # way the events reader counts starts before the completion that showed the cause.
+            row["tool_calls_to_root_cause_seen"] = sum(c["step"] <= calls[seen]["step"] for c in calls)
+        fix = next((c for c in calls if fix_pattern.search(json.dumps(c["arguments"]))), None)
+        if fix is not None:
+            row["seconds_to_first_fix"] = round((fix["started"] - started).total_seconds(), 1)
+    row["tool_result_chars"] = row["tool_result_content_chars"] = sum(len(json.dumps(c["result"])) for c in calls)
+    # Harbor's agent_result carries tokens and cost only when the harness reports them; ATIF's
+    # final metrics are the fallback.
+    final = trajectory.get("final_metrics") or {}
+    for key, atif_key in (("input_tokens", "total_prompt_tokens"), ("cached_input_tokens", "total_cached_tokens"),
+                          ("output_tokens", "total_completion_tokens"), ("cost_usd", "total_cost_usd")):
+        if row.get(key) is None and final.get(atif_key) is not None:
+            row[key] = final[atif_key]
+            row.setdefault("usage_source", "atif")
     return row
 
 
@@ -251,14 +387,14 @@ def summarize_pin(rows):
     cells = collections.defaultdict(list)
     for row in rows:
         if row["model_requested"] != "oracle" and not row.get("infrastructure_failure"):
-            cells[(row["scenario"], row["model_requested"], row["arm"])].append(row)
+            cells[(row["scenario"], row["model_requested"], row["agent"], row["arm"])].append(row)
     lines = []
-    for scenario, model in sorted({(s, m) for s, m, _ in cells}):
-        lines += [f"## {scenario} / {model}", "",
+    for scenario, model, agent in sorted({(s, m, g) for s, m, g, _ in cells}, key=lambda k: (k[2] != DEFAULT_AGENT, k)):
+        lines += [cell_title(scenario, model, agent), "",
                   "| Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |",
                   "|---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|"]
-        for (s, m, arm), trials in sorted(cells.items()):
-            if (s, m) != (scenario, model):
+        for (s, m, g, arm), trials in sorted(cells.items()):
+            if (s, m, g) != (scenario, model, agent):
                 continue
             valid = [t for t in trials if t.get("agent_seconds") is not None]
             passed = sum(1 for t in trials if t.get("reward") == 1)
@@ -319,22 +455,23 @@ def compare_pin(rows):
     for row in rows:
         if row["model_requested"] == "oracle":
             continue
+        key = (row["scenario"], row["model_requested"], row["agent"], row["arm"])
         if row.get("infrastructure_failure"):
-            infra[(row["scenario"], row["model_requested"], row["arm"])] += 1
+            infra[key] += 1
         elif row.get("agent_seconds") is not None:
-            cells[(row["scenario"], row["model_requested"], row["arm"])].append(row)
+            cells[key].append(row)
     lines = []
     pct = lambda value, base: "" if not base or value is None else f" ({(value - base) / base:+.0%})"
-    for scenario, model in sorted({(s, m) for s, m, _ in cells}):
-        base = cells.get((scenario, model, "raw"), [])
+    for scenario, model, agent in sorted({(s, m, g) for s, m, g, _ in cells}, key=lambda k: (k[2] != DEFAULT_AGENT, k)):
+        base = cells.get((scenario, model, agent, "raw"), [])
         base_s, base_t, base_c = (median([t.get(k) for t in base]) for k in ("agent_seconds", "input_tokens", "cost_usd"))
-        lines += [f"## {scenario} / {model}", "",
+        lines += [cell_title(scenario, model, agent), "",
                   "| Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |",
                   "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|"]
-        arms = sorted({a for s, m, a in cells if (s, m) == (scenario, model)},
+        arms = sorted({a for s, m, g, a in cells if (s, m, g) == (scenario, model, agent)},
                       key=lambda a: ARM_ORDER.index(a) if a in ARM_ORDER else 99)
         for arm in arms:
-            trials = cells[(scenario, model, arm)]
+            trials = cells[(scenario, model, agent, arm)]
             seconds, tokens, cost = (median([t.get(k) for t in trials]) for k in ("agent_seconds", "input_tokens", "cost_usd"))
             lines.append("| {} | {} | {}/{} | {}/{} | {:.0f}{} | {:,.0f}{} | {:.3f}{} | {:.0f} | {} | {} |".format(
                 arm, len(trials), sum(t.get("reward") == 1 for t in trials), len(trials),
@@ -343,7 +480,7 @@ def compare_pin(rows):
                 median([t.get("tool_calls") for t in trials]) or 0,
                 "-" if median([t.get("seconds_to_root_cause_seen") for t in trials]) is None
                 else format(median([t.get("seconds_to_root_cause_seen") for t in trials]), ".0f"),
-                infra.get((scenario, model, arm), 0) or "-"))
+                infra.get((scenario, model, agent, arm), 0) or "-"))
         lines.append("")
     return lines
 
