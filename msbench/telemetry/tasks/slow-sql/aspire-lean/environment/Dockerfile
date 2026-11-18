@@ -44,8 +44,8 @@ WORKDIR /app
 # CLI_PATCH=control builds the unmodified commit, so a patched arm is compared with a
 # build that differs only by the patch (both are managed, not NativeAOT like the daily).
 FROM mcr.microsoft.com/dotnet/sdk:10.0.100-noble AS cli-source
-ARG ASPIRE_COMMIT=4954c76a62bd091e0edbb02854c0dc2be06e64f5
-ARG ASPIRE_SDK=11.0.100-rc.2.26504.105
+ARG ASPIRE_COMMIT=30326eb876d6897b1feadc8bc800f78e466b1b52
+ARG ASPIRE_SDK=11.0.100
 ARG CLI_PATCH=control
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates curl git \
     && rm -rf /var/lib/apt/lists/* \
@@ -80,9 +80,9 @@ ENV BENCH_APP_KIND=raw
 
 # ---- Aspirified application on a pinned daily build of microsoft/aspire main.
 FROM base AS app-aspire
-ARG ASPIRE_VERSION=17.1.0-preview.1.26559.1
-ARG ASPIRE_SHA256_AMD64=3aba57eb6338ec7f7ab70472227399300f121671686a0d37ca3f3d9ac5433f54
-ARG ASPIRE_SHA256_ARM64=8c4d6c23beeb55efd8bc3a6fcf03fbe9afc7250f6aeda0887491e7768bdfab13
+ARG ASPIRE_VERSION=17.1.0-preview.1.26567.3
+ARG ASPIRE_SHA256_AMD64=f2c40e69f74782df7c2a6c778178bb2259253c0360261f4b14e680323cb3701a
+ARG ASPIRE_SHA256_ARM64=18b9cd4bfbbbd92fba480cb995f3eedb427776d83408b0ec27fde7ff7bbde4a5
 # Optional replacement CLI (custom source build of the same commit). Empty keeps the official daily.
 ARG ASPIRE_CLI_URL=
 ARG ASPIRE_CLI_SHA256=
@@ -120,8 +120,18 @@ COPY --from=suite bench/ /opt/benchmark/
 # Host-side operations tooling, visible to the agent like any installed script.
 COPY --from=suite ops/ /usr/local/lib/bingo-ops/
 RUN chmod +x /usr/local/lib/bingo-ops/*.sh
+# SKILLS=plugin: `aspire agent init` registers the aspire-skills plugin for Copilot CLI (project
+# scope, plus its user-level telemetry hook), with the marketplace pinned to the tag the `current`
+# copy was taken from, so both deliveries carry the same skill content.
+ARG PLUGIN_REF=v0.0.6
 RUN --mount=type=bind,from=suite,source=skills,target=/mnt/skills \
-    if [ "$SKILLS" != "none" ]; then \
+    if [ "$SKILLS" = "plugin" ]; then \
+        cd /app && aspire agent init --non-interactive --nologo --agents copilot --skills aspire \
+            --scope project --mcp=false \
+        && jq --arg ref "$PLUGIN_REF" '.extraKnownMarketplaces["aspire-skills"].source.ref = $ref' \
+            .github/copilot/settings.json > /tmp/settings.json && mv /tmp/settings.json .github/copilot/settings.json \
+        && cat .github/copilot/settings.json; \
+    elif [ "$SKILLS" != "none" ]; then \
         sh /mnt/skills/compose.sh "$SKILLS" /app/.github/skills \
         && sh /mnt/skills/compose.sh "$SKILLS" /opt/agent-skills; \
     fi
