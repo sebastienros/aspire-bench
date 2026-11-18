@@ -27,6 +27,7 @@ Contents
 11. [Proposal: tracking the benchmark over time](#11-proposal-tracking-the-benchmark-over-time)
 12. [Next investigations](#12-next-investigations)
 13. [Limits](#13-limits)
+14. [Phase 0 results](#14-phase-0-results)
 
 ---
 
@@ -1074,3 +1075,37 @@ no-model gate running locally before any cloud submission (already possible with
   one provider.
 - The router's guardrail role ("checks before edits") was not exercised by any scenario.
 - One trial in 467 read a harness file that names the fault; it failed and is flagged.
+
+## 14. Phase 0 results
+
+Added 2026-11-18. Nothing above this section changed: every number in §1 to §13 is still the
+2026-11-09 pin. The re-pin and re-baseline are Task T0.1; its card holds the full tables, the
+per-cell causes and the run IDs: [PLAN.md, T0.1 results](PLAN.md#t01-results).
+
+**New pin `2026-11-17`:** Aspire daily `17.1.0-preview.1.26567.3+30326eb876d6897b1feadc8bc800f78e466b1b52`
+(104 commits after `4954c76a`) and `microsoft/aspire-skills` **v0.0.6** (`e529b608`), same Copilot
+CLI 1.0.99 and models. Result files keep the two pins in separate sections and never pool them.
+
+What the new baseline (round `t01b`, 192 trials at n = 6 plus 21 in the sol, warm-start and plugin
+cells) shows, from [stats.md, pin 2026-11-17](results/stats.md):
+
+- The lean set still beats the shipped set with MCP: −22 % to −66 % time, p ≤ 0.026, in five
+  of the six `slow-sql`/`read-only`/`slow-redis` cells. In the sixth (luna `slow-redis`) time is
+  level (+5 %, p = 0.94) but lean passes 4/6 against 0/6.
+- The shipped set with MCP is still slower than the raw app on `slow-sql` and `read-only`
+  (+33 % to +124 % time on both models).
+- Lean against raw: −66 % (terra, p = 0.002) and −59 % (luna, p = 0.24) on `slow-redis`,
+  −20 % / −6 % on `read-only`, +39 % / +4 % on `slow-sql` (luna's extra time is agents writing
+  an EF migration after the fix, 3/6 against 1/9 before; not significant).
+- Cold start is still slower with Aspire, now at n = 6 and significant: +20 % to +51 % time
+  (p ≤ 0.015) on every Aspire arm and both models.
+
+Fifteen cells moved more than 25 points against the 11-09 ratio. Most of them follow the raw
+denominator or model variance read from the trajectories, and none follows an agent visibly
+reacting to v0.0.6 skill text. Two Aspire behaviours were found on the way: `aspire stop` returns
+before its containers are removed, so an immediate restart collides on fixed container names
+([FINDINGS F25](../FINDINGS.md#f25-aspire-stop-returns-before-its-containers-are-gone-so-an-immediate-restart-collides-on-fixed-container-names)),
+and the `describe` table is 24 % larger with the exit-code column ([F19](../FINDINGS.md#f19-table-borders-and-dashboard-links-dominate-what-an-agent-reads-from-the-cli)). The
+first baseline round ran during a model-service incident and is excluded
+([F06](../FINDINGS.md#f06-setup-failures-must-not-become-model-or-aspire-failures)).
+

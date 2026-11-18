@@ -1,6 +1,6 @@
 # Plan: improving agentic performance with Aspire (CLI, MCP, skills)
 
-Status: proposal, 2026-11-17. No run in this plan has been submitted and no issue filed.
+Status: proposal, 2026-11-17. T0.1 (re-pin and re-baseline) done 2026-11-18; no other card has run, and no issue has been filed.
 Each task below is a card with the same fields; a card's **Results** field is either a
 link to measured numbers or `pending`. Nothing in a Results field is predicted.
 
@@ -109,7 +109,141 @@ Nothing in later phases is interpretable until these three are done.
 | Decision rule | None; this is the new baseline. Report every cell as a ratio to raw next to the 11-09 ratio. A cell that moved more than 25% gets a one-line cause from the trajectories |
 | Also answer | Did #21013 change `cold-start`? A first start on a fresh clone cannot differ; measure a **warm** cold start (second `aspire start` in the same workspace, **without** `--isolated`, or with `persistInIsolatedMode`) as an extra 3-trial cell on luna. Did #22054 change `describe` bytes (no model)? Does **plugin delivery** change selection (F04): one 3-trial luna `slow-sql` cell where the image registers the plugin through `aspire agent init` instead of copying into `.github/skills`; selection must match the copy within one trial, otherwise the arm definition changes |
 | Trials / cost | 4 scenarios × 4 arms × 2 models × 6 = 192 trials + 6 extra + 12 sol bridge ≈ $9.30 |
-| Results | pending |
+| Results | Done 2026-11-18: [T0.1 results](#t01-results) below. New pin `2026-11-17`; all gates reward 1 after one fixture fix; baseline round `t01b` (213 trials) after the first round was lost to a model-service incident |
+
+#### T0.1 results
+
+**Pins (pin `2026-11-17`).** Aspire daily `17.1.0-preview.1.26567.3+30326eb876d6897b1feadc8bc800f78e466b1b52`
+(104 commits after `4954c76a`, built 2026-11-17, three commits behind `main` `27c59c34`; source
+builds use SDK `11.0.100`), CLI archives SHA-256 x64 `f2c40e69…3701a`, arm64 `18b9cd4b…de4a5`;
+AppHost SDK and Hosting packages `17.1.0-preview.1.26567.3`; `microsoft/aspire-skills` **v0.0.6**
+(`e529b608`, from `skills/`, the plugin manifest's path; `.github/plugins/aspire-skills/skills/` is
+per-file symlinks into it); lean monitoring override re-derived on the v0.0.6 body. Suite commit
+`ed19b038` (tasks `916a57ce`), then `db64b1ba` (tasks `0dfaf98f`) after the warm-start fix below;
+every `t01b*` trial ran on tasks `0dfaf98f`. Copilot CLI `1.0.99-0` as before.
+
+**Gates (no model), all reward 1.** `gate-t01` (first submission sat `queued_in_ces` 57 min, was
+cancelled and resubmitted): `raw` and `aspire-lean` × four scenarios `2026111810121500`,
+`…124524`, `…127098`, `…129454`, `…131792`, `…134110`, `…136418`, `…138696`; `aspire-cli`
+`…141394` and `aspire-skills-mcp` `…143888` on `slow-sql`; plus the new cells
+`cold-start/aspire-skills-mcp` `…146698` and `slow-sql/aspire-skills-plugin` `…151862`.
+`cold-start-warm/aspire-lean` failed (`…149462`, reward 0) on a fixture race: `aspire stop`
+returns before DCP removes the containers, so the next start collided on `bingo-redis`
+([FINDINGS F25](../FINDINGS.md#f25-aspire-stop-returns-before-its-containers-are-gone-so-an-immediate-restart-collides-on-fixed-container-names)).
+Setup now waits for the containers to go; re-gated as `gate-t01-warm` `2026111812956718`, reward 1.
+Local gates (fail → repair → pass) passed for `aspire-lean`/`slow-sql`, `raw`/`slow-sql` and the warm cell.
+
+**Model-service incident; the first round is excluded.** Rounds `t01`, `t01-solbridge`, `t01-plugin`,
+`t01-warm` ran 2026-11-18 03:30–04:52 UTC while model calls hung 240 s and returned 504/503: 76
+trials timed out at 900 s and 12 crashed, and 52 of 93 completed luna trials lost over 60 s to
+failed calls (1 of 461 trials on the 11-09 pin). They stay in `trials.jsonl` with an `excluded`
+reason, as does `t01-topup` (9 terra replacements); everything was re-run as `t01b*` after a probe.
+In `t01b*` no trial timed out, one crashed (luna `read-only`/`raw`, so that cell has n = 5), and
+the median time lost to 5xx (failed call plus retry backoff, `model_service_wait_seconds`) was
+1.5 s (terra) to 2.7 s (luna), 2–3 % of agent time; max 26 s. See
+[FINDINGS F06](../FINDINGS.md#f06-setup-failures-must-not-become-model-or-aspire-failures).
+
+**Ratios to `raw`, same pin, scenario and model** (medians; time = agent seconds, tokens = input
+tokens; pass = verifier, arm / raw). 11-17 = round `t01b`, n = 6 per cell unless shown; 11-09 =
+every round of the first pin pooled, as in [comparison.md](results/comparison.md) (its `aspire-cli`
+cells, terra `slow-redis` and all `cold-start` cells are n = 3). Significance per cell:
+[stats.md, pin 2026-11-17](results/stats.md).
+
+| Scenario | Model | Arm | 11-17 time | 11-17 tokens | 11-17 pass (arm / raw) | 11-09 time | 11-09 tokens | 11-09 pass (arm / raw) |
+|---|---|---|---:|---:|---|---:|---:|---|
+| slow-sql | luna | aspire-cli | 1.97× | 2.76× | 6/6 / 6/6 | 2.26× | 2.66× | 3/3 / 8/9 |
+| slow-sql | luna | aspire-skills-mcp | 2.24× | 3.30× | 6/6 / 6/6 | 3.10× | 4.36× | 6/6 / 8/9 |
+| slow-sql | luna | aspire-lean | 1.39× | 1.21× | 6/6 / 6/6 | 1.03× | 0.74× | 9/9 / 8/9 |
+| slow-sql | terra | aspire-cli | 1.22× | 1.76× | 6/6 / 6/6 | 1.40× | 1.68× | 3/3 / 6/6 |
+| slow-sql | terra | aspire-skills-mcp | 1.33× | 2.31× | 6/6 / 6/6 | 1.65× | 3.21× | 6/6 / 6/6 |
+| slow-sql | terra | aspire-lean | 1.04× | 1.06× | 6/6 / 6/6 | 1.16× | 1.24× | 6/6 / 6/6 |
+| read-only | luna | aspire-cli | 1.17× | 1.45× | 4/6 / 5/5 | 2.21× | 2.41× | 3/3 / 9/9 |
+| read-only | luna | aspire-skills-mcp | 1.71× | 2.72× | 4/6 / 5/5 | 3.28× | 4.56× | 2/6 / 9/9 |
+| read-only | luna | aspire-lean | 0.80× | 0.82× | 6/6 / 5/5 | 1.15× | 1.01× | 12/12 / 9/9 |
+| read-only | terra | aspire-cli | 1.36× | 1.88× | 6/6 / 6/6 | 1.21× | 1.64× | 3/3 / 6/6 |
+| read-only | terra | aspire-skills-mcp | 1.41× | 2.60× | 6/6 / 6/6 | 1.42× | 2.27× | 6/6 / 6/6 |
+| read-only | terra | aspire-lean | 0.94× | 1.15× | 6/6 / 6/6 | 1.02× | 1.02× | 6/6 / 6/6 |
+| slow-redis | luna | aspire-cli | 0.39× | 0.50× | 0/6 / 1/6 | 0.94× | 0.96× | 0/6 / 1/8 |
+| slow-redis | luna | aspire-skills-mcp | 0.39× | 0.63× | 0/6 / 1/6 | 0.78× | 1.57× | 0/6 / 1/8 |
+| slow-redis | luna | aspire-lean | 0.41× | 0.53× | 4/6 / 1/6 | 0.59× | 0.75× | 5/6 / 1/8 |
+| slow-redis | terra | aspire-cli | 1.03× | 1.57× | 6/6 / 6/6 | 0.60× | 0.93× | 3/3 / 3/3 |
+| slow-redis | terra | aspire-skills-mcp | 1.00× | 1.73× | 6/6 / 6/6 | 0.81× | 1.24× | 3/3 / 3/3 |
+| slow-redis | terra | aspire-lean | 0.34× | 0.54× | 6/6 / 6/6 | 0.32× | 0.46× | 3/3 / 3/3 |
+| cold-start | luna | aspire-cli | 1.26× | 1.69× | 6/6 / 6/6 | 1.15× | 0.94× | 3/3 / 3/3 |
+| cold-start | luna | aspire-skills-mcp | 1.36× | 2.61× | 6/6 / 6/6 | no cell | |  |
+| cold-start | luna | aspire-lean | 1.51× | 2.64× | 6/6 / 6/6 | 1.94× | 3.23× | 3/3 / 3/3 |
+| cold-start | terra | aspire-cli | 1.29× | 1.43× | 6/6 / 6/6 | 1.42× | 1.20× | 3/3 / 3/3 |
+| cold-start | terra | aspire-skills-mcp | 1.20× | 2.44× | 6/6 / 6/6 | no cell | |  |
+| cold-start | terra | aspire-lean | 1.35× | 2.46× | 6/6 / 6/6 | 1.41× | 1.95× | 3/3 / 3/3 |
+
+**Cells that moved more than 25 points** (time or tokens ratio), cause read from the trajectories:
+
+- `slow-sql`/luna/`aspire-cli` (time −0.29): noise; the three 11-09 trials (170–247 s) lie inside the new range (114–356 s) and phase times are similar.
+- `slow-sql`/luna/`aspire-skills-mcp` (−0.86 / −1.06): same step order (skill, `list_resources`/`list_traces`/`list_structured_logs`, psql trigger query, `CREATE INDEX CONCURRENTLY`), but every phase is faster with fewer and faster model calls (16–25 vs 25–27 requests, 5.9–7.3 vs 8.7–9.6 s per request; raw's s/request is flat), and 3/6 new trials only hot-fixed the database where all 11-09 trials also wrote a migration or patch. No reaction to v0.0.6 text is visible; why the calls are faster is not determinable.
+- `slow-sql`/luna/`aspire-lean` (+0.36 / +0.47): root cause (26 s) and first fix (57 → 59 s) are flat; time after the fix grew from 30 to 50 s because 3/6 new trials also wrote an EF migration (1/9 on 11-09), e.g. `2026111819651526` steps 17–29. Model variance; `aspire-diagnose` is unchanged.
+- `slow-sql`/terra/`aspire-skills-mcp` (tokens −0.90): raw tokens +18 % (173k → 205k) and the arm read 10 % less (417k → 376k chars); route unchanged (monitoring 6/6, same MCP mix).
+- `read-only`/luna/`aspire-cli` (−1.04 / −0.96): mostly the raw denominator (below); arm 171 s (n = 3) → 131 s. Its two failures fixed the app, not the default: `…665844` set the option in the connection string, `…668390` repeated an execution-strategy patch also seen on 11-09 (`…029462`).
+- `read-only`/luna/`aspire-skills-mcp` (−1.57 / −1.84, pass 2/6 → 4/6): raw denominator plus arm 254 → 193 s. All 6 new trials inspected PostgreSQL with `docker exec … psql` (1/6 on 11-09); 4 ran `ALTER DATABASE db RESET default_transaction_read_only` and then an MCP `restart` (e.g. `2026111819673276` steps 40–41); both failures fixed the app only. Skills loaded 3/6 (6/6 on 11-09), the skippers saying no skill matched; pass was not tied to loading (3/3 loaders, 1/3 skippers). Why fewer loaded is not determinable: descriptions differ only by `apphost.go`.
+- `read-only`/luna/`aspire-lean` (time −0.35): raw denominator only; the arm is unchanged (89 → 90 s, same route).
+- `read-only`/terra/`aspire-skills-mcp` (tokens +0.33): raw tokens −9 %; arm route unchanged.
+- `slow-redis`/luna/`aspire-cli` (−0.55 / −0.45): raw denominator (raw 207 → 365 s); the arm itself is faster (195 → 141 s) with fewer ~30 s curl/redis-cli loops against the blocked cache (tool time 53 → 31 s). Its "root cause seen" 55 → 7 s is a marker artifact (a `ps` listing that shows `report-exporter.sh`, never acted on). 0/6 on both pins.
+- `slow-redis`/luna/`aspire-skills-mcp` (−0.38 / −0.95): raw denominator; 4/6 new trials went straight to `list_apphosts` without the skill tool (skills 5/6 → 2/6); why is not determinable (frontmatter, MCP server code, prompt and install path unchanged). 0/6 on both pins.
+- `slow-redis`/terra/`aspire-cli` (+0.43 / +0.64): the 11-09 cell is n = 3; diagnosis is identical (cause seen at tool 3, ~4 s); 4/6 new trials rewrote or repeatedly patched the exporter (e.g. `…880408`), 1/3 on 11-09. Within noise.
+- `slow-redis`/terra/`aspire-skills-mcp` (tokens +0.49): raw tokens −16 % (461k → 386k, n = 3 on 11-09); arm route unchanged.
+- `cold-start`/luna/`aspire-cli` (tokens +0.75): both moved: raw −25 % (77k → 58k, n = 3), arm +36 % (72k → 98k) while what it read barely changed; per-call prompt size is bimodal and 3/6 new trials sit in the high mode (1/3 on 11-09); mechanism not determinable.
+- `cold-start`/luna/`aspire-lean` (−0.43 / −0.59): the start sequence is unchanged (README's `aspire start … --isolated` then two waits; `2026111819738740` and `2026110977814172`, step 8 both). Fewer tools because a 28 KB `describe --format Json` spill-and-grep loop hit 2/3 trials on 11-09 and 2/6 now (recovered in one turn with per-resource `describe`). Bytes read rose (cheapest path 48k → 58k) from the v0.0.6 orchestration references (`detection.md` 13.4k → 18.0k, `app-commands.md` 16.2k → 19.1k) and the wider describe table. Whether the pin changed time is not determinable.
+- `cold-start`/terra/`aspire-lean` (tokens +0.51): raw denominator (63k → 50k; 5/6 raw trials went straight to `scripts/start.sh`); the arm is flat (122k → 124k).
+
+The two raw cells that moved on their own: luna `read-only` (77 → 112 s, n = 5) took the same
+route with more output (6.1k → 8.6k tokens) between seeing the cause and fixing it (37 → 63 s);
+5xx wait explains 4.6 s; other raw cells did not move, so most likely variance. Luna
+`slow-redis` (207 → 365 s) shifted route: 5/6 trials probed the blocked cache 4–12 times before
+patching (0–2 times in 6/8 on 11-09), each probe blocking 30–60 s (e.g. `2026111819689216`, no
+5xx, steps 29–46); whether that is chance is not determinable (Fisher p ≈ 0.05). Caveat for every
+"first fix" figure: the marker in `collect.py` also fires on a search for the SQL text or on a
+process restart, so it is not used above where it misleads; fixing it would change the 11-09
+tables and is left as a follow-up.
+
+**Sol bridge** (`slow-sql`, n = 3 per cell, all passed; 11-09 6.1 cells n = 6):
+
+| Model | Pin | raw s / tokens | aspire-lean s / tokens | lean ÷ raw time / tokens |
+|---|---|---|---|---|
+| gpt-6.1-sol | 11-09 | 53 / 155k | 60 / 191k | 1.13× / 1.23× |
+| gpt-6.1-sol | 11-17 | 63 / 160k | 61 / 193k | 0.98× / 1.21× |
+| gpt-6.2-sol | 11-17 | 52 / 125k | 58 / 230k | 1.11× / 1.83× |
+
+6.2 reads less on raw and more on lean (describe 5.3 calls per trial vs 3.0 on 6.1), and costs more
+per trial ($0.15 raw, $0.25 lean vs $0.10–0.11 on 6.1). Three trials per cell: direction only.
+
+**Warm start (`t01b-warm`, 3 luna trials, `cold-start-warm/aspire-lean`).** Setup starts and stops
+the AppHost once with `portAllocation.persistInIsolatedMode` (set by `aspire config set`; it lives
+in `aspire.config.json`, not `.aspire/settings.json`); the second `--isolated` start reuses the
+ports in `.aspire/state` (checked locally). All 3 passed in 64 s median against 63 s for the cold
+`aspire-lean` cell; start-to-ready was shorter in the trajectory pair compared (11 s vs 19 s from `aspire start`
+to both waits returning) but the agent still ran
+`describe` to find the endpoints (3.0 per trial vs 2.0) and `ps` more (2.3 vs 0.5): nothing tells it
+the port, and the README says endpoints are dynamic. A known port does not remove `describe`
+unless the workspace tells the agent what it is.
+
+**Plugin delivery (`t01b-plugin`, 3 luna `slow-sql` trials each).** `aspire agent init
+--non-interactive --agents copilot --skills aspire --scope project --mcp=false` registers the plugin
+at image build time without auth and without `copilot` on PATH, writing
+`.github/copilot/settings.json` (marketplace `microsoft/aspire-skills` with no ref, so pinned to
+`v0.0.6` by the image) and a user-level `postToolUse` telemetry hook. Plugin: 3/3 passed, no skill
+loaded (0/3), 146 s; copy into `.github/skills`: 3/3, `aspire-monitoring` 1/3, 102 s. Selection
+matches within one trial, so the arm definition stays the copy. But the trajectory does not show
+whether Copilot CLI installed the plugin at all, and the copy arm rarely loads a skill on this cell
+(0/3 on 11-09), so this cell cannot tell "delivered and unused" from "not delivered"
+([FINDINGS F04](../FINDINGS.md#f04-capability-installation-and-actual-usage-must-be-verified-separately)).
+
+**`aspire describe` bytes (no model).** Redirected table 4,244 → 5,282 bytes (+24 %): #22054 puts
+the exit code in the State cell (`Finished (exit code: 0)`), which wraps each row's dashboard link
+onto a third line; `--format Json` 24,902 bytes. Evidence: `evidence/agent-surface/2026-11-17/`;
+patch 0002 still applies (T1.5).
+
+**Cost.** Model cost recorded: $8.03 (`t01b`), $1.82 (sol bridge), $0.12 (plugin, warm); the
+excluded incident rounds recorded $4.56 more, and 76 timed-out trials report none. About $14.5
+in all against the card's $9.30.
 
 ### T0.2 Held-out application and fault
 
@@ -193,7 +327,7 @@ baseline, with its guard cells, and a verdict.
 | Decision rule | Ship if time improves with p < 0.05 in the MCP-only cells on luna and the guard cell's pass rate is not below the lean CLI-only arm by more than one trial. If the guard fails, T2.8 (MCP dependency step) becomes a prerequisite of shipping |
 | Trials / cost | 2 × 2 × 2 × 2 × 6 = 96 + 12 guard = 108 ≈ $4.10 |
 | Issue draft | [aspire-mcp-compact-telemetry.md](../upstream-issues/aspire-mcp-compact-telemetry.md) |
-| Results | 11-09 pins n = 3: done; decision n: pending |
+| Results | 11-09 pins n = 3: done; decision n: pending. 2026-11-17 pin: patches 0001 and `agentic-all` apply cleanly to `30326eb8` (`git apply --check`, exit 0); the `*-src`, `*-compact` and `aspire-lean-mcp-all` tasks were regenerated at that pin by T0.1 but not gated there, so gate them before this card's round |
 
 ### T1.5 CLI plain output when redirected
 
@@ -202,7 +336,7 @@ baseline, with its guard cells, and a verdict.
 | Measured so far | −21% to −59% bytes read, −12% to +1% time, none significant at n = 3 |
 | Decision | No further agent runs. Verdict: ship for the context it frees, claim no speed-up. Rebase on #22054 and re-measure the byte counts only (no model) |
 | Issue draft | [aspire-cli-plain-output.md](../upstream-issues/aspire-cli-plain-output.md) |
-| Results | [REPORT §7.2](REPORT.md#72-dotnetaspire); rebase: pending |
+| Results | [REPORT §7.2](REPORT.md#72-dotnetaspire); rebase: **not needed**. Patch 0002 applies cleanly to `30326eb8` (`git apply --check`, exit 0, 2026-11-17): #22054 writes the exit code into the State cell (`Finished (exit code: 0)`), which 0002 does not touch; 0002 drops the per-row dashboard link when output is redirected, and on the new daily that link is what wraps to a third line. Official-daily byte counts are in T0.1; the patched re-measure needs a source build and is pending |
 
 ### T1.6 `aspire-start` against v0.0.6 orchestration
 

@@ -1,0 +1,720 @@
+Scanning for running AppHosts...
+{
+  "resources": [
+    {
+      "name": "admin-password",
+      "displayName": "admin-password",
+      "resourceType": "Parameter",
+      "resourceTypeDisplayName": "Parameter",
+      "state": "Running",
+      "source": "Parameters:admin-password",
+      "healthStatus": "Healthy",
+      "dashboardUrl": "http://localhost:44875/?resource=admin-password",
+      "relationships": [],
+      "urls": [],
+      "volumes": [],
+      "properties": {
+        "resource.source": "Parameters:admin-password",
+        "Value": null
+      },
+      "environment": {},
+      "healthReports": {},
+      "commands": {
+        "delete-parameter": {
+          "displayName": "Delete parameter",
+          "description": "Delete parameter value",
+          "state": "Enabled",
+          "sortOrder": 1,
+          "argumentInputs": [
+            {
+              "name": "DeleteFromUserSecrets",
+              "label": "Delete from user secrets",
+              "description": "Delete a value that is saved in [user secrets](https://aka.ms/aspire/user-secrets).",
+              "enableDescriptionMarkdown": true,
+              "inputType": "Boolean",
+              "dynamicLoading": {
+                "alwaysLoadOnStart": true
+              }
+            }
+          ]
+        },
+        "set-parameter": {
+          "displayName": "Set parameter",
+          "description": "Set parameter value",
+          "state": "Enabled",
+          "sortOrder": 0,
+          "argumentInputs": [
+            {
+              "name": "Value",
+              "label": "admin-password",
+              "inputType": "SecretText",
+              "required": true,
+              "placeholder": "Enter value for admin-password",
+              "dynamicLoading": {
+                "alwaysLoadOnStart": true
+              }
+            },
+            {
+              "name": "SaveToUserSecrets",
+              "label": "Save to user secrets",
+              "description": "Save value to [user secrets](https://aka.ms/aspire/user-secrets) for future use.",
+              "enableDescriptionMarkdown": true,
+              "inputType": "Boolean",
+              "dynamicLoading": {
+                "alwaysLoadOnStart": true,
+                "dependsOnInputs": [
+                  "Value"
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "bingo-postgres",
+      "displayName": "postgres",
+      "resourceType": "Container",
+      "resourceTypeDisplayName": "PostgreSQL Server",
+      "state": "Running",
+      "creationTimestamp": "2026-11-18T01:41:13+00:00",
+      "startTimestamp": "2026-11-18T01:41:28.185713+00:00",
+      "source": "docker.io/library/postgres:18.3",
+      "healthStatus": "Healthy",
+      "dashboardUrl": "http://localhost:44875/?resource=bingo-postgres",
+      "relationships": [],
+      "urls": [
+        {
+          "name": "tcp",
+          "url": "tcp://localhost:34889"
+        }
+      ],
+      "volumes": [
+        {
+          "source": "bingo-data",
+          "target": "/var/lib/postgresql",
+          "mountType": "volume"
+        }
+      ],
+      "properties": {
+        "container.args": null,
+        "container.command": null,
+        "container.id": "3c9174cb05097984ea9400d72f49fa74a64e1c43ccb6dc36bb1de71f3aa45563",
+        "container.image": "docker.io/library/postgres:18.3",
+        "container.lifetime": "Session",
+        "container.ports": [
+          5432
+        ],
+        "resource.appArgs": [],
+        "resource.appArgsSensitivity": [],
+        "resource.connectionProperties": null,
+        "resource.connectionString": null
+      },
+      "environment": {
+        "POSTGRES_HOST_AUTH_METHOD": "scram-sha-256",
+        "POSTGRES_INITDB_ARGS": "--auth-host=scram-sha-256 --auth-local=scram-sha-256",
+        "POSTGRES_PASSWORD": null,
+        "POSTGRES_USER": "postgres",
+        "SSL_CERT_DIR": "/usr/lib/ssl/aspire/certs:/etc/ssl/certs:/usr/local/share/ca-certificates:/etc/pki/tls/certs"
+      },
+      "healthReports": {
+        "postgres_check": {
+          "status": "Healthy"
+        }
+      },
+      "commands": {
+        "restart": {
+          "displayName": "Restart",
+          "description": "Restart resource",
+          "state": "Enabled",
+          "sortOrder": 2
+        },
+        "stop": {
+          "displayName": "Stop",
+          "description": "Stop resource",
+          "state": "Enabled",
+          "sortOrder": 1
+        }
+      }
+    },
+    {
+      "name": "bingo-redis",
+      "displayName": "cache",
+      "resourceType": "Container",
+      "resourceTypeDisplayName": "Redis",
+      "state": "Running",
+      "creationTimestamp": "2026-11-18T01:41:13+00:00",
+      "startTimestamp": "2026-11-18T01:41:26.107883+00:00",
+      "source": "docker.io/library/redis:8.6",
+      "healthStatus": "Healthy",
+      "dashboardUrl": "http://localhost:44875/?resource=bingo-redis",
+      "relationships": [],
+      "urls": [
+        {
+          "name": "secondary",
+          "url": "tcp://localhost:46293"
+        },
+        {
+          "name": "tcp",
+          "url": "rediss://localhost:46733"
+        }
+      ],
+      "volumes": [],
+      "properties": {
+        "container.args": null,
+        "container.command": "/bin/sh",
+        "container.id": "4613018ba887a62e3508cab440a61a29880b8f1bcd4dc9a3c50549b788458653",
+        "container.image": "docker.io/library/redis:8.6",
+        "container.lifetime": "Session",
+        "container.ports": [
+          6380,
+          6379
+        ],
+        "resource.appArgs": [
+          "redis-server",
+          "--requirepass",
+          "$REDIS_PASSWORD",
+          "--tls-port",
+          "6379",
+          "--port",
+          "6380",
+          "--tls-ca-cert-file",
+          "/usr/lib/ssl/aspire/cert.pem",
+          "--tls-cert-file",
+          "/usr/lib/ssl/aspire/private/C2507FB7E0FB7FBD9B00BA1329870A231607A1D4.crt",
+          "--tls-key-file",
+          "/usr/lib/ssl/aspire/private/C2507FB7E0FB7FBD9B00BA1329870A231607A1D4.key",
+          "--tls-auth-clients",
+          "no"
+        ],
+        "resource.appArgsSensitivity": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "resource.connectionProperties": null,
+        "resource.connectionString": null
+      },
+      "environment": {
+        "REDIS_PASSWORD": null,
+        "SSL_CERT_DIR": "/usr/lib/ssl/aspire/certs:/etc/ssl/certs:/usr/local/share/ca-certificates:/etc/pki/tls/certs"
+      },
+      "healthReports": {
+        "cache_check": {
+          "status": "Healthy"
+        }
+      },
+      "commands": {
+        "restart": {
+          "displayName": "Restart",
+          "description": "Restart resource",
+          "state": "Enabled",
+          "sortOrder": 2
+        },
+        "stop": {
+          "displayName": "Stop",
+          "description": "Stop resource",
+          "state": "Enabled",
+          "sortOrder": 1
+        }
+      }
+    },
+    {
+      "name": "bingoboard-installer-yzpgnydk",
+      "displayName": "bingoboard-installer",
+      "resourceType": "Executable",
+      "resourceTypeDisplayName": "Executable",
+      "state": "Finished",
+      "creationTimestamp": "2026-11-18T01:41:13+00:00",
+      "startTimestamp": "2026-11-18T01:41:13.17+00:00",
+      "stopTimestamp": "2026-11-18T01:41:14.389946+00:00",
+      "source": "npm",
+      "exitCode": 0,
+      "dashboardUrl": "http://localhost:44875/?resource=bingoboard-installer-yzpgnydk",
+      "relationships": [
+        {
+          "type": "Parent",
+          "resourceName": "bingoboard-tpexqjsm"
+        }
+      ],
+      "urls": [],
+      "volumes": [],
+      "properties": {
+        "executable.args": null,
+        "executable.path": "npm",
+        "executable.pid": 612,
+        "executable.workDir": "/app/src/bingo-board",
+        "resource.appArgs": [
+          "ci"
+        ],
+        "resource.appArgsSensitivity": [
+          0
+        ],
+        "resource.parentName": "bingoboard-tpexqjsm"
+      },
+      "environment": {
+        "_": "/usr/local/aspire/aspire",
+        "ADMIN_PORT": "18080",
+        "APP_UID": "1654",
+        "ASPIRE_ALLOW_UNSECURED_TRANSPORT": "true",
+        "ASPIRE_BACKCHANNEL_PATH": "/root/.aspire/cli/bch/cqbN4k7EW",
+        "ASPIRE_BUNDLE_VERSION_DIR": "/root/.aspire/versions/17.1.0-preview.1.26567.3_30326eb876d6897b1feadc8bc800f78e466b1b52-f02205f4edbaa2a9",
+        "ASPIRE_CLI_GENERATE_HTTPS_CERTIFICATE": "false",
+        "ASPIRE_CLI_LOG_FILE": "/root/.aspire/logs/cli_20261118T014107830_detach-child_6a74af03235849849c9742df9a24914a.log",
+        "ASPIRE_CLI_PID": "276",
+        "ASPIRE_CLI_RUN_DETACHED": "true",
+        "ASPIRE_CLI_STARTED": "1794966067",
+        "ASPIRE_CLI_STARTED_STABLE": "13428540",
+        "ASPIRE_CLI_TELEMETRY_OPTOUT": "1",
+        "ASPIRE_DASHBOARD_OTLP_ENDPOINT_URL": "http://localhost:19112",
+        "ASPIRE_DASHBOARD_PATH": "/root/.aspire/versions/17.1.0-preview.1.26567.3_30326eb876d6897b1feadc8bc800f78e466b1b52-f02205f4edbaa2a9/dashboard/Aspire.Dashboard",
+        "ASPIRE_DCP_PATH": "/root/.aspire/versions/17.1.0-preview.1.26567.3_30326eb876d6897b1feadc8bc800f78e466b1b52-f02205f4edbaa2a9/dcp",
+        "ASPIRE_LAUNCHER_PID": "267",
+        "ASPIRE_LAUNCHER_STARTED": "13428500",
+        "ASPIRE_RESOURCE_SERVICE_ENDPOINT_URL": "http://localhost:20129",
+        "ASPIRE_SUPPRESS_CLI_RUN_HOOK": "true",
+        "ASPIRE_TERMINAL_HOST_INVOCATION_ARGS": "",
+        "ASPIRE_TERMINAL_HOST_PATH": "/root/.aspire/versions/17.1.0-preview.1.26567.3_30326eb876d6897b1feadc8bc800f78e466b1b52-f02205f4edbaa2a9/terminalhost/Aspire.TerminalHost",
+        "ASPIRE_USER_SECRETS_ID": "apphost-dd71788e571b3ecc99a25ad6bc32c17636e84222b19492cabe94f1a23a352ed0",
+        "AspireCliBundlePath": "/root/.aspire/versions/17.1.0-preview.1.26567.3_30326eb876d6897b1feadc8bc800f78e466b1b52-f02205f4edbaa2a9",
+        "AspireCliPath": "/usr/local/aspire/aspire",
+        "ASPNET_VERSION": "10.0.0",
+        "ASPNETCORE_HTTP_PORTS": "8080",
+        "Authentication__AdminPassword": null,
+        "BENCH_APP_KIND": "aspire",
+        "BENCH_FAULT": "slow-sql",
+        "BENCH_RUN_ID": "bingo",
+        "BENCH_SKILLS": "lean",
+        "COMPOSE_PROJECT_NAME": "bingo",
+        "CONTAINER_RUNTIME": "docker",
+        "DcpPublisher__RandomizePorts": "true",
+        "DOCKER_HOST": "unix:///var/run/docker.sock",
+        "DOTNET_CLI_TELEMETRY_OPTOUT": "1",
+        "DOTNET_GENERATE_ASPNET_CERTIFICATE": "false",
+        "DOTNET_NOLOGO": "1",
+        "DOTNET_ROLL_FORWARD": "Major",
+        "DOTNET_ROOT_ARM64": "/usr/share/dotnet",
+        "DOTNET_RUNNING_IN_CONTAINER": "true",
+        "DOTNET_SDK_VERSION": "10.0.100",
+        "DOTNET_USE_POLLING_FILE_WATCHER": "true",
+        "DOTNET_VERSION": "10.0.0",
+        "FRONTEND_PORT": "15173",
+        "HOME": "/root",
+        "HOSTNAME": "b1eb36844c5a",
+        "MSBUILDFAILONDRIVEENUMERATINGWILDCARD": "1",
+        "MSBUILDTERMINALLOGGER": "false",
+        "NUGET_XMLDOC_MODE": "skip",
+        "OLDPWD": "/app",
+        "Parameters__admin_password": null,
+        "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+        "POSTGRES_PORT": "54320",
+        "POWERSHELL_DISTRIBUTION_CHANNEL": "PSDocker-DotnetSDK-Ubuntu-24.04-arm64",
+        "PWD": "/app",
+        "REDIS_PORT": "63790",
+        "SHLVL": "2",
+        "SSL_CERT_DIR": "/usr/lib/ssl/certs:/root/.aspnet/dev-certs/trust"
+      },
+      "healthReports": {},
+      "commands": {
+        "start": {
+          "displayName": "Start",
+          "description": "Start resource",
+          "state": "Enabled",
+          "sortOrder": 0
+        }
+      }
+    },
+    {
+      "name": "bingoboard-tpexqjsm",
+      "displayName": "bingoboard",
+      "resourceType": "Executable",
+      "resourceTypeDisplayName": "Vite",
+      "state": "Running",
+      "creationTimestamp": "2026-11-18T01:41:34+00:00",
+      "startTimestamp": "2026-11-18T01:41:34.47+00:00",
+      "source": "npm",
+      "healthStatus": "Healthy",
+      "dashboardUrl": "http://localhost:44875/?resource=bingoboard-tpexqjsm",
+      "relationships": [
+        {
+          "type": "WaitFor",
+          "resourceName": "bingoboard-installer-yzpgnydk"
+        },
+        {
+          "type": "Reference",
+          "resourceName": "boardadmin-nyucqhet"
+        },
+        {
+          "type": "Reference",
+          "resourceName": "boardadmin-nyucqhet"
+        },
+        {
+          "type": "WaitFor",
+          "resourceName": "boardadmin-nyucqhet"
+        }
+      ],
+      "urls": [
+        {
+          "name": "http",
+          "displayName": "Play bingo",
+          "url": "http://localhost:33777/"
+        }
+      ],
+      "volumes": [],
+      "properties": {
+        "executable.args": null,
+        "executable.path": "npm",
+        "executable.pid": 1561,
+        "executable.workDir": "/app/src/bingo-board",
+        "resource.appArgs": [
+          "run",
+          "dev",
+          "--",
+          "--port",
+          "23499"
+        ],
+        "resource.appArgsSensitivity": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "resource.launchConfigurationType": "node",
+        "resource.sourcePath": "/app/src/bingo-board"
+      },
+      "environment": {
+        "BINGO_ADMIN_URL": "http://localhost:44099",
+        "BOARDADMIN_HTTP": "http://localhost:44099",
+        "NODE_ENV": "development",
+        "NODE_EXTRA_CA_CERTS": "/tmp/aspire-dcpMIiIFM/bingoboard-tpexqjsm/cert.pem",
+        "OTEL_BLRP_SCHEDULE_DELAY": "1000",
+        "OTEL_BSP_SCHEDULE_DELAY": "1000",
+        "OTEL_EXPORTER_OTLP_ENDPOINT": "http://localhost:44893",
+        "OTEL_EXPORTER_OTLP_HEADERS": "x-otlp-api-key=ddc9af00fcb38548b249009b88b12079",
+        "OTEL_EXPORTER_OTLP_PROTOCOL": "grpc",
+        "OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT": "true",
+        "OTEL_METRIC_EXPORT_INTERVAL": "1000",
+        "OTEL_METRICS_EXEMPLAR_FILTER": "trace_based",
+        "OTEL_RESOURCE_ATTRIBUTES": "service.instance.id=tpexqjsm",
+        "OTEL_SERVICE_NAME": "bingoboard",
+        "OTEL_TRACES_SAMPLER": "always_on",
+        "PORT": "23499",
+        "services__boardadmin__http__0": "http://localhost:44099",
+        "SSL_CERT_DIR": "/tmp/aspire-dcpMIiIFM/bingoboard-tpexqjsm/certs:/usr/lib/ssl/certs:/root/.aspnet/dev-certs/trust"
+      },
+      "healthReports": {
+        "bingoboard_http_/_200_check": {
+          "status": "Healthy"
+        }
+      },
+      "commands": {
+        "demo-links": {
+          "displayName": "Generate demo links",
+          "description": "Generate a facilitator cheat sheet from Aspire's allocated endpoints.",
+          "state": "Enabled",
+          "sortOrder": 0
+        },
+        "restart": {
+          "displayName": "Restart",
+          "description": "Restart resource",
+          "state": "Enabled",
+          "sortOrder": 3
+        },
+        "stop": {
+          "displayName": "Stop",
+          "description": "Stop resource",
+          "state": "Enabled",
+          "sortOrder": 2
+        }
+      }
+    },
+    {
+      "name": "boardadmin-nyucqhet",
+      "displayName": "boardadmin",
+      "resourceType": "Project",
+      "resourceTypeDisplayName": "Project",
+      "state": "Running",
+      "creationTimestamp": "2026-11-18T01:41:33+00:00",
+      "startTimestamp": "2026-11-18T01:41:33.22+00:00",
+      "source": "BingoBoard.Admin.csproj",
+      "healthStatus": "Healthy",
+      "dashboardUrl": "http://localhost:44875/?resource=boardadmin-nyucqhet",
+      "relationships": [
+        {
+          "type": "Reference",
+          "resourceName": "admin-password"
+        },
+        {
+          "type": "Reference",
+          "resourceName": "bingo-redis"
+        },
+        {
+          "type": "Reference",
+          "resourceName": "db"
+        },
+        {
+          "type": "WaitFor",
+          "resourceName": "bingo-redis"
+        },
+        {
+          "type": "WaitFor",
+          "resourceName": "migrations-aekvbvzz"
+        }
+      ],
+      "urls": [
+        {
+          "name": "http",
+          "displayName": "Manage squares",
+          "url": "http://localhost:44099/squares-management"
+        }
+      ],
+      "volumes": [],
+      "properties": {
+        "executable.args": null,
+        "executable.path": "dotnet",
+        "executable.pid": 1499,
+        "executable.workDir": "/app/src/BingoBoard.Admin",
+        "project.configuration": "Debug",
+        "project.launchCommand": "run",
+        "project.launchProfile": "http",
+        "project.path": "/app/src/BingoBoard.Admin/BingoBoard.Admin.csproj",
+        "resource.appArgs": [],
+        "resource.appArgsSensitivity": [],
+        "resource.launchConfigurationType": "project"
+      },
+      "environment": {
+        "Aspire__UseServiceDefaults": "true",
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_URLS": "http://localhost:23502",
+        "Authentication__AdminPassword": null,
+        "CACHE_HOST": "localhost",
+        "CACHE_PASSWORD": null,
+        "CACHE_PORT": "46733",
+        "CACHE_URI": null,
+        "ConnectionStrings__cache": null,
+        "ConnectionStrings__db": null,
+        "DB_DATABASENAME": "db",
+        "DB_HOST": "localhost",
+        "DB_JDBCCONNECTIONSTRING": "jdbc:postgresql://localhost:34889/db",
+        "DB_PASSWORD": null,
+        "DB_PORT": "34889",
+        "DB_URI": null,
+        "DB_USERNAME": "postgres",
+        "DOTNET_CLI_TELEMETRY_OPTOUT": "true",
+        "DOTNET_LAUNCH_PROFILE": "http",
+        "DOTNET_SYSTEM_CONSOLE_ALLOW_ANSI_COLOR_REDIRECTION": "true",
+        "LOGGING__CONSOLE__FORMATTERNAME": "simple",
+        "OTEL_BLRP_SCHEDULE_DELAY": "1000",
+        "OTEL_BSP_SCHEDULE_DELAY": "1000",
+        "OTEL_DOTNET_EXPERIMENTAL_ASPNETCORE_DISABLE_URL_QUERY_REDACTION": "true",
+        "OTEL_DOTNET_EXPERIMENTAL_HTTPCLIENT_DISABLE_URL_QUERY_REDACTION": "true",
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY": "in_memory",
+        "OTEL_EXPORTER_OTLP_ENDPOINT": "http://localhost:44893",
+        "OTEL_EXPORTER_OTLP_HEADERS": "x-otlp-api-key=ddc9af00fcb38548b249009b88b12079",
+        "OTEL_EXPORTER_OTLP_PROTOCOL": "grpc",
+        "OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT": "true",
+        "OTEL_METRIC_EXPORT_INTERVAL": "1000",
+        "OTEL_METRICS_EXEMPLAR_FILTER": "trace_based",
+        "OTEL_RESOURCE_ATTRIBUTES": "service.instance.id=nyucqhet",
+        "OTEL_SERVICE_NAME": "boardadmin",
+        "OTEL_TRACES_SAMPLER": "always_on",
+        "SSL_CERT_DIR": "/tmp/aspire-dcpMIiIFM/boardadmin-nyucqhet/certs:/usr/lib/ssl/certs:/root/.aspnet/dev-certs/trust"
+      },
+      "healthReports": {
+        "boardadmin_http_/health_200_check": {
+          "status": "Healthy"
+        }
+      },
+      "commands": {
+        "add-bingo-square": {
+          "displayName": "Add bingo square",
+          "description": "Add or update a square through the admin application's developer API.",
+          "state": "Enabled",
+          "sortOrder": 1,
+          "argumentInputs": [
+            {
+              "name": "id",
+              "label": "Square ID",
+              "inputType": "Text",
+              "required": true,
+              "maxLength": 100
+            },
+            {
+              "name": "label",
+              "label": "Square text",
+              "inputType": "Text",
+              "required": true,
+              "maxLength": 200
+            },
+            {
+              "name": "category",
+              "label": "Category",
+              "inputType": "Text",
+              "value": "workshop",
+              "maxLength": 50
+            }
+          ]
+        },
+        "check-status": {
+          "displayName": "Check admin status",
+          "description": "Report connected players, pending approvals, and called squares.",
+          "state": "Enabled",
+          "sortOrder": 0
+        },
+        "rebuild": {
+          "displayName": "Rebuild",
+          "description": "Stop the resource, rebuild the project from source, and restart. Use this to apply source code changes.",
+          "state": "Enabled",
+          "sortOrder": 5
+        },
+        "restart": {
+          "displayName": "Restart",
+          "description": "Restart resource. Source code is not recompiled.",
+          "state": "Enabled",
+          "sortOrder": 4
+        },
+        "stop": {
+          "displayName": "Stop",
+          "description": "Stop resource",
+          "state": "Enabled",
+          "sortOrder": 3
+        }
+      }
+    },
+    {
+      "name": "db",
+      "displayName": "db",
+      "resourceType": "PostgresDatabaseResource",
+      "resourceTypeDisplayName": "PostgreSQL Database",
+      "state": "Running",
+      "startTimestamp": "2026-11-18T01:41:28.185713+00:00",
+      "healthStatus": "Healthy",
+      "dashboardUrl": "http://localhost:44875/?resource=db",
+      "relationships": [
+        {
+          "type": "Parent",
+          "resourceName": "bingo-postgres"
+        }
+      ],
+      "urls": [],
+      "volumes": [],
+      "properties": {
+        "resource.connectionProperties": null,
+        "resource.connectionString": null,
+        "resource.parentName": "bingo-postgres"
+      },
+      "environment": {},
+      "healthReports": {
+        "db_check": {
+          "status": "Healthy"
+        },
+        "postgres_check": {
+          "status": "Healthy"
+        }
+      },
+      "commands": {}
+    },
+    {
+      "name": "migrations-aekvbvzz",
+      "displayName": "migrations",
+      "resourceType": "Project",
+      "resourceTypeDisplayName": "Project",
+      "state": "Finished",
+      "creationTimestamp": "2026-11-18T01:41:31+00:00",
+      "startTimestamp": "2026-11-18T01:41:31.57+00:00",
+      "stopTimestamp": "2026-11-18T01:41:32.981037+00:00",
+      "source": "BingoBoard.MigrationService.csproj",
+      "exitCode": 0,
+      "dashboardUrl": "http://localhost:44875/?resource=migrations-aekvbvzz",
+      "relationships": [
+        {
+          "type": "Reference",
+          "resourceName": "admin-password"
+        },
+        {
+          "type": "Reference",
+          "resourceName": "db"
+        },
+        {
+          "type": "WaitFor",
+          "resourceName": "db"
+        }
+      ],
+      "urls": [],
+      "volumes": [],
+      "properties": {
+        "executable.args": null,
+        "executable.path": "dotnet",
+        "executable.pid": 1430,
+        "executable.workDir": "/app/src/BingoBoard.MigrationService",
+        "project.configuration": "Debug",
+        "project.launchCommand": "run",
+        "project.launchProfile": "BingoBoard.MigrationService",
+        "project.path": "/app/src/BingoBoard.MigrationService/BingoBoard.MigrationService.csproj",
+        "resource.appArgs": [],
+        "resource.appArgsSensitivity": [],
+        "resource.launchConfigurationType": "project"
+      },
+      "environment": {
+        "Aspire__UseServiceDefaults": "true",
+        "Authentication__AdminPassword": null,
+        "ConnectionStrings__db": null,
+        "DB_DATABASENAME": "db",
+        "DB_HOST": "localhost",
+        "DB_JDBCCONNECTIONSTRING": "jdbc:postgresql://localhost:34889/db",
+        "DB_PASSWORD": null,
+        "DB_PORT": "34889",
+        "DB_URI": null,
+        "DB_USERNAME": "postgres",
+        "DOTNET_CLI_TELEMETRY_OPTOUT": "true",
+        "DOTNET_ENVIRONMENT": "Development",
+        "DOTNET_LAUNCH_PROFILE": "BingoBoard.MigrationService",
+        "DOTNET_SYSTEM_CONSOLE_ALLOW_ANSI_COLOR_REDIRECTION": "true",
+        "LOGGING__CONSOLE__FORMATTERNAME": "simple",
+        "OTEL_BLRP_SCHEDULE_DELAY": "1000",
+        "OTEL_BSP_SCHEDULE_DELAY": "1000",
+        "OTEL_DOTNET_EXPERIMENTAL_ASPNETCORE_DISABLE_URL_QUERY_REDACTION": "true",
+        "OTEL_DOTNET_EXPERIMENTAL_HTTPCLIENT_DISABLE_URL_QUERY_REDACTION": "true",
+        "OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY": "in_memory",
+        "OTEL_EXPORTER_OTLP_ENDPOINT": "http://localhost:44893",
+        "OTEL_EXPORTER_OTLP_HEADERS": "x-otlp-api-key=ddc9af00fcb38548b249009b88b12079",
+        "OTEL_EXPORTER_OTLP_PROTOCOL": "grpc",
+        "OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT": "true",
+        "OTEL_METRIC_EXPORT_INTERVAL": "1000",
+        "OTEL_METRICS_EXEMPLAR_FILTER": "trace_based",
+        "OTEL_RESOURCE_ATTRIBUTES": "service.instance.id=aekvbvzz",
+        "OTEL_SERVICE_NAME": "migrations",
+        "OTEL_TRACES_SAMPLER": "always_on",
+        "SSL_CERT_DIR": "/tmp/aspire-dcpMIiIFM/migrations-aekvbvzz/certs:/usr/lib/ssl/certs:/root/.aspnet/dev-certs/trust"
+      },
+      "healthReports": {},
+      "commands": {
+        "rebuild": {
+          "displayName": "Rebuild",
+          "description": "Stop the resource, rebuild the project from source, and restart. Use this to apply source code changes.",
+          "state": "Enabled",
+          "sortOrder": 3
+        },
+        "start": {
+          "displayName": "Start",
+          "description": "Start resource",
+          "state": "Enabled",
+          "sortOrder": 0
+        }
+      }
+    }
+  ]
+}

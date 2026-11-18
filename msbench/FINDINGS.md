@@ -203,6 +203,19 @@ MCP-only 120.5, CLI-only 127.4 and raw 72.4. One observation per condition is
 not a general gain or significance result; guidance/tool interaction is the
 promising mechanism, not mere MCP availability.
 
+**Plugin delivery on Aspire main (telemetry suite, T0.1):** `aspire agent init
+--non-interactive --agents copilot --skills aspire --scope project --mcp=false` works at
+image build time without `copilot` on PATH. It writes `.github/copilot/settings.json`
+(`extraKnownMarketplaces.aspire-skills` from `microsoft/aspire-skills` with **no ref**, so
+the content floats with that repository's default branch, and `enabledPlugins`), plus a
+user-level `postToolUse` telemetry hook. With the marketplace pinned to `v0.0.6`, three luna
+`slow-sql` trials loaded no skill (0/3) against 1/3 for the copy into `.github/skills` in the
+same round, but Copilot CLI's trajectory does not list the skills or plugins a session
+was offered, and the copy arm on that cell rarely loads one anyway (0/3 on 2026-11-09). So
+the cell cannot tell "plugin delivered and unused" from "plugin not delivered". Verifying
+delivery needs a post-run `copilot plugin list` (or the session's skill list) in the
+artifacts before plugin delivery replaces the copy in any arm.
+
 ## F05: Multi-step session continuity is a runner contract, not workspace reuse
 
 **Evidence:** The [Copilot continuation probe](aspire-startup/README.md#continuation-retry-with-msbench-0367)
@@ -237,6 +250,21 @@ infrastructure improvement, without silently changing comparison treatments.
 **Limits / status:** Failures classified and retained; infrastructure hardening
 is not implemented by this finding. These events do not establish an Aspire
 runtime or model-reasoning failure.
+
+**Model-service incident, 2026-11-18 (telemetry suite, T0.1):** between about 03:30 and
+04:52 UTC, model calls from MSBench hung for 240 s and returned `504`, interleaved with
+fast `503`s. In the first T0.1 round, 76 trials timed out at the 900 s agent limit and 12
+crashed (`X_503_MODEL_CALL_FAILURE`); the harness still graded the timed-out ones
+(reward 0), so they looked like Aspire and terra regressions. Even completed trials were
+contaminated: 52 of 93 completed luna trials lost more than 60 s (median 240 s) to failed
+calls, against 1 of 461 trials on the 2026-11-09 pin. `collect.py` now records
+`model_service_5xx` and `model_service_wait_seconds` (failed call plus retry backoff) per
+trial and treats a timed-out or crashed trial with 5xx failures as an infrastructure
+failure; the affected rounds (`t01`, `t01-solbridge`, `t01-plugin`, `t01-warm`,
+`t01-topup`) stay in `trials.jsonl` with an `excluded` reason and were re-run as `t01b*`,
+where the median loss was 1.5 to 2.7 s per trial (2–3 % of agent time). See
+[PLAN.md T0.1](telemetry/PLAN.md#t01-re-pin-and-re-baseline). A gate that only checks
+reward would not have caught this: watch timeouts and 5xx counts per round.
 
 **Full-roadmap execution follow-up:** Concurrent local source/scenario work
 encountered a shared-host storage/engine failure: host disk reached 100% capacity
@@ -881,6 +909,13 @@ upstreaming for the bytes. The trace detail table still omits the SQL text, so t
 skill has to send agents to JSON for one trace. See
 [RESULTS.md](telemetry/RESULTS.md#cli-plain-output-when-redirected). Draft issue: [aspire-cli-plain-output.md](upstream-issues/aspire-cli-plain-output.md).
 
+**2026-11-17 pin:** on `17.1.0-preview.1.26567.3+30326eb8` the redirected `aspire describe`
+table for the same app is 5,282 bytes, up from 4,244 (+24 %). #22054 writes the exit code
+into the State cell (`Finished (exit code: 0)`), which widens that column and wraps each
+row's dashboard link onto a third line; `--format Json` is 24,902 bytes. Patch 0002 (drop
+the per-row link when redirected) still applies cleanly and removes exactly the wrapped
+part. Evidence: [evidence/agent-surface/2026-11-17/](telemetry/evidence/agent-surface/2026-11-17/).
+
 ## F20: Phase timing separates diagnosis from repair-style variance
 
 **Evidence:** Two trials of the same arm can differ by 50 s because one model run also
@@ -998,6 +1033,32 @@ added "for fairness" must be measured as a treatment, as this one now has been.
 
 **Limits / status:** The old trials are kept under the arm name `raw-check` and never
 pooled with `raw`. Applied from round 7 on.
+
+## F25: `aspire stop` returns before its containers are gone, so an immediate restart collides on fixed container names
+
+**Evidence:** On `17.1.0-preview.1.26567.3+30326eb8`, the telemetry suite's warm cold-start
+setup ran `aspire start --isolated`, `aspire stop`, and then (as the agent's first action)
+`aspire start --isolated` again. `aspire stop` printed `apphost.cs stopped successfully`,
+but DCP had not yet removed the Redis container; the next start failed with `Conflict.
+The container name "/bingo-redis" is already in use`, the cache resource ended `Exited`
+(137), the admin logged `Connection to Redis failed`, and every square call returned
+HTTP 500. PostgreSQL, also with a fixed name, happened to be gone in time. Remote gate
+`2026111810149462` (round `gate-t01`) failed this way and it reproduced locally on the
+first try; waiting until `docker ps -a` lists none of the run's containers before the
+second start fixes it (gate `2026111812956718`). The AppHost uses `WithContainerName`, which
+is why the new container needs the old one's name; whether generated names avoid the
+failure was not tested.
+
+**Improvement candidate:** `aspire stop` should return only once the resources it owns are
+removed (or say that cleanup continues in the background), and a start that finds a
+container with its target name still being torn down should wait for it rather than
+fail the resource. Either removes a failure that an agent restarting an app, or a script
+that runs stop then start, hits without any hint in the CLI output.
+
+**Limits / status:** Observed with persistent ports in isolated mode
+(`portAllocation.persistInIsolatedMode`) and fixed container names; not checked without
+either. Not reported upstream (user: not yet). The suite's setup now waits; see
+[PLAN.md T0.1](telemetry/PLAN.md#t01-re-pin-and-re-baseline).
 
 ## Recording future findings
 
