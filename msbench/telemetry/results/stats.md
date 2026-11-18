@@ -97,6 +97,22 @@ Each pin (toolchain) has its own table; trials of different pins are never compa
 | cold-start | gpt-6.1-terra | aspire-skills-mcp vs raw | 6 vs 6 | +20% (p=0.015) | +144% (p=0.002) | +64% (p=0.002) |
 | cold-start | gpt-6.1-terra | aspire-lean vs aspire-skills-mcp | 6 vs 6 | +13% (p=0.669) | +1% (p=0.937) | -4% (p=0.180) |
 | cold-start | gpt-6.1-terra | aspire-cli vs raw | 6 vs 6 | +29% (p=0.004) | +43% (p=0.065) | +3% (p=0.485) |
+| heldout-slow-sql | gpt-6-luna | aspire-lean vs raw | 6 vs 7 | -28% (p=0.138) | -1% (p=1.000) | -11% (p=0.836) |
+| heldout-slow-sql | gpt-6-luna | aspire-skills-mcp vs raw | 6 vs 7 | -35% (p=0.002) | +39% (p=0.445) | +7% (p=1.000) |
+| heldout-slow-sql | gpt-6-luna | aspire-lean vs aspire-skills-mcp | 6 vs 6 | +10% (p=0.699) | -29% (p=0.589) | -17% (p=0.818) |
+| heldout-slow-sql | gpt-6-luna | aspire-cli vs raw | 6 vs 7 | -46% (p=0.022) | -19% (p=0.445) | -23% (p=0.234) |
+| heldout-slow-sql | gpt-6.1-terra | aspire-lean vs raw | 6 vs 6 | -15% (p=0.240) | +8% (p=0.818) | +5% (p=1.000) |
+| heldout-slow-sql | gpt-6.1-terra | aspire-skills-mcp vs raw | 6 vs 6 | -9% (p=0.394) | +15% (p=0.180) | +13% (p=0.394) |
+| heldout-slow-sql | gpt-6.1-terra | aspire-lean vs aspire-skills-mcp | 6 vs 6 | -7% (p=1.000) | -6% (p=0.240) | -7% (p=0.310) |
+| heldout-slow-sql | gpt-6.1-terra | aspire-cli vs raw | 6 vs 6 | -34% (p=0.009) | -23% (p=0.041) | -18% (p=0.009) |
+| heldout-stuck-orders | gpt-6-luna | aspire-lean vs raw | 6 vs 7 | +4% (p=1.000) | +4% (p=0.534) | +2% (p=0.945) |
+| heldout-stuck-orders | gpt-6-luna | aspire-skills-mcp vs raw | 6 vs 7 | +166% (p=0.001) | +387% (p=0.001) | +225% (p=0.001) |
+| heldout-stuck-orders | gpt-6-luna | aspire-lean vs aspire-skills-mcp | 6 vs 6 | -61% (p=0.002) | -79% (p=0.002) | -68% (p=0.002) |
+| heldout-stuck-orders | gpt-6-luna | aspire-cli vs raw | 6 vs 7 | +41% (p=0.138) | +25% (p=0.534) | +35% (p=0.138) |
+| heldout-stuck-orders | gpt-6.1-terra | aspire-lean vs raw | 6 vs 6 | -26% (p=0.041) | -4% (p=0.699) | +1% (p=0.818) |
+| heldout-stuck-orders | gpt-6.1-terra | aspire-skills-mcp vs raw | 6 vs 6 | +12% (p=0.818) | +53% (p=0.240) | +36% (p=0.093) |
+| heldout-stuck-orders | gpt-6.1-terra | aspire-lean vs aspire-skills-mcp | 6 vs 6 | -34% (p=0.065) | -37% (p=0.026) | -26% (p=0.026) |
+| heldout-stuck-orders | gpt-6.1-terra | aspire-cli vs raw | 6 vs 6 | -24% (p=0.240) | -17% (p=0.589) | -2% (p=0.699) |
 | read-only | gpt-6-luna | aspire-lean vs raw | 6 vs 5 | -20% (p=0.177) | -18% (p=0.247) | -29% (p=0.052) |
 | read-only | gpt-6-luna | aspire-skills-mcp vs raw | 6 vs 5 | +71% (p=0.082) | +172% (p=0.009) | +95% (p=0.030) |
 | read-only | gpt-6-luna | aspire-lean vs aspire-skills-mcp | 6 vs 6 | -53% (p=0.002) | -70% (p=0.002) | -64% (p=0.002) |
@@ -124,3 +140,8 @@ Each pin (toolchain) has its own table; trials of different pins are never compa
 | slow-sql | gpt-6.1-terra | aspire-lean vs aspire-skills-mcp | 6 vs 6 | -22% (p=0.004) | -54% (p=0.002) | -40% (p=0.002) |
 | slow-sql | gpt-6.1-terra | aspire-cli vs raw | 6 vs 6 | +22% (p=0.004) | +76% (p=0.002) | +34% (p=0.002) |
 | slow-sql | gpt-6.2-sol | aspire-lean vs raw | 3 vs 3 | +11% (p=0.100) | +83% (p=0.100) | +68% (p=0.100) |
+
+## Pin 2026-11-17, harness vscode
+
+| Scenario | Model | A vs B | n | Agent seconds | Input tokens | Cost |
+|---|---|---|---|---|---|---|
