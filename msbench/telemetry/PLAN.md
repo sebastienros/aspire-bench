@@ -794,7 +794,7 @@ baseline, with its guard cells, and a verdict.
 | Remaining | T0.2 is done (gate open on `heldout-cache`, after one step-1 revision that T0.2's silent fault showed was a stack-neutral failure). The ship-gate models (`gpt-6.2-sol`, `claude-opus-5.5`) on the held-out fault (now `heldout-cache`; the two `t02` faults are in-sample for the revised skill), `raw` and `aspire-lean`, n = 3 (12 trials ≈ $2.20 at the card's rate; terra-priced trials on this app cost about twice that) |
 | Decision rule | Ship if T0.2 passes its rule. Revise step 3 only; steps 1 and 2 are frozen unless T0.2 shows a stack-neutral failure |
 | Issue draft | [skills-add-aspire-diagnose.md](../upstream-issues/skills-add-aspire-diagnose.md) |
-| Results | 11-09 pins: done; v0.0.6 + held-out: pending |
+| Results | 11-09 pins: done. v0.0.6 + held-out: **ship** (2026-11-18, round `t11`, direction-finding n = 3): on `heldout-cache` `aspire-lean` ÷ `raw` 0.67× (`gpt-6.2-sol`) and 0.95× (`claude-opus-5.5`), every cell 3/3, no step-3 integration-line gap; [T1.1 results](#t11-results). Cost $4.31 |
 
 #### T1.1 decision rule, as computed (written 2026-11-18, before round `t11` returned any trial)
 
@@ -814,6 +814,70 @@ baseline, with its guard cells, and a verdict.
   at n = 3, and an n = 6 follow-up on that model is named.
 - **Infrastructure.** A trial that fails before the agent starts (image build), or times out or crashes
   with model-service 5xx, is re-run once in `t11-topup`; nothing else is re-run.
+
+#### T1.1 results
+
+**Verdict: `ship`** by the card's rule. T0.2 passed its rule on `heldout-cache`, and the strong models
+confirm it: `aspire-lean` is within +20 % of `raw` on both, and no trial showed a step-3 gap.
+- `gpt-6.2-sol`: 110 s against 165 s, 0.67× (p = 0.10, the floor at 3 vs 3).
+- `claude-opus-5.5`: 96 s against 101 s, 0.95× (p = 1.0).
+- Every cell 3/3, and every check (fast, root cause, functional) passed in all 12 trials.
+
+These are three-trial cells, labelled **direction-finding** (PLAN §3). They can confirm a direction and
+cannot carry a verdict alone; the verdict carries T0.2's n = 6 gate.
+
+**Round health.** Round `t11`, tasks `1479041` (the revised step 1), Copilot CLI 1.0.99. 12 of 12
+trials graded on the first pass: no top-up, no timeout, no crash, no model-service 5xx, no harness-path
+access.
+
+**`t11`** (n = 3 per cell; time = agent seconds, median over all graded trials; p = exact Mann-Whitney
+against raw):
+
+| Model | Arm | Time | Time ÷ raw | Tokens ÷ raw | Pass | Skill | $/trial | Run IDs |
+|---|---|---:|---:|---:|---|---|---:|---|
+| `gpt-6.2-sol` | raw | 165 s | — | — | 3/3 | — | 0.287 | `2026111875156300`, `…157656`, `…159220` |
+| `gpt-6.2-sol` | **aspire-lean** | 110 s | **0.67×** (p=0.10) | 1.55× | 3/3 | `aspire-diagnose` 3/3 (and `aspire-orchestration` 3/3) | 0.416 | `2026111875164974`, `…166344`, `…168976` |
+| `claude-opus-5.5` | raw | 101 s | — | — | 3/3 | — | 0.357 | `2026111875176636`, `…178386`, `…179550` |
+| `claude-opus-5.5` | **aspire-lean** | 96 s | **0.95×** (p=1.0) | 1.26× | 3/3 | `aspire-diagnose` 3/3 | 0.375 | `2026111875184416`, `…186318`, `…187272` |
+
+**Step 3 on SQL Server: no integration-line gap.** The skill's step-3 lines are PostgreSQL and Redis
+only. All six `aspire-lean` agents still reached SQL Server inside its container on their own, with
+`docker exec <container> … /opt/mssql-tools18/bin/sqlcmd -C …` and `$MSSQL_SA_PASSWORD`. They found the
+container through `aspire describe sql --format Json` (step 3's own line), `docker ps`, or the
+container name. No trial tried `psql`. The most any trial spent was two calls: one
+`container.id` grep that matched nothing followed by `docker ps` (`2026111875184416`), and one
+`docker exec` without `-i` that it re-ran with it (`2026111875168976`). That is under the pre-registered
+threshold of three failed calls, so no step-3 revision is proposed. Unlike luna and terra in `t02`, a
+strong model does not need an integration line to reach SQL Server.
+
+**What the agents did** (read from the trajectories, all 12 trials):
+- **Telemetry first, then the source.** Every `aspire-lean` trial loaded `aspire-diagnose` at its first
+  or second call and ran `aspire otel traces --search "duration:>500"` before opening `Program.cs`.
+  Raw agents opened `Program.cs` at their third to fifth call, and read EF Core's ranking line from
+  `api.log` (raw "root cause seen" 5–10 s, `aspire-lean` 13–18 s). Every trial then fixed the
+  per-shopper key in `Program.cs`.
+- **No index first** in any `aspire-lean` trial, against luna `aspire-lean` 5/6 in `t02-heldout3`. One raw
+  Opus trial created an index on `Orders` before fixing the key (`2026111875176636`). The three sol
+  `aspire-lean` "index" matches are searches for the text `CREATE INDEX`, not statements.
+- **Sol's gain is again the restart** (from the step timestamps): the median time to the first
+  `Program.cs` edit is 55 s for raw and 44 s for `aspire-lean`, and the time from that edit to the end is
+  about 110 s against 66 s. Raw sol agents restarted the API by hand. For example,
+  `2026111875157656` read `scripts/start.sh` and `launch.mjs`, exported the connection string and spawned
+  the process itself.
+  `aspire-lean` sol agents ran `aspire resource api rebuild` (3/3). Opus restarted with `aspire resource
+  api restart` (3/3) and raw Opus with the start script. Both took about 30 s to the first edit and
+  about 65 s after it, so the two arms are level. The one slow Opus `aspire-lean` trial
+  (`2026111875184416`, 170 s) built and verified twice.
+
+**Cost.** $4.31 against the card's $2.20: Opus $0.36 (raw) and $0.38 (`aspire-lean`) per trial, sol
+$0.29 and $0.42. `aspire-lean` reads 1.3–1.6× raw's input tokens on this app, because the trace JSON is
+larger than the log line.
+
+**Open items.**
+1. The verdict rests on T0.2's gate; these cells are n = 3. If a strong-model verdict is wanted on its
+   own, an n = 6 top-up of the four cells (12 trials, about $4.50) is the step.
+2. Step 3 still names only PostgreSQL and Redis. Strong models did not need more, and luna and terra in
+   `t02` also reached SQL Server unaided, so the gap that would justify a revision has not appeared on any model.
 
 ### T1.2 Monitoring trigger narrowed, in isolation
 

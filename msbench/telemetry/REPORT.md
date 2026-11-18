@@ -1147,3 +1147,16 @@ and the JSON form is byte-identical (24,868 bytes), so the lean skill's JSON rea
 source build alone changes no byte. Verdict as the card states it: ship for the context it frees, no
 speed-up claimed (time −12 % to +1 %, no cell significant on the 11-09 pin).
 [PLAN.md, T1.5 results](PLAN.md#t15-results).
+
+**Phase 1, T1.1: `aspire-diagnose` ship gate on the strong models.** The held-out gate fault
+(`heldout-cache`, round `t11`, n = 3 per cell, direction-finding) was run on `gpt-6.2-sol` and
+`claude-opus-5.5`. `aspire-lean` against the raw app took 0.67× the time on sol (110 s against
+165 s) and 0.95× on Opus (96 s against 101 s), and all 12 trials passed every check. Verdict: **ship**, by the
+card's rule, which rests on T0.2's open gate. Step 3 of the skill names only PostgreSQL and Redis, yet
+every `aspire-lean` agent reached SQL Server inside its container unaided (`sqlcmd -C` under
+`/opt/mssql-tools18`, at most two calls lost), so no step-3 revision is proposed. As on luna and terra,
+sol's time saved is the restart after the fix (`aspire resource api rebuild` against a hand-made restart,
+about 66 s against 110 s from the first edit), not the diagnosis: both arms read the per-shopper key in
+the source. Opus restarted in about the same time either way. No `aspire-lean` trial added an index first (luna
+5/6 in T0.2). Cost $4.31, Opus about $0.37 and sol about $0.35 per trial on this app.
+[PLAN.md, T1.1 results](PLAN.md#t11-results).
