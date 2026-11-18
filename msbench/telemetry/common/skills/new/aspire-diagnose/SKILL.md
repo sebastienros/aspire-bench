@@ -4,8 +4,9 @@ description: >-
   Find the root cause when a RUNNING Aspire app is slow, failing, erroring, unhealthy, or
   misbehaving, using the telemetry Aspire has already collected (traces, spans, structured
   logs, console logs, resource health). USE FOR: "the app is slow or sluggish", "requests
-  fail", "500 errors", timeouts, intermittent errors, "find the root cause", "which service
-  or dependency is responsible", "why is this resource unhealthy", latency regressions.
+  fail", "500 errors", timeouts, intermittent errors, work that is accepted but never
+  completes (items stay pending, a queue or backlog grows), "find the root cause", "which
+  service or dependency is responsible", "why is this resource unhealthy", latency regressions.
   Start here BEFORE reading source code or probing endpoints by hand. DO NOT USE FOR:
   starting or stopping the app (aspire-orchestration), AppHost edits (aspireify),
   deployment (aspire-deployment).
@@ -26,15 +27,23 @@ aspire describe                                      # every resource: state, he
 aspire otel traces -n 15 --search "duration:>500"    # slow requests (milliseconds), newest last
 aspire otel traces -n 15 --has-error                 # failed requests
 aspire otel logs -n 20 --severity Error              # errors and exceptions from all resources
+aspire otel traces -n 15 --search "duration:>5000"   # long waits, in any resource
 ```
 
 - Slow, nothing fails: use the `duration` filter. Lower the threshold if it returns nothing.
 - Failing: use `--has-error` and the error logs. The log message usually carries the
   exception and, for database errors, the SQLSTATE/code.
+- Stuck, nothing fails (work is accepted but never completes: items stay pending, a queue
+  or backlog grows, a background job makes no progress): this is a wait, not an error, so
+  the error filters return nothing. Look for long spans with a high `duration` threshold;
+  the time is usually in the background worker or consumer that should finish the work,
+  not in the request that started it (`aspire otel traces <resource> -n 15` shows one
+  resource's traces). A wait that never ends exports no span: if nothing is long, check
+  whether the operation that should follow the request has any recent traces at all.
 - Resource not `Running`/`Healthy`: `aspire logs <resource> -n 50` for its console output.
 
-Group what comes back by operation name. One operation that is consistently slow or
-failing while the others are fine is the lead.
+Group what comes back by operation name. One operation that is consistently slow,
+failing or waiting while the others are fine is the lead.
 
 ## 2. Explain one representative trace
 
