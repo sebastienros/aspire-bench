@@ -132,6 +132,14 @@ returns before DCP removes the containers, so the next start collided on `bingo-
 ([FINDINGS F25](../FINDINGS.md#f25-aspire-stop-returns-before-its-containers-are-gone-so-an-immediate-restart-collides-on-fixed-container-names)).
 Setup now waits for the containers to go; re-gated as `gate-t01-warm` `2026111812956718`, reward 1.
 Local gates (fail → repair → pass) passed for `aspire-lean`/`slow-sql`, `raw`/`slow-sql` and the warm cell.
+The source-build arms, regenerated at the new pin, were gated afterwards as `gate-t01-src` (2026-11-18,
+same tasks `0dfaf98f`): all 15 reward 1, no fixture change. `slow-sql` and `read-only` × `aspire-mcp-src`,
+`aspire-mcp-compact`, `aspire-lean-mcp-src`, `aspire-lean-mcp-compact`, `aspire-lean-src`, `aspire-lean-plain`,
+`aspire-lean-mcp-all` (`2026111827594664`, `…596990`, `…599266`, `…601560`, `…603710`, `…605860`,
+`…608018`; `…610200`, `…612544`, `…615234`, `…617692`, `…619966`, `…622260`, `…624514`) and
+`slow-redis/aspire-lean-mcp-all` `…626776`. The image runs `git apply` on the patch before publishing the
+CLI, so a graded trial means patches 0001, 0002 and `agentic-all` applied to `30326eb8` and built; the
+image's `aspire --version` is not in the run artifacts.
 
 **Model-service incident; the first round is excluded.** Rounds `t01`, `t01-solbridge`, `t01-plugin`,
 `t01-warm` ran 2026-11-18 03:30–04:52 UTC while model calls hung 240 s and returned 504/503: 76
