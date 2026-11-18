@@ -197,19 +197,35 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 
 | Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
-| aspire-cli | 6/6 | 53 | - | - | 98,311 | 894 | 0.003 | 9 | - | 0 | 21,950 |
-| aspire-lean | 6/6 | 63 | - | - | 153,198 | 1,216 | 0.005 | 12 | aspire-orchestrationx6 | 0 | 73,522 |
+| aspire-cli | 12/12 | 52 | - | - | 88,566 | 850 | 0.003 | 8 | - | 0 | 21,950 |
+| aspire-lean (tasks 1479041e) | 6/6 | 61 | - | - | 146,040 | 1,311 | 0.005 | 12 | aspire-orchestrationx6 | 0 | 71,983 |
+| aspire-lean (tasks 916a57ce) | 6/6 | 63 | - | - | 153,198 | 1,216 | 0.005 | 12 | aspire-orchestrationx6 | 0 | 73,522 |
+| aspire-lean-start | 6/6 | 53 | - | - | 115,482 | 717 | 0.003 | 10 | aspire-startx6 | 0 | 29,725 |
+| aspire-skills | 6/6 | 60 | - | - | 166,060 | 1,080 | 0.005 | 9 | aspirex4, aspire-orchestrationx6 | 0 | 24,592 |
 | aspire-skills-mcp | 6/6 | 57 | - | - | 151,693 | 1,008 | 0.005 | 8 | aspirex5, aspire-orchestrationx6 | 1 | 22,150 |
-| raw | 10/10 | 43 | - | - | 64,538 | 826 | 0.003 | 7 | - | 0 | 22,510 |
+| raw | 12/12 | 44 | - | - | 64,248 | 826 | 0.003 | 7 | - | 0 | 22,428 |
 
 ## cold-start / gpt-6.1-terra
 
 | Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
-| aspire-cli | 6/6 | 56 | - | - | 71,930 | 448 | 0.021 | 8 | - | 0 | 21,731 |
-| aspire-lean | 6/6 | 58 | - | - | 124,017 | 453 | 0.033 | 9 | aspire-orchestrationx6 | 0 | 22,043 |
+| aspire-cli | 12/12 | 55 | - | - | 71,970 | 455 | 0.021 | 8 | - | 0 | 21,753 |
+| aspire-lean (tasks 1479041e) | 6/6 | 53 | - | - | 104,002 | 376 | 0.031 | 8 | aspire-orchestrationx6 | 0 | 21,794 |
+| aspire-lean (tasks 916a57ce) | 6/6 | 58 | - | - | 124,017 | 453 | 0.033 | 9 | aspire-orchestrationx6 | 0 | 22,043 |
+| aspire-lean-start | 6/6 | 56 | - | - | 108,804 | 464 | 0.027 | 9 | aspire-startx6 | 0 | 30,979 |
+| aspire-skills | 6/6 | 54 | - | - | 124,444 | 460 | 0.033 | 9 | aspire-orchestrationx6 | 0 | 24,109 |
 | aspire-skills-mcp | 6/6 | 52 | - | - | 123,183 | 406 | 0.034 | 8 | aspire-orchestrationx6 | 0 | 21,792 |
-| raw | 6/6 | 43 | - | - | 50,458 | 329 | 0.021 | 4 | - | 0 | 18,684 |
+| raw | 12/12 | 41 | - | - | 50,470 | 339 | 0.021 | 4 | - | 0 | 18,732 |
+
+## cold-start / gpt-6.2-sol
+
+| Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
+| aspire-cli | 6/6 | 55 | - | - | 69,350 | 356 | 0.092 | 7 | - | 0 | 10,999 |
+| aspire-lean | 6/6 | 50 | - | - | 127,278 | 398 | 0.147 | 10 | aspire-orchestrationx6 | 0 | 27,892 |
+| aspire-lean-start | 6/6 | 51 | - | - | 121,763 | 430 | 0.162 | 10 | aspire-startx6 | 0 | 28,839 |
+| aspire-skills | 6/6 | 52 | - | - | 129,784 | 299 | 0.154 | 8 | aspire-orchestrationx6 | 0 | 8,713 |
+| raw | 6/6 | 55 | - | - | 117,954 | 556 | 0.136 | 12 | - | 0 | 36,858 |
 
 ## cold-start-warm / gpt-6-luna
 

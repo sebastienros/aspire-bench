@@ -1206,3 +1206,16 @@ in §4.4 has one row per model. Measured cost per trial: sol $0.287 and Opus $0.
 the plan assumed. T1.8 cost $35.43 against $19.90, and the Phase 1 budget is re-estimated from about $42 to about $60.
 [PLAN.md, T1.8 results](PLAN.md#t18-results);
 [FINDINGS F30](../FINDINGS.md#f30-a-strong-model-follows-confirm-on-fresh-traffic-literally-and-waits-for-traces-which-costs-it-parity).
+
+**Phase 1, T1.6: `aspire-start` against v0.0.6 orchestration.** 90 cold-start trials (round `t16`, n = 6;
+luna, terra, `gpt-6.2-sol` × raw, `aspire-cli`, shipped skills, lean, lean with `aspire-start`), every trial
+passed. On luna the lean set without `aspire-start` took 61 s, against 53 s with it: a gap of 1.16× (p = 0.004),
+under the card's 20 %, where 11-09 measured 82 s against 51 s. Verdict: **drop**. v0.0.6's
+`aspire-orchestration` still has the agent read two or three references first, but it reaches `aspire start`
+within 13 s, against 5–8 s with `aspire-start`; after that both arms wait the same 40 s for the AppHost. Terra and
+sol show no gap (0.94×, 0.99×), and the shipped set with its router is level with lean (60 s), so removing the
+router no longer needs a cold-start companion skill. Cold start is still slower with Aspire than raw on luna and
+terra (1.12×–1.42×, p ≤ 0.017 in every skilled cell) and level or faster on sol (0.91×–1.00×). Cost $5.36,
+including $1.11 for the 18 `raw` trials the plan's rules add.
+[PLAN.md, T1.6 results](PLAN.md#t16-results);
+[FINDINGS F21](../FINDINGS.md#f21-cold-start-is-slower-with-aspire-whatever-the-skills-removing-the-router-needs-an-owner-for-each-former-job).

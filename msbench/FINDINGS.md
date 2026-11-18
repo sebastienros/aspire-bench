@@ -958,8 +958,18 @@ before starting: 82 s and 249k tokens, twice the raw app. With `aspire-start`
 (selected 9 of 9) luna is back at 51 s and 116k tokens, level with the shipped skills
 (52 s) and the bare CLI (49 s); terra and sol are unchanged by it.
 
-**Improvement candidate:** Ship `aspire-start` alongside the router's removal (a
-skill-design rule: every job a router fronted needs an owner skill). For the product,
+**With v0.0.6 orchestration (Task T1.6, pin 2026-11-17, round `t16`, n = 6, 90 trials, all passed):** the
+regression mostly went away on its own. Luna `aspire-lean` without `aspire-start` took 61 s, against 53 s with
+it, a gap of 1.16× (p = 0.004; 82 s against 51 s on 11-09); terra 0.94× and `gpt-6.2-sol` 0.99× show none. Without
+`aspire-start` the agent still loads `aspire-orchestration` and reads two or three references (127k–271k input tokens
+against 115k), but now runs `aspire start` 9–13 s in, against 5–8 s. The shipped set with the router is level
+with `aspire-lean` (60 s against 61 s). By the card's rule (≥ 1.20) `aspire-start` is **dropped** from the
+proposal ([PLAN.md, T1.6 results](telemetry/PLAN.md#t16-results)). Cold start is still slower with Aspire on luna
+and terra (1.12×–1.42× raw), and level or faster on sol (0.91×–1.00×).
+
+**Improvement candidate:** ~~Ship `aspire-start` alongside the router's removal~~ (dropped by T1.6: v0.0.6
+orchestration owns "start the app" well enough; the design rule "every job a router fronted needs an owner
+skill" still holds, and here the owner is `aspire-orchestration`). For the product,
 a start command that blocks until resources are ready and prints their endpoints
 would remove the `wait` and `describe` steps that every Aspire trial ran.
 

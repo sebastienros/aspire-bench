@@ -998,7 +998,7 @@ so the saving per `describe` is 4.1 KB instead of 3.2 KB. Evidence:
 | Cells | `cold-start` × luna, terra, `gpt-6.2-sol` × 6: `aspire-skills` (v0.0.6), `aspire-lean`, `aspire-lean-start`, `aspire-cli` |
 | Decision rule | `aspire-start` stays if luna `aspire-lean` without it is still ≥ 20% slower than with it. If v0.0.6 orchestration closed the gap by itself, drop `aspire-start` from the proposal and say so |
 | Trials / cost | 4 × 3 × 6 = 72 ≈ $4.80 |
-| Results | pending |
+| Results | **drop** (2026-11-18, round `t16`, 90 trials with a `raw` cell, every cell 6/6): luna `aspire-lean` 61 s without `aspire-start`, 53 s with it, a gap of 1.16× (p = 0.004), under the rule's 1.20, so v0.0.6 orchestration closed most of the 11-09 gap (1.61×). Terra 0.94×, sol 0.99×; [T1.6 results](#t16-results). Cost $5.36 |
 
 #### T1.6 decision rule, as computed (written 2026-11-18, before round `t16` was submitted)
 
@@ -1012,6 +1012,71 @@ so the saving per `describe` is 4.1 KB instead of 3.2 KB. Evidence:
   Mann-Whitney p and the terra and sol gaps are reported and do not change the verdict. If `aspire-lean-start`
   passes fewer luna trials than `aspire-lean`, that is reported next to the verdict.
 - **Infrastructure.** As T1.1, top-ups in `t16-topup`.
+
+#### T1.6 results
+
+**Verdict: `drop`.** v0.0.6 orchestration closed most of the gap by itself, so `aspire-start` leaves the
+proposal. On luna, `aspire-lean` without `aspire-start` took 61 s against 53 s with it, a gap of **1.16×**, under
+the 1.20 the rule requires. The gap is real (exact Mann-Whitney p = 0.004: no `aspire-lean-start` trial is slower than any `aspire-lean` trial;
+the slowest of one ties the fastest of the other at 55.3 s) but small, 8 s. On 11-09, with v0.0.5 orchestration, the
+same pair was 82 s against 51 s (1.61×, n = 3). The other models show no gap: terra 0.94× (p = 0.39) and sol
+0.99× (p = 1.0). Every trial passed.
+
+**Round health.** Round `t16`, `cold-start`, tasks `1479041` (Bingo; `aspire-diagnose`'s revision does not
+reach this scenario, since no trial loads it), Copilot CLI 1.0.99. 90 of 90 trials graded on the first pass: no
+top-up, no timeout, no crash, no model-service 5xx, no harness-path access. The four luna `raw` folders that
+another worktree had extracted early were deleted and fetched again after ingestion finalized.
+
+**`t16`** (n = 6 per cell; time = agent seconds, median over all graded trials; p = exact Mann-Whitney
+against raw; `raw` is the deviation the rule names; IDs are the first and last of each repeat group):
+
+| Model | Arm | Time | Time ÷ raw | Tokens ÷ raw | Pass | Skills loaded | $/trial | Run IDs |
+|---|---|---:|---:|---:|---|---|---:|---|
+| luna | raw | 45 s | — | — | 6/6 | — | 0.003 | `2026111875592904`…`596236` |
+| luna | aspire-cli | 51 s | 1.12× (p=0.093) | 0.84× | 6/6 | — | 0.003 | `2026111875624344`…`627634` |
+| luna | aspire-skills | 60 s | 1.32× (p=0.0022) | 2.58× | 6/6 | `aspire-orchestration` 6/6, `aspire` 4/6 | 0.006 | `2026111875600722`…`604320` |
+| luna | **aspire-lean** | 61 s | 1.35× (p=0.0022) | 2.27× | 6/6 | `aspire-orchestration` 6/6 | 0.005 | `2026111875609102`…`612446` |
+| luna | **aspire-lean-start** | 53 s | 1.16× (p=0.017) | 1.80× | 6/6 | `aspire-start` 6/6 | 0.003 | `2026111875616716`…`619996` |
+| terra | raw | 40 s | — | — | 6/6 | — | 0.022 | `2026111875631836`…`635162` |
+| terra | aspire-cli | 54 s | 1.37× (p=0.0022) | 1.30× | 6/6 | — | 0.022 | `2026111875664318`…`667626` |
+| terra | aspire-skills | 54 s | 1.34× (p=0.0022) | 2.18× | 6/6 | `aspire-orchestration` 6/6 | 0.033 | `2026111875639334`…`642594` |
+| terra | **aspire-lean** | 53 s | 1.34× (p=0.0022) | 1.82× | 6/6 | `aspire-orchestration` 6/6 | 0.032 | `2026111875646850`…`650044` |
+| terra | **aspire-lean-start** | 56 s | 1.42× (p=0.0022) | 1.91× | 6/6 | `aspire-start` 6/6 | 0.026 | `2026111875654760`…`658062` |
+| `gpt-6.2-sol` | raw | 55 s | — | — | 6/6 | — | 0.160 | `2026111875673742`…`677028` |
+| `gpt-6.2-sol` | aspire-cli | 55 s | 1.00× (p=0.70) | 0.59× | 6/6 | — | 0.101 | `2026111875707030`…`710258` |
+| `gpt-6.2-sol` | aspire-skills | 52 s | 0.94× (p=0.31) | 1.10× | 6/6 | `aspire-orchestration` 6/6 | 0.157 | `2026111875681636`…`685190` |
+| `gpt-6.2-sol` | **aspire-lean** | 50 s | 0.91× (p=0.39) | 1.08× | 6/6 | `aspire-orchestration` 6/6 | 0.149 | `2026111875689438`…`692554` |
+| `gpt-6.2-sol` | **aspire-lean-start** | 51 s | 0.92× (p=0.59) | 1.03× | 6/6 | `aspire-start` 6/6 | 0.170 | `2026111875698208`…`701388` |
+
+**Where the luna gap is** (from the trajectories, all 12 `aspire-lean`/`aspire-lean-start` trials and the six
+`aspire-skills` trials):
+- **With `aspire-start`**: the agent loads it and reads no reference. It runs `aspire start` 5–8 s into the run,
+  using about 115k input tokens.
+- **Without it**: the agent loads `aspire-orchestration` (6/6) and reads two or three of its references
+  (`detection.md` and `app-commands.md` in 5/6; also `agent-workflows.md` or `safety-guardrails.md`), plus
+  a git detection. It runs `aspire start` 9–13 s in, using 127k–271k input tokens.
+- **After `aspire start`** the two arms are the same, about 40 s, mostly the AppHost bringing up PostgreSQL,
+  Redis and two projects.
+- **The 11-09 penalty is mostly gone.** There `aspire-lean` followed 29 KB of references and a git detection
+  sequence for 82 s. In `t16` it reads about as much (37 KB for the usual pair) and still starts within 13 s, so v0.0.6 changed how
+  directly the orchestration skill leads to `aspire start`, not whether it is read. `t01b` (same v0.0.6, no
+  `aspire-start` cell) had luna `aspire-lean` at 63 s (n = 6), so the change holds across two rounds.
+- **The shipped set** (`aspire-skills`, router present) is level with `aspire-lean` on luna (60 s), so on cold
+  start the router's removal no longer costs anything with v0.0.6. That was F21's reason for `aspire-start`.
+
+**Against raw.** Cold start is still slower with Aspire on luna and terra, 1.12× to 1.42×, with p ≤ 0.017 in
+every skilled cell. On `gpt-6.2-sol`, whose raw cold start is the slowest of the three (55 s), every Aspire arm is
+level with or faster than raw (0.91×–1.00×, none significant). This is the first sol cold-start cell set at this pin.
+
+**Cost.** $5.36 for 90 trials against the card's $4.80 for 72: luna $0.12, terra $0.81, sol $4.43
+($0.15 per trial; raw $0.16, `aspire-cli` $0.10). The 18 `raw` trials the rule added cost $1.11.
+
+**Open items.**
+1. The `aspire-start` issue draft ([skills-remove-router-add-aspire-start.md](../upstream-issues/skills-remove-router-add-aspire-start.md))
+   should drop `aspire-start` and keep only the router's removal, with this result as the reason. The drafts are
+   not edited in this lane.
+2. Whether `aspire-orchestration`'s references could be skipped on a plain "start the app" prompt is the
+   remaining 8 s. That is a question about the v0.0.6 body for the Phase 3 skill audit, not for this card.
 
 ### T1.7 Second harness, one cell set
 
