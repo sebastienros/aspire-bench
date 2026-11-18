@@ -833,6 +833,13 @@ baseline, with its guard cells, and a verdict.
 | Issue draft | [aspire-mcp-compact-telemetry.md](../upstream-issues/aspire-mcp-compact-telemetry.md) |
 | Results | 11-09 pins n = 3: done; decision n: pending. 2026-11-17 pin: patches 0001 and `agentic-all` apply cleanly to `30326eb8` (`git apply --check`, exit 0); the `*-src`, `*-compact` and `aspire-lean-mcp-all` tasks were regenerated at that pin by T0.1 but not gated there, so gate them before this card's round |
 
+#### T1.4 decision rule, as computed (written 2026-11-18, before any `t14` result was read)
+
+- **Round `t14`**, Copilot CLI, tasks `1479041` (suite `305a8ed`). Its own `raw` runs in the round (`slow-sql`, `read-only` × luna, terra; `slow-redis` luna): `t01b`'s raw ran on tasks `0dfaf98f` and `series.py` divides by the same run's raw. Between the two task graphs only the `aspire-diagnose` step-1 text changed (T0.2), which reaches `lean` arms only. The source arms were gated on `0dfaf98f` (`gate-t01-src`); their images differ at `1479041` by that skill text alone.
+- **Ship clause:** `aspire-mcp-compact` vs `aspire-mcp-src` on luna, **both** `slow-sql` and `read-only`: median agent seconds lower and exact two-sided Mann-Whitney p < 0.05 (`stats.py`, every graded trial, pass or fail). One cell alone is "revise", neither is "drop". Lean-MCP and terra cells are reported, not decisive. A pass-rate loss of more than one trial in any cell is reported next to the verdict.
+- **Guard clause:** `aspire-lean-mcp-compact` on `slow-redis` luna passes at least the lean CLI-only arm's count minus one. The CLI-only comparator is `aspire-lean` (official daily) in the same round, since no `slow-redis` task exists for `aspire-lean-src`. **Neither `slow-redis/aspire-lean-mcp-src` nor `slow-redis/aspire-lean-mcp-compact` exists as a task** (`gen-tasks.mjs` emits `slow-redis` only for `raw`, `aspire-cli`, `aspire-skills-mcp`, `aspire-lean`, `aspire-lean-mcp-all`); adding them is a re-pin, which belongs to the skills lane. Until they run, the guard is read on the proxy `aspire-lean-mcp-all` (patches 0001 + 0002, gated) and the verdict is conditional. Guard fails → T2.8 becomes a prerequisite of shipping.
+- A trial that hits the 900 s limit or crashes with model-service 5xx is an infrastructure failure and is re-run once; otherwise it counts as a fail.
+
 ### T1.5 CLI plain output when redirected
 
 | | |
@@ -888,6 +895,14 @@ baseline, with its guard cells, and a verdict.
 | Guard | None beyond the cells; `slow-redis` luna is in the set |
 | Trials / cost | 3 × 3 × 2 × 6 = 108 ≈ $4.40 |
 | Results | pending |
+
+#### T1.9 decision rule, as computed (written 2026-11-18, before any `t19` result was read)
+
+- **Round `t19`**, `BENCH_AGENT=vscode`, tasks `1479041`. Agent timeout scaled ×1.3 (1,170 s, `BENCH_AGENT_TIMEOUT_MULTIPLIER`, recorded in the ledger) because VS Code spends about 240 s of the budget before work starts (43–55 s launch, 186 s transport fallback; T0.4) and Copilot `t01b` trials reached 796 s of 900 s. The terra `cold-start` cells are submitted only after one luna `cold-start` trial per arm has graded, to show the harness leaves the app running for the verifier.
+- **Time:** per trial `agent_loop_seconds − transport_wait_seconds` (VS Code); Copilot CLI's `agent_loop_seconds` (its transport wait is 0). Ratio = median of the arm ÷ median of `raw`, same harness, round, scenario and model. Copilot ratios come from `t01b`.
+- **Harness-neutral** if for every Aspire arm × scenario × model `|ratio_vscode − ratio_copilot| ≤ 0.15` (ratio points) **and**, on `slow-redis` luna, each of the three arms' pass counts differ from Copilot's `t01b` count by at most one. Otherwise each cell outside is attributed from the trajectory (skill not discovered, approval prompt, MCP not registered, different tool set, subagent on another model) and written as a new card proposal, not a skill verdict.
+- **Skill-text drift:** `t01b`'s `aspire-lean` ran the pre-T0.2 `aspire-diagnose` text; `t19` runs the revised step 1. An `aspire-lean` cell outside the band is first checked against `t14`'s same-pin Copilot `aspire-lean` (`slow-redis` luna) and for use of the revised branch (`duration:>5000`) before the gap is attributed to the harness.
+- A trial that hits the time limit is reported separately from agent failures; a trial lost before the agent ran (image build, dependency install) is re-run once.
 
 ---
 

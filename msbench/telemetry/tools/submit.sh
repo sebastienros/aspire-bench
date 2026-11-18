@@ -6,6 +6,9 @@
 #   github-copilot-cli (default)  Copilot CLI, the harness every result before T0.4 used
 #   vscode                        VS Code agent mode; assets from agents/vscode (gen-tasks.mjs agent-assets)
 #   claude-code                   Claude Code
+# BENCH_AGENT_TIMEOUT_MULTIPLIER (optional) scales task.toml's agent timeout through Harbor, so a
+# harness with fixed start-up overhead (VS Code: ~50 s launch + 186 s transport fallback, T0.4) gets
+# the same working budget; it is recorded in the ledger as agent_timeout_multiplier.
 # Every submission appends one JSON line per returned run ID to results/ledger.jsonl, with the
 # harness, the Aspire build and skills tag the task was pinned to (and BENCH_TASK, the plan card, if set).
 set -euo pipefail
@@ -44,6 +47,9 @@ if [[ "$model" == oracle ]]; then
 else
     mode=(--agent "$agent_package" --model "$model" ${agent_env[@]+"${agent_env[@]}"}
         --workers 1 --repeat "$repeat" --parallel_repeats --tag kind=model --tag "agent=$agent")
+    if [[ -n "${BENCH_AGENT_TIMEOUT_MULTIPLIER:-}" ]]; then
+        mode+=(--harbor_agent_timeout_multiplier "$BENCH_AGENT_TIMEOUT_MULTIPLIER")
+    fi
 fi
 # Read before submitting, so a run is never submitted without its ledger line.
 # The toolchain pins as the remote build sees them: the task's Dockerfile at the dataset's task
@@ -75,12 +81,13 @@ while read -r run_id; do
     jq -nc --arg run_id "$run_id" --arg scenario "$scenario" --arg arm "$arm" --arg model "$model" --arg round "$round" \
         --arg submitted_at "$stamp" --arg dataset_sha256 "$dataset_sha" --arg log "$log" --arg task_sha "$task_sha" \
         --arg aspire_build "$aspire_build" --arg skills_sha "$skills_sha" --arg task "${BENCH_TASK:-}" \
-        --arg agent "$agent" --arg agent_package "$agent_package" --arg assets "${agent_assets#"$suite/"}" --arg assets_sha "$assets_sha" \
+        --arg agent "$agent" --arg timeout_mult "${BENCH_AGENT_TIMEOUT_MULTIPLIER:-}" --arg agent_package "$agent_package" --arg assets "${agent_assets#"$suite/"}" --arg assets_sha "$assets_sha" \
         '{run_id: $run_id, scenario: $scenario, arm: $arm, model: $model, round: $round, submitted_at: $submitted_at,
           dataset_sha256: $dataset_sha256, log: $log, task_repo_commit: $task_sha, aspire_build: $aspire_build,
           skills_sha: $skills_sha}
          + (if $agent == "" then {} else {agent: $agent} end)
          + (if $agent_package == "" then {} else {agent_package: $agent_package} end)
          + (if $assets == "" then {} else {agent_assets: $assets, agent_assets_sha256: $assets_sha} end)
-         + (if $task == "" then {} else {task: $task} end)' | tee -a "$suite/results/ledger.jsonl"
+         + (if $task == "" then {} else {task: $task} end)
+         + (if $timeout_mult == "" or $agent == "" then {} else {agent_timeout_multiplier: ($timeout_mult|tonumber)} end)' | tee -a "$suite/results/ledger.jsonl"
 done
