@@ -7,5 +7,5 @@ services:
         SKILLS: lean
         FAULT: heldout-stuck-orders
       additional_contexts:
-        suite: ${TELEMETRY_SUITE_CONTEXT:-https://github.com/sebastienros/aspire-bench.git#aa6763b9aa3184ec1f9a31e2288eac61bcc19c5e:msbench/telemetry/common}
-        heldout-app: ${TELEMETRY_HELDOUT_APP_CONTEXT:-https://github.com/sebastienros/aspire-bench.git#aa6763b9aa3184ec1f9a31e2288eac61bcc19c5e:msbench/heldout/app}
+        suite: ${TELEMETRY_SUITE_CONTEXT:-https://github.com/sebastienros/aspire-bench.git#305a8ede52f5f6f1b26aa93fed653cfd2811aa35:msbench/telemetry/common}
+        heldout-app: ${TELEMETRY_HELDOUT_APP_CONTEXT:-https://github.com/sebastienros/aspire-bench.git#305a8ede52f5f6f1b26aa93fed653cfd2811aa35:msbench/heldout/app}
