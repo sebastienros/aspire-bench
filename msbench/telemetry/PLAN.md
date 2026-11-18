@@ -796,6 +796,25 @@ baseline, with its guard cells, and a verdict.
 | Issue draft | [skills-add-aspire-diagnose.md](../upstream-issues/skills-add-aspire-diagnose.md) |
 | Results | 11-09 pins: done; v0.0.6 + held-out: pending |
 
+#### T1.1 decision rule, as computed (written 2026-11-18, before round `t11` returned any trial)
+
+- **Cells.** Round `t11`, `heldout-cache` (log-visible, the T0.2 gate fault) × `raw`, `aspire-lean` ×
+  `gpt-6.2-sol`, `claude-opus-5.5` × n = 3, tasks `1479041` (the revised step 1, as in `t02-heldout3`).
+  **Direction-finding** (PLAN §3): the exact Mann-Whitney floor at 3 vs 3 is p = 0.10, so p decides nothing.
+- **Within +20 %**, per model, as T0.2 computed it: median agent seconds of `aspire-lean` ÷ `raw` over
+  every graded trial ≤ 1.20, **and** `aspire-lean` passes no more than one trial fewer than `raw`.
+- **Integration-line gap (step 3)**: in at least 2 of the 6 `aspire-lean` trials, after telemetry has
+  named the statement, the agent spends 3 or more tool calls failing to reach SQL Server inside its
+  container (a `psql`/Postgres line applied to SQL Server, `sqlcmd` not found, credentials hunted), or
+  says the skill's dependency lines do not fit. Read from the trajectories, not from per-trial numbers.
+- **Verdict.** The card's rule is "ship if T0.2 passes its rule", and T0.2 passed on `heldout-cache`.
+  `ship` if both strong models are within +20 % and no step-3 gap shows. `revise` (step 3 only) if the gap
+  shows: a proposal for the step-3 lines is written here and the skill is **not** edited in this lane.
+  If a model misses +20 % with no step-3 cause, steps 1 and 2 stay frozen, the verdict is `no verdict`
+  at n = 3, and an n = 6 follow-up on that model is named.
+- **Infrastructure.** A trial that fails before the agent starts (image build), or times out or crashes
+  with model-service 5xx, is re-run once in `t11-topup`; nothing else is re-run.
+
 ### T1.2 Monitoring trigger narrowed, in isolation
 
 | | |
@@ -916,6 +935,19 @@ so the saving per `describe` is 4.1 KB instead of 3.2 KB. Evidence:
 | Trials / cost | 4 × 3 × 6 = 72 ≈ $4.80 |
 | Results | pending |
 
+#### T1.6 decision rule, as computed (written 2026-11-18, before round `t16` was submitted)
+
+- **Cells.** Round `t16`, `cold-start` × luna, `gpt-6.1-terra`, `gpt-6.2-sol` × n = 6 on the card's four arms,
+  **plus `raw`** (18 trials the card did not list: PLAN §3 puts `raw` in every cell and `series.py` flags a run
+  without it). Tasks `1479041`. No `t01b` cell is reused: `t01b` ran on tasks `0dfaf98f`, before the step-1
+  revision of `aspire-diagnose` changed the `lean` and `lean-start` sets, and the card names no reuse.
+- **Gap** = median agent seconds of luna `aspire-lean` ÷ median of luna `aspire-lean-start`, over every graded trial.
+- **Verdict.** `ship` (`aspire-start` stays in the proposal) if the gap is ≥ 1.20. `drop` (v0.0.6
+  orchestration closed the gap by itself; `aspire-start` leaves the proposal) if it is < 1.20. Exact
+  Mann-Whitney p and the terra and sol gaps are reported and do not change the verdict. If `aspire-lean-start`
+  passes fewer luna trials than `aspire-lean`, that is reported next to the verdict.
+- **Infrastructure.** As T1.1, top-ups in `t16-topup`.
+
 ### T1.7 Second harness, one cell set
 
 | | |
@@ -925,6 +957,27 @@ so the saving per `describe` is 4.1 KB instead of 3.2 KB. Evidence:
 | Decision rule | Same direction as Copilot in both scenarios: the proposals are harness-neutral. Different: record which harness-specific mechanism (skill discovery path, MCP registration, context budget) explains it before any further harness work |
 | Trials / cost | 2 × 3 × 6 = 36 ≈ $0.60. Same model, different harness, so a difference is attributable to the harness |
 | Results | pending |
+
+#### T1.7 decision rule, as computed (written 2026-11-18, before round `t17` was submitted)
+
+- **Probe first.** Round `probe-t17` (one `slow-sql`/`aspire-skills-mcp`/luna trial under `claude-code`,
+  ledger `excluded`) must show where Claude Code discovers skills in this image, that `task.toml`'s MCP
+  server reaches it, that the generic ATIF reader fills every field and that the verifier grades. If
+  skills are not discovered from `/app/.github/skills`, no adapter is added without the user's approval
+  (it would change task emission and force a re-pin), and only the cells that stay meaningful run:
+  `raw` and `aspire-skills-mcp`, the latter then labelled MCP-only.
+- **Cells.** Round `t17`, `slow-sql`, `slow-redis` × luna × `raw`, `aspire-skills-mcp`, `aspire-lean` × n = 6
+  under `claude-code`; tasks `1479041`. **Copilot CLI reference in the same round** (`t17-copilot`, the same
+  six cells under the pinned Copilot CLI, 36 luna trials the card did not list), because the `t01b`
+  Copilot cells ran before the step-1 revision changed `aspire-lean`.
+- **Same direction**, per scenario: for each Aspire arm, the `claude-code` time ratio to `raw` lies on
+  the same side of 1.00 as the Copilot ratio of the same round, **and** the order of the two Aspire arms
+  (which is faster) is the same; on `slow-redis` the pass counts of `aspire-lean` and `raw` also order the
+  same way. Ratios within 0.90–1.10 count as level and match either side.
+- **Verdict.** `ship` (harness-neutral) if both scenarios go the same direction. Otherwise `no verdict`,
+  and the trajectories name the harness mechanism (skill discovery path, MCP registration, context budget)
+  before further harness work.
+- **Infrastructure.** As T1.1, top-ups in `t17-topup`.
 
 ### T1.8 Model lane: Opus 5.5 and GPT-6.2 Sol
 
@@ -937,6 +990,24 @@ so the saving per `describe` is 4.1 KB instead of 3.2 KB. Evidence:
 | Decision rule | Informational for the proposals, decisive for the model table in REPORT §4.4: each model gets a row. If Opus or 6.2-sol fail `slow-redis` on any arm, that arm's failure path is added to §6 of the report. If `aspire-lean` is slower than `raw` by more than 20% on a strong model with p < 0.05, the skill is costing a model that did not need it and the trigger or body is revised for that case |
 | Trials / cost | 3 × 3 × 2 × 6 = 108: sol 54 ≈ $6.40, Opus 54 ≈ $13.50 (assumed; the probe gives the first real number) |
 | Results | **Probe passed** for both: `gpt-6.2-sol` reward 1 in 47 s, 94k input tokens, $0.114; `claude-opus-5.5` reward 1 in 48 s, 131k input tokens, $0.168 (one `cold-start`/`raw` trial each, Copilot CLI 1.0.99, rows in `trials.jsonl` round `probe-models`). For scale, `gpt-6.1-sol` cost $0.037 to $0.041 on the same cell, so both new models look two to four times dearer per trial than assumed; the budget lines are re-estimated after the first T1.8 cells. Cells: pending |
+
+#### T1.8 decision rule, as computed (written 2026-11-18, before round `t18` returned any trial)
+
+- **Cells.** Round `t18`, `slow-sql`, `read-only`, `slow-redis` × `raw`, `aspire-skills-mcp`, `aspire-lean` ×
+  `gpt-6.2-sol`, `claude-opus-5.5` × n = 6, Copilot CLI, tasks `1479041` (`aspire-lean` carries the revised
+  step 1; the `t01b` lean cells did not).
+- **20 % rule**, per model × scenario: `aspire-lean` median agent seconds ÷ `raw` > 1.20 **and** exact
+  Mann-Whitney p < 0.05 → the skill costs a model that did not need it; a revision of the trigger or body
+  for that case is proposed here (the skill is not edited in this lane).
+- **`slow-redis` failures.** Any strong-model arm below 6/6 on `slow-redis` gets its failure path, read from
+  the trajectories, added to REPORT §6.
+- **Verdict.** `ship` (the lean proposal holds on the strong models) if no cell trips the 20 % rule and
+  `aspire-lean` passes no more than one trial fewer than `raw` in every cell. `revise` if any cell trips the
+  20 % rule. Pass-rate shortfalls without a time violation are reported and do not change the word.
+  REPORT §4.4 gains one row per model either way.
+- **Cost.** Real per-trial cost per model and scenario from `trials.jsonl`; the budget lines in §1, §3 and
+  §9 are re-estimated from it.
+- **Infrastructure.** As T1.1, top-ups in `t18-topup`.
 
 ### T1.9 VS Code lane
 
