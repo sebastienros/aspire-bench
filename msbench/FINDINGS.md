@@ -1127,17 +1127,38 @@ silent fault. Observations from the trajectories:
 - The Aspire side of the silent fault exists only because the worker's lock wait is bounded (15 s): the
   SQL span is exported when the command ends. An unbounded wait would leave no span at all.
 
-**Improvement candidate:** Give step 1 of `aspire-diagnose` a branch for "work is not progressing,
-nothing fails": long spans of any kind (`--search duration:>5000`), and consumers or workers with no
-recent successful traces, instead of the error filters; add SQL Server lines to step 3 (`sqlcmd` in
-the container; `sys.dm_exec_requests` with `blocking_session_id`, `sys.dm_tran_locks`). Both are
-proposals; the skill was not edited.
+**After the revision (same day, the card's "otherwise" branch):** The user ruled the 0.99× tie not
+"ahead". Step 1 was revised once (`5be0a4d`; steps 2–4 unchanged), both faults were re-run labelled
+in-sample, and the gate was judged on a third held-out fault built after the revision
+([PLAN.md, held-out-3 results](telemetry/PLAN.md#t02-heldout3-results)):
 
-**Limits / status:** The ship gate opened by the pre-registered rule, but only because the luna
-silent cell's 0.99× counts as "ahead"; with the probe trial pooled it is +4 % and the gate would not
-open. The source naming the lock's other user gives every arm a route the card did not intend; a
-re-run without those comments is open. Two models, one harness, n = 6. Cost $6.27 against $3.90
-estimated (terra trials longer than on Bingo). Not upstreamed.
+- In-sample (`t02-insample`, 96 trials): on the silent fault `aspire-lean` ran the new long-wait search
+  in 11/12 trials and the lock span was on screen in 12/12 (was 4/12). The time did not follow:
+  0.86× (luna, 78 s) and 0.83× (terra, 113 s, was 90 s), inside the spread the unchanged control arm
+  showed between rounds (`aspire-skills-mcp` luna silent 2.53× → 3.30×).
+- Held-out (`heldout-cache`, round `t02-heldout3`, 48 trials): the catalogue cache is keyed per
+  shopper, so a heavy weekly ranking (`SUM`, `COUNT(DISTINCT)` over the order history) runs on almost
+  every page view; log-visible. `aspire-lean` 0.81× (luna, 6/6 vs 5/6, p = 0.39) and 0.61× (terra,
+  6/6 each, p = 0.065): **gate open**. Telemetry showed the ranking statement in 12/12 `aspire-lean`
+  trials. All 48 trials read the per-shopper key in the source. The time saved is again the restart
+  after the code fix (median from first `Program.cs` edit to the end: raw 204/232 s, `aspire-lean`
+  154/139 s).
+- Contradiction worth keeping: on this fault agents created an index on `Orders` before fixing the
+  cache key in luna `aspire-lean` 5/6, luna raw 4/6 and terra raw 4/6. Step 2's "that dependency call
+  is the cause" reads as "make the call faster" when the call should not happen at all. An index
+  alone fails the verifier (422 ms, still a read per shopper).
+
+**Improvement candidate:** (done, `5be0a4d`) a step-1 branch for "stuck, nothing fails": long spans
+of any kind (`--search "duration:>5000"`), and the follow-on operation's recent traces when nothing is
+long. Still proposals: a step-2 line for "a call that should not happen at all (cached, batched) is
+fixed in the caller", and SQL Server lines in step 3 (`sqlcmd` in the container,
+`sys.dm_exec_requests` with `blocking_session_id`, `sys.dm_tran_locks`), which belong to T1.1.
+
+**Limits / status:** Gate open on one held-out fault, two models, one harness, n = 6. The fault's
+cause is readable in the source by every arm, so the skill's measured advantage is over restart cost,
+not diagnosis. The re-run without the lock comments is still open. Cost $6.27 (`t02`) + $6.06
+(`t02-insample`) + $3.38 (`t02-heldout3`); 11 trials lost to a `packages.microsoft.com` download
+failure during image build were re-run. Not upstreamed.
 
 ## F28: Under the `vscode` harness, Harbor's trial result describes a subagent, not the agent
 

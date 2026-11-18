@@ -97,7 +97,7 @@ publisher and subscriber sources); the raw app has none. Its harness is
 [`common/heldout/bench`](common/heldout/bench/bench.mjs) and image
 [`Dockerfile.heldout`](tools/templates/Dockerfile.heldout), which must carry the same pins as the main
 template (`gen-tasks.mjs` checks). Arms: `raw`, `aspire-cli`, `aspire-skills-mcp`, `aspire-lean`.
-Results (round `t02`): [PLAN.md, T0.2 results](PLAN.md#t02-results).
+Results: round `t02` in [PLAN.md, T0.2 results](PLAN.md#t02-results); the revised skill's in-sample re-run (`t02-insample`) and the gate round on the reserved fault (`t02-heldout3`, gate open) in [held-out-3 results](PLAN.md#t02-heldout3-results).
 
 | Scenario | Fault | Where the evidence is |
 |---|---|---|

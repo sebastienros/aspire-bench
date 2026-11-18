@@ -1116,13 +1116,23 @@ log-visible fault (an unindexed `JSON_VALUE` lookup that EF Core logs with its d
 one (the worker blocked on an application lock held by a stalled host job; setup rejects the fixture on
 any error line). In round `t02` (96 trials, n = 6) `aspire-lean` against the raw app took 0.67× (luna) and
 0.85× (terra) the time on the log-visible fault and 0.74× (terra, p = 0.041) and 0.99× (luna, 81 s vs
-82 s, p = 0.82) on the silent one, every cell 6/6. That opens the ship gate by the rule written before the
-run, but the luna silent cell is a tie and decides it. The trajectories qualify the verdict: on the
+82 s, p = 0.82) on the silent one, every cell 6/6. The rule written before the run would open the ship
+gate only if that luna tie counted as "ahead"; the user ruled that it does not. The trajectories qualify the verdict: on the
 log-visible fault the skill's first two steps carried over (telemetry first in 12/12 trials, the slow
 statement on screen in 11/12), and the time saved came from restarting the patched API with `aspire
 resource`, not from finding the cause, which every arm read in the source within 20 s. On the silent fault
 step 1 did not carry over: its filters are for "slow" and "failing", and "orders stay pending" is
 neither, so the 15 s lock span reached the screen in 4/12 trials and agents found the holder through SQL
 Server's session views as raw agents did. The shipped skills with MCP were 2.53× slower than raw on luna
-(4/6). Details and open items: [PLAN.md, T0.2 results](PLAN.md#t02-results);
+(4/6). So the card's other branch ran. Step 1 of `aspire-diagnose` gained a "stuck, nothing fails"
+branch (a `duration:>5000` search for long waits in any resource) and nothing else changed. An
+in-sample re-run of both faults (`t02-insample`, 96 trials) then put the lock span on screen in 12/12
+`aspire-lean` trials, but the time stayed within round-to-round noise (0.86× and 0.83×). The gate was
+then judged on a third fault built only after the revision, `heldout-cache`: the catalogue's cache is
+keyed per shopper, so the expensive weekly ranking runs on almost every page view (log-visible, round
+`t02-heldout3`, 48 trials). There `aspire-lean` took 0.81× (luna, 6/6 against 5/6) and 0.61× (terra,
+6/6 each) the raw time, so the ship gate is open. Again the time saved is the restart after the fix,
+not the diagnosis: every arm read the per-shopper key in the source, and agents with and without the
+skill added an index first (luna `aspire-lean` 5/6, luna raw 4/6). Details and open items:
+[PLAN.md, T0.2 results](PLAN.md#t02-results) and [held-out-3 results](PLAN.md#t02-heldout3-results);
 [FINDINGS F27](../FINDINGS.md#f27-on-a-held-out-app-the-diagnosis-skill-carries-over-for-a-slow-call-but-not-for-work-that-silently-stops).

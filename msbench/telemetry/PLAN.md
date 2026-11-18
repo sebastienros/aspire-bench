@@ -1,6 +1,6 @@
 # Plan: improving agentic performance with Aspire (CLI, MCP, skills)
 
-Status: proposal, 2026-11-17. T0.1 (re-pin and re-baseline), T0.2 (held-out application), T0.3 (series tooling) and T0.4 (harness adapters) done 2026-11-18; no issue has been filed.
+Status: proposal, 2026-11-17. T0.1 (re-pin and re-baseline), T0.2 (held-out application; ship gate open on the reserved third fault after one skill revision), T0.3 (series tooling) and T0.4 (harness adapters) done 2026-11-18; no issue has been filed.
 Each task below is a card with the same fields; a card's **Results** field is either a
 link to measured numbers or `pending`. Nothing in a Results field is predicted.
 
@@ -263,7 +263,7 @@ in all against the card's $9.30.
 | Cells | 2 faults × luna, terra × n = 6 |
 | Decision rule | `aspire-lean` within +20% of raw on the log-visible fault and ahead on the silent one on both models: steps 1 and 2 generalise, ship gate open. Otherwise record what the agent needed, revise the skill once, label the re-run on the same two faults **in-sample**, and judge the gate on the reserved third fault only |
 | Trials / cost | 2 × 4 × 2 × 6 = 96 ≈ $3.90, plus 48 ≈ $1.90 if the reserved fault runs, plus the fixture work (the largest engineering item in the plan) |
-| Results | Done 2026-11-18: [T0.2 results](#t02-results) below. Gate **open** by the pre-registered rule, but the luna log-silent condition is a tie (0.99×, 6/6 vs 6/6, p = 0.82); step 1 of the skill did not carry over to the silent symptom; $6.27 against $3.90 |
+| Results | Done 2026-11-18. Round `t02` ([T0.2 results](#t02-results)): the luna log-silent cell was a tie (0.99×), which the user ruled not "ahead", so the gate was shut and the otherwise branch ran. `aspire-diagnose` step 1 was revised once, `t02-insample` re-ran both faults (reported only), and the reserved fault `heldout-cache` was built after the revision. **Gate open on `heldout-cache`** ([results](#t02-heldout3-results)): `aspire-lean` 0.81× (luna, 6/6 vs 5/6) and 0.61× (terra, 6/6 vs 6/6), both within +20 %. Cost $6.27 (`t02`) + $6.06 (`t02-insample`) + $3.38 (`t02-heldout3`) |
 
 #### T0.2 decision rule, as computed (written 2026-11-18, before round `t02`)
 
@@ -289,7 +289,11 @@ The card's rule in numbers, fixed before any model trial:
 
 #### T0.2 results
 
-**Verdict: gate open by the pre-registered rule, on a tie in the deciding cell.** All four conditions
+> **Superseded 2026-11-18.** The user ruled the 0.99× tie below not "ahead"; the gate was judged on the
+> reserved third fault instead ([ruling](#t02-ruling-and-amended-rule-written-2026-11-18-after-t02-before-any-t02-insample-or-heldout-cache-trial),
+> [results](#t02-heldout3-results)). This paragraph is kept as written after `t02`.
+
+**Verdict (as first written): gate open by the pre-registered rule, on a tie in the deciding cell.** All four conditions
 hold, so `aspire-diagnose` is not revised, nothing is re-run in-sample and the reserved cache-side fault
 stays unimplemented. But the luna log-silent condition ("ahead") is met by 0.8 s: `aspire-lean` 81.4 s
 against `raw` 82.2 s, both 6/6, p = 0.82. That is a tie, and the verdict rests on it; whether a tie
@@ -397,7 +401,7 @@ medians equal the all-trial medians in every `aspire-lean` and `raw` cell (no fa
 - Phase-marker caveat: on `heldout-stuck-orders` the "seen" marker also fires on a `ps` listing that
   shows `stock-reconcile.sh` (e.g. `aspire-cli` luna 3.2–4.9 s), the flaw T0.1 noted; it is not quoted.
 
-**Proposal (not acted on; the gate is open).** Step 1 of `aspire-diagnose` needs a branch for "work is
+**Proposal (acted on after the ruling, in `5be0a4d`; see below).** Step 1 of `aspire-diagnose` needs a branch for "work is
 not progressing, nothing fails": look for long spans of any kind (`--search duration:>5000`) and for
 consumers with no recent successful traces, rather than error filters. The gap is stack-neutral, which
 is the condition under which T1.1 unfreezes steps 1 and 2; it would need its own held-out check.
@@ -458,6 +462,144 @@ by construction (EF Core logs the ranking statement with its duration; setup ass
 422 ms locally, which is still over the limit, and the order history is still read for every new
 shopper. A longer cache lifetime (600 s) with a restart also fails, on both checks. Pass counts in the
 rule use the reward. The "fast only" rate is reported beside it.
+
+#### T0.2 heldout3 results
+
+**Verdict: ship gate open, judged on the reserved third fault only.** `heldout-cache` is log-visible
+(setup asserted EF Core's slow ranking line in the raw `api.log` in every raw trial), so "within +20 %"
+decides. Luna: `aspire-lean` 235 s against `raw` 288 s, 0.81× (p = 0.39), 6/6 against 5/6. Terra:
+253 s against 412 s, 0.61× (p = 0.065), 6/6 against 6/6. Both conditions hold. The card's original
+"ahead" reading and the amended one do not apply to a log-visible fault, so they cannot disagree here.
+The revision did what it was written for on the in-sample silent fault (the lock span reached the
+screen in 12/12 `aspire-lean` trials, against 4/12 in `t02`), but the time to repair did not follow:
+in-sample `aspire-lean` is 0.86× (luna) and 0.83× (terra), and its absolute terra time rose from 90 s to
+113 s. On the held-out fault the skill's advantage over raw is again the restart, not the diagnosis
+(below), as it was for `heldout-slow-sql` in `t02`.
+
+**Order of work, from the commits.** Ruling and amended rule `28ea19e` and `a506368`. Skill revision
+`5be0a4d`, verified without a model in a local `heldout-stuck-orders` aspire cell: `duration:>5000`
+returned the 15 s `POST /api/orders` trace that holds the lock wait, and the error filters returned
+nothing. Cache fault and harness `305a8ed`, then tasks `1479041` and dataset `a74a14b`. The skill edit
+adds one command and one symptom bullet to step 1 and widens the trigger description. Steps 2–4 are
+unchanged.
+
+**Gates.** Local, `heldout-cache`, `raw` and `aspire-lean` cells: verify fails, reference repair,
+verify passes (raw 523 → 2–9 ms, aspire 674 → 2–19 ms, 0 order reads after the repair). The
+`aspire-cli` and `aspire-skills-mcp` cells differ from `aspire-lean` only in skill files; their local gate
+was not run, and the remote gate covers them. Must-fail repairs, each run once locally, all failed as
+intended:
+- a covering index alone (523 → 422 ms, still read per shopper);
+- a 600 s cache lifetime with a restart (469 ms, 12 reads);
+- the first, I/O-bound calibration, rejected and replaced by a settled one (below).
+
+Remote `gate-t02b` returned reward 1 in all 12 cells: every held-out scenario × arm on the new pin,
+`2026111859821658`…`853572`. The cache cells' baselines under traffic were 808–1137 ms.
+
+**Fixture note.** The first calibration grew rows until a page cost 856 ms. Under traffic the
+ranking was bimodal (median about 350 ms, tail 1–2.5 s) because the order table outgrew the 2 GB
+SQL Server memory limit. The fix added `COUNT(DISTINCT Customer)`, raising the cost per row
+instead of the row count. Setup now grows the data until a page costs 700 ms after a `CHECKPOINT`. It
+then measures again under live traffic and rejects the fixture below 500 ms. A local aspire cell was
+rejected once by that check (444 ms) before the target was raised from 500 to 700 ms.
+
+**Round health.** 11 of 144 first-pass trials failed before the agent started. The image build could
+not download `packages.microsoft.com`'s signing key (curl exit 22). They are infrastructure failures
+and were re-run once, all completing, in `t02-heldout3-topup` (5) and `t02-insample-topup` (6). No
+timeout or crash. One model-service 5xx per round (23.9 s lost in `2026111860542120`, `aspire-lean`
+terra cache; 0.6 s in `t02-insample`). No trial read the harness (F26 check).
+
+**`t02-heldout3`, the gate** (n = 6 per cell; `raw` luna 3 and terra 1, and `aspire-cli` terra 1, are
+top-ups; time = agent seconds, medians over all graded trials; p = exact Mann-Whitney against raw;
+fast/cause = the verifier's separate checks):
+
+| Model | Arm | Time | Time ÷ raw | Tokens ÷ raw | Pass | Fast / cause | Skill | $/trial | Run IDs |
+|---|---|---:|---:|---:|---|---|---|---:|---|
+| luna | raw | 288 s | — | — | 5/6 | 5/6, 5/6 | 0/6 | 0.023 | `2026111860489978`…`493226`, `862946160`…`946850` |
+| luna | aspire-cli | 214 s | 0.74× (p=0.13) | 0.74× | 6/6 | 6/6, 6/6 | 0/6 | 0.019 | `2026111860497224`…`500564` |
+| luna | aspire-skills-mcp | 176 s | 0.61× (p=0.015) | 1.47× | 6/6 | 6/6, 6/6 | 6/6 | 0.026 | `2026111860504706`…`507956` |
+| luna | **aspire-lean** | 235 s | **0.81×** (p=0.39) | 0.96× | 6/6 | 6/6, 6/6 | 6/6 | 0.021 | `2026111860511998`…`515318` |
+| terra | raw | 412 s | — | — | 6/6 | 6/6, 6/6 | 0/6 | 0.141 | `2026111860520032`…`522640`, `…950076` |
+| terra | aspire-cli | 211 s | 0.51× (p=0.002) | 0.54× | 6/6 | 6/6, 6/6 | 0/6 | 0.095 | `2026111860526628`…`529962`, `…952836` |
+| terra | aspire-skills-mcp | 237 s | 0.57× (p=0.015) | 0.94× | 6/6 | 6/6, 6/6 | 6/6 | 0.126 | `2026111860533994`…`537292` |
+| terra | **aspire-lean** | 253 s | **0.61×** (p=0.065) | 0.69× | 6/6 | 6/6, 6/6 | 6/6 | 0.113 | `2026111860541430`…`544656` |
+
+The one failure (`2026111862946160`, raw luna) fixed the cache key and tested it on a second API it
+started on port 18091. It never restarted the live API, which kept serving the old code (585 ms,
+12 reads).
+
+**What the agents did on the held-out fault** (tallies over every graded `t02-heldout3` trial):
+- **Every trial read the source** (48/48). The per-shopper key `$"products:{customer}"` sits on the
+  endpoint, which the first `Program.cs` read shows. That read came within a median 8–24 s in every
+  cell except terra `aspire-lean` (43 s).
+- **Telemetry put the ranking statement on screen** in 6/6 `aspire-lean` and 6/6 `aspire-skills-mcp`
+  trials on both models, against 3/6 for `aspire-cli`. Luna `aspire-lean` went to telemetry before the
+  source in 6/6 trials, terra in 2/6 (terra issues both in one parallel batch).
+- **An index first is common, with or without the skill.** Agents created an index on `Orders` before
+  fixing the cache key in: luna `aspire-lean` 5/6, luna `raw` 4/6, terra `raw` 4/6, luna `aspire-cli`
+  2/6, terra `aspire-lean` 2/6, terra `aspire-cli` 0/6 and `aspire-skills-mcp` 1/6 (luna) and 0/6 (terra).
+  Step 2's "one child span takes almost the whole duration: that dependency call is the cause" points
+  at the statement, and the statement's cost then hides the cache. Every passing trial went on to fix
+  the key (the root-cause check requires it).
+- **The time difference is again the restart.** Median time to the first `Program.cs` edit: raw 84 s
+  (luna) and 180 s (terra); `aspire-lean` 81 s and 114 s; `aspire-cli` 76 s and 78 s. Time from that
+  edit to the end (difference of medians): raw 204 s and 232 s, against `aspire-lean` 154 s and 139 s
+  and `aspire-cli` 138 s and 133 s. The raw start script stops everything when the API exits, so raw
+  agents restart the whole application (as in `t02`). Aspire agents used `aspire resource api
+  rebuild`/`restart` (12/12 `aspire-lean`).
+
+**`t02-insample`, labelled in-sample** (same two faults as `t02`, revised skill, unchanged app, n = 6;
+six top-ups marked by the second range; reported only):
+
+| Scenario | Model | Arm | Time | ÷ raw | `t02` ÷ raw | Pass | Run IDs |
+|---|---|---|---:|---:|---:|---|---|
+| heldout-slow-sql | luna | raw | 234 s | — | — | 6/6 | `2026111860548676`…`551340`, `…955526` |
+| heldout-slow-sql | luna | aspire-cli | 128 s | 0.55× (p=0.002) | 0.51× | 6/6 | `2026111860556092`…`559376` |
+| heldout-slow-sql | luna | aspire-skills-mcp | 133 s | 0.57× (p=0.026) | 0.61× | 5/6 | `2026111860563542`…`566742`, `…958292` |
+| heldout-slow-sql | luna | **aspire-lean** | 189 s | **0.81×** (p=0.065) | 0.67× | 6/6 | `2026111860570842`…`574076` |
+| heldout-slow-sql | terra | raw | 400 s | — | — | 6/6 | `2026111860608542`…`611198`, `…966454` |
+| heldout-slow-sql | terra | aspire-cli | 311 s | 0.78× (p=0.015) | 0.66× | 6/6 | `2026111860615322`…`618546` |
+| heldout-slow-sql | terra | aspire-skills-mcp | 413 s | 1.03× (p=0.94) | 0.91× | 6/6 | `2026111860622594`…`625796` |
+| heldout-slow-sql | terra | **aspire-lean** | 339 s | **0.85×** (p=0.065) | 0.85× | 6/6 | `2026111860629804`…`633132` |
+| heldout-stuck-orders | luna | raw | 91 s | — | — | 6/6 | `2026111860578066`…`581298` |
+| heldout-stuck-orders | luna | aspire-cli | 120 s | 1.32× (p=0.093) | 1.34× | 6/6 | `2026111860585478`…`588744`, `…961026` |
+| heldout-stuck-orders | luna | aspire-skills-mcp | 300 s | 3.30× (p=0.009) | 2.53× | 4/6 | `2026111860592856`…`596260` |
+| heldout-stuck-orders | luna | **aspire-lean** | 78 s | **0.86×** (p=0.39) | 0.99× | 6/6 | `2026111860600402`…`603186`, `…963710` |
+| heldout-stuck-orders | terra | raw | 137 s | — | — | 6/6 | `2026111860637890`…`640540`, `…969212` |
+| heldout-stuck-orders | terra | aspire-cli | 95 s | 0.69× (p=0.18) | 0.76× | 6/6 | `2026111860644564`…`647882` |
+| heldout-stuck-orders | terra | aspire-skills-mcp | 108 s | 0.79× (p=0.39) | 1.12× | 6/6 | `2026111860651886`…`655522` |
+| heldout-stuck-orders | terra | **aspire-lean** | 113 s | **0.83×** (p=0.24) | 0.74× | 6/6 | `2026111860659500`…`662848` |
+
+- **The revision reached the screen.** On `heldout-stuck-orders`, `aspire-lean` ran `duration:>5000`
+  (or higher) in 5/6 (luna) and 6/6 (terra) trials, and the `sp_getapplock` span was on screen in 6/6 and
+  6/6, against 2/6 and 2/6 in `t02`. All 12 ended the holder with `KILL <spid>`. The error filters were
+  still run alongside, in 4/6 per model.
+- **Time did not move with it.** `aspire-lean` absolute times: luna 78 s (`t02` 81 s), terra 113 s (90 s).
+  Raw moved by about as much between rounds (82 → 91 s, 122 → 137 s), so the ratios (0.86×, 0.83×) sit
+  inside round-to-round noise. The unchanged control shows the size of that noise: `aspire-skills-mcp`
+  went 2.53× → 3.30× (luna silent) and 0.91× → 1.03× (terra slow-sql) with nothing changed. Its luna
+  silent failure mode repeated (4/6; 3/6 edited `OrderConsumer.cs`).
+- Under the amended "ahead" (≤ 0.90×), both in-sample silent cells would pass. They are in-sample and
+  decide nothing.
+
+**Cost.** Model cost: `t02-heldout3` $3.38 (top-ups included) against the card's $1.90 for the reserved
+fault, and `t02-insample` $6.06. The card had no line for the in-sample re-run, and its `t02` analogue
+was estimated at $3.90. Together $9.44 against about $1.90 remaining on the card. Terra trials cost
+$0.095–0.170 each on this app, against the $0.065 the estimate assumed. Gates are model-free; the
+11 build failures cost nothing.
+
+**Open items.**
+1. Step 2 leads to an index first on a cached-path fault: "that dependency call is the cause" is read
+   as "make the call faster" (luna `aspire-lean` 5/6). A line such as "a call that should not happen at
+   all (cached, batched) is fixed in the caller" would be a stack-neutral step-2 edit. It needs its own
+   held-out check, because this fault is now in-sample for it.
+2. Re-run without the lock comments (carried over from `t02`). The cache fault's source shows its key
+   just as plainly, so every arm reads the cause in the source; telemetry's lead is over the restart.
+3. The `heldout-cache` "fix" marker only matches a constant-key `GetOrCreate` call (0–4/6 matches in
+   cells that passed 6/6). It is not quoted.
+4. `results/comparison.md` and `stats.md` pool `t02` and `t02-insample` (same Aspire pin). The
+   per-round tables above are computed from `trials.jsonl` per round.
+5. T1.1's held-out cells (`gpt-6.2-sol`, `claude-opus-5.5`) remain, now on `heldout-cache` as the
+   held-out fault.
 
 ### T0.3 Series tooling
 
@@ -615,7 +757,7 @@ baseline, with its guard cells, and a verdict.
 | | |
 |---|---|
 | Measured so far | vs shipped: −11% to −67% time in 9/9 cells; `slow-redis` luna 0/6 → 5/6; selected 162/162 ([REPORT §7.1](REPORT.md#71-microsoftaspire-skills)) |
-| Remaining | T0.2 (held-out) and the ship-gate models (`gpt-6.2-sol`, `claude-opus-5.5`) on the held-out silent fault, `raw` and `aspire-lean`, n = 3 (12 trials ≈ $2.20) |
+| Remaining | T0.2 is done (gate open on `heldout-cache`, after one step-1 revision that T0.2's silent fault showed was a stack-neutral failure). The ship-gate models (`gpt-6.2-sol`, `claude-opus-5.5`) on the held-out fault (now `heldout-cache`; the two `t02` faults are in-sample for the revised skill), `raw` and `aspire-lean`, n = 3 (12 trials ≈ $2.20 at the card's rate; terra-priced trials on this app cost about twice that) |
 | Decision rule | Ship if T0.2 passes its rule. Revise step 3 only; steps 1 and 2 are frozen unless T0.2 shows a stack-neutral failure |
 | Issue draft | [skills-add-aspire-diagnose.md](../upstream-issues/skills-add-aspire-diagnose.md) |
 | Results | 11-09 pins: done; v0.0.6 + held-out: pending |
