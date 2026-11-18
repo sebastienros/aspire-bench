@@ -16,9 +16,10 @@ done
 
 if [[ "${BENCH_FAULT:-}" == selection ]]; then
     # Selection benchmark (PLAN T3.9): a static copy of the workspace, nothing started, and a
-    # repository hook that stops the agent at its first skill load or third command.
-    mkdir -p /app/.github/hooks
-    cp /opt/benchmark/selection/hooks.json /app/.github/hooks/session.json
+    # Copilot CLI policy hook (system-wide, outside the workspace; repository hooks are not loaded
+    # under the eval driver) that stops the agent at its first skill load or third command.
+    mkdir -p /etc/github-copilot/policy.d
+    install -m 0644 /opt/benchmark/selection/hooks.json /etc/github-copilot/policy.d/selection.json
     touch /opt/benchmark/ready
     exec "$@"
 fi
