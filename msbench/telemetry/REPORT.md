@@ -433,6 +433,24 @@ cost per trial scales the other way: a luna trial costs a sixth of a terra trial
 seventh of a sol trial, so making the cheap model reliable is worth more than shaving
 seconds off the expensive ones.
 
+**Strong models, pin 2026-11-17** (Task T1.8, round `t18`, 108 trials, n = 6 per cell, Copilot CLI; time ratios
+to raw of the same round, exact Mann-Whitney p; `aspire-lean` carries the revised step 1 of `aspire-diagnose`).
+One row per model; columns as in the table above, plus cost:
+
+| Model | Shipped set loads a skill on a diagnosis prompt | Proposed set loads `aspire-diagnose` | Shipped set vs raw (time, `slow-sql` / `read-only`) | Proposed set vs raw (time) | `slow-redis` pass, raw → shipped → proposed | `slow-redis` time, raw → proposed | Cold start, raw | $ per trial (Bingo) |
+|---|---|---|---|---|---|---|---|---:|
+| `gpt-6.2-sol` | `aspire-monitoring` 18/18, router 6/18 | 18/18 | +20 % (p = 0.011) / +44 % (p = 0.002) | +3 % / +21 % (n.s.) | 6/6 → 6/6 → 6/6 | 147 → 83 s (p = 0.004) | 47 s (probe, n = 1) | 0.287 |
+| `claude-opus-5.5` | router 9/18, `aspire-monitoring` 4/18, none 5/18 | 18/18 | +30 % (p = 0.065) / +91 % (p = 0.002) | **+45 % (p = 0.026)** / +35 % (n.s.) | 6/6 → 6/6 → 6/6 | 266 → 113 s (p = 0.065) | 48 s (probe, n = 1) | 0.370 |
+
+On the strongest models the shipped set still costs time where the log has the evidence, and the lean
+set wins the silent cache fault on time (no strong model failed it on any arm, so it does not win on pass rate). The
+lean set is at parity on sol but not on Opus. Opus follows step 4 ("confirm on fresh traffic") literally, with
+30–45 s sleeps before querying traces, and so takes 1.45× raw's time on `slow-sql`; sol confirms with a request.
+That is the one place the proposal costs a model that did not need it, and a step-4 edit is proposed (PLAN T1.8).
+With the shipped set Opus loads the router or nothing in 14/18 diagnosis trials, so router mis-selection is not
+only a luna effect. Patching the app on `slow-redis` is: no strong-model trial did it. Both strong models
+barely used MCP when it was offered (0.39 and 0.06 calls per trial).
+
 ### 4.5 Where the time goes
 
 Median seconds from the agent's first event, luna, `slow-sql`:
@@ -1172,3 +1190,19 @@ run. T1.9 (VS Code) carries the harness question in this phase. The adapter (ski
 `/app/.claude/skills`, MCP in `~/.claude.json`, a CLI pin, Haiku on both harnesses) is proposed as T4.7.
 [PLAN.md, T1.7 results](PLAN.md#t17-results);
 [FINDINGS F29](../FINDINGS.md#f29-under-the-claude-code-harness-no-skill-and-no-mcp-server-reach-the-agent-and-only-claude-models-run).
+
+**Phase 1, T1.8: model lane, `gpt-6.2-sol` and `claude-opus-5.5`.** 108 trials (round `t18`, n = 6,
+`slow-sql`, `read-only`, `slow-redis` × raw, shipped set with MCP, lean set), every trial passed. The
+shipped set is still slower than raw where the log has the evidence on both strong models (+20 % to +91 %).
+The lean set wins the silent cache fault on time (0.57× sol, p = 0.004; 0.42× Opus, p = 0.065), not on pass
+rate, because raw passed 6/6 too. It is at parity on sol, but on Opus `slow-sql` it is 1.45× raw (p = 0.026),
+which trips the card's 20 % rule: verdict **revise**. Opus finds and fixes the cause sooner than raw, then
+follows step 4 ("confirm on fresh traffic") literally, sleeping 15–45 s before querying traces, where raw
+confirms with a request. A step-4 edit (confirm by request, trace filter only when the agent cannot call the
+operation, no waiting) is proposed and not applied. Router mis-selection with the shipped set appears on
+Opus too (router or no skill in 14/18). Patching the app on `slow-redis` does not appear (0/36), and MCP was
+barely used (≤ 0.39 calls per trial). No strong model failed `slow-redis`, so §6 gains no row. The model table
+in §4.4 has one row per model. Measured cost per trial: sol $0.287 and Opus $0.370, against the $0.118 and $0.25
+the plan assumed. T1.8 cost $35.43 against $19.90, and the Phase 1 budget is re-estimated from about $42 to about $60.
+[PLAN.md, T1.8 results](PLAN.md#t18-results);
+[FINDINGS F30](../FINDINGS.md#f30-a-strong-model-follows-confirm-on-fresh-traffic-literally-and-waits-for-traces-which-costs-it-parity).

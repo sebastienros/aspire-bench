@@ -851,6 +851,13 @@ cells, none significant; −26% tokens on luna `slow-sql`, +23% to +28% on terra
 3). The −34% luna `slow-sql` win recorded here after round 5 was an artefact of the
 check script and is withdrawn.
 
+**Strong models (Task T1.8, pin 2026-11-17, round `t18`, n = 6):** with the shipped v0.0.6 set and MCP,
+`claude-opus-5.5` loaded the router in 9/18 diagnosis trials, `aspire-monitoring` in 4/18 and no skill in 5/18;
+`gpt-6.2-sol` loaded `aspire-monitoring` 18/18 (router 6/18). `aspire-diagnose` in the lean set was loaded
+36/36. The shipped set cost both models time on the log-visible faults (+20 % to +91 %, p ≤ 0.065), so the
+router's competition with a focused skill is not a luna-only effect
+([PLAN.md, T1.8 results](telemetry/PLAN.md#t18-results)).
+
 **Improvement candidate:** Ship `aspire-diagnose`; remove or drastically shrink the
 router; give each skill a symptom-based trigger that excludes its neighbours.
 
@@ -1250,6 +1257,31 @@ Code, so where the skills are copied decides whether an agent can use them at al
 `MSBENCH_MCP_CONFIG` or `skills_dir` is unknown. Whether Copilot CLI also reads `/app/.claude/skills` (which
 would double-register skills if the copy went into the shared images) is unverified. T1.7 closed as
 "no verdict"; nothing filed upstream.
+
+## F30: A strong model follows "confirm on fresh traffic" literally and waits for traces, which costs it parity
+
+**Evidence:** Task T1.8 ([PLAN.md, T1.8 results](telemetry/PLAN.md#t18-results)), round `t18`, pin
+2026-11-17, n = 6 per cell. `claude-opus-5.5` with `aspire-lean` against the raw app: `slow-sql` 86 s
+against 59 s, 1.45× (p = 0.026); `read-only` 1.35× (p = 0.065). `gpt-6.2-sol` with the same skill text: 1.03× and
+1.21× (neither significant). Every trial passed. Observations from the trajectories:
+
+- Opus with `aspire-diagnose` finds the cause and makes the first fix sooner than raw. On `slow-sql` the cause is
+  on screen after a median 14 s against 25 s, and the first fix comes after 25 s against 33 s.
+- After the fix it spends a median 57 s against 32 s. In 12/12 `slow-sql` and `read-only` trials it ran
+  `sleep 15` to `sleep 45` (median total 30–34 s), in 11 of them followed by `aspire otel traces --search "name:…"`, waiting for
+  fresh traffic as the skill's step 4 says ("Then confirm on fresh traffic, using the same filter that showed
+  the problem"). Raw Opus confirmed with `curl` requests.
+- Sol never ran step 4's filter (0/18) and confirmed by request, so the same text costs it nothing.
+- With the shipped set Opus also slept 20–45 s on `read-only`, part of its 1.91× there.
+
+**Improvement candidate:** Step 4 of `aspire-diagnose`: confirm with one request to the affected
+operation when the agent can make one, use the trace filter only when it cannot, and say that live traffic
+yields new traces within seconds, so no sleep is needed. Proposed in PLAN T1.8, not applied. It must be measured
+on the Opus cells that failed, with luna `slow-sql`/`slow-redis` guard cells, before it ships.
+
+**Limits / status:** One model, one round, two scenarios. The sleep lengths are the model's choice, and a
+different Opus build may wait less. A literal instruction costs most on the model that follows instructions
+most closely. Not applied, not upstreamed.
 
 ## Recording future findings
 

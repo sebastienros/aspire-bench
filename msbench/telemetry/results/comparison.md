@@ -199,10 +199,10 @@ they are listed in trials.jsonl and excluded from every other column.
 
 | Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| raw | 6 | 6/6 | 6/6 | 42 (+0%) | 58,056 (+0%) | 0.003 (+0%) | 7 | - | - |
-| aspire-cli | 6 | 6/6 | 6/6 | 53 (+26%) | 98,311 (+69%) | 0.003 (+23%) | 9 | - | - |
-| aspire-skills-mcp | 6 | 6/6 | 6/6 | 57 (+36%) | 151,693 (+161%) | 0.005 (+97%) | 8 | - | - |
-| aspire-lean | 6 | 6/6 | 6/6 | 63 (+51%) | 153,198 (+164%) | 0.005 (+92%) | 12 | - | - |
+| raw | 10 | 10/10 | 10/10 | 43 (+0%) | 64,538 (+0%) | 0.003 (+0%) | 7 | - | - |
+| aspire-cli | 6 | 6/6 | 6/6 | 53 (+22%) | 98,311 (+52%) | 0.003 (+17%) | 9 | - | - |
+| aspire-skills-mcp | 6 | 6/6 | 6/6 | 57 (+31%) | 151,693 (+135%) | 0.005 (+89%) | 8 | - | - |
+| aspire-lean | 6 | 6/6 | 6/6 | 63 (+45%) | 153,198 (+137%) | 0.005 (+84%) | 12 | - | - |
 
 ## cold-start / gpt-6.1-terra
 
@@ -291,6 +291,14 @@ they are listed in trials.jsonl and excluded from every other column.
 | aspire-lean (tasks 1479041e) | 6 | 6/6 | 6/6 | 113 (-14%) | 301,804 (-10%) | 0.070 (-3%) | 26 | 54 | - |
 | aspire-lean (tasks 916a57ce) | 6 | 6/6 | 6/6 | 90 (-31%) | 310,502 (-8%) | 0.075 (+4%) | 28 | 44 | - |
 
+## read-only / claude-opus-5.5
+
+| Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| raw | 6 | 6/6 | 6/6 | 64 (+0%) | 343,750 (+0%) | 0.263 (+0%) | 12 | 4 | - |
+| aspire-skills-mcp | 6 | 6/6 | 6/6 | 122 (+91%) | 630,564 (+83%) | 0.386 (+47%) | 16 | 9 | - |
+| aspire-lean | 6 | 6/6 | 6/6 | 86 (+35%) | 357,907 (+4%) | 0.278 (+6%) | 11 | 10 | - |
+
 ## read-only / gpt-6-luna
 
 | Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
@@ -309,6 +317,22 @@ they are listed in trials.jsonl and excluded from every other column.
 | aspire-skills-mcp | 6 | 6/6 | 6/6 | 76 (+41%) | 467,234 (+160%) | 0.091 (+63%) | 30 | 10 | - |
 | aspire-lean | 6 | 6/6 | 6/6 | 51 (-6%) | 206,492 (+15%) | 0.051 (-9%) | 18 | 13 | - |
 
+## read-only / gpt-6.2-sol
+
+| Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| raw | 6 | 6/6 | 6/6 | 36 (+0%) | 131,860 (+0%) | 0.149 (+0%) | 16 | 7 | - |
+| aspire-skills-mcp | 6 | 6/6 | 6/6 | 52 (+44%) | 359,164 (+172%) | 0.311 (+108%) | 21 | 13 | - |
+| aspire-lean | 6 | 6/6 | 6/6 | 44 (+21%) | 220,663 (+67%) | 0.242 (+62%) | 20 | 5 | - |
+
+## slow-redis / claude-opus-5.5
+
+| Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| raw | 6 | 6/6 | 6/6 | 266 (+0%) | 569,190 (+0%) | 0.392 (+0%) | 20 | 128 | - |
+| aspire-skills-mcp | 6 | 6/6 | 6/6 | 271 (+2%) | 1,338,065 (+135%) | 0.725 (+85%) | 28 | 88 | - |
+| aspire-lean | 6 | 6/6 | 6/6 | 113 (-58%) | 434,496 (-24%) | 0.310 (-21%) | 14 | 51 | - |
+
 ## slow-redis / gpt-6-luna
 
 | Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
@@ -326,6 +350,22 @@ they are listed in trials.jsonl and excluded from every other column.
 | aspire-cli | 6 | 6/6 | 6/6 | 168 (+3%) | 605,583 (+57%) | 0.122 (+29%) | 38 | 4 | - |
 | aspire-skills-mcp | 6 | 6/6 | 6/6 | 164 (+0%) | 669,446 (+73%) | 0.128 (+35%) | 35 | 4 | - |
 | aspire-lean | 6 | 6/6 | 6/6 | 56 (-66%) | 207,126 (-46%) | 0.054 (-43%) | 20 | 19 | - |
+
+## slow-redis / gpt-6.2-sol
+
+| Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| raw | 6 | 6/6 | 6/6 | 147 (+0%) | 402,944 (+0%) | 0.349 (+0%) | 32 | 12 | - |
+| aspire-skills-mcp | 6 | 6/6 | 6/6 | 128 (-13%) | 574,486 (+43%) | 0.459 (+31%) | 36 | 28 | - |
+| aspire-lean | 6 | 6/6 | 6/6 | 83 (-43%) | 390,125 (-3%) | 0.375 (+7%) | 30 | 17 | - |
+
+## slow-sql / claude-opus-5.5
+
+| Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| raw | 6 | 6/6 | 6/6 | 59 (+0%) | 371,750 (+0%) | 0.282 (+0%) | 14 | 25 | - |
+| aspire-skills-mcp | 6 | 6/6 | 6/6 | 77 (+30%) | 599,732 (+61%) | 0.383 (+36%) | 14 | 25 | - |
+| aspire-lean | 6 | 6/6 | 6/6 | 86 (+45%) | 345,769 (-7%) | 0.251 (-11%) | 12 | 15 | - |
 
 ## slow-sql / gpt-6-luna
 
@@ -358,8 +398,10 @@ they are listed in trials.jsonl and excluded from every other column.
 
 | Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| raw | 3 | 3/3 | 3/3 | 52 (+0%) | 125,467 (+0%) | 0.151 (+0%) | 18 | 12 | - |
-| aspire-lean | 3 | 3/3 | 3/3 | 58 (+11%) | 229,504 (+83%) | 0.254 (+68%) | 20 | 20 | - |
+| raw | 9 | 9/9 | 9/9 | 52 (+0%) | 133,152 (+0%) | 0.156 (+0%) | 16 | 11 | - |
+| aspire-skills-mcp | 6 | 6/6 | 6/6 | 61 (+19%) | 284,578 (+114%) | 0.274 (+76%) | 22 | 23 | - |
+| aspire-lean (tasks 1479041e) | 6 | 6/6 | 6/6 | 53 (+2%) | 200,090 (+50%) | 0.226 (+45%) | 18 | 15 | - |
+| aspire-lean (tasks 916a57ce) | 3 | 3/3 | 3/3 | 58 (+12%) | 229,504 (+72%) | 0.254 (+63%) | 20 | 20 | - |
 
 ## slow-sql / gpt-6-luna / vscode
 
