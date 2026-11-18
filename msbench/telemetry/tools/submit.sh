@@ -11,12 +11,15 @@
 # the same working budget; it is recorded in the ledger as agent_timeout_multiplier.
 # Every submission appends one JSON line per returned run ID to results/ledger.jsonl, with the
 # harness, the Aspire build and skills tag the task was pinned to (and BENCH_TASK, the plan card, if set).
+# BENCH_LEDGER names another ledger file; the selection benchmark (T3.9) keeps its runs in
+# results/selection-ledger.jsonl so they never enter trials.jsonl, the cells or the series.
 set -euo pipefail
 suite="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 repo="$(cd "$suite/../.." && pwd)"
 scenario="$1"; arm="$2"; model="$3"; repeat="${4:-1}"; round="${5:-r1}"
 data="${TELEMETRY_DATA_DIR:-$HOME/.aspire-bench/telemetry-runs}"
 mkdir -p "$data/logs" "$suite/results"
+ledger="${BENCH_LEDGER:-results/ledger.jsonl}"; [[ "$ledger" == /* ]] || ledger="$suite/$ledger"
 export PATH="$HOME/Library/Application Support/pipx/venvs/msbench-cli/bin:$HOME/.local/bin:$PATH"
 export MSBENCH_DISABLE_RUN_ANALYSIS=1
 agent="${BENCH_AGENT:-github-copilot-cli}"
@@ -89,5 +92,5 @@ while read -r run_id; do
          + (if $agent_package == "" then {} else {agent_package: $agent_package} end)
          + (if $assets == "" then {} else {agent_assets: $assets, agent_assets_sha256: $assets_sha} end)
          + (if $task == "" then {} else {task: $task} end)
-         + (if $timeout_mult == "" or $agent == "" then {} else {agent_timeout_multiplier: ($timeout_mult|tonumber)} end)' | tee -a "$suite/results/ledger.jsonl"
+         + (if $timeout_mult == "" or $agent == "" then {} else {agent_timeout_multiplier: ($timeout_mult|tonumber)} end)' | tee -a "$ledger"
 done

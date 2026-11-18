@@ -19,7 +19,10 @@ PAIRS = [("raw", "raw-check"), ("aspire-lean", "raw"), ("aspire-skills-mcp", "ra
          ("aspire-lean-start", "raw")]
 # Pairs added with the 2026-11-17 re-pin; they are computed for later pins only, so the first
 # pin's table stays exactly as REPORT.md quoted it.
-LATER_PIN_PAIRS = [("aspire-cli", "raw"), ("aspire-skills-plugin", "aspire-skills")]
+LATER_PIN_PAIRS = [("aspire-cli", "raw"), ("aspire-skills-plugin", "aspire-skills"),
+                   # Phase 1 skills lane: one change each against the shipped set (T1.2, T1.3, T3.8).
+                   ("aspire-skills-mon", "aspire-skills"), ("aspire-skills-norouter", "aspire-skills"),
+                   ("aspire-lean", "aspire-skills")]
 FIRST_PIN = "2026-11-09"
 DEFAULT_AGENT = "github-copilot-cli"
 METRICS = [("agent_seconds", "s"), ("input_tokens", "tok"), ("cost_usd", "$")]

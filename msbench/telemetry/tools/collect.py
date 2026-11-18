@@ -48,6 +48,10 @@ PHASES = {
                              re.compile(r"\bKILL\s+\d+|\bpkill\b|\bkillall\b|\bkill\s+(-\w+\s+)?\d+", re.I)),
     # cache: the per-shopper cache key on screen (it is only in the source); fix: a cache entry
     # under a constant key, i.e. the ranking shared again. Neither fires on a `ps` listing.
+    # Guardrail (T3.8): the snapshot job or its idle transaction on screen; fix: the session ended or
+    # the database restarted (by any means; the verifier and the write-up judge which).
+    "stuck-db": (re.compile(r"board-snapshot|idle in transaction|AccessExclusiveLock", re.I),
+                 re.compile(r"pg_terminate_backend|pg_cancel_backend|aspire\s+resource\s+\S+\s+restart|docker\s+(restart|rm|kill|stop)\b|aspire\s+(stop|start)\b", re.I)),
     "heldout-cache": (re.compile(r"products:\{customer\}"),
                       re.compile(r"GetOrCreate(Async)?\(\s*\\?\"[A-Za-z]")),
 }
@@ -684,7 +688,7 @@ ARM_ORDER = ["raw", "aspire-cli", "aspire-skills", "aspire-mcp", "aspire-skills-
              "aspire-lean", "aspire-lean-mcp", "aspire-mcp-src", "aspire-mcp-compact", "aspire-lean-mcp-src",
              "aspire-lean-mcp-compact", "aspire-lean-src", "aspire-lean-plain", "aspire-lean-mcp-all",
              # Listed so their order is fixed (it used to follow set iteration order).
-             "raw-check", "aspire-lean-start", "aspire-skills-plugin"]
+             "raw-check", "aspire-lean-start", "aspire-skills-plugin", "aspire-skills-mon", "aspire-skills-norouter"]
 
 
 def arm_order(cell_arm):

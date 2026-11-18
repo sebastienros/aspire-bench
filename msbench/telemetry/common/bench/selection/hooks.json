@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "hooks": {
+    "preToolUse": [
+      { "type": "command", "bash": "bash /opt/benchmark/selection/pretool.sh", "timeoutSec": 15 }
+    ]
+  }
+}

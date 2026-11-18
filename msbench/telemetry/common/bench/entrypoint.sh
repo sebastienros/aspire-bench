@@ -14,6 +14,14 @@ for _ in {1..90}; do
 done
 [[ "$ready" == 1 ]] || { cat /logs/environment/docker.log >&2; exit 1; }
 
+if [[ "${BENCH_FAULT:-}" == selection ]]; then
+    # Selection benchmark (PLAN T3.9): a static copy of the workspace, nothing started, and a
+    # repository hook that stops the agent at its first skill load or third command.
+    mkdir -p /app/.github/hooks
+    cp /opt/benchmark/selection/hooks.json /app/.github/hooks/session.json
+    touch /opt/benchmark/ready
+    exec "$@"
+fi
 if [[ "${BENCH_FAULT:-}" == cold-start* ]]; then
     # The agent starts the application itself. Only dependency images are warmed, as they
     # would be on a developer machine, so image pulls do not dominate either arm.

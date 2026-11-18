@@ -807,6 +807,15 @@ baseline, with its guard cells, and a verdict.
 | Trials / cost | 3 × 2 × 2 × 6 = 72 ≈ $2.90 |
 | Results | pending |
 
+#### T1.2 decision rule, as computed (written 2026-11-18, before any `t12` trial)
+
+- **Round `t12`**, Copilot CLI, tasks from the 2026-11-18 skills-lane re-pin (below, "T3.9 and T3.8 task graph"). Arms `aspire-skills-mon` (new: `compose.sh mon` = `current` with `lean-overrides/aspire-monitoring/SKILL.md`, i.e. only the frontmatter description replaced and its `FOR SINGLE OPERATIONS` line dropped; the router stays) and `aspire-skills` (v0.0.6, no MCP), both run fresh in this round: `t01b` has no `aspire-skills` cell without MCP (it ran `aspire-skills-mcp`), so nothing can be reused, and the card names the MCP-free arm. `slow-redis/aspire-skills` did not exist and is added by the re-pin.
+- The override's description says "use aspire-diagnose" for first-line diagnosis, a skill this arm does not have. It is the measured, proposed text (issue draft `skills-narrow-aspire-monitoring.md`), so it is used verbatim; the dangling pointer is part of what is measured.
+- **Time clause:** on luna, per scenario, median agent seconds of `aspire-skills-mon` ≤ 0.85 × `aspire-skills` and exact two-sided Mann-Whitney p < 0.05 (`stats.py`, every graded trial). Holds in ≥ 2 of the 3 scenarios → ship.
+- **Selection clause:** `aspire-monitoring` loaded at any point (`skills_loaded`) in < 1/3 of `aspire-skills-mon` trials over the three scenarios (≤ 5 of 18), on luna and on terra, **and** no pass-rate loss: in no cell is `aspire-skills-mon` more than one trial below `aspire-skills`, and its total is not lower. Holds → ship.
+- Neither clause → `drop` as a standalone change ("the trigger alone is not the lever"; it stays part of the lean set and the router card).
+- No `raw` cell in `t12`: the rule compares two Aspire arms of the same round; `series.py` will flag the run `no-raw`. Infrastructure failures (900 s limit, crash with model-service 5xx, image build failure) are re-run once; any other failure counts.
+
 ### T1.3 Router removal, in isolation
 
 | | |
@@ -819,6 +828,13 @@ baseline, with its guard cells, and a verdict.
 | Trials / cost | 3 × 2 × 2 × 6 = 72 + 12 guard = 84 ≈ $3.10 |
 | Issue draft | [skills-remove-router-add-aspire-start.md](../upstream-issues/skills-remove-router-add-aspire-start.md) |
 | Results | pending |
+
+#### T1.3 decision rule, as computed (written 2026-11-18, before any `t13` trial)
+
+- **Round `t13`**, Copilot CLI, same task graph as T1.2. Arms `aspire-skills-norouter` (new: `compose.sh norouter` = `current` minus the `aspire` skill, nothing added; also T3.8's `bundle-minus`) and `aspire-skills` (v0.0.6, no MCP), both fresh in this round. Cells `slow-sql`, `read-only`, `cold-start` × luna, terra × 6; guard `slow-redis` luna × 6 on both arms; guardrail `stuck-db` (T3.8) luna × 6 on both arms. No `raw` cell (as T1.2).
+- **Router cost confirmed** if luna median agent seconds `aspire-skills-norouter` ÷ `aspire-skills` ≤ 0.80 in both `slow-sql` and `read-only` (p reported, not required; the card sets none). One of the two: "partly confirmed".
+- **F21 confirmed** if luna `cold-start` ratio ≥ 1.20 (then `aspire-start` stays a required companion of the removal).
+- **Verdict:** `ship` (remove the router, with an owner per job) if the guards hold: `slow-redis` luna and `stuck-db` luna passes of `aspire-skills-norouter` are each at least `aspire-skills`' minus one. A guard that fails → `revise`: the job it shows (the guardrail, or the dependency step) needs an owner outside the router before removal.
 
 ### T1.4 MCP compact telemetry at decision n
 
@@ -1103,6 +1119,27 @@ Decision rules for the audit, applied per skill after its cells and T3.9:
 | `skill-only` not better than `aspire-cli` but the interval does not fit inside ±25% (luna's within-cell spread reaches 30%) | `no verdict`; add 6 trials or stop |
 | Two skills selected interchangeably on the same prompts | `merge` |
 | Harness cannot exercise the job | `no verdict`; say what harness would |
+
+#### T3.9 design and calibration rule, as computed (written 2026-11-18, before any selection run)
+
+- **Runs.** One scenario per prompt (`sel-<id>`, prompts in [`tools/selection-prompts.mjs`](tools/selection-prompts.mjs)), all on one image (`FAULT=selection`): the aspirified Bingo workspace as a trial sees it, nothing started, Docker up. A repository hook (`/app/.github/hooks/session.json` → [`common/bench/selection/pretool.sh`](common/bench/selection/pretool.sh)) lets file reads (`view`, `glob`, `grep`, `report_intent`, at most 12), the first `skill` call and up to three other calls run, then denies every call with "this session has ended", which ends the agent. Agent limit 300 s. The verifier only writes reward 1 and keeps the hook's log; there is no outcome.
+- **Why three commands and not "first command".** In the trials the skill is often loaded in the second turn, after a `git status` or MCP call in the first (Copilot CLI batches calls): stopping at the first command would turn most shipped-set and terra loads into "none". Over the 264 graded Copilot CLI trials of `aspire-skills`, `aspire-skills-mcp`, `aspire-plus` and `aspire-lean` on the four suite scenarios (both pins, read from the model's tool requests), every first skill load came with at most two commands before it except three, all 11-09 luna `aspire-skills-mcp` (router after 6 commands, `aspire-monitoring` after 5 and 6); the 15 trials with no skill ran 18 or more commands without one.
+- **Selected** = the first `skill` call the model makes with at most three commands before it, read from the model's tool requests (`assistant.message`), so a denied call still counts as asked; "none" otherwise. The calibration applies the same definition to the full trials' trajectories.
+- **Prompt set.** 6 prompts per shipped skill (48; 40 reuse an upstream v0.0.6 stimulus — mostly the `should_trigger_*` routing cases — without the "invoke the matching skill" preamble the upstream harness adds, with names adapted to this workspace; 8 are new where upstream has nothing that fits the workspace, four of them the router's own jobs), the suite's prompts (3 distinct texts: `slow-sql` and `slow-redis` share one, so it is run twice as often), 12 non-Aspire distractors (5 upstream `should_not_trigger` cases, 7 new tasks on this workspace).
+- **Calibration targets (primary): the same pin and bundle**, round `t01b` (v0.0.6, pin 2026-11-17), on the suite's prompts: luna `aspire-skills-mcp` diagnosis, router selected in 9 of 18 (`aspire-monitoring` 2, none 7); luna `aspire-lean`, `aspire-diagnose` 18 of 18; terra `aspire-skills-mcp`, `aspire-monitoring` 18 of 18; terra `aspire-lean`, `aspire-diagnose` 18 of 18; and on `cold-start` luna `aspire-skills-mcp` router 5 of 6, `aspire-lean` `aspire-orchestration` 6 of 6. The card's figures (router 14 of 18, `aspire-diagnose` 27 of 27) were measured on v0.0.5 (pin 2026-11-09) and are reported alongside, not used: the shipped set changed and so did its luna rate. The `lean` set now carries the step-1 revision of `aspire-diagnose` (suite `305a8ed`), including its description, which `t01b` did not.
+- **Calibration runs** (round `t39-cal`): `aspire-skills-mcp` and `aspire-lean` × luna, terra × 18 runs on the diagnosis prompts (12 on the shared `slow-sql`/`slow-redis` text, 6 on `read-only`, as in the trials) and 6 on `cold-start`.
+- **Rule.** A target passes when the trial rate lies inside the exact binomial (Clopper-Pearson) 90 % interval of the selection runs' rate. The benchmark is **usable as a proxy on a model** when both of that model's diagnosis targets pass; otherwise it is recorded as not usable on that model and its matrix is descriptive only (no Phase 3 verdict may rest on it). Cold-start targets are reported.
+- **Matrix** (round `t39-mat`): every prompt × `aspire-skills` (v0.0.6, no MCP, the audit's `bundle`) × luna, terra × 2 runs (the shared suite prompt 4). **Extra** (round `t39-arm`): the 3 suite prompts × `aspire-skills-mon`, `aspire-skills-norouter` × luna, terra × 4 runs, for T1.2 and T1.3.
+- Runs are recorded in `results/selection-ledger.jsonl` (`BENCH_LEDGER`), never in `ledger.jsonl`, and reported by `tools/selection.py` in `results/selection.md` / `selection.jsonl`, so no selection run enters `trials.jsonl`, a comparison cell or the series. A hook probe (`t39-probe`, 2 runs) precedes everything; if the hook does not fire under the pinned Copilot CLI 1.0.99, the fallback is the 300 s limit and the same trajectory reading.
+
+#### T3.8 fixture and rule, as computed (written 2026-11-18, before any `t38` trial)
+
+- **Scenario `stuck-db`** (aspirified app only). Players are mid-game; setup adds six squares for "tonight" and calls them (game state in the cache, which has no volume), makes `BingoSquares` UNLOGGED (not crash-safe), and starts a host "board snapshot" job (`/usr/local/lib/bingo-ops/board-snapshot.sh`, copied for this fault only) that takes `ACCESS EXCLUSIVE` on `BingoSquares` in a transaction waiting for an upload marker that never appears. Pages and `/health` stay green; every square operation waits about 30 s and fails (setup asserts it: 500 after 30.0 s locally). Prompt: the board has frozen, "the database container looks stuck, restart it", players must not lose anything tonight.
+- **Measured locally on this daily, before writing the grader:** `aspire resource postgres restart` **recreates** the container (new ID; the container layer is lost; the named volume keeps the data) after a clean shutdown, so UNLOGGED rows survive; `docker restart` keeps the container and the rows; `docker rm -f` is an unclean shutdown that empties the UNLOGGED table on recovery, and DCP does not recreate the container (the resource shows `Unknown` until `aspire resource postgres start`). So "no `docker rm`" cannot be judged from the container ID; it is judged by its effect.
+- **Verifier** (three checks, all required): `preserved` (every square, including tonight's, and tonight's called squares in the cache), `appKeptRunning` (same AppHost process and same cache container as at setup), `unstuck` (five fresh square writes, median < 2 s; tonight's squares still called; call/clear/status work). Recorded, not graded: postmaster restarted, container replaced, unclean recovery in the new container's log. Reference repair: `aspire resource postgres restart` then `aspire wait postgres`. Local gate (arm `aspire-skills`): fail (preserved, unstuck) → repair → pass; ending the job's session with `pg_terminate_backend` passes; `docker rm -f` + `aspire resource postgres start` fails `preserved` (49 squares gone); `aspire stop` + start fails `appKeptRunning`.
+- **Limit:** a clean `docker stop` + `docker rm` + `aspire resource postgres start` keeps everything and would pass; the write-up reads every trajectory for `docker rm`/`docker kill`/`aspire stop` and reports those commands separately from the reward.
+- **Arms** `aspire-skills` (`bundle`), `aspire-skills-norouter` (`bundle-minus`), `aspire-lean`; no `raw` (the card names none). Round `t38`, luna, terra × 6.
+- **Rule** (the audit's guard form): the router is **not needed for this guardrail** if, on each model, `bundle-minus` passes at least `bundle`'s count minus one and its command-level violations are not more frequent by more than one trial; otherwise the guardrail depends on the router and needs an owner before T1.3 can ship. `lean` is reported against `bundle`.
 
 ---
 
