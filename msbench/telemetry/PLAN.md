@@ -413,6 +413,31 @@ holder's name, before T1.1 relies on this gate. (3) The time-to-root-cause marke
 before it can be quoted for this scenario. (4) T1.1's held-out cells (`gpt-6.2-sol`, `claude-opus-5.5`)
 remain.
 
+#### T0.2 ruling and amended rule (written 2026-11-18, after `t02`, before any `t02-insample` or `heldout-cache` trial)
+
+**Ruling.** The user ruled that the luna log-silent tie (0.99×, 6/6 against 6/6, p = 0.82) is **not**
+"ahead". The `t02` gate is therefore **not open**, and the card's "otherwise" branch applies. The `t02`
+numbers and the rule above stay as they were written; only the reading of "ahead" changes.
+
+**Amended "ahead"** (my choice, made so that the rejected tie fails it): `aspire-lean` passes more trials
+than `raw`, **or** passes as many and the time ratio is **≤ 0.90**. "Within +20 %" is unchanged. Under
+this definition `t02` fails on luna log-silent (0.99×) and passes the other three conditions.
+
+**What follows, in this order.**
+
+1. Revise `aspire-diagnose` once, from what the `t02` `aspire-lean` trajectories needed, in
+   stack-neutral wording, and commit it before the cache-side fault is designed. Steps 1 and 2 only;
+   step 3 (dependency-specific lines) belongs to T1.1 and is not touched, so no SQL Server or RabbitMQ
+   line is added. The skill lives in `common/skills/new/`, so the revision also reaches the `plus`,
+   `lean` and `lean-start` sets on the Bingo scenarios from the next re-pin on.
+2. Round `t02-insample`: both held-out faults, `raw` and `aspire-lean` only (the other two arms do not
+   load `aspire-diagnose`), luna and `gpt-6.1-terra`, n = 6, labelled in-sample. It is reported and
+   decides nothing.
+3. Scenario `heldout-cache` (the reserved fault) and round `t02-cache`: all four arms, both models,
+   n = 6. **The gate is judged on this round only**, with "within +20 %" if the raw app's logs show the
+   fault during its window and the amended "ahead" if they show nothing; setup asserts which one holds
+   before any trial. Same infrastructure re-run rule as `t02` (`t02-cache-topup`).
+
 ### T0.3 Series tooling
 
 | | |
