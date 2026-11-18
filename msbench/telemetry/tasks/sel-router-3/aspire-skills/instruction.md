@@ -1,0 +1,1 @@
+How should an AI agent use aspire start for the AppHost in this repository when working in a git worktree? Give read-only guidance covering AppHost selection and unattended execution; do not start anything, install tools or edit files.
