@@ -329,5 +329,6 @@ they are listed in trials.jsonl and excluded from every other column.
 
 | Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| aspire-skills-mcp | 1 | 1/1 | 1/1 | 622 | 4,328 | 0.000 | 1 | - | - |
+| aspire-skills-mcp | 1 | 1/1 | 1/1 | 622 | 1,445,929 | 0.038 | 70 | 293 | - |
+| aspire-lean | 3 | 3/3 | 3/3 | 373 | 482,095 | 0.014 | 31 | 229 | 1 |
 

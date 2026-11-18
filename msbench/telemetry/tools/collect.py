@@ -18,9 +18,11 @@ import json
 import os
 import re
 import shutil
+import sqlite3
 import statistics
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 SUITE = Path(__file__).resolve().parent.parent
@@ -185,6 +187,8 @@ def analyze_trial(result_path, entry):
     versions = {json.loads(p.read_text()).get("resolvedVersion") for p in trial_dir.rglob("cli-provenance.json")}
     row["copilot_cli"] = sorted(v for v in versions if v)
 
+    if row["agent"] == "vscode":
+        return analyze_vscode(trial_dir, entry, row)
     if row["agent"] not in (DEFAULT_AGENT, "oracle"):
         return analyze_atif(trial_dir, entry, row)
     trajectory = next((p for p in trial_dir.rglob("copilot-cli.jsonl")), None)
@@ -236,6 +240,11 @@ def analyze_trial(result_path, entry):
         value = event.get("timestamp")
         return parse_time(value) if value else None
     started = next((stamp(e) for e in events if stamp(e)), None)
+    # The agent loop alone, first to last trajectory event; agent_seconds is Harbor's
+    # agent_execution, which also holds harness start-up (large for VS Code, see analyze_vscode).
+    ended = max((stamp(e) for e in events if stamp(e)), default=None)
+    if started and ended:
+        row["agent_loop_seconds"] = round((ended - started).total_seconds(), 1)
     seen_pattern, fix_pattern = PHASES.get(entry["scenario"], (None, None))
     if started and seen_pattern:
         for event in events:
@@ -372,6 +381,192 @@ def analyze_atif(trial_dir, entry, row):
         if row.get(key) is None and final.get(atif_key) is not None:
             row[key] = final[atif_key]
             row.setdefault("usage_source", "atif")
+    return row
+
+
+# VS Code agent mode. The run's ATIF trajectory and Harbor's agent_result, which is read from it,
+# hold only the last session the agent ran; when a subagent ran last, that is the subagent, not
+# the main agent (T0.4). The Copilot Chat extension's OpenTelemetry span store holds every session,
+# model call and tool call; subagent sessions link to the main one, and their model calls and tools
+# count as the agent's.
+VSCODE_MCP_SERVER = re.compile(r"^aspire")
+NANO_AIU_PER_USD = 1e11  # Copilot CLI's ATIF reports cost_usd = total_nano_aiu / 1e11
+
+
+def tsx_text(value):
+    """Tool results are plain text, or a serialized prompt-tsx tree whose text leaves are what the
+    model is shown."""
+    try:
+        tree = json.loads(value)
+    except (TypeError, json.JSONDecodeError):
+        return value or ""
+    if not isinstance(tree, dict) or "node" not in tree:
+        return value
+    parts = []
+    def walk(node):
+        if isinstance(node, dict):
+            if node.get("type") == 2 and isinstance(node.get("text"), str):
+                parts.append(node["text"])
+            for child in node.get("children") or []:
+                walk(child)
+    walk(tree["node"])
+    return "".join(parts)
+
+
+def sqlite_ok(path):
+    with tempfile.TemporaryDirectory() as tmp:
+        shutil.copy(path, Path(tmp) / path.name)
+        try:
+            connection = sqlite3.connect(Path(tmp) / path.name)
+            ok = connection.execute("pragma integrity_check").fetchone()[0] == "ok"
+            connection.close()
+            return ok
+        except sqlite3.DatabaseError:
+            return False
+
+
+def load_spans(trial_dir):
+    # Prefer the run's output copy, written after VS Code exits; a copy taken while the store is
+    # still open can fail integrity_check.
+    candidates = [parent / "vsc-output/agent-traces.db" for parent in trial_dir.parents]
+    candidates = [c for c in candidates if c.exists()] + sorted(trial_dir.rglob("vsc-output/agent-traces.db"))
+    db = next((c for c in candidates if sqlite_ok(c)), None)
+    if db is None:
+        return None, None
+    # The store is in WAL mode; open a copy of the database and its -wal so nothing is lost or written.
+    with tempfile.TemporaryDirectory() as tmp:
+        for suffix in ("", "-wal"):  # never the -shm: a stale index makes SQLite misread the WAL
+            source = db.with_name(db.name + suffix)
+            if source.exists():
+                shutil.copy(source, Path(tmp) / (db.name + suffix))
+        connection = sqlite3.connect(Path(tmp) / db.name)
+        connection.row_factory = sqlite3.Row
+        spans = [dict(r) for r in connection.execute("select * from spans order by start_time_ms, end_time_ms")]
+        attributes = collections.defaultdict(dict)
+        for span_id, key, value in connection.execute("select span_id, key, value from span_attributes"):
+            attributes[span_id][key] = value
+        connection.close()
+    for span in spans:
+        span["attributes"] = attributes.get(span["span_id"], {})
+    digest = hashlib.sha256(b"".join(db.with_name(db.name + s).read_bytes()
+                                     for s in ("", "-wal") if db.with_name(db.name + s).exists())).hexdigest()
+    return spans, digest
+
+
+def websocket_logs(trial_dir):
+    """The Copilot Chat extension log of the run (its <output>/vsc-output copy, else the trial's)."""
+    for parent in trial_dir.parents:
+        found = sorted(parent.glob("vsc-output/productLogs/window*/exthost/GitHub.copilot-chat/*.log"))
+        if found:
+            return found
+    return sorted(trial_dir.rglob("GitHub.copilot-chat/*.log"))
+
+
+def analyze_vscode(trial_dir, entry, row):
+    spans, digest = load_spans(trial_dir)
+    if not spans:
+        row["trajectory"] = None
+        return row
+    row["trajectory_sha256"] = digest
+    at = lambda ms: datetime.datetime.fromtimestamp(ms / 1000, datetime.timezone.utc)
+    sessions = [s for s in spans if s["operation_name"] == "invoke_agent"]
+    main = next((s for s in sessions if not s["attributes"].get("copilot_chat.parent_chat_session_id")), None)
+    main = main or max(sessions, key=lambda s: s["end_time_ms"] - s["start_time_ms"], default=None)
+    chats = [s for s in spans if s["operation_name"] == "chat"]
+    tools = [s for s in spans if s["operation_name"] == "execute_tool"]
+    row["agent_version"] = {"vscode-agent": (entry.get("agent_package") or "").split("=")[-1] or None}
+    log = next(iter(trial_dir.rglob("vsc-output/agent-output.log")), None)
+    match = re.search(r"VS Code version: (\S+)", log.read_text(errors="replace")) if log else None
+    if match:
+        row["agent_version"]["vscode"] = match.group(1)
+    # Model calls that failed with a server error. The span store records the failed call; the
+    # retry backoff before the next call is counted the way the Copilot reader counts it.
+    failures = [s for s in chats if s["status_code"] == 2 and re.search(r"\b5\d\d\b", s["status_message"] or "")]
+    wait = 0.0
+    for failure in failures:
+        following = next((c for c in chats if c["start_time_ms"] >= failure["end_time_ms"]), None)
+        wait += ((following["start_time_ms"] if following else failure["end_time_ms"]) - failure["start_time_ms"]) / 1000
+    row["model_service_5xx"] = len(failures)
+    row["model_service_wait_seconds"] = round(wait, 1)
+    if failures and row["exception"]:
+        row["infrastructure_failure"] = True
+    # Copilot Chat first tries each request over a WebSocket; in T0.4 the attempt failed after about
+    # 60 s and the request was retried over HTTP (three times per trial, then the extension stopped
+    # trying). The agent is idle meanwhile: the wait runs
+    # from the last span that ended before the error to the error itself.
+    ends = sorted(s["end_time_ms"] for s in spans)
+    errors = []
+    transport_wait = 0.0
+    for log_path in websocket_logs(trial_dir):
+        for line in log_path.read_text(errors="replace").splitlines():
+            match = re.match(r"(\d{4}-\d\d-\d\d \d\d:\d\d:\d\d\.\d+) \[error\] \[ChatWebSocketManager\] Connection error", line)
+            if match:
+                errors.append(datetime.datetime.fromisoformat(match.group(1)).replace(tzinfo=datetime.timezone.utc))
+    for error in errors:
+        ms = error.timestamp() * 1000
+        before = [e for e in ends if e <= ms]
+        if before:
+            transport_wait += (ms - before[-1]) / 1000
+    row["transport_fallbacks"] = len(errors)
+    row["transport_wait_seconds"] = round(transport_wait, 1)
+    row["models_called"] = sorted({s["response_model"] or s["request_model"] for s in chats
+                                   if s["response_model"] or s["request_model"]})
+    row["model_calls"] = len(chats)
+    row["subagent_sessions"] = sum(1 for s in sessions if s is not main)
+    # Tokens and cost: Harbor's agent_result for this harness covers one subagent session only, so
+    # the span totals replace it.
+    row["input_tokens"] = sum(s["input_tokens"] or 0 for s in chats)
+    row["cached_input_tokens"] = sum(s["cached_tokens"] or 0 for s in chats)
+    row["output_tokens"] = sum(s["output_tokens"] or 0 for s in chats)
+    nano = [float(s["attributes"].get("copilot_chat.copilot_usage_nano_aiu") or 0) for s in chats]
+    row["cost_usd"] = round(sum(nano) / NANO_AIU_PER_USD, 6) if any(nano) else None
+    row["usage_source"] = "agent-traces.db"
+    calls = []
+    for span in tools:
+        a = span["attributes"]
+        name = a.get("gen_ai.tool.name") or span["tool_name"]
+        if a.get("github.copilot.tool.parameters.mcp_server_name") and VSCODE_MCP_SERVER.match(
+                a["github.copilot.tool.parameters.mcp_server_name"]):
+            name = "aspire-" + a.get("github.copilot.tool.parameters.mcp_tool_name", name)
+        try:
+            arguments = json.loads(a.get("gen_ai.tool.call.arguments") or "{}")
+        except json.JSONDecodeError:
+            arguments = {"raw": a.get("gen_ai.tool.call.arguments")}
+        calls.append({"name": name, "arguments": arguments if isinstance(arguments, dict) else {"raw": arguments},
+                      "result": tsx_text(a.get("gen_ai.tool.call.result")),
+                      "started": at(span["start_time_ms"]), "finished": at(span["end_time_ms"])})
+    counts = collections.Counter(c["name"] for c in calls)
+    row["tool_calls"] = len(calls)
+    row["tool_counts"] = dict(counts)
+    row["mcp_calls"] = {name: n for name, n in counts.items() if name and name.startswith("aspire-")}
+    row["skills_loaded"] = [skill for skill in map(skill_of, calls) if skill]
+    aspire, protected, harness_paths = collections.Counter(), 0, set()
+    for call in calls:
+        text = json.dumps(call["arguments"])
+        matches = PROTECTED.findall(text)
+        protected += bool(matches)
+        harness_paths.update(m.rstrip("/") for m in matches)
+        if "command" in call["arguments"]:  # run_in_terminal, also inside the execution subagent
+            aspire.update(re.sub(r"\s+", " ", m) for m in ASPIRE_COMMAND.findall(text))
+    row["aspire_cli"] = dict(aspire)
+    row["protected_path_access"] = protected
+    row["harness_paths_read"] = sorted(harness_paths)
+    started = at(main["start_time_ms"]) if main else at(spans[0]["start_time_ms"])
+    if main:
+        row["agent_loop_seconds"] = round((main["end_time_ms"] - main["start_time_ms"]) / 1000, 1)
+    seen_pattern, fix_pattern = PHASES.get(entry["scenario"], (None, None))
+    if seen_pattern:
+        seen = min((c for c in calls if seen_pattern.search(json.dumps(c["result"]))),
+                   key=lambda c: c["finished"], default=None)
+        if seen is not None:
+            row["seconds_to_root_cause_seen"] = round((seen["finished"] - started).total_seconds(), 1)
+            row["tool_calls_to_root_cause_seen"] = sum(c["started"] < seen["finished"] for c in calls)
+        fix = next((c for c in calls if fix_pattern.search(json.dumps(c["arguments"]))), None)
+        if fix is not None:
+            row["seconds_to_first_fix"] = round((fix["started"] - started).total_seconds(), 1)
+    # Result text as the model sees it (the prompt-tsx wrapping removed); there is no separate
+    # user-facing copy as in Copilot CLI's detailedContent, so both measures are the same.
+    row["tool_result_chars"] = row["tool_result_content_chars"] = sum(len(json.dumps(c["result"])) for c in calls)
     return row
 
 

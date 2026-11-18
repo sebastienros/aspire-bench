@@ -1,6 +1,6 @@
 # Plan: improving agentic performance with Aspire (CLI, MCP, skills)
 
-Status: proposal, 2026-11-17. T0.1 (re-pin and re-baseline), T0.2 (held-out application) and T0.3 (series tooling) done 2026-11-18; no issue has been filed.
+Status: proposal, 2026-11-17. T0.1 (re-pin and re-baseline), T0.2 (held-out application), T0.3 (series tooling) and T0.4 (harness adapters) done 2026-11-18; no issue has been filed.
 Each task below is a card with the same fields; a card's **Results** field is either a
 link to measured numbers or `pending`. Nothing in a Results field is predicted.
 
@@ -476,7 +476,86 @@ flagged run should be read by hand.
 | Check | Three luna `slow-sql` trials on `aspire-lean` under `vscode`: the skill is loaded, the trajectory parses, the verifier grades |
 | Decision rule | Done when the check passes and a `vscode` row in `trials.jsonl` has every field a Copilot CLI row has |
 | Trials / cost | 3 ≈ $0.05 |
-| Results | pending |
+| Results | Done 2026-11-18: [T0.4 results](#t04-results) below. Check passed: 3/3 reward 1, `aspire-diagnose` loaded 3/3, every Copilot CLI field derived. VS Code runs are read from the Copilot Chat span store, because the trajectory file the run returns describes a subagent ([F28](../FINDINGS.md#f28-under-the-vscode-harness-harbors-trial-result-describes-a-subagent-not-the-agent)); each trial loses 186 s to a WebSocket fallback, which must be subtracted before T1.9 |
+
+#### T0.4 results
+
+**Adapters.** `tools/submit.sh` takes the harness from `BENCH_AGENT` (positional arguments unchanged):
+`github-copilot-cli` (default, pinned as before), `vscode` (package `vscode=0.20261117.7`, published
+2026-11-17; it ran VS Code `1.146.0-insider`) and `claude-code` (`claude-code=v0.33.1794879102`,
+resolved but not run). The ledger records `agent`, `agent_package` and, for VS Code, the asset
+folder and its SHA-256; oracle lines carry no agent, and lines without one are Copilot CLI. Skills
+need no adapter: the image copies them into `/app/.github/skills`, and VS Code listed them to the
+model with their `SKILL.md` paths. **MCP deviates from the card:** `.vscode/mcp.json` is not written
+into the image, because Copilot CLI may also read workspace MCP files and every MCP arm's image would
+change (new task graph, re-gates, possible double registration). Instead `gen-tasks.mjs
+agent-assets` writes one asset folder with and one without the Aspire server, from the same server
+definition as `task.toml`, and `submit.sh` passes the one matching the task; VS Code registers the
+server at user scope, the scope Copilot CLI also reports, and all 15 tools appeared. The assets also
+auto-approve tools (no prompt blocked any trial) and enable agent skills, and they keep the
+evaluation-agent keys the run requires. Task emission is byte-identical,
+so no re-pin was needed.
+
+**Check (`t04-check`, `slow-sql`/`aspire-lean`/luna, tasks `0dfaf98f`):** `2026111829843826`,
+`2026111829929810`, `2026111830028882`, all reward 1, `aspire-diagnose` loaded in each (a file read
+of its `SKILL.md`), no MCP (the arm has none), `aspire describe` and `aspire otel traces` used 3 to 4
+times each, no harness-path access. Next to Copilot CLI's `t01b` cell (n = 6):
+
+| Harness | Pass | Agent s | Loop s | Loop s − transport wait | Input tokens | Cost | Tools | Chars read (content) |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| Copilot CLI (`t01b`) | 6/6 | 112 | 108 | 108 | 383k | $0.012 | 30.5 | 79k |
+| VS Code (`t04-check`) | 3/3 | 373 | 329 | 142 | 482k | $0.014 | 31 | 92k |
+
+Probe round `t04-probe` (not part of the check): one `aspire-skills-mcp` trial, reward 1,
+`aspire-monitoring` loaded, 7 MCP calls (`list_resources` 2, `list_console_logs` 2, `list_traces`,
+`list_structured_logs`, `list_apphosts`), 1.45 M tokens, $0.038; and one `aspire-lean` trial that never
+started (`2026111828361612`: the harness's dependency install could not reach the Ubuntu archive;
+an infrastructure failure, kept in `trials.jsonl`).
+
+**Which record is complete.** The run's trajectory file, and Harbor's token count read from it,
+held only the agent's last session: in the MCP probe a short subagent session that ran one
+`dotnet build` (4,328 tokens, against 1.45 M for the whole run). The Copilot Chat extension's
+OpenTelemetry span store, which the run also returns, held every session, model call and tool call
+of all five VS Code trials; `collect.analyze_vscode` reads it.
+
+**How each field is derived:** skill loads are file reads of `.github/skills/<name>/SKILL.md`; MCP
+calls are renamed `aspire-<tool>` as Copilot CLI spells them; `aspire_cli` counts `aspire` commands
+in terminal tools (also inside a subagent); phase markers use the tool call's end (root cause seen)
+and start (first fix), relative to the main session's start; tokens and cost are summed over every
+model call, cost as Copilot CLI's own records compute it (cost per input token agrees with the
+Copilot rows of the same cell); `model_service_5xx` counts model calls
+that failed with a 5xx (none occurred). Fields new on every row: `agent`, `agent_package`, `task`,
+`agent_loop_seconds` (first to last event) and `tool_result_content_chars` (result content only;
+Copilot's `tool_result_chars` also counts its `detailedContent`, roughly twice the content); VS Code
+rows add `agent_version`, `subagent_sessions`, `transport_fallbacks`, `transport_wait_seconds` and
+`usage_source`. A `vscode` row has every key a Copilot CLI row has (checked by key-set diff); the
+results files keep harnesses in separate cells. The generic ATIF reader (used for `claude-code`)
+was validated on 30 Copilot CLI trials that carry both formats: tool counts, MCP calls, skills,
+`aspire` commands, harness-path access and models agree on all 30; phase times agree within about
+2 s; `tool_calls_to_root_cause_seen` on 27 of 30 (the rest order a parallel batch differently).
+
+**Fields that differ by definition, not derived the same way.** (1) `agent_seconds` is Harbor's
+`agent_execution`, which for VS Code includes 43 to 55 s of VS Code launch and shutdown (4.4 s
+median for Copilot CLI); compare harnesses on `agent_loop_seconds`. (2) Every VS Code trial lost
+186.5 s (three times about 62 s) at the start: Copilot Chat first tries each model request over a
+WebSocket, the attempt fails after about 62 s, the request then succeeds over HTTP, and after three
+failures the extension stops trying. Why the WebSocket fails was not determined.
+`transport_wait_seconds` measures the idle time from the extension log; phase times include it. No
+setting that turns the WebSocket off was found. T1.9 must either find one or subtract the wait,
+because a constant 186 s pulls every VS Code ratio to `raw` towards 1. (3) VS Code can hand terminal
+work to a built-in subagent that runs on `gpt-5.6-luna`, not the requested model (the MCP probe, 4
+subagent sessions, 10 calls; none in the three check trials), and every trial made 3 `gpt-4o-mini`
+utility calls; `models_called` lists them and their tokens count. That is the product default, so it
+belongs to the VS Code arm, but a VS Code "luna" cell is not luna alone. (4) The model-service wait
+after a 5xx cannot be split from ordinary latency the way Copilot CLI's retry events allow; it is the
+failed call plus the gap to the next one. (5) Not derived: `copilot_cli` is empty on VS Code rows
+(`agent_version` carries the harness package and the VS Code build instead), and the Copilot Chat
+extension's version was not found in the artifacts. (6) `claude-code` is pinned and routed to the
+generic ATIF reader, but no trial ran it: neither that reader on its output nor Harbor's delivery of
+`task.toml`'s MCP server to it is verified. (7) `comparison.md`, `stats.md` and `series.md` still use
+`agent_seconds` for every harness; nothing yet subtracts the transport wait.
+
+**Cost.** $0.04 (check) + $0.04 (probes); the gates are model-free.
 
 ---
 
@@ -579,7 +658,7 @@ baseline, with its guard cells, and a verdict.
 | | |
 |---|---|
 | Hypothesis | The shipped set's penalty, `aspire-diagnose`'s gain and the router's mis-selection are properties of the skills and tools, not of the Copilot CLI harness. VS Code is where most users meet them |
-| Harness | `vscode` only: VS Code agent mode, the product's own agent loop, with skills from `.github/skills` and the MCP server from `.vscode/mcp.json`. The other VS Code variants (`vscode-copilot-cli`, `vscode-ahp`, `vscode-claude`) host a different engine inside VS Code and would collide with the Copilot CLI rows already measured, so they are out of scope |
+| Harness | `vscode` only: VS Code agent mode, the product's own agent loop, with skills from `.github/skills` and the MCP server registered at user scope (from `agents/vscode/mcp`, not `.vscode/mcp.json`; see [T0.4 results](#t04-results), which also lists the timing corrections this lane needs). The other VS Code variants (`vscode-copilot-cli`, `vscode-ahp`, `vscode-claude`) host a different engine inside VS Code and would collide with the Copilot CLI rows already measured, so they are out of scope |
 | Prerequisite | T0.4 |
 | Arms | `raw`, `aspire-skills-mcp` (v0.0.6), `aspire-lean` |
 | Cells | `slow-sql`, `slow-redis`, `cold-start` × luna, terra × 6 |

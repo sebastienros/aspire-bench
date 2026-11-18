@@ -19,9 +19,15 @@ ENV = dict(os.environ, PATH=f"{VENV}:{os.environ['PATH']}")
 def status(run_id):
     out = subprocess.run(["msbench-cli", "status", "--run_id", run_id, "--backend", "ces-staging",
                           "--format", "json"], env=ENV, capture_output=True, text=True, timeout=300).stdout
-    start = out.find("{")
-    # The CLI may print more than one JSON document; the first is this run's status.
-    return json.JSONDecoder().raw_decode(out[start:])[0] if start >= 0 else {}
+    # For a run in a --parallel_repeats group the CLI prints the whole group as a JSON list, whose
+    # first element is a sibling run; pick the requested run. Otherwise the first JSON document.
+    start = min((i for i in (out.find("["), out.find("{")) if i >= 0), default=-1)
+    if start < 0:
+        return {}
+    document = json.JSONDecoder().raw_decode(out[start:])[0]
+    if isinstance(document, list):
+        return next((d for d in document if str(d.get("run_id")) == run_id), {})
+    return document
 
 
 def main():
@@ -39,7 +45,9 @@ def main():
                 state = status(run_id)
             except Exception as error:  # transient service errors must not end the wait
                 state = {"error": str(error)}
-            if state.get("execution_complete"):
+            # Artifacts are complete only once ingestion is finalized; extracting earlier can
+            # return a partial folder that collect.py would then cache.
+            if state.get("execution_complete") and state.get("lifecycle_stage") in (None, "finalized"):
                 final[run_id] = state
                 pending.discard(run_id)
         if pending:

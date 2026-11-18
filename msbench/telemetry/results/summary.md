@@ -327,5 +327,6 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 
 | Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
-| aspire-skills-mcp | 1/1 | 622 | - | - | 4,328 | 173 | - | 1 | - | 0 | 429 |
+| aspire-lean | 3/3 | 373 | 229 | 276 | 482,095 | 8,951 | 0.014 | 31 | aspire-diagnosex3 | 0 | 92,170 |
+| aspire-skills-mcp | 1/1 | 622 | 293 | 256 | 1,445,929 | 27,464 | 0.038 | 70 | aspire-monitoringx1 | 7 | 213,237 |
 

@@ -14,7 +14,7 @@ infrastructure failures are left out.
 |---|---|---|---|---|---|---|---|
 | github-copilot-cli | 2026-11-09 | 20261109 | 2026-11-09 | 12 rounds pooled | 17.1.0-preview.1.26559.1+4954c76a | v0.0.5 | – |
 | github-copilot-cli | t01b | 20261118 | 2026-11-17 | t01b, t01b-plugin, t01b-solbridge, t01b-warm | 17.1.0-preview.1.26567.3+30326eb8 | v0.0.6 | T0.1 |
-| vscode | t04 | 20261118 | 2026-11-17 | t04-probe | 17.1.0-preview.1.26567.3+30326eb8 | v0.0.6 | T0.4 |
+| vscode | t04 | 20261118 | 2026-11-17 | t04-check, t04-probe | 17.1.0-preview.1.26567.3+30326eb8 | v0.0.6 | T0.4 |
 | github-copilot-cli | t02 | 20261118 | 2026-11-17 | t02 | 17.1.0-preview.1.26567.3+30326eb8 | v0.0.6 | T0.2 |
 
 ## cold-start / claude-opus-5.5
@@ -291,5 +291,6 @@ infrastructure failures are left out.
 
 | Arm | Run | n | Pass | Agent s (MAD) | Input tok | Time × raw | trail | Tokens × raw | trail | Skill sel. | MCP calls | Chars read | Flags | Time ratio |
 |---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---|
-| aspire-skills-mcp | t04 | 1 | 1/1 | 622 (0) | 4,328 | – | – | – | – | 0% | 0 | 429 | no-raw, selection-low |  |
+| aspire-skills-mcp | t04 | 1 | 1/1 | 622 (0) | 1,445,929 | – | – | – | – | 100% | 7 | 213,237 | no-raw |  |
+| aspire-lean | t04 | 3 | 3/3 | 373 (27) | 482,095 | – | – | – | – | 100% | 0 | 92,170 | no-raw |  |
 

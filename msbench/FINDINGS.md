@@ -1139,6 +1139,39 @@ open. The source naming the lock's other user gives every arm a route the card d
 re-run without those comments is open. Two models, one harness, n = 6. Cost $6.27 against $3.90
 estimated (terra trials longer than on Bingo). Not upstreamed.
 
+## F28: Under the `vscode` harness, Harbor's trial result describes a subagent, not the agent
+
+**Evidence:** In the first VS Code agent-mode trial of this suite (`t04-probe`,
+`slow-sql`/`aspire-skills-mcp`, `gpt-6-luna`, run `2026111828431240`, harness
+`vscode=0.20261117.7`, VS Code `1.146.0-insider`), Harbor's `agent_result` reported 4,328 input
+tokens and no cost, and the run's trajectory file held 3 steps and one `dotnet build`. Both came
+from the last of four sessions of VS Code's built-in subagent for terminal work, which ran on
+`gpt-5.6-luna`, not the requested model (seen in 1 of the 4 VS Code trials; the three `t04-check`
+trials used no subagent). The Copilot Chat extension's OpenTelemetry span store, which the run
+also returns, held the whole run: the main session on `gpt-6-luna` (567 s, 31 model calls, 64 tool
+calls, 1.42 M input tokens), the four subagent sessions (10 calls on `gpt-5.6-luna`) and 3 utility
+calls on `gpt-4o-mini`; 1.45 M input tokens and $0.038 in all. Harbor's `agent_execution`
+also includes 43 to 55 s of VS Code launch and shutdown around the agent loop, against 4.4 s median
+(2.8 to 6.0 s, 213 trials) for Copilot CLI. In all four VS Code trials (the probe and the three
+`t04-check` trials) the agent then sat idle for 186.5 s at the start: Copilot Chat first tries each
+model request over a WebSocket, the attempt fails after about 62 s, the request succeeds over
+HTTP, and after three such failures the extension stops trying. Net of that wait the `t04-check`
+loop took 142 s median against 108 s for Copilot CLI on the same cell. A second probe trial never
+started: the harness's dependency install could not reach the Ubuntu package archive from the
+task container.
+
+**Improvement candidate:** For the harness: export the main session's trajectory (with subagents
+nested) and report tokens and cost from all sessions; find out why the WebSocket attempt never
+succeeds (cause not determined here), or turn that transport off. For this suite: read VS Code
+runs from the span store ([`collect.analyze_vscode`](telemetry/tools/collect.py)), compare
+harnesses on `agent_loop_seconds` minus `transport_wait_seconds` rather than `agent_seconds`, and
+treat the subagent model as part of the VS Code arm (it is what a user gets by default).
+
+**Limits / status:** Two probe trials plus the three-trial T0.4 check; harness package
+`0.20261117.7` and VS Code `1.146.0-insider` only. No setting that turns the WebSocket transport off
+was found, and no setting was found that moves the subagent to the requested model. Not reported
+upstream. Details in [PLAN.md T0.4](telemetry/PLAN.md#t04-harness-adapters-for-the-vs-code-lane).
+
 ## Recording future findings
 
 Give each finding a stable ID and include evidence links, exact observed

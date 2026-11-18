@@ -145,3 +145,4 @@ Each pin (toolchain) has its own table; trials of different pins are never compa
 
 | Scenario | Model | A vs B | n | Agent seconds | Input tokens | Cost |
 |---|---|---|---|---|---|---|
+| slow-sql | gpt-6-luna | aspire-lean vs aspire-skills-mcp | 3 vs 1 | -40% (p=0.500) | -67% (p=0.500) | -63% (p=0.500) |
