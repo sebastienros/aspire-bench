@@ -28,8 +28,12 @@ for (let cycle = 0; ; cycle++) {
     }
     const customer = state.customers[cycle % state.customers.length];
     const order = state.live[cycle % state.live.length];
+    // Shoppers browse the storefront; with a shopper pool each request comes from a different one.
+    const catalogue = state.shoppers
+        ? `/api/products?customer=shopper-${Math.floor(Math.random() * state.shoppers)}`
+        : "/api/products";
     const results = [
-        await call(endpoints.api, "/api/products"),
+        await call(endpoints.api, catalogue),
         await call(endpoints.api, `/api/orders?customer=${encodeURIComponent(customer)}`),
         await call(endpoints.api, `/api/orders/${encodeURIComponent(order)}`),
     ];

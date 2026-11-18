@@ -45,6 +45,10 @@ PHASES = {
                          re.compile(r"CREATE\s+(UNIQUE\s+)?(NONCLUSTERED\s+)?INDEX|ALTER\s+TABLE", re.I)),
     "heldout-stuck-orders": (re.compile(r"LCK_M_X|stock-reconcile|\bSQLCMD\b"),
                              re.compile(r"\bKILL\s+\d+|\bpkill\b|\bkillall\b|\bkill\s+(-\w+\s+)?\d+", re.I)),
+    # cache: the per-shopper cache key on screen (it is only in the source); fix: a cache entry
+    # under a constant key, i.e. the ranking shared again. Neither fires on a `ps` listing.
+    "heldout-cache": (re.compile(r"products:\{customer\}"),
+                      re.compile(r"GetOrCreate(Async)?\(\s*\\?\"[A-Za-z]")),
 }
 ASPIRE_COMMAND = re.compile(
     r"\baspire\s+(otel\s+(?:traces|spans|logs)|describe|logs|resource|export|ps|wait|start|stop|run|docs|doctor|mcp|agent)\b")

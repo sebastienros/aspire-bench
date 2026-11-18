@@ -53,6 +53,17 @@ already waiting. Keep all existing data and all existing functionality, and leav
 application running. README.md describes this workspace. No report is required.
 `;
 
+const heldoutCache = `The shop application in /app is running and is serving live customer traffic.
+
+Customers report that the storefront has become slow to open: the front page now takes
+far longer to load than it used to, for every customer, and the database server has been
+busy ever since. Nothing fails and no error is shown.
+
+Find the root cause and fix it so that the storefront is fast again. Keep all existing
+data and all existing functionality, and leave the application running. README.md
+describes this workspace. No report is required.
+`;
+
 export const scenarios = {
     "slow-sql": { seed: 61, instruction: sluggish },
     "slow-redis": {
@@ -89,9 +100,9 @@ describes this workspace. No report is required.
     "heldout-slow-sql": { seed: 66, app: "heldout", arms: heldoutArms, instruction: heldoutSlow },
     // Log-silent: the order worker waits on an inventory lock held by a stalled job.
     "heldout-stuck-orders": { seed: 67, app: "heldout", arms: heldoutArms, instruction: heldoutStuck },
-    // Reserved, not emitted: a cache-side fault on the Shop app, run only if aspire-diagnose is
-    // revised after the first two held-out faults (PLAN T0.2). bench.mjs rejects it.
-    // "heldout-cache": { seed: 68, app: "heldout", arms: heldoutArms, instruction: ... },
+    // The reserved third fault (PLAN T0.2), run after the aspire-diagnose revision: a cache-side
+    // regression in the catalogue, shipped as code in its own image (heldout/faults/).
+    "heldout-cache": { seed: 68, app: "heldout", arms: heldoutArms, instruction: heldoutCache },
 };
 
 // Applications: the image template and the build contexts each one needs.

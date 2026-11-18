@@ -104,9 +104,15 @@ Results (round `t02`): [PLAN.md, T0.2 results](PLAN.md#t02-results).
 | `heldout-slow-sql` (log-visible) | Carrier tracking webhooks are stored as raw JSON; the order page finds an order's updates with `JSON_VALUE` over the whole history, which nothing indexes. The history grew; every order page takes seconds. Nothing fails. | Aspire: a SQL span with the statement and its duration. Standard app: EF Core's `Executed DbCommand (NNNN ms)` line with the statement in `api.log` (setup asserts it is there). |
 | `heldout-stuck-orders` (log-silent) | A host-side stock reconciliation job (`/usr/local/lib/shop-ops/stock-reconcile.sh`) took the inventory lock in an open transaction and is stalled waiting for its supplier feed. The worker waits 15 s for the lock, gives up silently (Debug log only) and retries the same message forever; orders stay `Pending`, the queue grows. | Aspire: 15 s SQL spans on `sp_getapplock` in the worker. Standard app: **nothing**; setup rejects the fixture if the raw app writes a single error-level line in the fault window. Both arms can see the wait and its holder in SQL Server (`sys.dm_exec_requests`, `sys.dm_tran_locks`) and the queue depth in RabbitMQ. |
 
-A third held-out fault (cache-side, on the API's catalogue cache) is reserved: it is implemented and
-run only if `aspire-diagnose` is revised after the first two, so the ship gate is never judged on an
-in-sample fault.
+A third held-out fault, `heldout-cache`, was reserved and run only after `aspire-diagnose` was revised
+following the first two (the user ruled the `t02` tie "not ahead"), so the ship gate is judged on a fault the revision never
+saw. It ships as a code regression applied to its own image only
+([`common/heldout/faults/heldout-cache.patch`](common/heldout/faults/heldout-cache.patch)); every other
+held-out cell runs the unchanged app.
+
+| Scenario | Fault | Where the evidence is |
+|---|---|---|
+| `heldout-cache` (log-visible) | The catalogue shows each product's units sold and shoppers over the last seven days and member prices for loyalty members, and its in-memory cache is keyed per shopper. Live traffic comes from 50,000 shoppers, so almost every page view ranks the week's orders again (`SUM` and `COUNT(DISTINCT Customer)` over the order history). Setup grows the week's orders until a new shopper's catalogue costs at least 700 ms after a checkpoint, then measures again under live traffic and rejects the fixture below 500 ms. Nothing fails. | Aspire: a SQL span with the ranking statement on every `GET /api/products`. Standard app: EF Core's `Executed DbCommand (NNN ms)` line with the statement in `api.log` (setup asserts it is there). Neither shows the cache; the key is in the source. |
 
 A third scenario, `cold-start`, has no fault: nothing is running and the agent must
 bring the application up. It measures the new `aspire-start` skill. `cold-start-warm`
@@ -149,6 +155,15 @@ only. It never reads an agent report.
   stopping the job, or closing its supplier feed so it commits (the route most terra agents took) passes; a SQL Server restart also released the lock and passed in a local check
   (run without live traffic during the restart). Purging the queue and confirming orders in SQL were
   each run once locally and fail.
+
+- `heldout-cache`: recorded as three checks, all required. Fast: twelve shoppers new to the cache
+  (six members, six not) each open the catalogue, with a median under 150 ms. Root cause: those twelve
+  page views read `Orders` at most twice in total (`sys.dm_db_index_usage_stats`), so the week's
+  ranking is shared and not computed again per shopper. Functional: units sold and shoppers per product
+  match SQL, members see member prices and others do not, members and every existing order are kept,
+  fresh orders are confirmed and stock matches. Each of these was run locally and failed as intended:
+  a covering index alone (523 → 422 ms, still read per shopper), and a 600 s cache lifetime with a
+  restart. The reference repair caches the ranking under one key and checks membership per request.
 
 Dropping the trigger, truncating the audit history, flushing or restarting the cache
 (the session keys are gone), swapping the cache for memory, or a per-session workaround

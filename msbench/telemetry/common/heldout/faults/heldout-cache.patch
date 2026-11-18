@@ -1,0 +1,133 @@
+diff --git a/src/Shop.Api/Program.cs b/src/Shop.Api/Program.cs
+index b543cc5..31dbbe2 100644
+--- a/src/Shop.Api/Program.cs
++++ b/src/Shop.Api/Program.cs
+@@ -38,14 +38,35 @@ app.UseStaticFiles();
+ 
+ var api = app.MapGroup("/api");
+ 
+-// The catalogue changes rarely, so the product list is served from memory for a short time.
+-api.MapGet("/products", async (ShopDb db, IMemoryCache cache, IConfiguration configuration) =>
+-    await cache.GetOrCreateAsync("products", async entry =>
++// The catalogue: every product with its units sold over the last seven days and how many
++// shoppers bought it (the storefront shows the week's bestsellers first) and, for loyalty
++// members, the member price. Ranking the week's orders is expensive, so each shopper's
++// catalogue is kept in memory for a short time.
++api.MapGet("/products", async (string? customer, ShopDb db, IMemoryCache cache, IConfiguration configuration) =>
++    await cache.GetOrCreateAsync($"products:{customer}", async entry =>
+     {
+         entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(configuration.GetValue("Catalog:CacheSeconds", 30));
+-        return await db.Products.AsNoTracking().OrderBy(p => p.Id)
+-            .Select(p => new { p.Id, p.Name, p.Price, InStock = p.Stock > 0 })
+-            .ToListAsync();
++        var since = DateTime.UtcNow.AddDays(-7);
++        var sold = await db.Orders.AsNoTracking()
++            .Where(o => o.Status == OrderStatus.Confirmed && o.PlacedAt >= since)
++            .GroupBy(o => o.ProductId)
++            .Select(g => new { ProductId = g.Key, Units = g.Sum(o => o.Quantity), Shoppers = g.Select(o => o.Customer).Distinct().Count() })
++            .ToDictionaryAsync(g => g.ProductId);
++        var member = !string.IsNullOrEmpty(customer) && await db.Members.AnyAsync(m => m.Customer == customer);
++        var products = await db.Products.AsNoTracking().OrderBy(p => p.Id).ToListAsync();
++        return products
++            .Select(p => new
++            {
++                p.Id,
++                p.Name,
++                p.Price,
++                MemberPrice = member ? Math.Round(p.Price * 0.9m, 2) : (decimal?)null,
++                InStock = p.Stock > 0,
++                SoldThisWeek = sold.GetValueOrDefault(p.Id)?.Units ?? 0,
++                ShoppersThisWeek = sold.GetValueOrDefault(p.Id)?.Shoppers ?? 0,
++            })
++            .OrderByDescending(p => p.SoldThisWeek).ThenBy(p => p.Id)
++            .ToList();
+     }));
+ 
+ api.MapPost("/orders", async (PlaceOrder request, ShopDb db, OrderQueue queue, CancellationToken cancellationToken) =>
+diff --git a/src/Shop.Api/wwwroot/app.js b/src/Shop.Api/wwwroot/app.js
+index 68bab88..4be6719 100644
+--- a/src/Shop.Api/wwwroot/app.js
++++ b/src/Shop.Api/wwwroot/app.js
+@@ -9,18 +9,22 @@ async function json(url, init) {
+ }
+ 
+ async function loadProducts() {
+-  products = await json("/api/products");
++  products = await json(`/api/products?customer=${encodeURIComponent(customer())}`);
+   $("products").replaceChildren(...products.map(product => {
+     const item = document.createElement("li");
+     const name = document.createElement("strong");
+     name.textContent = product.name;
+     const price = document.createElement("span");
+-    price.textContent = `$${product.price.toFixed(2)}`;
++    price.textContent = product.memberPrice == null
++      ? `$${product.price.toFixed(2)}`
++      : `$${product.memberPrice.toFixed(2)} member price (was $${product.price.toFixed(2)})`;
++    const sold = document.createElement("small");
++    sold.textContent = `${product.soldThisWeek.toLocaleString()} sold to ${product.shoppersThisWeek.toLocaleString()} shoppers this week`;
+     const button = document.createElement("button");
+     button.textContent = "Order";
+     button.disabled = !product.inStock;
+     button.onclick = () => placeOrder(product.id);
+-    item.append(name, price, button);
++    item.append(name, price, sold, button);
+     return item;
+   }));
+ }
+@@ -59,7 +63,7 @@ async function showOrder(number) {
+   }));
+ }
+ 
+-$("customer").onchange = loadOrders;
++$("customer").onchange = async () => { await loadProducts(); await loadOrders(); };
+ await loadProducts();
+ await loadOrders();
+ setInterval(loadOrders, 5000);
+diff --git a/src/Shop.Api/wwwroot/style.css b/src/Shop.Api/wwwroot/style.css
+index d1e8c2c..3cbd981 100644
+--- a/src/Shop.Api/wwwroot/style.css
++++ b/src/Shop.Api/wwwroot/style.css
+@@ -9,3 +9,4 @@ th, td { padding: .4rem .6rem; text-align: left; border-bottom: 1px solid #e2e6d
+ tbody tr { cursor: pointer; }
+ button { padding: .4rem .8rem; border: 0; border-radius: .3rem; background: #2f6b52; color: #fff; cursor: pointer; }
+ button:disabled { background: #9aa59f; }
++.cards small { color: #5b6b62; }
+diff --git a/src/Shop.Data/ShopDb.cs b/src/Shop.Data/ShopDb.cs
+index 560dc1d..d8daa43 100644
+--- a/src/Shop.Data/ShopDb.cs
++++ b/src/Shop.Data/ShopDb.cs
+@@ -7,6 +7,7 @@ public sealed class ShopDb(DbContextOptions<ShopDb> options) : DbContext(options
+     public DbSet<Product> Products => Set<Product>();
+     public DbSet<Order> Orders => Set<Order>();
+     public DbSet<CarrierEvent> CarrierEvents => Set<CarrierEvent>();
++    public DbSet<Member> Members => Set<Member>();
+ 
+     protected override void OnModelCreating(ModelBuilder model)
+     {
+@@ -31,6 +32,13 @@ public sealed class ShopDb(DbContextOptions<ShopDb> options) : DbContext(options
+         {
+             carrierEvent.Property(e => e.Payload).HasColumnType("nvarchar(max)");
+         });
++
++        // Loyalty programme: members see member prices on the storefront.
++        model.Entity<Member>(member =>
++        {
++            member.HasKey(m => m.Customer);
++            member.Property(m => m.Customer).HasMaxLength(64);
++        });
+     }
+ }
+ 
+@@ -68,6 +76,12 @@ public sealed class CarrierEvent
+     public required string Payload { get; set; }
+ }
+ 
++public sealed class Member
++{
++    public required string Customer { get; set; }
++    public DateTime JoinedAt { get; set; }
++}
++
+ /// <summary>The message the API publishes when an order is placed.</summary>
+ public sealed record OrderPlaced(int OrderId, string Number);
+ 

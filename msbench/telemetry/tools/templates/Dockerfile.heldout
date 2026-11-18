@@ -75,6 +75,13 @@ ENV BENCH_APP_KIND=aspire
 FROM app-${APP_KIND} AS final
 ARG SKILLS=none
 ARG FAULT=none
+# A fault that ships as a code regression (heldout-cache) is applied to its own image only, so
+# every other fault runs the unchanged application.
+RUN --mount=type=bind,from=suite,source=heldout/faults,target=/mnt/faults \
+    if [ -f "/mnt/faults/$FAULT.patch" ]; then \
+        git apply "/mnt/faults/$FAULT.patch" \
+        && dotnet build src/Shop.Api/Shop.Api.csproj --nologo -v q; \
+    fi
 COPY --from=suite heldout/bench/ /opt/benchmark/
 # Host-side operations tooling, visible to the agent like any installed script.
 COPY --from=suite heldout/ops/ /usr/local/lib/shop-ops/

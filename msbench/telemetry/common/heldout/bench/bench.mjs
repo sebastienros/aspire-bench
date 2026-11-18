@@ -178,12 +178,16 @@ async function injectSlowSql(endpoints, state) {
     return { added, pageMs, events: await sqlNumber("SELECT COUNT_BIG(*) FROM CarrierEvents;") };
 }
 
-// The log-visible fault must be visible: EF Core's command line with the slow duration and the
+// A log-visible fault must be visible: EF Core's command line with the slow duration and the
 // statement, in the raw API log.
+const slowStatements = {
+    "heldout-slow-sql": /Executed DbCommand \(([\d,]+)ms\)[^\n]*\n(?:[^\n]*\n){0,2}[^\n]*FROM CarrierEvents/g,
+    "heldout-cache": /Executed DbCommand \(([\d,]+)ms\)[^\n]*\n(?:[^\n]*\n){0,8}?[^\n]*GROUP BY \[o\]\.\[ProductId\]/g,
+};
 async function assertSlowCommandLogged(offsets) {
     if (kind !== "raw") return null;
     const text = await rawLogSince(offsets);
-    const slow = [...text.matchAll(/Executed DbCommand \(([\d,]+)ms\)[^\n]*\n(?:[^\n]*\n){0,2}[^\n]*FROM CarrierEvents/g)]
+    const slow = [...text.matchAll(slowStatements[fault])]
         .map(match => Number(match[1].replaceAll(",", ""))).filter(ms => ms >= 400);
     assert(slow.length > 0, "Fixture rejected: the slow statement is not in the raw API log");
     return slow.length;
@@ -212,11 +216,70 @@ async function injectStuckOrders(endpoints, state) {
     return { probe };
 }
 
+// heldout-cache (reserved third fault, run only after the skill revision): the catalogue was
+// extended with the week's bestsellers and member prices, and its in-memory cache is now keyed
+// by shopper (heldout-cache.patch, applied to this image only). Every shopper's first page view
+// ranks the week's orders again, and with many shoppers nearly every view is a first one.
+// EF Core logs the ranking statement with its duration in the raw API log.
+const shoppers = 50_000;
+const isMember = n => n % 4 === 0;
+const ranking = `
+    SELECT CONCAT(ProductId, ':', SUM(Quantity), ':', COUNT(DISTINCT Customer)) FROM Orders
+    WHERE Status = 'Confirmed' AND PlacedAt >= DATEADD(day, -7, SYSUTCDATETIME())
+    GROUP BY ProductId ORDER BY ProductId;`;
+const ordersReads = () => sqlNumber(`
+    SELECT ISNULL(SUM(user_seeks + user_scans + user_lookups), 0) FROM sys.dm_db_index_usage_stats
+    WHERE database_id = DB_ID() AND object_id = OBJECT_ID(N'dbo.Orders');`);
+
+async function injectCache(endpoints) {
+    await sql(`
+        WITH n AS (SELECT TOP (${shoppers}) ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) - 1 AS g
+                   FROM sys.all_objects a CROSS JOIN sys.all_objects b)
+        INSERT INTO Members (Customer, JoinedAt)
+        SELECT CONCAT('shopper-', g), DATEADD(day, -CAST(g % 700 AS int), SYSUTCDATETIME()) FROM n WHERE g % 4 = 0;`);
+    // A busy week: confirmed orders from the shopper pool, all within the last seven days.
+    const step = 1_000_000;
+    let added = 0, pageMs = 0, probe = 0;
+    // Grow to 700 ms on a settled server, so that the page stays above 500 ms under live traffic.
+    for (let round = 0; round < 25 && pageMs < 700; round++) {
+        await sql(`
+            WITH n AS (SELECT TOP (${step}) ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) + ${added} AS g
+                       FROM sys.all_objects a CROSS JOIN sys.all_objects b CROSS JOIN sys.all_objects c)
+            INSERT INTO Orders WITH (TABLOCK) (Number, Customer, ProductId, Quantity, Status, PlacedAt, ConfirmedAt)
+            SELECT CONCAT('SO-W', RIGHT(CONCAT('000000000', g), 9)), CONCAT('shopper-', g % ${shoppers}),
+                   1 + (g % 7) % 6, 1 + g % 3, 'Confirmed',
+                   DATEADD(second, -CAST(g % 590000 AS int) - 3600, SYSUTCDATETIME()),
+                   DATEADD(second, -CAST(g % 590000 AS int) - 3540, SYSUTCDATETIME())
+            FROM n;`, { timeout: 900_000 });
+        added += step;
+        // Measure a settled server: flush the insert, warm the pages, then time new shoppers.
+        await sql("CHECKPOINT;", { timeout: 600_000 });
+        probe = (await catalogueSample(endpoints, probe, 2)).next;
+        const sample = await catalogueSample(endpoints, probe, 5);
+        probe = sample.next;
+        pageMs = median(sample.ms);
+        console.log(`calibration: ${added} orders this week -> ${pageMs.toFixed(0)} ms per catalogue (${sample.ms.map(Math.round).join(", ")})`);
+    }
+    assert(pageMs >= 700, "Could not reproduce a slow catalogue");
+    return { added, pageMs, probe, members: await sqlNumber("SELECT COUNT(*) FROM Members;") };
+}
+
+// Catalogue page times for shoppers who have not opened the storefront (non-members, not in
+// the verifier's range).
+async function catalogueSample(endpoints, from, count) {
+    const ms = [];
+    for (let i = 0; i < count; i++) {
+        const page = await http(endpoints.api, `/api/products?customer=shopper-${45_001 + 4 * (from + i)}`);
+        assert.equal(page.status, 200, `Catalogue during setup: HTTP ${page.status}`);
+        ms.push(page.ms);
+    }
+    return { ms, next: from + count };
+}
+
 // ------------------------------------------------------------------ lifecycle
 
 async function setup() {
-    assert(["heldout-slow-sql", "heldout-stuck-orders"].includes(fault),
-        fault === "heldout-cache" ? "heldout-cache is reserved (PLAN T0.2) and not implemented" : `Unknown fault ${fault}`);
+    assert(["heldout-slow-sql", "heldout-stuck-orders", "heldout-cache"].includes(fault), `Unknown fault ${fault}`);
     const endpoints = await resolveEndpoints();
     await writeFile(endpointsPath, JSON.stringify(endpoints));
     await mkdir("/logs/environment", { recursive: true });
@@ -253,7 +316,10 @@ async function setup() {
     const offsets = await logOffsets();
     const state = { fault, kind, customers, live, injectedAt: offsets.since, offsets };
     if (fault === "heldout-slow-sql") state.tracking = await injectSlowSql(endpoints, state);
-    else state.lock = await injectStuckOrders(endpoints, state);
+    else if (fault === "heldout-cache") {
+        state.catalogue = await injectCache(endpoints);
+        state.shoppers = shoppers;
+    } else state.lock = await injectStuckOrders(endpoints, state);
     state.maxOrderId = await sqlNumber("SELECT MAX(Id) FROM Orders;");
     state.orders = await ordersFingerprint(state.maxOrderId);
     state.inventory = await inventoryTotals();
@@ -267,6 +333,13 @@ async function setup() {
 
     if (fault === "heldout-slow-sql") {
         state.tracking.slowCommandsLogged = await assertSlowCommandLogged(offsets);
+    } else if (fault === "heldout-cache") {
+        state.catalogue.slowCommandsLogged = await assertSlowCommandLogged(offsets);
+        // Under live traffic, after the window: still slow for new shoppers, or the fixture is rejected.
+        const sample = await catalogueSample(endpoints, state.catalogue.probe, 7);
+        state.catalogue.underTrafficMs = sample.ms.map(Math.round);
+        state.catalogue.pageMs = median(sample.ms);
+        assert(state.catalogue.pageMs >= 500, `Fixture rejected: the catalogue takes ${state.catalogue.pageMs.toFixed(0)} ms under traffic (needs 500)`);
     } else {
         // The silent fault must be silent: no error-level line from the application during the
         // fault window, or the fixture is rejected.
@@ -277,7 +350,7 @@ async function setup() {
         state.lock.pending = await sqlNumber("SELECT COUNT(*) FROM Orders WHERE Status = 'Pending';");
     }
     await writeFile(statePath, JSON.stringify(state), { mode: 0o600 });
-    console.log(`setup complete: ${JSON.stringify(state.tracking ?? state.lock)}`);
+    console.log(`setup complete: ${JSON.stringify(state.tracking ?? state.catalogue ?? state.lock)}`);
 }
 
 async function stopTraffic() {
@@ -399,6 +472,66 @@ async function verifyStuckOrders(state, endpoints, details) {
     assert.equal(failures.length, 0, failures.join(" | "));
 }
 
+async function verifyCache(state, endpoints, details) {
+    // Recorded separately, all three required: the catalogue is fast for new shoppers; the cause is
+    // gone (the week's ranking is shared, so a new shopper does not make the API read the order
+    // history again: an index alone makes the page faster but leaves this); and the storefront's
+    // functionality and the order flow are intact.
+    const checks = details.checks = { fast: false, rootCause: false, functional: false };
+    const failures = [];
+    const members = await sqlNumber("SELECT COUNT(*) FROM Members;");
+    // The worker reads Orders too: let it finish the last traffic orders before counting reads.
+    for (let i = 0; i < 60 && (await sqlNumber("SELECT COUNT(*) FROM Orders WHERE Status = 'Pending';")) > 0; i++) await sleep(1_000);
+    // Shoppers who have not opened the storefront recently: six members, six non-members.
+    const base = 4 * Math.floor(Math.random() * (shoppers / 4 - 20));
+    const sample = Array.from({ length: 6 }, (_, i) => [base + 4 * i, base + 4 * i + 1]).flat();
+    await http(endpoints.api, `/api/products?customer=shopper-${base + 2}`);
+    const readsBefore = await ordersReads();
+    const ms = [], pages = [];
+    for (const n of sample) {
+        const page = await http(endpoints.api, `/api/products?customer=shopper-${n}`);
+        assert.equal(page.status, 200, `Catalogue for shopper-${n}: HTTP ${page.status}`);
+        ms.push(page.ms);
+        pages.push([n, JSON.parse(page.body)]);
+    }
+    const reads = (await ordersReads()) - readsBefore;
+    details.catalogueMs = ms.map(Math.round);
+    details.baselineCatalogueMs = Math.round(state.catalogue.pageMs);
+    details.ordersReadsDuringSample = reads;
+    const limit = 150;
+    if (median(ms) < limit) checks.fast = true;
+    else failures.push(`The storefront catalogue still takes ${median(ms).toFixed(0)} ms (limit ${limit})`);
+    if (reads <= 2) checks.rootCause = true;
+    else failures.push(`The catalogue read the order history ${reads} times for ${sample.length} new shoppers`);
+    try {
+        assert(members >= state.catalogue.members, `Loyalty members must be preserved (${members} < ${state.catalogue.members})`);
+        // The week's sales and shoppers per product, and member prices for members only.
+        const expected = Object.fromEntries((await sql(ranking)).split("\n")
+            .map(row => row.split(":").map(Number)).map(([id, units, buyers]) => [id, { units, buyers }]));
+        const near = (value, want) => Math.abs((value ?? -1) - want) <= Math.max(100, want * 0.005);
+        for (const [n, products] of pages) {
+            assert.equal(products.length, 6, `All products must be listed for shopper-${n}`);
+            for (const product of products) {
+                const want = expected[product.id] ?? { units: 0, buyers: 0 };
+                assert(near(product.soldThisWeek, want.units), `Units sold this week for product ${product.id}: ${product.soldThisWeek}, expected about ${want.units}`);
+                assert(near(product.shoppersThisWeek, want.buyers), `Shoppers this week for product ${product.id}: ${product.shoppersThisWeek}, expected about ${want.buyers}`);
+                if (isMember(n)) {
+                    assert(Math.abs((product.memberPrice ?? 0) - Math.round(product.price * 90) / 100) < 0.006,
+                        `Member shopper-${n} must see the member price of product ${product.id}`);
+                } else {
+                    assert(product.memberPrice == null, `Shopper-${n} is not a member and must not see a member price`);
+                }
+            }
+        }
+        await verifyOrderFlows(endpoints, details);
+        await verifyInventory(state);
+        checks.functional = true;
+    } catch (error) {
+        failures.push(error.message);
+    }
+    assert.equal(failures.length, 0, failures.join(" | "));
+}
+
 async function verify() {
     const state = JSON.parse(await readFile(statePath, "utf8"));
     const details = { fault: state.fault, kind: state.kind, passed: false };
@@ -409,6 +542,7 @@ async function verify() {
         details.errorLinesSinceFault = (await errorLinesSince(state.offsets).catch(() => [null])).length;
         await verifyCommon(state, endpoints, details);
         if (state.fault === "heldout-slow-sql") await verifySlowSql(state, endpoints, details);
+        else if (state.fault === "heldout-cache") await verifyCache(state, endpoints, details);
         else await verifyStuckOrders(state, endpoints, details);
         details.passed = true;
     } catch (error) {
@@ -421,6 +555,57 @@ async function verify() {
     }
 }
 
+const sharedCatalogue = `// The catalogue: every product with its units sold over the last seven days and how many
+// shoppers bought it (the storefront shows the week's bestsellers first) and, for loyalty
+// members, the member price. Ranking the week's orders is expensive, so the ranking is kept in
+// memory for a short time and shared by every shopper; only the member check runs per request.
+api.MapGet("/products", async (string? customer, ShopDb db, IMemoryCache cache, IConfiguration configuration) =>
+{
+    var catalogue = await cache.GetOrCreateAsync("products", async entry =>
+    {
+        entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(configuration.GetValue("Catalog:CacheSeconds", 30));
+        var since = DateTime.UtcNow.AddDays(-7);
+        var sold = await db.Orders.AsNoTracking()
+            .Where(o => o.Status == OrderStatus.Confirmed && o.PlacedAt >= since)
+            .GroupBy(o => o.ProductId)
+            .Select(g => new { ProductId = g.Key, Units = g.Sum(o => o.Quantity), Shoppers = g.Select(o => o.Customer).Distinct().Count() })
+            .ToDictionaryAsync(g => g.ProductId);
+        var products = await db.Products.AsNoTracking().OrderBy(p => p.Id).ToListAsync();
+        return products
+            .Select(p => (Product: p, Units: sold.GetValueOrDefault(p.Id)?.Units ?? 0, Shoppers: sold.GetValueOrDefault(p.Id)?.Shoppers ?? 0))
+            .OrderByDescending(x => x.Units).ThenBy(x => x.Product.Id).ToList();
+    });
+    var member = !string.IsNullOrEmpty(customer) && await db.Members.AnyAsync(m => m.Customer == customer);
+    return catalogue!.Select(x => new
+    {
+        x.Product.Id,
+        x.Product.Name,
+        x.Product.Price,
+        MemberPrice = member ? Math.Round(x.Product.Price * 0.9m, 2) : (decimal?)null,
+        InStock = x.Product.Stock > 0,
+        SoldThisWeek = x.Units,
+        ShoppersThisWeek = x.Shoppers,
+    }).ToList();
+});
+
+`;
+
+// Rebuild and restart the API after a code repair, as the application's own tooling does it.
+async function restartApi() {
+    if (kind === "aspire") {
+        await sh("aspire", ["resource", "api", "rebuild", "--apphost", "/app/apphost.cs", "--non-interactive", "--nologo"], { timeout: 600_000 });
+        await sh("aspire", ["wait", "api", "--apphost", "/app/apphost.cs", "--non-interactive", "--timeout", "600", "--nologo"], { timeout: 660_000 });
+        return;
+    }
+    // The raw start script supervises the API and worker; stop it, then start it again.
+    await run("pkill", ["-TERM", "-f", "scripts/start.sh --daemon"]).catch(() => {});
+    for (let i = 0; i < 120; i++) {
+        try { await run("pgrep", ["-f", "scripts/start.sh --daemon"]); } catch { break; }
+        await sleep(1_000);
+    }
+    await sh("bash", ["-c", "cd /app && bash scripts/start.sh"], { timeout: 900_000 });
+}
+
 async function solve() {
     const state = JSON.parse(await readFile(statePath, "utf8"));
     if (state.fault === "heldout-slow-sql") {
@@ -429,6 +614,14 @@ async function solve() {
         await sql(`
             ALTER TABLE CarrierEvents ADD OrderNumber AS JSON_VALUE(Payload, '$.orderNumber');
             CREATE INDEX IX_CarrierEvents_OrderNumber ON CarrierEvents (OrderNumber, ReceivedAt DESC);`, { timeout: 900_000 });
+    } else if (state.fault === "heldout-cache") {
+        // Cache the week's ranking once for every shopper; only the member check runs per request.
+        const program = "/app/src/Shop.Api/Program.cs";
+        const text = await readFile(program, "utf8");
+        const start = text.indexOf('api.MapGet("/products"'), end = text.indexOf('api.MapPost("/orders"');
+        assert(start > 0 && end > start, "Catalogue endpoint not found");
+        await writeFile(program, text.slice(0, start) + sharedCatalogue + text.slice(end));
+        await restartApi();
     } else {
         // End the stalled reconciliation: its session (and the transaction holding the lock), then the job.
         const sessions = (await sql(`

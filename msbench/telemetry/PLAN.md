@@ -441,6 +441,24 @@ this definition `t02` fails on luna log-silent (0.99×) and passes the other thr
    holds before any trial. The card's original reading of "ahead" (ratio < 1.00) is reported next to it.
    Same infrastructure re-run rule as `t02` (`t02-heldout3-topup`).
 
+**The reserved fault, as built (written before its remote gate).** `heldout-cache` ships as a code
+regression applied to its own image only (`common/heldout/faults/heldout-cache.patch`), so the
+in-sample cells run the unchanged app. The catalogue gained the week's units sold and shoppers per
+product and member prices, and its in-memory cache is keyed per shopper. Live traffic comes from a
+pool of 50,000 shoppers, so nearly every page view ranks the week's orders again. It is log-visible
+by construction (EF Core logs the ranking statement with its duration; setup asserts the line), so
+**"within +20 %" decides**. The verifier records three checks and the reward needs all three:
+- **fast:** median catalogue time under 150 ms for twelve shoppers new to the cache;
+- **root cause:** at most 2 reads of `Orders` across those twelve page views, from
+  `sys.dm_db_index_usage_stats`;
+- **functional:** sales, shopper counts and member prices correct, members kept, order flow and stock
+  intact.
+
+**An index alone fails.** A covering index on `Orders (Status, PlacedAt)` cut the page from 523 ms to
+422 ms locally, which is still over the limit, and the order history is still read for every new
+shopper. A longer cache lifetime (600 s) with a restart also fails, on both checks. Pass counts in the
+rule use the reward. The "fast only" rate is reported beside it.
+
 ### T0.3 Series tooling
 
 | | |
