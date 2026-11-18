@@ -439,7 +439,7 @@ One row per model; columns as in the table above, plus cost:
 
 | Model | Shipped set loads a skill on a diagnosis prompt | Proposed set loads `aspire-diagnose` | Shipped set vs raw (time, `slow-sql` / `read-only`) | Proposed set vs raw (time) | `slow-redis` pass, raw → shipped → proposed | `slow-redis` time, raw → proposed | Cold start, raw | $ per trial (Bingo) |
 |---|---|---|---|---|---|---|---|---:|
-| `gpt-6.2-sol` | `aspire-monitoring` 18/18, router 6/18 | 18/18 | +20 % (p = 0.011) / +44 % (p = 0.002) | +3 % / +21 % (n.s.) | 6/6 → 6/6 → 6/6 | 147 → 83 s (p = 0.004) | 47 s (probe, n = 1) | 0.287 |
+| `gpt-6.2-sol` | `aspire-monitoring` 18/18, router 6/18 | 18/18 | +20 % (p = 0.011) / +44 % (p = 0.002) | +3 % / +21 % (n.s.) | 6/6 → 6/6 → 6/6 | 147 → 83 s (p = 0.004) | 55 s; Aspire arms 0.91×–1.00× (T1.6, n = 6) | 0.287 |
 | `claude-opus-5.5` | router 9/18, `aspire-monitoring` 4/18, none 5/18 | 18/18 | +30 % (p = 0.065) / +91 % (p = 0.002) | **+45 % (p = 0.026)** / +35 % (n.s.) | 6/6 → 6/6 → 6/6 | 266 → 113 s (p = 0.065) | 48 s (probe, n = 1) | 0.370 |
 
 On the strongest models the shipped set still costs time where the log has the evidence, and the lean
