@@ -1,0 +1,12 @@
+24 finished, 0 still running
+3642 trials from 3642 ledger entries
+566 cell-runs; 32 with a regression or leak flag
+# Tracking run `t45`: flags
+
+24 cell rows; failed (leak): no; repeat round in the run: no.
+
+Drafts (0): none
+Waiting for the luna repeat (0): none
+Listed, no draft, `improve-time` (1): slow-redis/gpt-6-luna/aspire-lean
+Listed, no draft, `improve-tokens` (1): slow-redis/gpt-6-luna/aspire-lean
+exit 0

@@ -1,0 +1,10 @@
+# Tracking run `t01b`: flags
+
+39 cell rows; failed (leak): yes; repeat round in the run: no.
+
+Drafts (4): `t01b-cold-start-gpt-6.1-terra-aspire-lean-regress-tokens.md`, `t01b-read-only-gpt-6-luna-raw-leak.md`, `t01b-slow-redis-gpt-6.1-terra-aspire-cli-regress-time.md`, `t01b-slow-sql-gpt-6-luna-aspire-skills-leak.md`
+Waiting for the luna repeat (1): cold-start/aspire-cli regress-tokens
+Listed, no draft, `improve-time` (5): read-only/gpt-6-luna/aspire-cli, read-only/gpt-6-luna/aspire-lean, slow-redis/gpt-6-luna/aspire-cli, slow-redis/gpt-6-luna/aspire-skills-mcp, slow-sql/gpt-6-luna/aspire-skills-mcp
+Listed, no draft, `improve-tokens` (4): read-only/gpt-6-luna/aspire-cli, slow-redis/gpt-6-luna/aspire-cli, slow-redis/gpt-6-luna/aspire-skills-mcp, slow-redis/gpt-6-luna/aspire-lean
+Listed, no draft, `no-raw` (1): cold-start-warm/gpt-6-luna/aspire-lean
+Listed, no draft, `selection-low` (4): read-only/gpt-6-luna/aspire-skills-mcp, slow-redis/gpt-6-luna/aspire-skills-mcp, slow-sql/gpt-6-luna/aspire-skills, slow-sql/gpt-6-luna/aspire-skills-plugin
