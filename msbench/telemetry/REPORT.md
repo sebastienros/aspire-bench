@@ -1615,3 +1615,51 @@ CLI's time). The skill's own claim, assessment and approval in conversation, nee
 ([FINDINGS F57](../FINDINGS.md#f57-aspire-project-v2-migration-stops-a-mid-tier-model-at-its-approval-step-even-when-the-request-grants-the-approval),
 draft `skills-v2-migration-advance-approval.md`, not filed). $4.83 against $1.90 (accepted at ≈ $5.80).
 [PLAN.md, T3.7 results](PLAN.md#t37-results).
+
+**Phase 3 scorecard (closed 2026-11-19).** Nine cards, all with a verdict: the bottom-up audit of the eight shipped
+skills (T3.1–T3.8) and the selection benchmark that feeds it (T3.9). T3.8 and T3.9 closed in Phase 1 and are
+repeated here for the whole; the seven cards run in Phase 3 proper cost **$34.27 against $22.10 at the cards'
+estimates** (614 graded trials in the data rounds, 30 pilot trials, 61 oracle gates, 48 selection runs; the whole
+phase $41.25 against ≈ $26). The overrun is the terra price on authoring jobs, unknown when the cards were estimated
+and measured by the pilots the Phase 3 rulings required ($0.10–0.22 per terra trial against $0.03–0.04 on diagnosis),
+plus T3.5's top-up. **No skill earned `keep`.** Nothing is filed upstream. Cost from `trials.jsonl` and
+`selection.jsonl` (`cost_usd`; pilots and gates included).
+
+| Card | Skill | Verdict | One line | Trials | Cost (card) |
+|---|---|---|---|---:|---:|
+| T3.1 | `aspire-orchestration` | **`shrink` (body)** | luna alone worse than the CLI in all three lifecycle scenarios (restart-change 2.13×, p 0.002; two-app 2.36×; port-conflict 3/6 vs 5/6), terra equivalent; the cost is the body's post-restart wait on every resource; port-conflict's failures are a stop/start teardown race the CLI arm's identical route also met (F56); `split` fires on v0.0.6 and is discharged by the router's removal (`t31-sel`); file locks and VS Code flows `no verdict` | 264 + 48 runs | $9.06 ($10.10) |
+| T3.2 | `aspireify` | **`shrink`** | every arm 6/6 on 96 trials; the skill alone slower than the CLI in every cell (luna add-dependency 1.71×, p 0.002; terra 1.69×, p 0.004); the cost is the body's prescribed reference reading, docs lookups and every-resource validation; every skill arm ran `aspire init`, which breaks restore on a CPM repo (F52, F54); the bundle without it is no faster | 120 | $11.78 ($4.30) |
+| T3.3 | `aspire-init` | **`no verdict`** | helps on both models (terra 0.62×, p 0.002; luna 0.33×, p 0.065) but luna passes 3/6 either way (CLI failures are `dotnet run` hangs, F53) and luna selects it 4/6, which closes `keep`; no top-up | 48 | $2.48 ($1.90) |
+| T3.4 | `aspire-deployment` | **`no verdict`** | every Aspire cell 6/6; the skill alone 1.04× on luna (p 0.94) and 0.899× on terra, just outside the equivalence band; without it the router takes the publishing prompt first in 5/6 luna trials and the bundle runs 1.37× (F17); the pre-registered top-up could not reach `remove`, so the card stopped | 62 | $3.81 ($2.40) |
+| T3.5 | `aspire-monitoring` (export) | **`no verdict`** | every arm 6/6; luna skill-only 1.07× then 1.19× in a top-up whose CLI medians were 27 % apart (not poolable); terra pooled 0.97× [0.83–1.15]; terra ran `aspire export` 36/36, the CLI alone finds it (F51); browser telemetry and deployed routing `no verdict` | 72 | $2.31 ($1.90) |
+| T3.6 | `aspire-terminals` | **`no verdict`** | the harness cannot exercise `WithTerminal`, REPLs or tapes; selection clean on terra (12/12 own, 0/106 other) | 0 | $0 ($0) |
+| T3.7 | `aspire-project-v2-migration` | **`no verdict`** (row 4) | **with the skill terra migrates 0/6 and the bundle 1/6, against 12/12 without it**: the skill stops at its approval step although the prompt grants approval in advance (F57); luna mostly proceeds (5/6, 1.10×); the decision table has no row for a skill that makes the job fail, and the single-turn harness cannot exercise the skill's own conversational claim | 48 | $4.83 ($1.90) |
+| T3.8 | `aspire` router (guardrail job) | **`remove`** | every arm 6/6, no destructive command in 48 trials; ceiling, the fixture cannot separate the arms (Phase 1) | 39 | $1.14 ($1.50) |
+| T3.9 | selection benchmark | **proxy on terra, not luna** | terra matches both diagnosis targets 18/18; luna over-picks the router (17/18 static against 9/18 live); 0/48 distractors (Phase 1) | 400 runs | $5.84 ($2) |
+
+**What the audit says about the shipped set.** On luna, the cheapest model, every skill whose job the harness can
+exercise is either a cost (orchestration, aspireify) or indistinguishable from no skill (deployment, export), and the
+one that helps (init) does so against a `dotnet run` failure mode rather than through Aspire knowledge. On terra the
+skills are equivalent to no skill on lifecycle, publishing and export, help on greenfield, and one of them, the
+migration skill, prevents the job. The costs that were measured are in the skill bodies' main paths: read these
+references first, look up the docs, wait on every resource, ask for approval; not in selection, which is clean on terra
+(T3.9), and not in the references as such (T3.1 read two per trial for about 5 s). The router costs time wherever it
+goes first (T1.3 on diagnosis, T3.4 on publishing) and its guardrail job is not measurable (T3.8). The selection
+benchmark is a usable proxy on terra and a screen on luna.
+
+**The proposal after Phase 3** (with Phases 1 and 2): the router leaves; `aspire-diagnose` (new, T1.1, T1.3) and the
+lean set stand for diagnosis; `AGENTS.md` v2 takes the start job from `aspire-orchestration` (T2.11) and that body
+shrinks to its lifecycle rows without the every-resource wait (T3.1); `aspireify` shrinks to the wiring steps without
+the pre-edit reference reading and `aspire init` on CPM repositories (T3.2, draft `skills-shrink-aspireify.md`);
+`aspire-project-v2-migration` must accept an approval given in the request (T3.7, draft
+`skills-v2-migration-advance-approval.md`); `aspire-init`, `aspire-deployment`, `aspire-monitoring` and
+`aspire-terminals` are unchanged by this audit (`no verdict`). Product: the `connect` object in `describe` (T2.6), the
+CLI plain output (T1.5), and three observations with drafts (describe advertising a port it could not bind, F55; the
+stop/start teardown race, F56; `aspire otel`'s 200-record default with no time window, F51).
+
+**Open after Phase 3:** a decision-table row for a skill that makes its job fail (T3.7 is recorded `no verdict` by
+row 4 with the 0/6 stated; the word is the user's to revisit); a two-turn harness for T3.7's own claim and an
+interactive one for T3.6; T3.5 at luna n = 12 in one round; T3.3's grader strictness (server and database named alike,
+3 luna trials, verdict-invariant); the T3.4 publishing fixture's setup race (fixed for future tasks only); the
+`remove` row's ±25 % interval, rarely reachable at n = 6 (T3.1's shared-tooling note); the terra price of authoring
+jobs for any Phase 4 estimate; and fourteen issue drafts, none filed.
