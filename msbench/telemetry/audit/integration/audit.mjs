@@ -245,7 +245,7 @@ function scoreSpans(text, def) {
 async function finish(dir, score) {
     await A("stop");
     await sleep(5000);
-    await sh("bash", ["-c", "docker ps -aq | xargs -r docker rm -f; docker volume prune -af; docker network prune -f"], { record: false });
+    await sh("bash", ["-c", "docker ps -aq | xargs -r docker rm -f; docker volume prune -af; docker network prune -f; docker image prune -af"], { record: false });
     writeFileSync(`${dir}/score.json`, JSON.stringify(score, null, 2));
     writeFileSync(`${dir}/commands.json`, JSON.stringify(transcript, null, 2));
     console.log(JSON.stringify(score, null, 2));
