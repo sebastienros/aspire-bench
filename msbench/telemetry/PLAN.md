@@ -30,7 +30,7 @@ These are the user's calls. The plan proceeds on the defaults in the second colu
 
 | Decision | Default assumed here | Why it matters |
 |---|---|---|
-| Model budget per phase | Phase 0 ≈ $14, Phase 1 ≈ $42 at the cards' estimates, re-estimated to ≈ $60 after the model lane (T1.1, T1.6, T1.7, T1.8) cost $45.91 against $27.50 (sol $0.287 and Opus $0.370 per trial on Bingo measured, not $0.118 and $0.25; sol cold start $0.15, so the sol cold-start cells of T2.2 and T2.9 keep their estimates), Phase 2 ≈ $18.50 (T2.10 added 2026-11-18), Phase 3 ≈ $26, Phase 4 ≈ $5 plus ≈ $5 per tracking run (model cost only, summed from the cards' estimates at this dataset's per-trial means; Opus assumed at $0.25 per trial before T1.8 measured $0.370) | Sets n per cell and how many scenarios the skill audit gets |
+| Model budget per phase | Phase 0 ≈ $14, Phase 1 ≈ $42 at the cards' estimates, re-estimated to ≈ $60 after the model lane (T1.1, T1.6, T1.7, T1.8) cost $45.91 against $27.50 (sol $0.287 and Opus $0.370 per trial on Bingo measured, not $0.118 and $0.25; sol cold start $0.15, so the sol cold-start cells of T2.2 and T2.9 keep their estimates), Phase 2 ≈ $20.50 (T2.10 and T2.11 added 2026-11-18), Phase 3 ≈ $26, Phase 4 ≈ $5 plus ≈ $5 per tracking run (model cost only, summed from the cards' estimates at this dataset's per-trial means; Opus assumed at $0.25 per trial before T1.8 measured $0.370) | Sets n per cell and how many scenarios the skill audit gets |
 | Models | `gpt-6-luna` and `gpt-6.1-terra` in every decision cell; **`gpt-6.2-sol` replaces `gpt-6.1-sol`** and **`claude-opus-5.5` is added**; both run on ship gates and on their own lane (T1.8), not in every cell | Luna is where guidance decides the outcome. Catalogue prices per 1M input tokens: luna 10, terra 100, sol 200 (6.1 and 6.2 alike), Opus 5.5 400; Opus 4.8 and 5 are marked for deprecation, so 5.5 is the Opus to use. A one-trial probe of each on `cold-start`/`raw` (round `probe-models`) passed on 2026-11-17 under the pinned Copilot CLI; numbers in T1.8 |
 | Skills baseline | `microsoft/aspire-skills` **v0.0.6** (released 2026-11-17) | v0.0.5 is no longer what `aspire agent init` registers |
 | Held-out application | A second Bingo-sized app with a different stack (minimal API + SQL Server + RabbitMQ worker), built in this repo; eShop only if that proves too small | Every "ship" verdict on `aspire-diagnose` is gated on it |
@@ -1885,6 +1885,25 @@ router-first load (`aspire`, then `aspire-orchestration`, 6/6) was 13 % faster t
 
 ---
 
+### T2.11 `AGENTS.md` as the start surface: lean set without `aspire-orchestration`
+
+Added 2026-11-18 at the user's request, from [T2.10](#t210-results). Not a source build: a revised placed
+file and one skill removed from a set.
+
+| | |
+|---|---|
+| Hypothesis | On `cold-start` the lean set's only visible effect is to load `aspire-orchestration` (23 KB body, 6/6 luna and terra trials in `t16` and `t210`), and luna takes 61 s against raw's 45 s and `aspire-cli`'s 51 s (`t16`). T2.10's file took `aspire-lean-agents` to 53 s with the skill still loading, and `aspire-cli-agents` to 53 s with no skill at all. The start job is three commands in order: `aspire start`, then `aspire describe` (it names every resource with state, health and endpoints, so it is the list to wait on), then `aspire wait <resource-name>` for each resource the task needs. If the file carries those three lines in that order, the orchestration skill is a per-start tax on this scenario and can leave the lean set; the file becomes the push surface for the start flow that T1.6's `aspire-start` skill supplied by pull (53 s luna in `t16`). This is the scenario `aspire start` exists for, so the measure is the time to a started app whose resources the agent has verified up, not the end of the trial |
+| Change | **File v2** (`common/agents-md/*.md`, all three families so the T2.10 arms differ from v1 only here; bytes in the ledger; leak review repeated): the "Run it" section orders `aspire start … --isolated`, then `aspire describe` explained as the resource list, then `aspire wait <resource-name>` with the placeholder spelled out, one per resource needed. **Set `lean-noorch`** = `lean` minus `aspire-orchestration`, and the file's Skills list drops its line. **Arm** `aspire-lean-noorch-agents` |
+| Arms | `cold-start`: `aspire-lean` (same-round control, because T2.10's 13–14 % cold-start gain was measured against `t16` controls and round drift was not excluded), `aspire-lean-agents` (file v2, skill kept), `aspire-lean-noorch-agents` (file v2, skill removed); `raw` and `aspire-cli` same-round on luna as the floor (terra floor from `t16`). The `t16` `aspire-lean-start` cell is the pull comparison |
+| Cells | `cold-start` × luna, terra × 6 on the three lean arms (36); `raw`, `aspire-cli` × luna × 6 (12); guard `slow-sql` × luna × 6 on `aspire-lean-noorch-agents` (a set without orchestration is a changed route; `aspire-diagnose` owns the job, so passes must hold) |
+| Measures | **Primary: seconds to verified-up**, from the trajectory: first model call to the first tool result that shows both the player page and the admin application serving (an `aspire wait` returning ready for each, a `describe` showing both running and healthy, or an HTTP 200 on both endpoints), with the commands to that point; added to `collect.py` as `seconds_to_verified_up` and `commands_to_verified_up` and computed for the `t16` and `t210` cold-start trials too. Also `agent_seconds`, tokens, characters read, skills loaded, and per arm: did `describe` precede the first `wait`, did `wait` name a resource that `describe` listed, how many waits |
+| Decision rule | `ship` (drop `aspire-orchestration` from the lean proposal for the start job; the v2 file carries the start flow; the `aspire new` / `aspire agent init` issue is filed with the v2 text) if on luna `aspire-lean-noorch-agents` seconds-to-verified-up ≤ 0.85 × same-round `aspire-lean` (p < 0.10), its `agent_seconds` is within 10 % of same-round `aspire-cli`, tokens do not exceed `aspire-lean`'s, terra is not worse than `aspire-lean` by more than 10 % on either time measure, and the guard holds (`slow-sql` luna passes ≥ the pin's `aspire-lean` cell minus one). `revise` (keep the skill, ship the file) if the time clause holds but `aspire-lean-agents` with the skill kept is within 5 % of the no-orchestration arm: the gain is the v2 ordering, not the removal. `drop` if neither luna arm is ≥ 15 % faster to verified-up than same-round `aspire-lean`. Report, whatever the verdict, where the remaining gap to raw sits: the start command, the waits, or the model's own verification |
+| Caveat | The README still names the start command (T2.10's caveat). The card decides the start job only: `aspire-orchestration`'s other jobs (port conflicts, file locks, restarts) are Phase 3's to audit, and `stuck-db` keeps its owner. `aspire wait` without a resource name is not assumed to exist on the pin; the file says to name one |
+| Trials / cost | 36 + 12 + 6 = 54 ≈ $2 (cold-start trials cost $0.003 luna, $0.03 terra in `t16`; the guard ≈ $0.30) |
+| Results | pending |
+
+---
+
 ## 7. Phase 3: bottom-up audit of the shipped skills
 
 The question for each skill is not "is it good advice" (the upstream vally evals judge
@@ -2047,7 +2066,7 @@ Order of work:
    matrix feeds T1.2, T1.3 and every Phase 3 card.
 3. **Phase 1 in three or four rounds** once T0.1 is in; T1.1's verdict waits for T0.2. The model lane (T1.8) can go in T0.1's round since it needs nothing new; the VS Code lane (T1.9) waits for T0.4.
 4. **Phase 2** product patches are built while Phase 1 runs and measured after, each
-   with its guard cells; T2.6 and T2.5 wait for T4.1's matrix. T2.10 needs no patch and can run in the first Phase 2 round.
+   with its guard cells; T2.6 and T2.5 wait for T4.1's matrix. T2.10 needs no patch and can run in the first Phase 2 round; T2.11 follows it directly (file v2, same lane).
 5. **Phase 3** scenario ports (A01, S01, P01 preconfigured) are fixture work that can
    proceed during Phases 1 and 2; their model rounds run after.
 6. **Filing** happens per card when its rule is met, not per phase.
@@ -2058,7 +2077,7 @@ Budget at the assumed defaults:
 |---|---:|---:|---|
 | 0 | 210 + 96 + 3 (+ 48 reserved) | ≈ $13.40 (+ $2) | Held-out app fixtures, harness adapters |
 | 1 | 84 + 72 + 108 + 72 + 12 + 36 + 108 + 108 = 600 | ≈ $42 estimated (of which Opus ≈ $14, VS Code ≈ $4); **≈ $60 re-estimated** 2026-11-18 with T1.1 ($4.31), T1.6 ($5.36), T1.7 ($0.81) and T1.8 ($35.43) at actual cost, the other cards at their estimates | Three to four CES rounds; VS Code trajectory adapter |
-| 2 | 54 + 54 + 36 + 24 + 96 + 24 + 36 + 42 + 18 + 84 = 468 | ≈ $18.50 | Nine product patches on source builds; T2.10 is a placed file, no build |
+| 2 | 54 + 54 + 36 + 24 + 96 + 24 + 36 + 42 + 18 + 84 + 54 = 522 | ≈ $20.50 | Nine product patches on source builds; T2.10 and T2.11 are placed files, no build |
 | 3 | 240 + 96 + 48 + 60 + 48 + 48 + 36 + 24 guard = 600, plus 256 short | ≈ $26 | Four fixture ports, two new graders |
 | 4 | 48 + 48 + 24 = 120, plus 120 per tracking run | ≈ $5, plus ≈ $5 per run | Audit fixtures (16 AppHosts) |
 
