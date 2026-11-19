@@ -1463,7 +1463,7 @@ The budget lines in §1, §3 and §9 are updated with these rates.
 | Decision rule | Harness-neutral if the ratio to `raw` of each Aspire arm is within 15 points of the Copilot CLI ratio from T0.1 in every cell and `slow-redis` luna pass counts differ by at most one trial. Otherwise the trajectories name the mechanism (skill not discovered, approval prompt, MCP not registered, different tool set) and that becomes a card of its own before any skill verdict is called general. Because the two harnesses differ in both engine and surface, a gap is attributed only after the trajectory shows which |
 | Guard | None beyond the cells; `slow-redis` luna is in the set |
 | Trials / cost | 3 × 3 × 2 × 6 = 108 ≈ $4.40 |
-| Results | pending |
+| Results | **harness-dependent** (2026-11-18, round `t19`, 108 trials, $5.31): not harness-neutral by the rule; 7 of 12 Aspire cells outside ±0.15, explained by three VS Code mechanisms, written as proposed cards T4.8 and T4.9. Skills are discovered and loaded the same way under both harnesses; `cold-start` grades under VS Code (36/36). [Results](#t19-results) |
 
 #### T1.9 decision rule, as computed (written 2026-11-18, before any `t19` result was read)
 
@@ -1472,6 +1472,81 @@ The budget lines in §1, §3 and §9 are updated with these rates.
 - **Harness-neutral** if for every Aspire arm × scenario × model `|ratio_vscode − ratio_copilot| ≤ 0.15` (ratio points) **and**, on `slow-redis` luna, each of the three arms' pass counts differ from Copilot's `t01b` count by at most one. Otherwise each cell outside is attributed from the trajectory (skill not discovered, approval prompt, MCP not registered, different tool set, subagent on another model) and written as a new card proposal, not a skill verdict.
 - **Skill-text drift:** `t01b`'s `aspire-lean` ran the pre-T0.2 `aspire-diagnose` text; `t19` runs the revised step 1. An `aspire-lean` cell outside the band is first checked against `t14`'s same-pin Copilot `aspire-lean` (`slow-redis` luna) and for use of the revised branch (`duration:>5000`) before the gap is attributed to the harness.
 - A trial that hits the time limit is reported separately from agent failures; a trial lost before the agent ran (image build, dependency install) is re-run once.
+
+
+#### T1.9 results
+
+**Verdict: `harness-dependent`.** By the rule as computed, 7 of the 12 Aspire cells lie outside
+±0.15 ratio points of Copilot CLI's `t01b` ratio, so VS Code's ratios are not Copilot's. The `slow-redis`
+luna pass-count clause holds (raw 0 vs 1, `aspire-skills-mcp` 0 vs 0, `aspire-lean` 4 vs 4). None of the gaps
+is a skill-discovery failure: under VS Code every arm loaded the same skills as under Copilot CLI
+(`aspire-diagnose` on lean, `aspire-orchestration` on cold start, `aspire-monitoring` on the shipped set). The
+gaps come from three harness mechanisms, written as proposed cards T4.8 and T4.9 in §8; they are not skill
+verdicts.
+
+Round `t19`, `BENCH_AGENT=vscode` (package `vscode=0.20261117.7`, VS Code 1.146.0-insider), tasks `1479041`, Harbor agent timeout ×1.3. No
+model-service 5xx. Five trials ran to VS Code's own `agentSeconds: 720` limit (`user-overrides.yaml`; the
+Harbor multiplier does not raise it), which `collect.py` marks as infrastructure: four on
+`aspire-skills-mcp` (`slow-sql` luna ×2, terra ×1; `slow-redis` terra ×1) and one raw (`slow-redis` terra).
+They are time-limit failures of the agent and are shown in the pass column (pass/6); medians are over graded
+trials. `cold-start` grades under VS Code: 36/36 reward 1, the harness leaves the app running.
+
+| Scenario | Model | Arm | VS Code pass | VS Code net s | ratio | Copilot `t01b` pass / ratio | Δ | Run IDs |
+|---|---|---|---|---:|---:|---|---:|---|
+| slow-sql | luna | raw | 1/6 | 159 | 1.00 | 6/6 / 1.00 | | 2026111876450860 – 76904960 |
+| slow-sql | luna | aspire-skills-mcp | 3/6 (2 at limit) | 361 | 2.27 | 6/6 / 2.29 | −0.02 | 2026111876966820 – 77371076 |
+| slow-sql | luna | aspire-lean | 5/6 | 232 | 1.46 | 6/6 / 1.40 (revised text `t17-copilot`: 1.27) | +0.05 | 2026111877549500 – 80146060 |
+| slow-sql | terra | raw | 6/6 | 94 | 1.00 | 6/6 / 1.00 | | 2026111876032592 – 76407326 |
+| slow-sql | terra | aspire-skills-mcp | 5/6 (1 at limit) | 125 | 1.34 | 6/6 / 1.36 | −0.03 | 2026111876477520 – 76955516 |
+| slow-sql | terra | aspire-lean | 6/6 | 118 | 1.26 | 6/6 / 1.05 | **+0.21** | 2026111877070862 – 79921122 |
+| slow-redis | luna | raw | 0/6 | 100 | 1.00 | 1/6 / 1.00 | | 2026111876029484 – 76382530 |
+| slow-redis | luna | aspire-skills-mcp | 0/6 | 200 | 2.00 | 0/6 / 0.38 | **+1.61** | 2026111876439856 – 76891444 |
+| slow-redis | luna | aspire-lean | 4/6 | 275 | 2.75 | 4/6 / 0.40 (revised text `t14`, `t14-guard`, `t17-copilot`: 0.45–0.54) | **+2.35** | 2026111876989218 – 77415034 |
+| slow-redis | terra | raw | 5/6 (1 at limit) | 187 | 1.00 | 6/6 / 1.00 | | 2026111876043314 – 76337566 |
+| slow-redis | terra | aspire-skills-mcp | 4/6 (1 at limit) | 265 | 1.42 | 6/6 / 1.00 | **+0.41** | 2026111876395362 – 76771880 |
+| slow-redis | terra | aspire-lean | 6/6 | 174 | 0.93 | 6/6 / 0.33 | **+0.60** | 2026111876836668 – 77357796 |
+| cold-start | luna | raw | 6/6 | 50 | 1.00 | 6/6 / 1.00 | | 2026111875809600 – 76192302 |
+| cold-start | luna | aspire-skills-mcp | 6/6 | 65 | 1.29 | 6/6 / 1.43 | −0.14 | 2026111875499394 – 76113438 |
+| cold-start | luna | aspire-lean | 6/6 | 90 | 1.78 | 6/6 / 1.60 (revised text `t16`: 1.39) | **+0.17** | 2026111876060608 – 76388450 |
+| cold-start | terra | raw | 6/6 | 45 | 1.00 | 6/6 / 1.00 | | 2026111881235684 – 81615576 |
+| cold-start | terra | aspire-skills-mcp | 6/6 | 44 | 0.96 | 6/6 / 1.23 | **−0.27** | 2026111881192714 – 81637966 |
+| cold-start | terra | aspire-lean | 6/6 | 61 | 1.33 | 6/6 / 1.38 (revised text `t16`: 1.34) | −0.04 | 2026111881246992 – 81738726 |
+
+Net s = median `agent_loop_seconds − transport_wait_seconds` (VS Code); Copilot ratios use `agent_loop_seconds`.
+Each cell's run IDs share the prefix `20261118`, and the range is first to last of six.
+
+**Mechanisms** (from `tool_counts`, `mcp_calls`, `skills_loaded`, `models_called`):
+
+1. **Under VS Code, raw luna edits instead of investigating, so the raw denominator is a fast failure.** Raw
+   luna ran a median 5 shell commands on `slow-sql` and 2.5 on `slow-redis`, against Copilot CLI's 13 and 24.5,
+   with 17–18 `read_file`/`grep_search`/`file_search` calls and an `apply_patch` of the application. 5 of 6
+   `slow-sql` trials patched code and left the 2 s write in place; every `slow-redis` trial stopped after
+   95–180 s (median 100) with status still at 8–12 s. With `aspire-lean`, VS Code luna ran 14–19.5 shell commands, as many as
+   under Copilot CLI, and passed 5/6 and 4/6. The skill turns luna from editing to running commands under
+   VS Code. Measured on pass rate, Aspire's effect is larger under VS Code than under Copilot CLI
+   (`slow-sql` 1/6 → 5/6; `slow-redis` 0/6 → 4/6), and the time ratio inverts it: that is the
+   `slow-redis` luna gap (+1.61, +2.35). Terra investigates with raw under both harnesses (12.5–29 shell
+   commands), and its `slow-redis` lean gap (+0.60) is a slower lean trial (174 s vs Copilot's 52 s on the
+   old text), not a skill-selection failure.
+2. **VS Code defers MCP tools behind `tool_search`.** Every trial that called an `aspire-*` MCP tool called
+   `tool_search` first; terra never did on `slow-sql` or `cold-start` (0 MCP calls in 12 trials, against
+   a median of 7 under Copilot CLI on `slow-sql`), and on `slow-redis` 3 of 6 did. Under VS Code,
+   `aspire-skills-mcp` is mostly the skills arm. That explains `cold-start` terra (−0.27: no MCP detour) and
+   part of `slow-redis` terra (+0.41, with the shell instead).
+3. **The VS Code limit is shorter than Copilot CLI's.** After the ~186 s transport fallback, 720 s leaves
+   about 534 s of work against Copilot CLI's 900 s. The four `aspire-skills-mcp` trials at the limit would
+   have run on under Copilot CLI, so that arm's VS Code medians are low and its pass counts are a lower bound.
+
+Not a mechanism here: subagents. VS Code started `gpt-5.6-luna` subagents in 12 luna trials (none on terra)
+and calls `gpt-4o-mini` in every trial, but `cold-start` luna lean trials without subagents took 81–92 s as
+well. That cell's gap (+0.17 on `t01b`, +0.39 on the revised `t16` ratio) is lean's extra turns at VS Code's
+slower pace: lean adds 6 tool calls over raw under VS Code (14 vs 8) and 4.5 under Copilot CLI (11.5 vs 7). Lean drift: on the revised text, the Copilot ratios move by up to 0.13 between rounds of the same
+cell (`slow-sql` luna 1.27 to 1.40), about the width of the ±0.15 band, so single-round ratio comparisons of
+one cell are close to the noise.
+
+**Cost** $5.31 for 108 trials against $4.40 estimated. Submission: CES returned 502 on `startRun` for VS Code
+submissions in bursts; partial batches were completed one trial per submission with retries, and Kusto
+matches the ledger (no orphan runs).
 
 ---
 
@@ -1738,6 +1813,8 @@ Decision rules for the audit, applied per skill after its cells and T3.9:
 | T4.5 | **Tracking schedule** (REPORT §11) | Every later product daily and skills release gets the core matrix | Workflow on this repo: re-pin, gate, submit core matrix, collect, series, open an issue on a flag | 120 trials ≈ $5 per run | pending |
 | T4.6 | **Cheaper rounds** | The plan's cost is bounded by queue time more than money | Local gate before every cloud submission; one image per app kind with skill sets mounted at run time instead of baked | none | pending |
 | T4.7 | **Claude Code adapter** (proposed 2026-11-18, not built) | T1.7 found that no skill and no MCP server reach the `claude-code` harness, and that only Claude models run under it | Skills copied to `/app/.claude/skills`, the MCP server registered the way Harbor's `claude_code` agent does it, a real CLI version pin; `claude-haiku-5.5` on both harnesses: [card below](#t47-claude-code-adapter-proposed) | 72 ≈ $5 plus a re-pin and gates | proposed |
+| T4.8 | **VS Code parity settings** (proposed 2026-11-18, from [T1.9](#t19-results)) | Under VS Code the MCP tools sit behind `tool_search` (15 of 18 terra `aspire-skills-mcp` trials never searched for them) and the inner limit (`agentSeconds: 720`) leaves about 534 s of work against Copilot CLI's 900 s; four `aspire-skills-mcp` trials hit it | Raise `agentSeconds` (and Harbor's multiplier with it) so net working time matches 900 s; find whether VS Code can list MCP tools eagerly, and if it can, run that as a separate assets folder. If it cannot, deferred MCP is the product condition under VS Code and is reported as such. Re-run `slow-sql`, `slow-redis` × `aspire-skills-mcp` × luna, terra | 24 ≈ $2.40 | proposed |
+| T4.9 | **What makes luna investigate under VS Code** (proposed 2026-11-18, from [T1.9](#t19-results)) | Under VS Code, raw luna runs 2.5–5 shell commands and patches code (1/6 and 0/6 pass); with `aspire-lean` it runs 14–19.5 and passes 5/6 and 4/6. The time ratio inverts that effect | Under VS Code, `slow-sql`, `slow-redis` × luna × `aspire-cli` (commands, no skill) and `aspire-lean-agents` / `aspire-cli-agents` (T2.10's file, which VS Code also reads) × 6; decide on pass rate and time-to-pass, not the raw ratio | 36 ≈ $2.50 | proposed |
 
 ### T4.7 Claude Code adapter (proposed)
 

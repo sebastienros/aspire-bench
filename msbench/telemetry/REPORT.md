@@ -1235,3 +1235,15 @@ file path, so the unpatched 30 KB `list_traces` never reached the model whole, a
 file reads rather than context, while luna agents made more drill-down calls on the compact output
 ([FINDINGS F31](../FINDINGS.md#f31-copilot-cli-shows-a-500-character-preview-of-any-tool-result-over-about-20-kb)).
 [PLAN.md, T1.4 results](PLAN.md#t14-results).
+
+**Phase 1, T1.9: VS Code lane.** The `t01b` cells under VS Code agent mode (round `t19`, 108 trials, $5.31).
+Verdict **harness-dependent**: 7 of 12 Aspire cells fall outside ±0.15 of Copilot CLI's time ratio to `raw`,
+though every arm loaded the same skills under both harnesses and `cold-start` graded 36/36. The gaps have three
+VS Code causes. (1) With no guidance, luna edits code instead of investigating (2.5–5 shell commands; raw
+passed 1/6 on `slow-sql` and 0/6 on `slow-redis`, quitting at about 100 s), while `aspire-lean` brought it
+back to Copilot CLI's 14–19.5 commands and 5/6 and 4/6 passes, so the time ratio inverts an effect that is
+larger under VS Code than under Copilot CLI. (2) MCP tools sit behind `tool_search`; terra rarely searched, so
+its `aspire-skills-mcp` trials mostly ran without MCP. (3) VS Code's own 720 s limit leaves about 534 s of work;
+four `aspire-skills-mcp` trials reached it. Proposed cards T4.8 (parity) and T4.9 (what makes luna investigate
+under VS Code), [FINDINGS F32](../FINDINGS.md#f32-under-vs-code-the-cheapest-model-edits-code-instead-of-investigating-unless-a-skill-gives-it-commands).
+[PLAN.md, T1.9 results](PLAN.md#t19-results).

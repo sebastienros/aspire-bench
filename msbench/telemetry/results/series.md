@@ -430,9 +430,9 @@ infrastructure failures are left out.
 
 | Arm | Run | n | Pass | Agent s (MAD) | Input tok | Time × raw | trail | Tokens × raw | trail | Skill sel. | MCP calls | Chars read | Flags | Time ratio |
 |---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---|
-| raw | t19 | 3 | 3/3 | 290 (1) | 76,895 | – | – | – | – | 0% | 0 | 26,290 |  |  |
-| aspire-skills-mcp | t19 | 3 | 3/3 | 274 (1) | 94,418 | 0.95× | – | 1.23× | – | 100% | 0 | 20,817 |  | ▄ |
-| aspire-lean | t19 | 3 | 3/3 | 291 (14) | 147,639 | 1.00× | – | 1.92× | – | 100% | 0 | 24,210 |  | ▄ |
+| raw | t19 | 6 | 6/6 | 276 (8) | 67,698 | – | – | – | – | 0% | 0 | 18,828 |  |  |
+| aspire-skills-mcp | t19 | 6 | 6/6 | 275 (6) | 96,248 | 1.00× | – | 1.42× | – | 100% | 0 | 23,707 |  | ▄ |
+| aspire-lean | t19 | 6 | 6/6 | 293 (10) | 121,002 | 1.06× | – | 1.79× | – | 100% | 0 | 21,076 |  | ▄ |
 
 ## slow-redis / gpt-6-luna / vscode
 

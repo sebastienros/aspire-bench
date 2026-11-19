@@ -224,9 +224,9 @@ Each pin (toolchain) has its own table; trials of different pins are never compa
 | cold-start | gpt-6-luna | aspire-lean vs raw | 6 vs 6 | +14% (p=0.041) | +204% (p=0.002) | +60% (p=0.002) |
 | cold-start | gpt-6-luna | aspire-skills-mcp vs raw | 6 vs 6 | +5% (p=0.132) | +86% (p=0.015) | +9% (p=0.310) |
 | cold-start | gpt-6-luna | aspire-lean vs aspire-skills-mcp | 6 vs 6 | +9% (p=0.180) | +63% (p=0.093) | +46% (p=0.065) |
-| cold-start | gpt-6.1-terra | aspire-lean vs raw | 3 vs 3 | +0% (p=0.400) | +92% (p=0.100) | +49% (p=0.100) |
-| cold-start | gpt-6.1-terra | aspire-skills-mcp vs raw | 3 vs 3 | -5% (p=0.700) | +23% (p=0.100) | +22% (p=0.100) |
-| cold-start | gpt-6.1-terra | aspire-lean vs aspire-skills-mcp | 3 vs 3 | +6% (p=0.100) | +56% (p=0.100) | +23% (p=0.100) |
+| cold-start | gpt-6.1-terra | aspire-lean vs raw | 6 vs 6 | +6% (p=0.180) | +79% (p=0.002) | +37% (p=0.002) |
+| cold-start | gpt-6.1-terra | aspire-skills-mcp vs raw | 6 vs 6 | -0% (p=0.937) | +42% (p=0.002) | +27% (p=0.002) |
+| cold-start | gpt-6.1-terra | aspire-lean vs aspire-skills-mcp | 6 vs 6 | +7% (p=0.180) | +26% (p=0.485) | +8% (p=0.310) |
 | slow-redis | gpt-6-luna | aspire-lean vs raw | 6 vs 6 | +53% (p=0.002) | +122% (p=0.004) | +82% (p=0.009) |
 | slow-redis | gpt-6-luna | aspire-skills-mcp vs raw | 6 vs 6 | +27% (p=0.015) | +244% (p=0.004) | +116% (p=0.004) |
 | slow-redis | gpt-6-luna | aspire-lean vs aspire-skills-mcp | 6 vs 6 | +21% (p=0.485) | -36% (p=0.180) | -16% (p=0.818) |

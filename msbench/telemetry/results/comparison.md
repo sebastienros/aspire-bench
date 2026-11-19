@@ -452,9 +452,9 @@ they are listed in trials.jsonl and excluded from every other column.
 
 | Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| raw | 3 | 3/3 | 3/3 | 290 (+0%) | 76,895 (+0%) | 0.030 (+0%) | 6 | - | - |
-| aspire-skills-mcp | 3 | 3/3 | 3/3 | 274 (-5%) | 94,418 (+23%) | 0.037 (+22%) | 6 | - | - |
-| aspire-lean | 3 | 3/3 | 3/3 | 291 (+0%) | 147,639 (+92%) | 0.045 (+49%) | 9 | - | - |
+| raw | 6 | 6/6 | 6/6 | 276 (+0%) | 67,698 (+0%) | 0.030 (+0%) | 6 | - | - |
+| aspire-skills-mcp | 6 | 6/6 | 6/6 | 275 (-0%) | 96,248 (+42%) | 0.038 (+27%) | 7 | - | - |
+| aspire-lean | 6 | 6/6 | 6/6 | 293 (+6%) | 121,002 (+79%) | 0.041 (+37%) | 8 | - | - |
 
 ## slow-redis / gpt-6-luna / vscode
 

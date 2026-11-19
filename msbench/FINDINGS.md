@@ -1336,6 +1336,34 @@ the agent gets data rather than a pointer to a file.
 CLI's source or documentation. Whether the 11-09 rounds spilled the same way was not checked (same package, so
 probably). Not reported upstream.
 
+## F32: Under VS Code, the cheapest model edits code instead of investigating unless a skill gives it commands
+
+**Evidence:** PLAN [T1.9 results](telemetry/PLAN.md#t19-results), round `t19` (VS Code agent mode, package
+`vscode=0.20261117.7`, VS Code 1.146.0-insider; tasks `1479041`, 108 trials), against Copilot CLI round `t01b`.
+With no Aspire guidance (`raw`), `gpt-6-luna` under VS Code ran a median 5 shell commands on `slow-sql` and 2.5
+on `slow-redis` (Copilot CLI: 13 and 24.5), made 17–18 `read_file`/`grep_search`/`file_search` calls, patched
+the application with `apply_patch`, and stopped: 1/6 and 0/6 passed (Copilot CLI 6/6 and 1/6). With
+`aspire-lean` the same model under VS Code ran 14–19.5 shell commands, as under Copilot CLI, and passed 5/6 and
+4/6. `gpt-6.1-terra` investigated with raw under both harnesses (12.5–29 commands). Two further VS Code
+behaviours: MCP tools are deferred behind `tool_search` (every trial that used an `aspire-*` tool searched for
+it first; 15 of 18 terra `aspire-skills-mcp` trials never did, so they ran without MCP), and the harness's own
+`agentSeconds: 720` limit leaves about 534 s of work after its ~186 s transport fallback (four
+`aspire-skills-mcp` trials reached it). Skills were discovered and loaded the same way under both harnesses.
+
+**Effect:** On the cheapest model the Aspire skills matter more under VS Code than under Copilot CLI: they are
+what turns the agent from editing code to running commands. The suite's time ratio to `raw` hides this,
+because the raw denominator is a fast failure (100 s on `slow-redis`); the `slow-redis` luna ratios were 2.00
+and 2.75 under VS Code against 0.38 and 0.40 under Copilot CLI. Under VS Code, `aspire-skills-mcp` is
+effectively the skills-only arm for terra.
+
+**Improvement candidate:** Compare harnesses on pass rate and time-to-pass, not on time ratios to a raw arm
+that may fail fast. For the product: guidance that names commands (a skill, or an instructions file beside the
+AppHost, PLAN T2.10) reaches the agent under VS Code, while MCP tools wait behind a search. Proposed cards
+T4.8 (parity: limit, MCP listing) and T4.9 (which guidance makes luna investigate under VS Code).
+
+**Limits / status:** One round, n = 6 per cell, one VS Code build; the shell/read counts come from
+`tool_counts`, not from a read of every trajectory. Not reported upstream.
+
 ## Recording future findings
 
 Give each finding a stable ID and include evidence links, exact observed

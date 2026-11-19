@@ -450,9 +450,9 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 
 | Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
-| aspire-lean | 3/3 | 291 | - | - | 147,639 | 735 | 0.045 | 9 | aspire-orchestrationx3 | 0 | 24,210 |
-| aspire-skills-mcp | 3/3 | 274 | - | - | 94,418 | 590 | 0.037 | 6 | aspire-orchestrationx3 | 0 | 20,817 |
-| raw | 3/3 | 290 | - | - | 76,895 | 593 | 0.030 | 6 | - | 0 | 26,290 |
+| aspire-lean | 6/6 | 293 | - | - | 121,002 | 703 | 0.041 | 8 | aspire-orchestrationx6 | 0 | 21,076 |
+| aspire-skills-mcp | 6/6 | 275 | - | - | 96,248 | 608 | 0.038 | 7 | aspire-orchestrationx6 | 0 | 23,707 |
+| raw | 6/6 | 276 | - | - | 67,698 | 521 | 0.030 | 6 | - | 0 | 18,828 |
 
 ## slow-redis / gpt-6-luna / vscode
 
