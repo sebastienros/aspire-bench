@@ -120,8 +120,8 @@ repin() {
     if [[ -n "$(get_or dry-run "")" ]]; then
         local before clone base
         before="$(git -C "$repo" rev-parse HEAD) $(git -C "$repo" status --porcelain | shasum | cut -c1-12)"
-        clone="$(mktemp -d)/repo"
-        trap 'rm -rf "$(dirname "$clone")"' EXIT
+        clone="$(mktemp -d)/repo"; dry_clone="$(dirname "$clone")"
+        trap 'rm -rf "${dry_clone:-}"' EXIT
         git clone -q --shared "$repo" "$clone"
         git -C "$clone" checkout -q "$(git -C "$repo" rev-parse HEAD)"
         base="$(git -C "$clone" rev-parse HEAD)"
