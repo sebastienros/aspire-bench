@@ -1,6 +1,6 @@
 # Plan: improving agentic performance with Aspire (CLI, MCP, skills)
 
-Status: proposal, 2026-11-17. T0.1 (re-pin and re-baseline), T0.2 (held-out application; ship gate open on the reserved third fault after one skill revision), T0.3 (series tooling) and T0.4 (harness adapters) done 2026-11-18. Phase 1 model lane closed 2026-11-18: T1.1 ship, T1.6 drop (`aspire-start`), T1.7 no verdict (Claude Code harness gaps; adapter proposed as T4.7), T1.8 revise (step-4 edit proposed). Product lane: T1.5 ship (CLI plain output), T1.4 drop (compact MCP telemetry; terra gain recorded), T1.9 harness-dependent (VS Code; T4.8, T4.9 proposed), T2.10 drop (`AGENTS.md`; it fixes command selection, not luna's time), T2.11 ship (file v2 replaces `aspire-orchestration` for the start job). Skills lane: T3.8 remove (the router's guardrail job; ceiling on every arm), T1.2 drop (narrowed trigger alone), T1.3 ship (router removal; its cost holds across rounds on `read-only`, not on `slow-sql`; cold start open), T3.9 selection benchmark usable on terra, not on luna (it over-predicts the router). Phase 2 CLI lane: T2.2 drop (a blocking start closes none of the cold-start gap; the gap is the AppHost's launch and resource start-up), T2.9 the start itself is the gap (the MCP route was not taken). No issue has been filed.
+Status: proposal, 2026-11-17. T0.1 (re-pin and re-baseline), T0.2 (held-out application; ship gate open on the reserved third fault after one skill revision), T0.3 (series tooling) and T0.4 (harness adapters) done 2026-11-18. Phase 1 model lane closed 2026-11-18: T1.1 ship, T1.6 drop (`aspire-start`), T1.7 no verdict (Claude Code harness gaps; adapter proposed as T4.7), T1.8 revise (step-4 edit proposed). Product lane: T1.5 ship (CLI plain output), T1.4 drop (compact MCP telemetry; terra gain recorded), T1.9 harness-dependent (VS Code; T4.8, T4.9 proposed), T2.10 drop (`AGENTS.md`; it fixes command selection, not luna's time), T2.11 ship (file v2 replaces `aspire-orchestration` for the start job). Skills lane: T3.8 remove (the router's guardrail job; ceiling on every arm), T1.2 drop (narrowed trigger alone), T1.3 ship (router removal; its cost holds across rounds on `read-only`, not on `slow-sql`; cold start open), T3.9 selection benchmark usable on terra, not on luna (it over-predicts the router). Phase 2 CLI lane: T2.2 drop (a blocking start closes none of the cold-start gap; the gap is the AppHost's launch and resource start-up), T2.9 the start itself is the gap, for MCP registered only (the MCP route was not taken), T2.3 revise by the rule with no revision proposed (agents left JSON, nothing improved), T2.4 drop (guard). No issue has been filed.
 Each task below is a card with the same fields; a card's **Results** field is either a
 link to measured numbers or `pending`. Nothing in a Results field is predicted.
 
@@ -1902,7 +1902,7 @@ estimated $4.80 (T2.2 $3.60 and T2.9 $1.20), the pre-round estimate was $8.70.
 | Cells | `slow-sql` × luna, terra × 6, `aspire-lean-src` patched vs unpatched; guard `slow-redis` luna × 6 on both |
 | Decision rule | Ship if characters read drop and time to root cause does not rise; drop if agents still go to JSON (the table is then not the issue) |
 | Trials / cost | 2 × 2 × 6 = 24 + 12 guard = 36 ≈ $1.20 |
-| Results | pending |
+| Results | **revise** by the rule, no revision proposed (2026-11-19, round `t23`, 120 trials with T2.4, $5.85): agents left JSON (tree 6/6, JSON 1/6 luna, 0/6 terra), but characters read rose (+5 %, +8 %), time to root cause was 1.17× (p = 0.002) and 1.15×, and the `slow-redis` guard passed 4/6 against 6/6. One trace read is under 5 % of a trial, so its 63 % cut cannot move the total. [Results](#t23-results) |
 
 #### T2.3 rule, as computed (written 2026-11-19, before any `t23` result was read)
 
@@ -1930,6 +1930,67 @@ estimated $4.80 (T2.2 $3.60 and T2.9 $1.20), the pre-round estimate was $8.70.
   root cause is ≤ 1.10 × the control's, and the guard holds (`slow-redis` luna passes ≥ control − 1).
 - **`revise`** otherwise, naming the failed clause. p values are reported, not in the rule.
 
+#### T2.3 results
+
+**Verdict: `revise`**, as the rule computes, but **no revision follows from the data, and the patch is not
+proposed.** It achieved its mechanism without the outcome: agents left JSON, yet nothing they were measured on
+improved. Why: one trace read is under 5 % of a trial's characters, so cutting that read by 63 % cannot move the
+total, and the time to root cause is spent elsewhere. That is the finding (ruling of the coordinating session,
+2026-11-19, consistent with the user's T1.4 ruling that pre-registered rules stand).
+
+Agents left JSON. With the statement under each span and step 2 pointing at the tree,
+every patched trial read the tree (6/6 on both models); JSON for one trace fell from 6/6 to 1/6 on luna and 0/6 on
+terra, so the drop clause ("still go to JSON") does not fire. Every ship clause failed:
+- characters read rose on both models (luna 71.9k against 68.3k, p = 0.82; terra 61.0k against 56.6k, p = 1.0);
+- time to root cause rose beyond the 1.10 bar on both (luna 24.0 against 20.5 s, 1.17×, p = 0.002; terra 22.6
+  against 19.6 s, 1.15×, p = 0.082);
+- the guard failed: `slow-redis` luna passed 4/6 against the control's 6/6 (the bar was 5/6). That cell passed 4/6,
+  4/6, 5/6 and 5/6 in four earlier rounds at this pin, and both misses are luna's known exporter-left-running mode
+  (below), not a new failure.
+
+Round `t23` (suite `e165626`, tasks `672b69b`; the `slow-sql` control `aspire-lean-src` is the existing task on
+tasks `1479041e` / suite `305a8ed`; between that suite and `e165626` the common files changed only additively
+and off the `slow-sql` path: the stuck-db fault, the selection hooks, the cold-start shim, the patches; its lean
+skill fingerprint `a14396de6b87` equals the new tasks'), Copilot CLI,
+120 trials for T2.3 and T2.4 together, $5.85: no timeouts, no model-service 5xx, no infrastructure losses.
+Extracted runs were deleted and re-fetched after other lanes' collects; 0 of 282 rows changed.
+
+| Scenario | Model | Arm (`t23`) | Pass | Root cause seen s | Redis reply s (trials) | `agent_seconds` | Chars read (k) | Trace by ID: JSON / tree | Run IDs |
+|---|---|---|---|---:|---|---:|---:|---|---|
+| slow-sql | luna | raw | 6/6 | 23.7 | n/a | 104.7 | 87.7 | 0 / 0 | 2026111920969076 – 20972978 |
+| slow-sql | luna | aspire-lean-src | 6/6 | 20.5 | n/a | 113.2 | 68.3 | 6 / 0 | 2026111920890286 – 20894188 |
+| slow-sql | luna | aspire-lean-tracetable | 6/6 | 24.0 | n/a | 110.6 | 71.9 | 1 / 6 | 2026111920898788 – 20902418 |
+| slow-sql | luna | aspire-cli-src | 6/6 | 61.8 | n/a | 135.8 | 119.6 | 0 / 0 | 2026111921091972 – 21095376 |
+| slow-sql | luna | aspire-cli-redishint | 4/6 | 55.1 | n/a | 117.8 | 122.8 | 1 / 0 | 2026111921100058 – 21103668 |
+| slow-sql | terra | raw | 6/6 | 12.1 | n/a | 52.9 | 53.5 | 0 / 0 | 2026111921045966 – 21049610 |
+| slow-sql | terra | aspire-lean-src | 6/6 | 19.6 | n/a | 56.6 | 56.6 | 6 / 0 | 2026111920986310 – 20990430 |
+| slow-sql | terra | aspire-lean-tracetable | 6/6 | 22.6 | n/a | 61.6 | 61.0 | 0 / 6 | 2026111921002490 – 21006522 |
+| slow-redis | luna | raw | 0/6 | 18.1 | 32.7 (5/6), first failed 0 | 223.3 | 99.2 | 0 / 0 | 2026111920977886 – 20981464 |
+| slow-redis | luna | aspire-lean-src | 6/6 | 30.1 | 30.1 (6/6), first failed 0 | 107.2 | 107.2 | 6 / 0 | 2026111921076168 – 21079534 |
+| slow-redis | luna | aspire-lean-tracetable | 4/6 | 34.6 | 32.0 (6/6), first failed 0 | 119.2 | 102.4 | 3 / 6 | 2026111921084140 – 21087426 |
+| slow-redis | luna | aspire-cli-src | 0/6 | 7.7 | 90.8 (1/6), first failed 2 | 179.2 | 118.1 | 1 / 0 | 2026111920907140 – 20911206 |
+| slow-redis | luna | aspire-cli-redishint | 0/6 | 6.9 | 65.0 (3/6), first failed 0 | 131.9 | 141.4 | 1 / 0 | 2026111920922688 – 20926204 |
+| slow-redis | luna | aspire-skills-src | 0/6 | 11.4 | 92.5 (1/6), first failed 2 | 134.2 | 120.2 | 0 / 0 | 2026111920930810 – 20934366 |
+| slow-redis | luna | aspire-skills-redishint | 0/6 | 23.5 | – (0/6), first failed 0 | 147.8 | 123.4 | 2 / 0 | 2026111920938970 – 20942850 |
+| slow-redis | terra | raw | 6/6 | 3.2 | 7.8 (6/6), first failed 0 | 183.8 | 53.0 | 0 / 0 | 2026111921061306 – 21065230 |
+| slow-redis | terra | aspire-cli-src | 6/6 | 3.0 | 21.6 (6/6), first failed 0 | 168.0 | 78.4 | 0 / 0 | 2026111921011344 – 21015152 |
+| slow-redis | terra | aspire-cli-redishint | 6/6 | 3.0 | 15.5 (6/6), first failed 1 | 137.1 | 84.4 | 1 / 0 | 2026111921020976 – 21025034 |
+| slow-redis | terra | aspire-skills-src | 6/6 | 3.1 | 24.2 (6/6), first failed 3 | 161.7 | 90.7 | 0 / 0 | 2026111921029862 – 21033368 |
+| slow-redis | terra | aspire-skills-redishint | 6/6 | 16.1 | 28.2 (6/6), first failed 2 | 132.2 | 84.0 | 0 / 0 | 2026111921037876 – 21041450 |
+
+**Mechanisms.**
+- **The tree replaces the JSON read where it is used.** One trace fetched by ID is 1,269 characters as the tree
+  against 3,393 as JSON (−63 %), but that read is under 5 % of a trial's 60–70k characters, so the trial totals
+  move with everything else the agent reads.
+- **The extra time to root cause is not in the trace step.** From the trace read to the first database command:
+  luna 12.1 against 11.0 s, terra 3.9 against 5.3 s, with the same number of code reads in between (luna 5–8
+  against 3–7; terra 0–1 against 0). The difference sits after the first database command and is not explained;
+  the arm also changed the skill's step 2 text (which no longer names `source` and `destination`) together with
+  the CLI, so the two cannot be separated in this design.
+- **The guard misses are the cell's known failure.** Both failed `slow-redis` trials reached Redis (33–36 s) and
+  read the tree, but never stopped the exporter ("Status still takes 456–465 ms"), the same mode as T2.10's guard;
+  the lean luna `slow-redis` cell passed 4/6, 4/6, 5/6 and 5/6 in four earlier rounds at this pin.
+
 ### T2.4 Redis plain port, or a hint where the agent looks
 
 | | |
@@ -1940,7 +2001,7 @@ estimated $4.80 (T2.2 $3.60 and T2.9 $1.20), the pre-round estimate was $8.70.
 | Decision rule | Ship if the no-skill arm's seconds to root cause drop ≥ 20% or its pass rate rises by two trials; otherwise keep the skill note and close |
 | Trials / cost | 2 × 2 × 6 = 24 ≈ $1.00 |
 | Issue draft | [aspire-redis-default-ports.md](../upstream-issues/aspire-redis-default-ports.md) |
-| Results | pending |
+| Results | **drop** (2026-11-19, round `t23`): the `slow-sql` guard failed (4/6 against 6/6, neither miss through the hint); the time clause passed on terra by medians only (first Redis reply 15.5 against 21.6 s, p = 0.49); luna 0/6 on both arms; the shipped-set pair showed no gain. Skill note kept. [Results](#t24-results) |
 
 #### T2.4 rule, as computed (written 2026-11-19, before any `t23` result was read)
 
@@ -1985,6 +2046,42 @@ estimated $4.80 (T2.2 $3.60 and T2.9 $1.20), the pre-round estimate was $8.70.
   `aspire-cli`. The verdict is by the card's rule on the no-skill arm alone. If the no-skill arm shows nothing and
   this pair shows a clear gain, the verdict still follows the rule, and the pair goes into the write-up as the
   finding that would motivate a re-targeted card; nothing ships on this pair alone.
+- *Post-hoc note (2026-11-19, after the run):* the rule does not say how a trial without any `redis-cli` reply counts in
+  the median of `seconds_to_redis_reply` (luna: 3 hinted trials with a reply against 1 control trial). It is left
+  undefined here; the verdict rests on the guard.
+
+#### T2.4 results
+
+**Verdict: `drop`**, on the guard (ruling of the coordinating session, 2026-11-19: the rule stands): `slow-sql` luna passed 4/6 on `aspire-cli-redishint` against 6/6 on
+`aspire-cli-src` (the bar was 5/6). The time clause passed on terra by medians: the first working `redis-cli` reply
+came at 15.5 against 21.6 s (0.72×, p = 0.49), pass 6/6 against 6/6. On luna neither arm passed a trial (0/6 and
+0/6), 3 hinted trials got a Redis reply against 1 control trial (65.0 against 90.8 s on those), and the rule did
+not say how trials without a reply count.
+Neither guard miss went through the hint, and the shipped-set pair showed no gain (below), so the skill note (lean
+step 3) stays and the card closes.
+
+Same round `t23` as T2.3 (table above).
+
+**Mechanisms.**
+- **The hint reached the agents that read `describe`.** It appeared in a tool result before the first `redis-cli`
+  in 4 of 6 terra and 2 of the 3 luna trials that ran `redis-cli` at all; terra's first `redis-cli` still failed in
+  1 of 6 (the control's in 0 of 6 this round, against 1 of 6 at `t01b`). The trap was rare in this arm, as
+  pre-registered.
+- **The guard misses did not go through the hint.** Of the two failed `slow-sql` trials, one never ran `aspire
+  describe` and patched application code; the other read `describe --format Json` piped through `grep` and never
+  touched Redis. Both are luna's no-skill code-editing miss; the no-skill luna `slow-sql` cell passed 6/6 in `t01b`,
+  `t210` and this round's control.
+- **The shipped-set pair (secondary, out of the rule) shows no gain.** On `aspire-skills`, where the trap fires,
+  the hint was seen in 1 of 6 terra trials and 2 of 6 luna (the shipped skills send agents to other commands than
+  a plain `describe`): terra's first `redis-cli` failed in 2 of 6 against 3 of 6, its reply came at 28.2 against
+  24.2 s (p = 0.70), and luna got no reply at all against 1 of 6, pass 0/6 on both. Nothing here motivates a
+  re-targeted card for the hint; a hint where the shipped skills look (the `aspire-terminals` reference row) or the
+  port swap (not measured) would be the next candidates.
+- **Relation to T2.6.** T2.6 shipped a generic `connect` object in `describe --format Json` (same field; this
+  string is its `note` + `command` for Redis). Its agents ran `connect.command` as given in 4/6 Redis trials,
+  because the lean skill's step 3 told them to look there; T2.4's no-skill agents had no such pointer.
+
+**Cost** (T2.3 + T2.4) `t23` $5.85 for 120 trials, against the cards' $2.20 plus the approved $1.70 secondary.
 
 ### T2.5 Redis client tracing in the aspirified template
 
@@ -2401,7 +2498,7 @@ Time = agent seconds, median; p = exact Mann-Whitney against the control (`tools
 | Cells | `cold-start` × luna, terra, `gpt-6.2-sol` × 6 |
 | Decision rule | Informational for the blocking-start card: if the MCP route is within 10% of `aspire-lean-start`, the gap to raw is the start itself and T2.2 is the only lever; if it is faster, `aspire-start` should say so |
 | Trials / cost | 3 × 6 = 18 ≈ $1.20 |
-| Results | **start itself is the gap** (2026-11-19, round `t22`): `aspire-lean-mcp` ÷ `aspire-lean-start` 1.02 / 1.09 / 1.04 (luna / terra / sol), but no trial used `wait_for_resources` or `list_resources`, so the MCP route was not taken. [Results](#t29-results) |
+| Results | **start itself is the gap, for MCP registered, not the MCP route** (2026-11-19, round `t22`): `aspire-lean-mcp` ÷ `aspire-lean-start` 1.02 / 1.09 / 1.04 (luna / terra / sol), but no trial used `wait_for_resources` or `list_resources`, so the MCP route was not taken. [Results](#t29-results) |
 
 #### T2.9 rule, as computed (written 2026-11-19, before any `t22` result was read)
 
@@ -2421,7 +2518,8 @@ Time = agent seconds, median; p = exact Mann-Whitney against the control (`tools
 
 #### T2.9 results
 
-**Reading: the start itself is the gap** (R within 0.90–1.10 on all three models). Round `t22`, same round as T2.2,
+**Reading: the start itself is the gap, for "MCP registered", not for the MCP route** (R within 0.90–1.10 on all three
+models; the card's informational question is answered only for registration). Round `t22`, same round as T2.2,
 official daily. Medians to verified-up, `aspire-lean-mcp` ÷ `aspire-lean-start`: luna 40.2 / 39.3 s = 1.02 (p = 0.59),
 terra 41.8 / 38.5 s = 1.09 (p = 0.028), sol 41.0 / 39.4 s = 1.04 (p = 1.0). All 72 trials passed.
 
@@ -2431,8 +2529,8 @@ terra 41.8 / 38.5 s = 1.09 (p = 0.028), sol 41.0 / 39.4 s = 1.04 (p = 1.0). All 
 | terra | 39.3 s | 38.5 s | 38.5 s | 41.8 s | 2026111919836934 – 19840570 |
 | sol | 35.5 s | 39.5 s | 39.4 s | 41.0 s | 2026111919946222 – 19949896 |
 
-**The MCP route was not taken.** No trial called `wait_for_resources` or `list_resources`; the only MCP calls were
-`list_apphosts` (luna 6/6, sol 4/6, terra none), and every trial loaded `aspire-orchestration` and waited with the
+**The MCP route was not taken.** No trial called `wait_for_resources` or `list_resources` (0 of 18 each); the only
+MCP calls were `list_apphosts`, one per trial in luna 6/6 and sol 4/6, none on terra, and every trial loaded `aspire-orchestration` and waited with the
 CLI, as `aspire-lean` did. The arm therefore measured "the MCP server registered", which costs nothing on cold
 start, not the MCP route the card described (one `wait_for_resources` for both resources). The reading the card
 asked for holds and agrees with T2.2: what separates Aspire from raw on this scenario is the time to a healthy app,
@@ -2713,12 +2811,12 @@ earlier result had listed, on luna 5/5 and terra 5/6.
 
   The noorch gain over `aspire-lean` is the model's own time: no skill to read before starting (11.9 → 5.5 s)
   and less checking afterwards. The gap to raw (39.0 vs 28.0 s) is not the model. Before the start command,
-  noorch is faster than raw (5.5 vs 6.9 s). The gap is `aspire start` returning before the resources are
-  healthy, plus the waits that follow: 34 s from start to verified-up, against raw's `scripts/start.sh`, which
-  checks both origins itself and returns at 22 s. That is T2.2's product change (a blocking start that
-  reports readiness), not a skill or file change. *Corrected by T2.2 (2026-11-19, [results](#t22-results)):* a
-  blocking start closed none of it; the 34 s is the AppHost launch (15–20 s) and resource start-up, which the
-  waits only overlap.
+  noorch is faster than raw (5.5 vs 6.9 s). The gap is the 34 s from the start command to verified-up, against
+  raw's `scripts/start.sh`, which checks both origins itself and returns at 22 s. This was first read as `aspire
+  start` returning before the resources are healthy, plus the waits; T2.2 ([results](#t22-results), 2026-11-19)
+  showed that a blocking start closes none of it. The 34 s is Aspire's own time to a healthy app: the AppHost
+  launch (15–20 s) and resource start-up (14–19 s), which the waits only overlap. This verdict (on the file and
+  the skill) is unaffected: the remaining gap is neither a skill nor a file change.
 - **A removed skill leaves a dangling name.** Two of six luna noorch trials called `skill aspire-orchestration`,
   and the call failed (the skill is absent). The name comes from `aspire-diagnose`'s description ("DO NOT USE
   FOR: starting or stopping the app (aspire-orchestration)"). `collect.py` lists a failed call in

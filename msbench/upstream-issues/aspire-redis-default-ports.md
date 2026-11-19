@@ -41,7 +41,30 @@ If the ports must stay as they are, surface a hint where people look:
   that 6379 is TLS and 6380 is plain inside the container;
 - the `aspire-terminals` skill reference row for `redis-cli`.
 
+## What the fallback hint did when measured
+
+A CLI patch (built from source at `30326eb8`) added the hint to the Redis row of `aspire describe` and as
+a `connect` string in `aspire describe --format Json`: "Port 6379 is TLS inside the container; a bare
+redis-cli fails there. Plain TCP is on 6380: docker exec <container.id> sh -c
+'REDISCLI_AUTH="$REDIS_PASSWORD" redis-cli -p 6380 <command>'", derived from the container's arguments.
+Coding agents with no Aspire skills, 6 trials per cell, against the unpatched build in the same round:
+
+- gpt-6.1-terra reached its first working `redis-cli` reply sooner (median 15.5 s against 21.6 s), not
+  significantly (p = 0.49); both arms fixed the fault in 6/6.
+- gpt-6-luna fixed it in no trial on either arm, although 3 of 6 hinted trials got a working Redis reply
+  against 1 of 6 without the hint.
+- With the shipped Aspire skills, where the trap fires most (the first `redis-cli` failed in 5 of 12 luna
+  and 2 of 6 terra trials), agents rarely ran a plain `aspire describe`, saw the hint in 1–2 of 6 trials,
+  and nothing improved.
+
+The hint helps only an agent that reads `describe`, and the agents that hit the trap mostly don't. That
+argues for the primary proposal (swap the ports, so the generic command works wherever the agent learned
+it), which was not measured, and, for the fallback, a hint in the places the shipped skills do send agents
+(the `aspire-terminals` reference row for `redis-cli`). A generic `connect` block in `describe --format
+Json` that a skill points to did work in a separate measurement (aspire-bench F50).
+
 ## Evidence
 
-Measured in the `slow-redis` scenario of the aspire-bench telemetry suite; see
-finding F22 in that repository's `msbench/FINDINGS.md`.
+Measured in the `slow-redis` scenario of the aspire-bench telemetry suite (PLAN card T2.4, round `t23`);
+see findings F22 and F50 in that repository's `msbench/FINDINGS.md`. The patch is
+`msbench/telemetry/common/aspire-patches/cli-redis-connect-hint.patch`.

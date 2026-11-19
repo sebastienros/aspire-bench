@@ -933,6 +933,17 @@ row's dashboard link onto a third line; `--format Json` is 24,902 bytes. Patch 0
 the per-row link when redirected) still applies cleanly and removes exactly the wrapped
 part. Evidence: [evidence/agent-surface/2026-11-17/](telemetry/evidence/agent-surface/2026-11-17/).
 
+**SQL text in the trace tree (Task T2.3, round `t23`, n = 6):** `aspire otel traces -t <id>` patched to print each
+client span's statement or URL under it, with `aspire-diagnose` step 2 pointed at the tree instead of JSON, against
+the unpatched source build and today's skill. The mechanism worked: every patched trial read the tree (6/6 on luna
+and terra) and JSON for one trace fell from 6/6 to 1/6 and 0/6; the read shrank from 3,393 to 1,269 characters.
+Nothing measured improved: characters read +5 % and +8 %, time to root cause 1.17× (p = 0.002) and 1.15×, the
+`slow-redis` guard 4/6 against 6/6 (that cell's history at the pin: 4/6, 4/6, 5/6, 5/6). One trace read is under
+5 % of a trial's 60–70k characters, so a 63 % cut to it cannot move the total; the extra time to root cause sits
+after the first database command, not in the trace step, and is not explained. **Revise** by the rule, no revision
+proposed; the patch is not proposed upstream ([PLAN.md, T2.3 results](telemetry/PLAN.md#t23-results)). Like the
+plain-output patch above, it saves the bytes it targets and does not move the trial.
+
 **2026-11-18 re-measure (T1.5):** patch 0002 built from source at `30326eb8` and measured against the
 unpatched source control and the official daily on one running AppHost: redirected `describe`
 5,282 → 1,221 bytes (−77 %), slow-trace list 6,863 → 1,561 (−77 %), full trace list 31,258 → 12,280
@@ -1039,6 +1050,21 @@ link the filed issue here.
 Re-checked 2026-11-19 at pin 2026-11-17 by the integration audit (T4.1, [F38](#f38-the-generic-client-recipe-works-inside-6-of-15-aspire-hosting-integrations-containers)):
 unchanged (`redis-cli PING` → `I/O error … Connection reset by peer`; `-p 6380` → `PONG`). MongoDB has the same
 shape (F40); Valkey and Garnet, the other Redis-protocol integrations, are plain on 6379.
+
+**The fallback hint, measured (Task T2.4, pin 2026-11-17, round `t23`, n = 6):** `aspire describe` (table and
+JSON `connect`) carrying "port 6379 is TLS inside the container … `redis-cli -p 6380`", read from the container's
+arguments, on the no-skill arm against the unpatched source build. **Drop**, on the `slow-sql` luna guard (4/6
+against 6/6; neither miss went near the hint: one never ran `describe`, the other read it filtered and patched
+code). Terra reached its first Redis reply sooner by medians (15.5 against 21.6 s, p = 0.49; 6/6 both); luna
+passed no trial on either arm. In the decision arm the trap was rare before the run (a bare `redis-cli` failed
+first in 1 of 12 `aspire-cli` trials at the pin, luna reaching Redis in 1 of 6), and the hint reached 4/6 terra
+trials before their first `redis-cli`. On the shipped skills (secondary, out of the rule), where the trap fires
+(5/12 luna, 2/6 terra first-call failures at the pin), the hint was seen in 1/6 terra and 2/6 luna trials and
+nothing improved: those skills send agents to other commands than a plain `describe`. The skill note stays; the
+port swap (option 1) was not measured, because the source arms rebuild only `Aspire.Cli`
+([PLAN.md, T2.4 results](telemetry/PLAN.md#t24-results)). T2.6's generic `connect` object
+([F50](#f50-a-connect-block-in-describe-lets-a-skill-drop-every-integration-specific-line-at-no-cost)) uses the
+same field; it works when a skill points agents at it.
 
 ## F23: When the app's log is silent, Aspire telemetry plus a focused skill is the difference between fixing and not fixing
 

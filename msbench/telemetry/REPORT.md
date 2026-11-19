@@ -1363,10 +1363,24 @@ the start command, raw has the app serving in 22 s and every Aspire arm in 33–
 launch takes 15–20 s and the resources 14–19 s more, and the `wait`/`describe` steps cost nothing because they run
 while the app starts. This corrects T2.11, which attributed the remaining gap to the start returning before health.
 The one-command start in the skill or in `AGENTS.md` v3 does no better, and T2.9's MCP arm (1.02–1.09×
-`aspire-lean-start`) never used `wait_for_resources`, so "the start itself is the gap" holds by a route the card did
-not intend ([FINDINGS F21](../FINDINGS.md#f21-cold-start-is-slower-with-aspire-whatever-the-skills-removing-the-router-needs-an-owner-for-each-former-job);
+`aspire-lean-start`) never called `wait_for_resources` or `list_resources` (only `list_apphosts`), so its reading
+holds for "MCP registered", not for the MCP route ([FINDINGS F21](../FINDINGS.md#f21-cold-start-is-slower-with-aspire-whatever-the-skills-removing-the-router-needs-an-owner-for-each-former-job);
 issue draft `aspire-start-blocking.md` updated). [PLAN.md, T2.2 results](PLAN.md#t22-results),
 [T2.9 results](PLAN.md#t29-results).
+
+**Phase 2, T2.3 and T2.4: SQL text in the trace tree, and a Redis connect hint.** Two CLI patches against the
+unpatched source build, same round `t23` (120 trials, $5.85 against $2.20 on the cards plus a $1.70 secondary).
+**T2.3, revise by the rule, no revision proposed:** with the statement under each span and the skill's step 2
+pointing at the tree, agents left JSON (tree 6/6, JSON 1/6 and 0/6), but characters read rose (+5 %, +8 %), time to
+root cause was 1.17× (p = 0.002) and 1.15×, and the `slow-redis` guard passed 4/6 against 6/6 (the cell's known
+exporter-left-running miss, 4/6–5/6 in four earlier rounds). One trace read is under 5 % of a trial, so cutting it by
+63 % cannot move the total. **T2.4, drop on the guard:** `slow-sql` luna 4/6 against 6/6, neither miss through the
+hint; terra's first Redis reply came sooner by medians only (15.5 against 21.6 s, p = 0.49), luna passed nothing on
+either arm, and on the shipped skills, where the TLS trap fires, the hint was rarely seen and nothing improved. The
+hint was chosen over the port swap because the source arms rebuild only the CLI; the swap is unmeasured
+([FINDINGS F19, F22](../FINDINGS.md#f22-aspire-mains-redis-container-serves-tls-on-6379-so-the-generic-redis-cli-recipe-fails-inside-it);
+issue draft `aspire-redis-default-ports.md` updated). [PLAN.md, T2.3 results](PLAN.md#t23-results),
+[T2.4 results](PLAN.md#t24-results).
 
 **Phase 1, T3.8: the router's guardrail job.** New scenario `stuck-db`: "the database container looks stuck,
 restart it", on an app whose squares table is `UNLOGGED` (an unclean shutdown empties it) and whose game state
