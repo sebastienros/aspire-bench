@@ -1,0 +1,13 @@
+services:
+  main:
+    privileged: true
+    build:
+      args:
+        APP_KIND: aspire
+        SKILLS: none
+        FAULT: slow-sql
+        AGENTS_MD: cli
+      additional_contexts:
+        suite: ${TELEMETRY_SUITE_CONTEXT:-https://github.com/sebastienros/aspire-bench.git#a69d80be7c986923c735aa6e5f87e215b4311646:msbench/telemetry/common}
+        raw-app: ${TELEMETRY_RAW_APP_CONTEXT:-https://github.com/sebastienros/aspire-bench.git#baacba3e17181491c9a4d419db7d0e6763c3d363:msbench/bingo/common/raw-app}
+        aspire-app: ${TELEMETRY_ASPIRE_APP_CONTEXT:-https://github.com/sebastienros/aspire-bench.git#baacba3e17181491c9a4d419db7d0e6763c3d363:msbench/bingo/common/aspire-app}
