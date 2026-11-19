@@ -1454,6 +1454,32 @@ says "use X instead" must name a skill that is present.
 **Limits / status:** Two models, three scenarios, one round. The narrowed text names `aspire-diagnose`, absent in
 this arm, which may itself push agents back to monitoring. Not upstreamed.
 
+## F36: On cold start, an instructions file that orders start, describe, wait replaces the orchestration skill, and the skill overrides the file when both are present
+
+**Evidence:** PLAN [T2.11 results](telemetry/PLAN.md#t211-results), round `t211` (Copilot CLI 1.0.99, 54
+trials, same-round controls). `AGENTS.md` v2 gives `aspire start`, then `aspire describe` as "the resources to
+wait on", then `aspire wait <resource-name>`. With the lean set minus `aspire-orchestration`, `gpt-6-luna`
+reached a verified-up app (both front ends healthy or answering) in 39.0 s against 46.8 s for the lean set
+(0.83×, p = 0.041), with 0.59× the tokens and `agent_seconds` level with no skills at all (48.3 vs 47.4 s). The
+gain is the model's own time: 5.5 s before the start command against 11.9 s, the time it spent reading the
+skill. With the skill kept and the same file, luna loaded the skill 6/6, never ran `describe` before `wait`,
+and gained nothing (0.94×, p = 0.73; tokens 1.19×). `gpt-6.1-terra` followed the file in both arms. Diagnosis
+on `slow-sql` was unaffected (6/6). Two of six trials tried to load the removed skill: `aspire-diagnose`'s
+description still names it. The same-round control also showed that T2.10's 13–14 % cold-start gain was
+round drift (lean 53.0 s here against 61.2 s in `t16`).
+
+**Effect:** For the start job, a pushed file does what the 23 KB orchestration skill does, for half the
+tokens. When both are present the model follows the skill. The time left against a hand-written start script
+(39 vs 28 s) is `aspire start` returning before health, plus the waits.
+
+**Improvement candidate:** [upstream-issues/aspire-agents-md.md](upstream-issues/aspire-agents-md.md) (`aspire new`
+/ `aspire agent init` write the file); remove `aspire-orchestration` from the lean proposal for the start job,
+and repoint the skills that name it; a blocking `aspire start` ([aspire-start-blocking.md](upstream-issues/aspire-start-blocking.md),
+T2.2) for the rest.
+
+**Limits / status:** One app, one harness, n = 6; the README also names the start command. The orchestration
+skill's other jobs (ports, file locks, restarts, `stuck-db`) were not measured here. Draft, not filed.
+
 ## Recording future findings
 
 Give each finding a stable ID and include evidence links, exact observed

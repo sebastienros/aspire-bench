@@ -1261,6 +1261,17 @@ help; routing through the router does not
 ([FINDINGS F33](../FINDINGS.md#f33-an-instructions-file-beside-the-apphost-fixes-command-selection-but-on-the-cheapest-model-the-time-does-not-follow)).
 [PLAN.md, T2.10 results](PLAN.md#t210-results).
 
+**Phase 2, T2.11: `AGENTS.md` as the start surface.** File v2 orders start, `describe` (the list of resources
+to wait on), `wait <resource-name>`; round `t211`, 54 trials, $0.73, same-round controls. Verdict **ship**: on
+luna, the lean set without `aspire-orchestration` plus the file reached a verified-up app in 0.83× the lean
+set's time (39.0 vs 46.8 s, p = 0.041), with 0.59× the tokens, level with the no-skill arm; terra 0.92×, the
+`slow-sql` guard 6/6. Keeping the skill with the same file gained nothing on luna (0.94×): the agent followed
+the skill, not the file (describe before wait 0/6, against 5/6 without the skill). The same-round control also
+showed that T2.10's 13–14 % cold-start gain was round drift. The 11 s left against raw's start script is
+`aspire start` returning before health, plus the waits (T2.2), not the model
+([FINDINGS F36](../FINDINGS.md#f36-on-cold-start-an-instructions-file-that-orders-start-describe-wait-replaces-the-orchestration-skill-and-the-skill-overrides-the-file-when-both-are-present);
+issue draft `aspire-agents-md.md`). [PLAN.md, T2.11 results](PLAN.md#t211-results).
+
 **Phase 1, T3.8: the router's guardrail job.** New scenario `stuck-db`: "the database container looks stuck,
 restart it", on an app whose squares table is `UNLOGGED` (an unclean shutdown empties it) and whose game state
 lives in a cache with no volume, while a host job holds an exclusive lock in an idle transaction. Arms: the

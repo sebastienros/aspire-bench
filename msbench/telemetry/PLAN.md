@@ -1,6 +1,6 @@
 # Plan: improving agentic performance with Aspire (CLI, MCP, skills)
 
-Status: proposal, 2026-11-17. T0.1 (re-pin and re-baseline), T0.2 (held-out application; ship gate open on the reserved third fault after one skill revision), T0.3 (series tooling) and T0.4 (harness adapters) done 2026-11-18. Phase 1 model lane closed 2026-11-18: T1.1 ship, T1.6 drop (`aspire-start`), T1.7 no verdict (Claude Code harness gaps; adapter proposed as T4.7), T1.8 revise (step-4 edit proposed). Product lane: T1.5 ship (CLI plain output), T1.4 drop (compact MCP telemetry; terra gain recorded), T1.9 harness-dependent (VS Code; T4.8, T4.9 proposed), T2.10 drop (`AGENTS.md`; it fixes command selection, not luna's time). Skills lane: T3.8 remove (the router's guardrail job; ceiling on every arm), T1.2 drop (narrowed trigger alone), T1.3 ship (router removal; its cost holds across rounds on `read-only`, not on `slow-sql`; cold start open), T3.9 pending. No issue has been filed.
+Status: proposal, 2026-11-17. T0.1 (re-pin and re-baseline), T0.2 (held-out application; ship gate open on the reserved third fault after one skill revision), T0.3 (series tooling) and T0.4 (harness adapters) done 2026-11-18. Phase 1 model lane closed 2026-11-18: T1.1 ship, T1.6 drop (`aspire-start`), T1.7 no verdict (Claude Code harness gaps; adapter proposed as T4.7), T1.8 revise (step-4 edit proposed). Product lane: T1.5 ship (CLI plain output), T1.4 drop (compact MCP telemetry; terra gain recorded), T1.9 harness-dependent (VS Code; T4.8, T4.9 proposed), T2.10 drop (`AGENTS.md`; it fixes command selection, not luna's time), T2.11 ship (file v2 replaces `aspire-orchestration` for the start job). Skills lane: T3.8 remove (the router's guardrail job; ceiling on every arm), T1.2 drop (narrowed trigger alone), T1.3 ship (router removal; its cost holds across rounds on `read-only`, not on `slow-sql`; cold start open), T3.9 pending. No issue has been filed.
 Each task below is a card with the same fields; a card's **Results** field is either a
 link to measured numbers or `pending`. Nothing in a Results field is predicted.
 
@@ -1872,7 +1872,8 @@ router-first load (`aspire`, then `aspire-orchestration`, 6/6) was 13 % faster t
   tool calls barely moved (median per trial, with the file against without: luna lean 10 against 11.5, shipped 9 against 9; terra
   lean 8 against 7.5, shipped 8 against 9).
   The controls are from `t16` and `t01b`, not this round, so round drift is not excluded; a same-round control
-  would settle it. Tool calls before the first result showing the front end serving (regex over results,
+  would settle it. **Settled in [T2.11](#t211-results): round drift.** Same-round lean ran 53.0 s against `t16`'s
+  61.2 s, and the file with the skill kept was level with it (0.94× to verified-up). Tool calls before the first result showing the front end serving (regex over results,
   approximate): lean-agents 7.5 against 10 on luna, 7 against 6 on terra.
 - **Guard:** all six `slow-redis` trials named the `report-exporter`'s `KEYS` scans (control 17/18). The four
   failures made the status handler's 43 Redis reads concurrent and left the exporter running; the two passes
@@ -1900,7 +1901,7 @@ file and one skill removed from a set.
 | Decision rule | `ship` (drop `aspire-orchestration` from the lean proposal for the start job; the v2 file carries the start flow; the `aspire new` / `aspire agent init` issue is filed with the v2 text) if on luna `aspire-lean-noorch-agents` seconds-to-verified-up ≤ 0.85 × same-round `aspire-lean` (p < 0.10), its `agent_seconds` is within 10 % of same-round `aspire-cli`, tokens do not exceed `aspire-lean`'s, terra is not worse than `aspire-lean` by more than 10 % on either time measure, and the guard holds (`slow-sql` luna passes ≥ the pin's `aspire-lean` cell minus one). `revise` (keep the skill, ship the file) if the time clause holds but `aspire-lean-agents` with the skill kept is within 5 % of the no-orchestration arm: the gain is the v2 ordering, not the removal. `drop` if neither luna arm is ≥ 15 % faster to verified-up than same-round `aspire-lean`. Report, whatever the verdict, where the remaining gap to raw sits: the start command, the waits, or the model's own verification |
 | Caveat | The README still names the start command (T2.10's caveat). The card decides the start job only: `aspire-orchestration`'s other jobs (port conflicts, file locks, restarts) are Phase 3's to audit, and `stuck-db` keeps its owner. `aspire wait` without a resource name is not assumed to exist on the pin; the file says to name one |
 | Trials / cost | 36 + 12 + 6 = 54 ≈ $2 (cold-start trials cost $0.003 luna, $0.03 terra in `t16`; the guard ≈ $0.30) |
-| Results | pending |
+| Results | **ship** (2026-11-19, round `t211`, 54 trials, $0.73): on luna, lean without `aspire-orchestration` plus file v2 reached a verified-up app in 0.83× the same-round `aspire-lean` time (39.0 vs 46.8 s, p = 0.041), with 0.59× the tokens and `agent_seconds` level with `aspire-cli`. Terra 0.92×, the guard 6/6, and keeping the skill with the same file gained nothing on luna (0.94×). [Results](#t211-results) |
 
 #### T2.11 rule, as computed (written 2026-11-19, before any `t211` result was read)
 
@@ -1956,6 +1957,81 @@ file and one skill removed from a set.
   verification after the last wait.
 - A trial at the 900 s limit is a failure counted separately; a trial lost before the agent ran is re-run
   once. Expected spend ≈ $2 (54 trials).
+
+#### T2.11 results
+
+**Verdict: `ship`**, by the rule as computed; every clause holds:
+- `aspire-lean-noorch-agents` moves on luna: 0.83× same-round `aspire-lean` to verified-up (39.0 vs 46.8 s,
+  p = 0.041).
+- Its luna `agent_seconds` is 1.02× same-round `aspire-cli` (48.3 vs 47.4 s).
+- Its luna tokens are 0.59× `aspire-lean`'s (p = 0.009).
+- Terra is 0.92× (p = 0.10) to verified-up and 0.95× (p = 0.26) on `agent_seconds`.
+- The guard holds: `slow-sql` luna 6/6, against the 5/6 bar.
+- The skill-kept arm is not within 5 %: v2-kept ÷ noorch on luna is 1.13 (p = 0.065).
+
+The proposal is:
+- drop `aspire-orchestration` from the lean set for the start job;
+- the v2 file carries the start flow;
+- the issue for `aspire new` / `aspire agent init` is drafted with the v2 text.
+
+Round `t211` (Copilot CLI 1.0.99, suite `f3e0fd6`, tasks `da84ccf`, dataset `244cb13`), 54 trials: no
+timeouts, no model-service 5xx, no infrastructure losses, every trial passed. Gates: local cold-start and
+slow-sql fail → repair → pass on `lean-noorch`; `gate-t211` 3/3 reward 1. The v2 arm's skill content is the
+control's (`lean a14396de6b87`); `lean-noorch` is `aa17c88617a8`.
+
+| Model | Arm (`cold-start`, `t211`) | Pass | Verified-up s | Commands to it | `agent_seconds` | Tokens (k) | describe → wait | Run IDs |
+|---|---|---|---:|---:|---:|---:|---|---|
+| luna | raw | 6/6 | 28.0 | 4.5 | 36.8 | 58 | n/a | 2026111913750656 – 13753700 |
+| luna | aspire-cli | 6/6 | 39.7 | 4.5 | 47.4 | 70 | 0/6 | 2026111913750640 – 13753688 |
+| luna | aspire-lean | 6/6 | 46.8 | 8 | 53.0 | 152 | 0/6 | 2026111913743186 – 13746352 |
+| luna | aspire-lean-agents-v2 | 6/6 | 44.2 | 8.5 | 58.3 | 182 | 0/6 | 2026111913743210 – 13746374 |
+| luna | **aspire-lean-noorch-agents** | 6/6 | **39.0** | 6.5 | **48.3** | **89** | 5/6 | 2026111913750638 – 13753826 |
+| terra | aspire-lean | 6/6 | 39.8 | 6 | 49.8 | 125 | 0/6 | 2026111913743202 – 13746304 |
+| terra | aspire-lean-agents-v2 | 6/6 | 35.2 | 7 | 44.1 | 115 | 6/6 | 2026111913743170 – 13746244 |
+| terra | **aspire-lean-noorch-agents** | 6/6 | **36.8** | 5 | 47.5 | **84** | 6/6 | 2026111913750660 – 13753922 |
+
+Guard: `slow-sql` luna `aspire-lean-noorch-agents` 6/6, 104 s, 0.35 M tokens, `aspire-diagnose` 6/6
+(2026111913757908 – 13761110), against `t17-copilot` lean 6/6, 125 s. "describe → wait" counts trials where an
+`aspire describe` started before the first `aspire wait`. In the noorch arm every such wait named a resource an
+earlier result had listed, on luna 5/5 and terra 5/6.
+
+**Mechanisms.**
+- **The orchestration skill overrides the file's order.** With the skill kept, luna loaded it 6/6 and none
+  of its trials ran `describe` before `wait` (0/6). Without the skill, 5/6 followed the file (describe, then
+  a wait per listed resource). Terra followed the file either way (6/6). The skill-kept arm also carries the
+  skill's 23 KB body: luna read 29 k characters against 20 k without it, and tokens 1.19× lean against 0.59×.
+- **Where the time goes** (median phases, luna, seconds: model time before the start command / start
+  command / waits until verified-up / model time after):
+
+  | Arm | Before start | Start | Waits | After |
+  |---|---:|---:|---:|---:|
+  | `aspire-lean` | 11.9 | 14.7 | 19.7 | 6.0 |
+  | noorch | 5.5 | 15.7 | 18.6 | 3.7 |
+  | `aspire-cli` | 6.2 | 14.3 | 20.7 | 4.4 |
+  | raw | 6.9 | 22.0 | 0 | 5.1 |
+
+  The noorch gain over `aspire-lean` is the model's own time: no skill to read before starting (11.9 → 5.5 s)
+  and less checking afterwards. The gap to raw (39.0 vs 28.0 s) is not the model. Before the start command,
+  noorch is faster than raw (5.5 vs 6.9 s). The gap is `aspire start` returning before the resources are
+  healthy, plus the waits that follow: 34 s from start to verified-up, against raw's `scripts/start.sh`, which
+  checks both origins itself and returns at 22 s. That is T2.2's product change (a blocking start that
+  reports readiness), not a skill or file change.
+- **A removed skill leaves a dangling name.** Two of six luna noorch trials called `skill aspire-orchestration`,
+  and the call failed (the skill is absent). The name comes from `aspire-diagnose`'s description ("DO NOT USE
+  FOR: starting or stopping the app (aspire-orchestration)"). `collect.py` lists a failed call in
+  `skills_loaded`, which is why the table's source shows 2/6. If the skill leaves the set, that line should
+  name the file or `aspire start` instead.
+- **T2.10's cold-start gain was round drift.** Same-round `aspire-lean` took 53.0 s on luna in `t211`, against
+  61.2 s in `t16`. Against it, the file with the skill kept is level (v2: 0.94× to verified-up, p = 0.73;
+  1.10× on `agent_seconds`). The 13–14 % T2.10 measured against `t16` is therefore not the file's.
+- **Against the pull skill.** `t16`'s `aspire-lean-start` (lean + `aspire-start`) reached verified-up in
+  40.2 s on luna; noorch 39.0 (0.97×, p = 0.49). The push file matches the pull skill without a skill load.
+
+**History** (`seconds_to_verified_up` now in `trials.jsonl` for all 126 `t16` and `t210` cold-start trials,
+luna medians): `t16` raw 33.3, `aspire-cli` 41.3, `aspire-lean` 48.3, `aspire-lean-start` 40.2,
+`aspire-skills` 47.9; `t210` lean-agents (v1) 40.1, cli-agents 40.1, skills-agents 42.7.
+
+**Cost** $0.73 for 54 trials (gates $0.00), against ≈ $2 estimated: cold-start trials are short.
 
 ---
 

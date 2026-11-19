@@ -26,7 +26,10 @@ LATER_PIN_PAIRS = [("aspire-cli", "raw"), ("aspire-skills-plugin", "aspire-skill
                    ("aspire-lean", "aspire-skills"),
                    # T2.10: the instructions file against each control arm.
                    ("aspire-lean-agents", "aspire-lean"), ("aspire-cli-agents", "aspire-cli"),
-                   ("aspire-skills-agents", "aspire-skills")]
+                   ("aspire-skills-agents", "aspire-skills"),
+                   # T2.11: file v2, with the orchestration skill kept and removed.
+                   ("aspire-lean-agents-v2", "aspire-lean"), ("aspire-lean-noorch-agents", "aspire-lean"),
+                   ("aspire-lean-noorch-agents", "aspire-cli")]
 FIRST_PIN = "2026-11-09"
 DEFAULT_AGENT = "github-copilot-cli"
 METRICS = [("agent_seconds", "s"), ("input_tokens", "tok"), ("cost_usd", "$")]

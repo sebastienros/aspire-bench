@@ -39,6 +39,7 @@ finding's **Limits / status** line. Keep the file; it is the record of what was 
 | [aspire-mcp-compact-telemetry.md](aspire-mcp-compact-telemetry.md) | dotnet/aspire | F18 | Compact `list_traces` / `list_structured_logs` (patch 0001); same for `list_resources` and `list_console_logs` |
 | [aspire-cli-plain-output.md](aspire-cli-plain-output.md) | dotnet/aspire | F19 | No borders or dashboard links when redirected (patch 0002); SQL text in the trace table |
 | [aspire-start-blocking.md](aspire-start-blocking.md) | dotnet/aspire | F21 | A start that waits for health and prints endpoints |
+| [aspire-agents-md.md](aspire-agents-md.md) | dotnet/aspire | F36 | `aspire new` / `aspire agent init` write `AGENTS.md` with the start flow (start, describe, wait `<resource-name>`) |
 | [skills-add-aspire-diagnose.md](skills-add-aspire-diagnose.md) | microsoft/aspire-skills | F17 | New `aspire-diagnose` skill |
 | [skills-remove-router-add-aspire-start.md](skills-remove-router-add-aspire-start.md) | microsoft/aspire-skills | F17, F21 | Remove the router; add `aspire-start` |
 | [skills-narrow-aspire-monitoring.md](skills-narrow-aspire-monitoring.md) | microsoft/aspire-skills | F17 | Narrow the trigger description |

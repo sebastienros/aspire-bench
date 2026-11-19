@@ -197,17 +197,19 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 
 | Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
-| aspire-cli | 12/12 | 52 | - | - | 88,566 | 850 | 0.003 | 8 | - | 0 | 21,950 |
+| aspire-cli | 18/18 | 50 | - | - | 75,658 | 802 | 0.003 | 8 | - | 0 | 21,449 |
 | aspire-cli-agents | 6/6 | 53 | - | - | 71,086 | 694 | 0.003 | 6 | - | 0 | 32,032 |
-| aspire-lean (tasks 1479041e) | 6/6 | 61 | - | - | 146,040 | 1,311 | 0.005 | 12 | aspire-orchestrationx6 | 0 | 71,983 |
+| aspire-lean (tasks 1479041e) | 12/12 | 58 | - | - | 146,040 | 1,226 | 0.005 | 12 | aspire-orchestrationx12 | 0 | 65,881 |
 | aspire-lean (tasks 916a57ce) | 6/6 | 63 | - | - | 153,198 | 1,216 | 0.005 | 12 | aspire-orchestrationx6 | 0 | 73,522 |
 | aspire-lean-agents | 6/6 | 53 | - | - | 133,974 | 972 | 0.005 | 10 | aspire-orchestrationx6 | 0 | 54,257 |
+| aspire-lean-agents-v2 | 6/6 | 58 | - | - | 180,892 | 1,164 | 0.006 | 11 | aspire-orchestrationx6 | 0 | 59,990 |
+| aspire-lean-noorch-agents | 6/6 | 48 | - | - | 88,803 | 612 | 0.003 | 8 | aspire-orchestrationx2 | 0 | 40,260 |
 | aspire-lean-start | 6/6 | 53 | - | - | 115,482 | 717 | 0.003 | 10 | aspire-startx6 | 0 | 29,725 |
 | aspire-skills | 12/12 | 63 | - | - | 167,503 | 1,231 | 0.005 | 10 | aspirex7, aspire-orchestrationx12 | 0 | 31,293 |
 | aspire-skills-agents | 6/6 | 52 | - | - | 158,850 | 743 | 0.005 | 9 | aspirex6, aspire-orchestrationx6 | 0 | 32,379 |
 | aspire-skills-mcp | 6/6 | 57 | - | - | 151,693 | 1,008 | 0.005 | 8 | aspirex5, aspire-orchestrationx6 | 1 | 22,150 |
 | aspire-skills-norouter | 6/6 | 78 | - | - | 259,268 | 1,757 | 0.007 | 14 | aspire-orchestrationx6 | 0 | 62,732 |
-| raw | 12/12 | 44 | - | - | 64,248 | 826 | 0.003 | 7 | - | 0 | 22,428 |
+| raw | 18/18 | 42 | - | - | 64,248 | 826 | 0.003 | 6 | - | 0 | 22,051 |
 
 ## cold-start / gpt-6.1-terra
 
@@ -215,9 +217,11 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
 | aspire-cli | 12/12 | 55 | - | - | 71,970 | 455 | 0.021 | 8 | - | 0 | 21,753 |
 | aspire-cli-agents | 6/6 | 50 | - | - | 77,354 | 422 | 0.023 | 8 | - | 0 | 32,375 |
-| aspire-lean (tasks 1479041e) | 6/6 | 53 | - | - | 104,002 | 376 | 0.031 | 8 | aspire-orchestrationx6 | 0 | 21,794 |
+| aspire-lean (tasks 1479041e) | 12/12 | 52 | - | - | 114,046 | 418 | 0.032 | 8 | aspire-orchestrationx12 | 0 | 21,943 |
 | aspire-lean (tasks 916a57ce) | 6/6 | 58 | - | - | 124,017 | 453 | 0.033 | 9 | aspire-orchestrationx6 | 0 | 22,043 |
 | aspire-lean-agents | 6/6 | 46 | - | - | 113,873 | 332 | 0.033 | 8 | aspire-orchestrationx6 | 0 | 32,388 |
+| aspire-lean-agents-v2 | 6/6 | 44 | - | - | 114,199 | 334 | 0.033 | 8 | aspire-orchestrationx6 | 0 | 26,665 |
+| aspire-lean-noorch-agents | 6/6 | 47 | - | - | 83,458 | 425 | 0.025 | 8 | - | 0 | 36,302 |
 | aspire-lean-start | 6/6 | 56 | - | - | 108,804 | 464 | 0.027 | 9 | aspire-startx6 | 0 | 30,979 |
 | aspire-skills | 12/12 | 55 | - | - | 116,298 | 410 | 0.033 | 8 | aspire-orchestrationx12 | 0 | 22,012 |
 | aspire-skills-agents | 6/6 | 46 | - | - | 114,166 | 332 | 0.033 | 8 | aspire-orchestrationx6 | 0 | 32,285 |
@@ -425,6 +429,7 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 | aspire-lean-agents | 6/6 | 117 | 18 | 64 | 433,843 | 7,924 | 0.013 | 34 | aspire-diagnosex6 | 0 | 146,593 |
 | aspire-lean-mcp-compact | 6/6 | 122 | 26 | 56 | 474,092 | 8,324 | 0.015 | 34 | aspire-diagnosex6 | 8 | 257,455 |
 | aspire-lean-mcp-src | 6/6 | 94 | 34 | 52 | 382,320 | 5,091 | 0.012 | 30 | aspire-diagnosex6 | 4 | 245,135 |
+| aspire-lean-noorch-agents | 6/6 | 104 | 20 | 53 | 345,366 | 7,218 | 0.011 | 33 | aspire-diagnosex6 | 0 | 156,628 |
 | aspire-mcp-compact | 6/6 | 151 | 42 | 97 | 607,760 | 11,064 | 0.019 | 41 | - | 10 | 315,722 |
 | aspire-mcp-src | 6/6 | 171 | 49 | 90 | 769,480 | 11,788 | 0.020 | 49 | - | 8 | 475,556 |
 | aspire-skills | 20/21 | 184 | 69 | 126 | 803,909 | 10,862 | 0.021 | 48 | aspire-monitoringx8, aspire-orchestrationx1 | 0 | 260,974 |
