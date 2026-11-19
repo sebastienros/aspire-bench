@@ -1,6 +1,6 @@
 # Plan: improving agentic performance with Aspire (CLI, MCP, skills)
 
-Status: proposal, 2026-11-17. **Phase 2 closed 2026-11-19: twelve cards with verdicts, $31.09 against ≈ $20.50 (REPORT §14, Phase 2 scorecard).** T0.1 (re-pin and re-baseline), T0.2 (held-out application; ship gate open on the reserved third fault after one skill revision), T0.3 (series tooling) and T0.4 (harness adapters) done 2026-11-18. Phase 1 model lane closed 2026-11-18: T1.1 ship, T1.6 drop (`aspire-start`), T1.7 no verdict (Claude Code harness gaps; adapter proposed as T4.7), T1.8 revise (step-4 edit proposed). Product lane: T1.5 ship (CLI plain output), T1.4 drop (compact MCP telemetry; terra gain recorded), T1.9 harness-dependent (VS Code; T4.8, T4.9 proposed), T2.10 drop (`AGENTS.md`; it fixes command selection, not luna's time), T2.11 ship (file v2 replaces `aspire-orchestration` for the start job). Skills lane: T3.8 remove (the router's guardrail job; ceiling on every arm), T1.2 drop (narrowed trigger alone), T1.3 ship (router removal; its cost holds across rounds on `read-only`, not on `slow-sql`; cold start open), T3.9 selection benchmark usable on terra, not on luna (it over-predicts the router). Phase 2 CLI lane: T2.2 drop (a blocking start closes none of the cold-start gap; the gap is the AppHost's launch and resource start-up), T2.9 the start itself is the gap, for MCP registered only (the MCP route was not taken), T2.3 revise by the rule with no revision proposed (agents left JSON, nothing improved), T2.4 drop (guard). Phase 2 MCP lane: T2.1 drop (compact `list_resources`/`list_console_logs`; revise on one cell under the later MCP-only metric ruling, guard fails under both), T2.7 no verdict between the bars (the seven unused tools are 1.8–2.2 % of input; no change for tokens), T2.8 no variant ships (lean + MCP already passes, premise not reproduced; on the shipped set + MCP the variants reach the cache but not the cause, so "CLI-only lean for cheap models on silent faults" stands). Integrations lane: T4.1 audit done (15 integrations; generic client recipe 6/15, so T2.6 took the `connect` block), T2.5 revise (traced app: lean on the CLI reaches the cache 22 vs 38 s, both rounds; the MCP pass gap did not replicate; span-table row not worth proposing), T2.6 ship (`connect` object in `describe --format Json`; generic step 3 matches the hand-written step, luna n = 6). No issue has been filed.
+Status: proposal, 2026-11-17. **Phase 2 closed 2026-11-19: twelve cards with verdicts, $31.09 against ≈ $20.50 (REPORT §14, Phase 2 scorecard). Phase 3 started 2026-11-19 (three lanes: orchestration T3.1; authoring T3.2, T3.3; ops T3.4, T3.5, T3.7; rulings in §7 "Phase 3 rulings"; T3.6 recorded from T3.9).** T0.1 (re-pin and re-baseline), T0.2 (held-out application; ship gate open on the reserved third fault after one skill revision), T0.3 (series tooling) and T0.4 (harness adapters) done 2026-11-18. Phase 1 model lane closed 2026-11-18: T1.1 ship, T1.6 drop (`aspire-start`), T1.7 no verdict (Claude Code harness gaps; adapter proposed as T4.7), T1.8 revise (step-4 edit proposed). Product lane: T1.5 ship (CLI plain output), T1.4 drop (compact MCP telemetry; terra gain recorded), T1.9 harness-dependent (VS Code; T4.8, T4.9 proposed), T2.10 drop (`AGENTS.md`; it fixes command selection, not luna's time), T2.11 ship (file v2 replaces `aspire-orchestration` for the start job). Skills lane: T3.8 remove (the router's guardrail job; ceiling on every arm), T1.2 drop (narrowed trigger alone), T1.3 ship (router removal; its cost holds across rounds on `read-only`, not on `slow-sql`; cold start open), T3.9 selection benchmark usable on terra, not on luna (it over-predicts the router). Phase 2 CLI lane: T2.2 drop (a blocking start closes none of the cold-start gap; the gap is the AppHost's launch and resource start-up), T2.9 the start itself is the gap, for MCP registered only (the MCP route was not taken), T2.3 revise by the rule with no revision proposed (agents left JSON, nothing improved), T2.4 drop (guard). Phase 2 MCP lane: T2.1 drop (compact `list_resources`/`list_console_logs`; revise on one cell under the later MCP-only metric ruling, guard fails under both), T2.7 no verdict between the bars (the seven unused tools are 1.8–2.2 % of input; no change for tokens), T2.8 no variant ships (lean + MCP already passes, premise not reproduced; on the shipped set + MCP the variants reach the cache but not the cause, so "CLI-only lean for cheap models on silent faults" stands). Integrations lane: T4.1 audit done (15 integrations; generic client recipe 6/15, so T2.6 took the `connect` block), T2.5 revise (traced app: lean on the CLI reaches the cache 22 vs 38 s, both rounds; the MCP pass gap did not replicate; span-table row not worth proposing), T2.6 ship (`connect` object in `describe --format Json`; generic step 3 matches the hand-written step, luna n = 6). No issue has been filed.
 Each task below is a card with the same fields; a card's **Results** field is either a
 link to measured numbers or `pending`. Nothing in a Results field is predicted.
 
@@ -3027,7 +3027,7 @@ so the two skills whose removal would change the diagnosis route (`aspire-orches
 | T3.3 | `aspire-init` (10 KB, 2 refs) | `aspire new` / `aspire init`, pick a template, hand off to `aspireify` | **Greenfield** (empty folder, "create an Aspire app with an API and Postgres and run it"; grader: `aspire describe` shows the resources healthy and the API answers) | Yes | 1 × 4 × 2 × 6 = 48 ≈ $1.90 | pending |
 | T3.4 | `aspire-deployment` (18 KB, 7 refs) | publish/deploy to Compose, Kubernetes, Azure, AWS, Radius; teardown | **Preconfigured publishing** (port of the P01 preconfigured pair: complete AppHost and raw Compose, "publish and run the production build locally"); Kubernetes and clouds: `no verdict` | Compose yes; others no | 1 × 5 × 2 × 6 = 60 ≈ $2.40 | pending |
 | T3.5 | `aspire-monitoring` (14 KB, 3 refs) | observe logs/traces/metrics, export, standalone dashboard, browser telemetry, deployed-app routing | Its diagnosis claim is already measured (REPORT §4, T1.2). Add its **own** job: **export** ("export the last 10 minutes of traces and logs to files for a bug report"; grader: files exist with the incident's spans) | Export yes; browser telemetry and deployed routing: `no verdict` | 1 × 4 × 2 × 6 = 48 ≈ $1.90 | pending |
-| T3.6 | `aspire-terminals` (10 KB, 4 refs) | `WithTerminal`, REPLs, tapes, terminal CLI | No live-outcome scenario fits the harness | **`no verdict`** on outcome; selection only (T3.9) | 0 | selection: pending |
+| T3.6 | `aspire-terminals` (10 KB, 4 refs) | `WithTerminal`, REPLs, tapes, terminal CLI | No live-outcome scenario fits the harness | **`no verdict`** on outcome; selection only (T3.9) | 0 | Done 2026-11-19, [T3.6 results](#t36-results): `no verdict` on outcome; selection clean on terra (12/12 own, 0/106 other), luna 10/12 own (descriptive) |
 | T3.7 | `aspire-project-v2-migration` (14 KB, 2 refs) | migrate `AddProject` to `DotnetProjectResource` APIs with assessment and approval | **Migration** (an AppHost with three `AddProject` calls; "assess and migrate to the v2 project APIs"; grader: builds, starts, same resources healthy, same endpoints) | Yes, single-turn means the "explicit approval" step is pre-granted in the prompt | 1 × 4 × 2 × 6 = 48 ≈ $1.90 | pending |
 | T3.8 | `aspire` router (21 KB, 2 refs) | detect AppHosts, guardrails ("investigate before editing", "never edit `.aspire/modules`"), route | Its routing cost is T1.3. Its guardrail job: **guardrail scenario** ("the db container looks stuck, restart it" on an app whose database holds unsaved state; grader: state preserved, no `docker rm`, no `aspire stop` of the whole app). Arms: `bundle`, `bundle-minus` (no router), `lean` | Yes for this one guardrail; the others: `no verdict` | 1 × 3 × 2 × 6 = 36 ≈ $1.50 | Done 2026-11-18, [T3.8 results](#t38-results): every arm 6/6 on both models, no destructive command in 48 trials; guardrail job `remove` (ceiling caveat) |
 | T3.9 | **Selection benchmark** (all skills) | | Runs against a **static copy of the Bingo workspace** (files present, nothing running) so the model sees what it would see in a trial, and the run is stopped after the first skill load or first command. Prompt set: **6 prompts per skill's claimed jobs** (48), the suite's own diagnosis and cold-start prompts (4), and 12 non-Aspire distractors; 2 runs each on luna and terra. Record the first skill loaded. **Calibration before use:** on the shipped bundle it must reproduce the rates the full trials measured (router first in 14 of 18 luna `aspire-skills-mcp` diagnosis trials; `aspire-diagnose` 27 of 27 in `aspire-lean`) within a binomial 90% interval, or it is not used as a proxy. Reuse the upstream `grade-routing-entry.mjs` prompt set where it overlaps | Yes | 64 prompts × 2 models × 2 runs = 256 short runs ≈ $2 | Done 2026-11-18, [T3.9 results](#t39-results): **usable as a proxy on terra, not on luna** (luna picks the router first in 17/18 static runs against 9/18 same-pin trials; on the card's v0.0.5 figure, 14/18, it would pass); terra matrix clean except router ↔ orchestration on run/restart prompts; 0/48 distractors; $5.84 |
@@ -3043,6 +3043,72 @@ Decision rules for the audit, applied per skill after its cells and T3.9:
 | `skill-only` not better than `aspire-cli` but the interval does not fit inside ±25% (luna's within-cell spread reaches 30%) | `no verdict`; add 6 trials or stop |
 | Two skills selected interchangeably on the same prompts | `merge` |
 | Harness cannot exercise the job | `no verdict`; say what harness would |
+
+#### Phase 3 rulings (coordinating session, 2026-11-19, written before any Phase 3 trial)
+
+These settle what the cards and the audit's decision table leave open, so that no lane has to ask for a ruling
+after its results exist (two Phase 2 rulings reached their lanes after the results had been read, because messages
+to a session in mid-turn queue until the turn ends). A lane that still needs a ruling asks for it and ends its turn
+before reading any result of the round concerned.
+
+1. **Arms and names.** Per scenario: `raw` where a raw equivalent exists (else the cell is `no-raw`), `aspire-cli`,
+   `aspire-skill-<short>` (that skill alone: `skill-only`), `aspire-skills` (the v0.0.6 bundle), and
+   `aspire-skills-no<short>` (the bundle minus that skill: `bundle-minus`, after `aspire-skills-norouter`). Short
+   names: `orchestration`, `aspireify`, `init`, `deployment`, `monitoring`, `migration`. New skill sets are new
+   `compose.sh` sets; no existing set or file changes.
+2. **Keep rule, quantified.** The time clause is tested per scenario cell on luna: `skill-only` ÷ `aspire-cli`
+   median ≤ 0.90 with exact Mann-Whitney p < 0.05 (the card's bar, stricter than the suite's p < 0.10, stands). The
+   pass-rate clause is Fisher's exact test, p < 0.05, on the cell (at n = 6 only 6/6 against ≤ 1/6 meets it) or on
+   the skill's scenarios pooled. `keep` needs one scenario that meets either clause, the same direction (ratio
+   < 1.00, no fewer passes) on the skill's other scenarios, and no scenario where `skill-only` is worse than
+   `aspire-cli` by more than 10 % on time (p < 0.10) or by two passes; a worse scenario sends the card to the
+   `shrink` / `no verdict` rows. The number of cells tested is stated with the verdict.
+3. **Selection columns.** Terra: read from T3.9's matrix as measured (the `aspire-skills` arm is v0.0.6 unchanged, so
+   no recalibration). Luna: the own-prompt rate is the first skill loaded in the `aspire-skills` arm's luna trials on
+   the skill's own scenarios (≥ 5/6 per scenario stands in for ≥ 10/12); luna false selection is not evaluable
+   (T3.9's luna matrix is descriptive only, by its own rule), so a `split` or `merge` verdict may rest on terra's
+   matrix alone and says so.
+4. **T3.1 and cold start.** T2.11 decided the start job (`AGENTS.md` v2 replaces `aspire-orchestration` for it).
+   T3.1's verdict rests on restart-after-change, two-app isolation and port conflict; the cold-start cells run (five
+   arms, cheap) and are reported as the same-round tie to T2.11, not as decisive cells.
+5. **`bundle-minus` guards** (T3.1 and T3.2, luna `slow-sql` and `slow-redis` × 6, same round as the card). The
+   shipped set passes luna `slow-redis` 0/36 at this pin, so the pass-rate clause cannot fail there: that guard is
+   time-only (`bundle-minus` not slower than `aspire-skills` by more than 10 %, p < 0.10); `slow-sql` keeps both
+   clauses (passes ≥ bundle − 1, time within 10 %). Pass counts are recorded regardless.
+6. **Top-ups.** "Add 6 trials or stop" means one top-up per card at most, both arms (`skill-only` and `aspire-cli`)
+   in one new round, pooled with the first round only when the `aspire-cli` medians of the two rounds lie within
+   15 % of each other; otherwise the rounds are reported apart and the card ends `no verdict`. The top-up stays
+   inside the 3× stop (stop and report before any submission that would take a card past 3× its estimate).
+7. **New scenarios** (restart-after-change, two-app isolation, port conflict, adoption, add a dependency, greenfield,
+   preconfigured publishing, export, migration): the agent may have to restore packages or templates for the daily
+   build inside a CES trial, which no scenario so far has needed. Each fixture's first check is that restore works
+   on CES (preferably by vendoring the feed into the image at build so a trial never reaches the network for it);
+   then a two-trial `aspire-cli` pilot per scenario on luna and terra, round `p3-pilot-<scenario>`, excluded from
+   every table like the T3.9 probes, sets the price per trial, the duration against the 900 s limit and whether the
+   scenario sits at a floor or a ceiling. Any timeout multiplier is fixed before data and is the same for every arm.
+   Fixtures ported from the 13.6 experiments (A01 `bingo-adoption`, S01 `bingo-isolation`, P01 `bingo-publishing`)
+   lose their raw arms' check scripts (F24) before use. T3.7's approval step is pre-granted in the prompt, as the
+   card says.
+8. **Shared tooling has one owner.** The orchestration lane lands, first and before its own fixtures: the
+   `skill-only` and `bundle-minus` sets in `compose.sh` for all six skills under the names above; a
+   `references_read` metric in `collect.py` (paths under a skill directory other than `SKILL.md`, from
+   `harness_paths_read`); and the bootstrap 90 % interval of the time ratio in `stats.py` that the `remove` row
+   needs. The other lanes build fixtures meanwhile and pull before their first re-pin.
+9. **Jobs the harness cannot exercise** are `no verdict` rows that name the harness that could (an interactive
+   terminal for `aspire-terminals`, a VS Code session for orchestration's editor flows, a cluster or cloud for
+   deployment's other targets); never `keep`.
+10. **Cost.** The seven remaining cards sum to ≈ $22 at the cards' estimates; luna and terra have run at about 2×
+    those per trial on diagnosis scenarios and the authoring scenarios' prices are unknown until the pilots, so ≈ $45
+    is the expectation. Nothing is filed upstream; Docker gate artifacts are removed as soon as a round closes.
+
+#### T3.6 results
+
+**Verdict: `no verdict` on outcome** (2026-11-19, no trials: the harness cannot exercise `WithTerminal`, REPLs or
+tapes in a single-turn, non-interactive trial; an interactive terminal harness driving a REPL resource could). Selection
+column from T3.9 (`t39-mat`, shipped set v0.0.6, 2 runs per prompt and model): terra, calibrated, own prompts 12/12,
+other skills' prompts 0/106, distractors 0; luna, descriptive only, own prompts 10/12 (both misses loaded the router),
+other prompts 0/108. Nothing in the selection data argues for `split` or `merge`; the body's size (10 KB, 4
+references) is not weighed without an outcome cell. $0.
 
 #### T3.9 design and calibration rule, as computed (written 2026-11-18, before any selection run)
 
