@@ -81,6 +81,50 @@ existing functionality, and leave the application running. README.md describes t
 workspace. No report is required.
 `;
 
+// Phase 3 ops lane (PLAN §7). T3.5, aspire-monitoring's own job: hand over a past incident's telemetry.
+// The prompt names the destination folder (the grader reads it) but no command, format or tool.
+const exportTelemetry = `The Bingo application in /app is running and is serving live producer and player traffic.
+
+A few minutes ago, producers saw some of their changes fail for about a minute. The
+application has recovered on its own since. Before anyone investigates, export the
+traces and logs of the last 10 minutes to files in /app/bug-report/ so that they can be
+attached to the bug report.
+
+Do not change, fix or restart the application: leave it running as it is. README.md
+describes this workspace. No report is required.
+`;
+
+// T3.7: the user's request is the skill's trigger; the explicit approval the skill asks for before any
+// edit is granted in the prompt, as a single-turn trial cannot ask for it (card T3.7).
+const migrateProjects = `The Bingo application in /app is running. Its AppHost, apphost.cs, declares the
+application's .NET projects with the legacy project resource API.
+
+Assess the AppHost and migrate its .NET project resources to the Project v2 APIs. You
+have my approval in advance for every edit the migration needs in the AppHost and its
+package references; do not wait for further confirmation.
+
+When you are done, the application must be running on the migrated AppHost with the
+same resources healthy and the same endpoints as before. Keep all existing data and
+all existing functionality. README.md describes this workspace. No report is required.
+`;
+
+// T3.4: the P01 preconfigured pair's prompt (msbench/bingo-publishing), without the supplied deployment
+// command; identical for the raw model (compose.yaml) and the Aspire one (apphost.cs).
+const publishProduction = `The Bingo application in /app is configured for a local production deployment;
+README.md describes it.
+
+Publish the application and run its production build locally, built from the sources
+in this repository, and leave it running. The admin application must answer on
+http://127.0.0.1:18080 and the player frontend on http://127.0.0.1:18081, with admin
+login, the existing catalog, the frontend's version routing, SignalR updates and
+Redis-backed player boards working.
+
+Use the supplied deployment configuration, PostgreSQL, Redis, network and volume as
+they are: do not change or replace them or their data, and do not substitute
+development servers for the production build. No cloud provisioning, registry pushes
+or tool installation. No report is required.
+`;
+
 export const scenarios = {
     "slow-sql": { seed: 61, instruction: sluggish },
     "slow-redis": {
@@ -153,6 +197,15 @@ describes this workspace. No report is required.
     "heldout-cache": { seed: 68, app: "heldout", arms: [...heldoutArms, "aspire-lean-agents"], instruction: heldoutCache },
     // Guardrail (PLAN T3.8): `bundle` = aspire-skills, `bundle-minus` = aspire-skills-norouter, `lean`.
     "stuck-db": { seed: 69, arms: ["aspire-skills", "aspire-skills-norouter", "aspire-lean"], instruction: stuckDb },
+    // Phase 3 ops lane (ruling 1 arm names; no raw arm: the raw app has no traces to export and no AppHost).
+    "export": { seed: 72, arms: ["aspire-cli", "aspire-skill-monitoring", "aspire-skills", "aspire-skills-nomonitoring"], instruction: exportTelemetry },
+    // The application variant adds a third .NET project (scoreboard) so the AppHost has three AddProject calls.
+    // The variant per application kind carries the complete deployment model: compose.yaml (raw) or an
+    // AppHost with a Docker Compose environment (aspire), the production Dockerfiles and the inputs.
+    "publishing": { seed: 74, variant: { raw: "publishing-raw", aspire: "publishing-aspire" },
+        arms: ["raw", "aspire-cli", "aspire-skill-deployment", "aspire-skills", "aspire-skills-nodeployment"], instruction: publishProduction },
+    "migration": { seed: 73, variant: "migration",
+        arms: ["aspire-cli", "aspire-skill-migration", "aspire-skills", "aspire-skills-nomigration"], instruction: migrateProjects },
 };
 
 // Selection benchmark (PLAN T3.9): one scenario per prompt, all on one image (FAULT=selection: the
@@ -487,7 +540,10 @@ if (process.argv[2] === "tasks") {
             writeFileSync(join(dir, "instruction.md"), definition.instruction);
             const app = definition.app ?? "bingo";
             cpSync(join(root, "tools/templates", apps[app].dockerfile), join(dir, "environment/Dockerfile"));
-            writeFileSync(join(dir, "environment/docker-compose.yaml"), compose(definition.fault ?? scenario, config, suiteSha, app));
+            // A scenario-level application variant (Phase 3 fixtures) applies to every arm of that scenario.
+            writeFileSync(join(dir, "environment/docker-compose.yaml"),
+                compose(definition.fault ?? scenario, { ...config, variant: (typeof definition.variant === "object"
+                    ? definition.variant[config.kind] : definition.variant) ?? config.variant }, suiteSha, app));
             if (definition.kind === "selection") {
                 // No outcome to grade: the reward only says the run finished; the hook's log of every
                 // tool call and decision is kept with the verifier output.

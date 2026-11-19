@@ -3339,6 +3339,146 @@ Where the router is absent or rarely wins, the runs match: `aspire-lean` 42/42 a
 
 **Cost.** $1.14 for `t38` (luna $0.006, terra $0.058 per trial) against the card's $1.50; the 12 `t13` guard trials are in T1.3's cost.
 
+#### Ops lane rule, as computed (T3.4, T3.5, T3.7; written 2026-11-19, before any trial of these cards, pilots included)
+
+One scenario per card, so "every cell" is that scenario × luna, terra, and `keep` has one cell to meet its
+clause in. Arms by ruling 1: `aspire-cli`, `aspire-skill-<short>` (`skill-only`), `aspire-skills` (`bundle`),
+`aspire-skills-no<short>` (`bundle-minus`), and `raw` where the card has one (T3.4 only). Time is
+`agent_seconds` (the suite's metric), n = 6 per cell, all arms of a card in one round, every trial counted
+(a trial that fails or times out keeps its time; an infrastructure failure, by the suite's definition, is re-run
+once in a `-rerun` round and the re-run replaces it). Read in this order; the first row that applies is the
+verdict:
+
+1. **`keep`**: luna own-prompt selection ≥ 5/6 (first skill loaded in the luna `aspire-skills` trials of the
+   scenario, ruling 3) **and** terra selection from T3.9's matrix (own prompts ≥ 10/12, other skills' prompts ≤ 2/12;
+   T3.9 measured deployment 12/12 and 0/106, monitoring 12/12 and 0/106, v2-migration 12/12 and 0/106) **and**
+   on luna `skill-only` ÷ `aspire-cli` median ≤ 0.90 with exact Mann-Whitney p < 0.05, **or** Fisher's exact
+   p < 0.05 on passes (6/6 against ≤ 1/6, either direction counts only if `skill-only` is ahead), **and** on terra
+   `skill-only` is not worse than `aspire-cli` by more than 10 % on time (p < 0.10) or by two passes.
+2. **`shrink`**: row 1's outcome clause holds but `skill-only` reads a median of ≥ 2 skill references per
+   trial (`references_read`, `collect.py`) on luna or terra.
+3. **`remove`**: on both models `skill-only` ÷ `aspire-cli` median within 0.90–1.10 with its bootstrap 90 %
+   interval inside 0.75–1.25, passes within one trial of each other (and Fisher p ≥ 0.05), **and** `bundle-minus`
+   not slower than `bundle` by more than 10 % (median ratio ≤ 1.10) nor more than one pass behind, on both models.
+4. **`no verdict`, add 6 or stop**: neither row 1 nor row 3 (for example the interval does not fit inside
+   ±25 %). One top-up per card at most (ruling 6), both `skill-only` and `aspire-cli`, pooled only if the two
+   rounds' `aspire-cli` medians are within 15 %; then the rows are read once more and a second miss ends
+   `no verdict`.
+5. **`split` / `merge`** rest on terra's T3.9 matrix only (ruling 3); none of the three skills is cross-selected
+   there, so neither applies unless the luna trials load a different audited skill first in ≥ 3 of 6, which is
+   then reported, not used.
+
+`skill-only` worse than `aspire-cli` on luna by more than 10 % (p < 0.10) or by two passes sends the card to
+row 4 with that stated. `raw` (T3.4) is reported against `aspire-cli` as the suite's usual Aspire-vs-raw pair; it
+does not enter the verdict. Jobs the harness cannot exercise are `no verdict` rows naming the harness that
+could (ruling 9). Ceiling and floor: when every arm is 6/6 the verdict rests on time only, when every arm is
+≤ 1/6 the card is `no verdict` (the scenario did not measure the skill) whatever the time.
+
+**Rounds.** Pilot `p3-pilot-<scenario>` (1 `aspire-cli` trial each on luna and terra, ledger `excluded`), then
+the oracle gate, then `t35` (export), `t37` (migration), `t34` (publishing). A timeout multiplier, if the pilot
+shows a trial near the 900 s limit, is written here before its round and applies to every arm of the card.
+
+#### T3.5 fixture, as computed (written 2026-11-19, before any `t35` or pilot trial)
+
+- **Measured on the pin first.** `aspire export [resource] [--output file]` writes a zip of `resources/`,
+  `consolelogs/`, `structuredlogs/` and `traces/` (OTLP JSON) and has **no time-window option**; `aspire otel
+  logs|traces|spans` have `--limit`, `--search`, `--severity`, `--has-error` and JSON or table output, also no
+  time window, and **return the newest 200 records unless `--limit` is raised** (measured: 200 logs by default
+  against 3,563 with `--limit 100000`). So "the last 10 minutes" is graded on content, not on the window's
+  bounds, and an export at the default limit misses an incident a few minutes old; that is the CLI's behaviour
+  on this pin, not a grader artefact.
+- **Scenario `export`** (aspirified app; `no-raw`: the raw app emits no traces, so a raw export would be its
+  `api.log` and console output, a different job). Setup: the usual seeding and live traffic; 20 s into the
+  traffic the database is switched to read-only for 45 s (square imports fail with `cannot execute INSERT in a
+  read-only transaction`; sessions are cut when it starts and when it ends), then restored; the application
+  recovers by itself. Twenty seconds later setup records the window's error traces (`aspire otel traces
+  boardadmin --has-error`, ≥ 5 required; 17 locally), checks that ≥ 1 matching error log line exists (15
+  locally) and records the AppHost process. Prompt: producers saw their changes fail for about a minute a few
+  minutes ago; export the traces and logs of the last 10 minutes to files in `/app/bug-report/` for the bug
+  report; do not change, fix or restart the application.
+- **Verifier** (four checks, all required): `appKeptRunning` (the setup AppHost process), `files` (something
+  non-empty under `/app/bug-report`), `spans` (a trace-data file carries ≥ 1 of the incident's error trace IDs),
+  `logs` (a log-data file carries the incident's error message); then the app's own checks (pages serve,
+  squares kept). Shapes read leniently, zip archives expanded: trace data = OTLP `resourceSpans`, a `spans` array,
+  trace-detail links or the traces table; log data = OTLP `resourceLogs`, `severity`/`logId` fields, level-prefixed
+  or timestamped console lines. Every file's classification is recorded. Reference repair: `aspire export
+  --apphost /app/apphost.cs --output /app/bug-report/telemetry.zip`.
+- **Local gate** (arm64 Mac): fail (nothing exported) → repair **after 13 minutes of live
+  traffic** (the worst case inside the 900 s budget: the incident's 17 traces were all still in the store) →
+  pass; `aspire otel logs` JSON alone fails `spans`; `aspire otel logs|traces --format Json --limit 100000` passes
+  (17/17 traces); the same two at the default limit fail both (the 200-record default above).
+- **Arms** `aspire-cli`, `aspire-skill-monitoring`, `aspire-skills`, `aspire-skills-nomonitoring`. Not exercised
+  (ruling 9): browser telemetry (a harness with a browser driving the frontend), deployed-app routing (a
+  deployed target, T3.4's harness or a cloud), the standalone dashboard (`aspire dashboard run` against an app
+  outside an AppHost: a fixture without an AppHost), diagnosis (measured in T1.2).
+
+#### T3.7 fixture, as computed (written 2026-11-19, before any `t37` or pilot trial)
+
+- **The v2 APIs exist on the pin.** `Aspire.Hosting.Dotnet` 17.1.0-preview.1.26567.3 is on the daily feed;
+  `AddDotnetProject(name, path[, configure])` with `ProjectResourceOptions.LaunchProfileName` and
+  `DotnetProjectResource` are public at `30326eb8`, without an `[Experimental]` attribute; the AppHost SDK warns
+  `ASPIRE012` (obsolete SDK, staged migration allowed). Migrated by hand on the pin before any fixture work: the
+  file-based AppHost builds and starts, the three projects run as `DotnetProjectResource`
+  (`resource.launchConfigurationType` `project-with-external-build.v1`, against `project` for the legacy
+  resource; `resourceType` stays `Project`), healthy, same endpoint names.
+- **Scenario `migration`**, application variant `migration` (`common/app-variants/migration`): the Bingo AppHost
+  plus a third .NET project, `scoreboard` (a minimal API that reads the admin's status through service discovery,
+  `WithReference(admin)`, `WaitFor(admin)`, HTTP health check), so `apphost.cs` has three `AddProject<Projects.*>`
+  calls (`migrations`, `boardadmin` with `launchProfileName: "http"`, `scoreboard`) and three `#:project`
+  directives. The app is running at the start. Setup warms the NuGet cache with `Aspire.Hosting.Dotnet` at the pin
+  (a throwaway file-based restore before the agent starts; ruling 7: the migrated AppHost then restores with **no
+  package source at all**, checked locally), and records per resource its type, launch configuration, state,
+  health and endpoint names and schemes. Prompt: assess the AppHost and migrate its .NET project resources to the
+  Project v2 APIs, approval granted in advance for every edit the migration needs (the skill's approval step,
+  pre-granted as the card says); when done the application runs on the migrated AppHost with the same resources
+  healthy and the same endpoints.
+- **Verifier** (four checks, all required): `migrated` (`apphost.cs` calls no `AddProject`, and the three
+  projects run as Project v2 resources, read from `aspire describe`), `resources` (every baseline resource exists
+  with its baseline state and health; up to 2 min to settle), `endpoints` (same endpoint names and schemes per
+  resource; ports are allocated per run under `--isolated`, so port numbers are not compared), `functional`
+  (squares kept, a fresh write, call and clear round-trip, the scoreboard answers through service discovery).
+  Recorded, not graded: whether the AppHost process was restarted. Reference repair: the mechanical rewrite
+  (`AddDotnetProject(name, path[, LaunchProfileName])`, `#:project` removed, `#:package Aspire.Hosting.Dotnet`
+  added), `aspire stop`, wait for the containers to go, start and wait as the bootstrap does.
+- **Local gate:** fail (`apphost.cs still calls AddProject`) → repair → pass (all four checks).
+- **Arms** `aspire-cli`, `aspire-skill-migration`, `aspire-skills`, `aspire-skills-nomigration`. Not exercised:
+  TypeScript AppHosts and Blazor gateways (a TypeScript AppHost fixture would), the multi-turn approval exchange
+  itself (a conversational harness).
+
+#### T3.4 fixture, as computed (written 2026-11-19, before any `t34` or pilot trial)
+
+- **Port of the P01 preconfigured pair** (`msbench/bingo-publishing`, CONFIGURED.md) to the suite's images and the
+  pin: application variants `publishing-raw` (a complete production `compose.yaml`) and `publishing-aspire` (an
+  AppHost with `AddDockerComposeEnvironment`, `WithDashboard(false)`, both `AddDockerfile` resources, loopback
+  ports 18080/18081, the external network; `Aspire.Hosting.Docker` at the pin, restored with the image), the same
+  production Dockerfiles and `deployment-inputs.env`, and a README that describes the model, the environment and
+  the rules. **The supplied deployment command (`deployment/deploy.sh`) and its README section are removed in both
+  kinds**: with them every arm is one documented command from done and the skill is never exercised (the F24
+  lesson applied to a deployment script).
+- **Environment** (setup before the agent, `common/bench/publishing/setup.sh`): the environment-owned PostgreSQL
+  (`bingo-db`, volume `bingo-data`) and Redis (`bingo-cache`) on the external network `bingo-net`, the catalog
+  seeded by the application's own migration worker, the six base images of the production Dockerfiles pulled, and
+  a reference Vite build of the frontend outside `/app`. The private Docker daemon gets P01's DNS plan (the outer
+  resolvers, or a relay on its bridge when the outer resolver is loopback, as on CES in P01) so build steps inside
+  it can reach nuget.org and npm; nothing of the application is built or started before the agent.
+- **Verifier** (`common/bench/publishing/grade.mjs`, ported from P01's; three checks, all required): `preserved`
+  (no supplied file changed or removed, new files allowed anywhere; dependencies, network, volume, catalog and
+  Redis state as at setup), `production` (exactly the two Compose services in one project, images created after
+  setup, Production environment, the published admin DLL, nginx, loopback-only ports 18080/18081, no bind mounts,
+  no development processes), `serving` (real login accepted and wrong password rejected, the preserved catalog,
+  version routing through the frontend, the served bundle equal to the reference build of these sources, SignalR
+  catalog and a fresh 25-square board in Redis, no development API; up to 90 s for both endpoints to answer
+  first). Recorded: the route (`aspire-output/` present, compose files written). Reference repair: raw `docker
+  compose up -d --build`; Aspire `aspire deploy` (the Compose environment builds both images, writes
+  `aspire-output/`, runs compose up), each after sourcing `deployment-inputs.env`.
+- **Local gate:** raw fail → repair → pass; Aspire fail → `aspire deploy` (1 min 30 s locally: 24/24 steps) →
+  pass once the admin had started (verify had run 1 s after `compose up`; hence the 90 s wait). Negatives: an
+  edited `compose.yaml` fails `preserved`; a stopped service fails `production` and `serving`.
+- **Arms** `raw`, `aspire-cli`, `aspire-skill-deployment`, `aspire-skills`, `aspire-skills-nodeployment`. Not
+  exercised (ruling 9): Kubernetes (a cluster, for example kind inside the trial or a remote one), Azure and AWS
+  (a cloud subscription with credentials), Radius (a Radius-enabled cluster), teardown (`aspire destroy` or its
+  equivalent against a cloud target; a local Compose teardown is `docker compose down`, not the skill's claim).
+
 ---
 
 ## 8. Phase 4: new scenarios and infrastructure

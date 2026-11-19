@@ -3,7 +3,22 @@
 # Everything here runs before the agent; /opt/benchmark/ready gates the task.
 set -euo pipefail
 mkdir -p /logs/environment
-dockerd --host=unix:///var/run/docker.sock --storage-driver=vfs \
+dockerd_options=()
+if [[ "${BENCH_FAULT:-}" == publishing ]]; then
+    # Preconfigured publishing (PLAN T3.4): production images are built inside the private daemon, and
+    # their build steps resolve package feeds. Docker gives an outer container a loopback resolver
+    # (127.0.0.11) that nested containers cannot reach, so the private daemon gets the outer resolvers,
+    # or a relay to them on its bridge (port of msbench/bingo-publishing, validated on CES).
+    node /opt/benchmark/publishing/dns.mjs >/logs/environment/dns-plan.json 2>/logs/environment/dns-plan.log
+    mapfile -t dns_servers < <(node -e 'console.log(require(process.argv[1]).servers.join("\n"))' /logs/environment/dns-plan.json)
+    for server in "${dns_servers[@]}"; do dockerd_options+=(--dns "$server"); done
+    relay_gateway=$(node -e 'const p=require(process.argv[1]);if(p.mode==="loopback-relay")console.log(p.bridge.gateway)' /logs/environment/dns-plan.json)
+    if [[ -n "$relay_gateway" ]]; then
+        dockerd_options+=(--bip "$(node -e 'console.log(require(process.argv[1]).bridge.bip)' /logs/environment/dns-plan.json)" \
+            --default-address-pool "base=$(node -e 'console.log(require(process.argv[1]).bridge.pool)' /logs/environment/dns-plan.json),size=24")
+    fi
+fi
+dockerd --host=unix:///var/run/docker.sock --storage-driver=vfs "${dockerd_options[@]}" \
     >/logs/environment/docker.log 2>&1 &
 daemon_pid=$!
 ready=0
@@ -14,6 +29,21 @@ for _ in {1..90}; do
 done
 [[ "$ready" == 1 ]] || { cat /logs/environment/docker.log >&2; exit 1; }
 
+if [[ "${BENCH_FAULT:-}" == publishing ]]; then
+    if [[ -n "${relay_gateway:-}" ]]; then
+        node /opt/benchmark/publishing/dns-relay.mjs /logs/environment/dns-plan.json /logs/environment/dns-relay-ready.json \
+            >/logs/environment/dns-relay.log 2>&1 &
+        for _ in {1..30}; do [[ -f /logs/environment/dns-relay-ready.json ]] && break; sleep 1; done
+        [[ -f /logs/environment/dns-relay-ready.json ]] || { cat /logs/environment/dns-relay.log >&2; exit 1; }
+    fi
+    # Nothing of the application runs: the environment's PostgreSQL and Redis, seeded, and the base
+    # images the production Dockerfiles use, pulled as a developer machine would have them.
+    bash /opt/benchmark/publishing/setup.sh >/logs/environment/application-setup.log 2>&1 || {
+        cat /logs/environment/application-setup.log >&2; exit 1;
+    }
+    touch /opt/benchmark/ready
+    exec "$@"
+fi
 if [[ "${BENCH_FAULT:-}" == selection ]]; then
     # Selection benchmark (PLAN T3.9): a static copy of the workspace, nothing started, and a
     # Copilot CLI policy hook (system-wide, outside the workspace; repository hooks are not loaded

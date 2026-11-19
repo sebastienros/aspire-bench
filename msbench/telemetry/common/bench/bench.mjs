@@ -4,7 +4,7 @@
 import assert from "node:assert/strict";
 import { execFile, spawn } from "node:child_process";
 import { openSync } from "node:fs";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import { randomBytes } from "node:crypto";
 import { setTimeout as sleep } from "node:timers/promises";
 import { promisify } from "node:util";
@@ -259,6 +259,129 @@ async function injectStuckDb(endpoints) {
     return { night, rows, identity, probeMs: Math.round(probe.ms) };
 }
 
+// export (PLAN T3.5, aspire-monitoring's own job): a past incident whose telemetry the user wants
+// handed over. Under live traffic the database is switched to read-only for 45 s (square imports
+// fail with "cannot execute INSERT in a read-only transaction", sessions are cut once), then put
+// back; the application recovers by itself. Setup records the error traces of that window and the
+// AppHost process. The agent is asked to export the last 10 minutes of traces and logs to
+// /app/bug-report/ without touching the application.
+const exportDir = "/app/bug-report";
+const incidentMessage = "read-only transaction";
+const otelJson = async (signal, extra) => JSON.parse(await sh("aspire", ["otel", signal, "boardadmin", ...extra,
+    "--format", "Json", "--apphost", "/app/apphost.cs", "--non-interactive", "--nologo"], { timeout: 300_000 }));
+
+async function injectExportIncident() {
+    const identity = await appHostIdentity();
+    await sleep(20_000);
+    const startedAt = new Date();
+    await sql(`ALTER DATABASE "${dbName}" SET default_transaction_read_only = on;`);
+    await sql(`SELECT pg_terminate_backend(pid) FROM pg_stat_activity
+               WHERE datname = current_database() AND pid <> pg_backend_pid();`);
+    await sleep(45_000);
+    await sql(`ALTER DATABASE "${dbName}" RESET default_transaction_read_only;`);
+    await sql(`SELECT pg_terminate_backend(pid) FROM pg_stat_activity
+               WHERE datname = current_database() AND pid <> pg_backend_pid();`);
+    const endedAt = new Date();
+    await sleep(20_000);
+    const window = time => time >= startedAt.getTime() - 2_000 && time <= endedAt.getTime() + 10_000;
+    const traces = (await otelJson("traces", ["--has-error", "--limit", "2000"]))
+        .filter(trace => window(Date.parse(trace.spans?.[0]?.timestamp ?? trace.timestamp ?? 0)));
+    const traceIds = [...new Set(traces.map(trace => trace.traceId))];
+    assert(traceIds.length >= 5, `The incident left too few error traces (${traceIds.length})`);
+    const logs = (await otelJson("logs", ["--severity", "Error", "--limit", "2000"]))
+        .filter(log => (log.message ?? "").includes(incidentMessage));
+    assert(logs.length >= 1, "The incident left no matching error log line");
+    console.log(`export: incident ${startedAt.toISOString()}..${endedAt.toISOString()}, ${traceIds.length} error traces, ${logs.length} '${incidentMessage}' log lines`);
+    return { startedAt: startedAt.toISOString(), endedAt: endedAt.toISOString(), traceIds, logLines: logs.length, identity };
+}
+
+// What the agent exported, read leniently: any file under /app/bug-report (zip archives expanded),
+// in any of the shapes the Aspire CLI writes (the `aspire export` OTLP bundle, `aspire otel` JSON or
+// tables, console log text). A file is trace data when it carries spans (OTLP resourceSpans, a
+// `spans` array, trace-detail links or the traces table) and log data when it carries log records
+// (OTLP resourceLogs, `severity`/`logId` fields, log lines with a level, or timestamped console lines). The classification of
+// every file is recorded.
+async function readExport() {
+    const list = async dir => (await Promise.all((await readdir(dir, { withFileTypes: true }).catch(() => []))
+        .map(entry => entry.isDirectory() ? list(`${dir}/${entry.name}`) : entry.isFile() ? [`${dir}/${entry.name}`] : [])))
+        .flat();
+    const texts = [];
+    for (const path of await list(exportDir)) {
+        if (/\.zip$/i.test(path)) {
+            const into = `/tmp/verify-export-${nonce()}`;
+            await sh("unzip", ["-q", "-o", path, "-d", into]).catch(() => {});
+            for (const inner of await list(into)) {
+                texts.push({ path: `${path}!${inner.slice(into.length + 1)}`, text: await readFile(inner, "utf8").catch(() => "") });
+            }
+        } else if (/\.gz$/i.test(path)) {
+            texts.push({ path, text: await sh("gunzip", ["-c", path]).catch(() => "") });
+        } else {
+            texts.push({ path, text: await readFile(path, "utf8").catch(() => "") });
+        }
+    }
+    const traceShape = /resourceSpans|"spans"\s*:|traces\/detail\/[0-9a-f]{32}|│\s*Spans\s*│/;
+    const logShape = /resourceLogs|"logRecords"|"severity(Text|Number)?"\s*:|"logId"\s*:|^\S+\s+(FAIL|EROR|CRIT|WARN|INFO|DBUG|TRCE)\s|\b(fail|crit|warn|info|dbug): |^\d{4}-\d\d-\d\dT\d\d:\d\d:\S+\s/m;
+    return texts.map(({ path, text }) => ({ path, bytes: text.length, traces: traceShape.test(text), logs: logShape.test(text), text }));
+}
+
+// migration (PLAN T3.7, aspire-project-v2-migration): the running AppHost declares its three .NET
+// projects with the legacy AddProject API. Setup records each resource's type, launch configuration,
+// state and endpoint names and schemes as the baseline the migrated AppHost must reproduce, and
+// warms the NuGet cache with the Project v2 package of the pinned daily (ruling 7: no trial restores
+// it from the feed).
+const migratedProjects = ["migrations", "boardadmin", "scoreboard"];
+const aspireVersion = "17.1.0-preview.1.26567.3";
+
+async function describeResources() {
+    const { resources } = JSON.parse(await sh("aspire", ["describe", "--apphost", "/app/apphost.cs",
+        "--format", "Json", "--non-interactive", "--nologo"]));
+    return Object.fromEntries(resources.map(r => [r.displayName ?? r.name, {
+        type: r.resourceType,
+        launch: r.properties?.["resource.launchConfigurationType"] ?? null,
+        v2: Boolean(r.properties?.["executable.path"]) && /external-build/.test(r.properties?.["resource.launchConfigurationType"] ?? ""),
+        state: r.state,
+        health: r.healthStatus ?? null,
+        endpoints: (r.urls ?? []).filter(u => !u.isInternal).map(u => `${u.name}:${new URL(u.url).protocol}`).sort(),
+    }]));
+}
+
+async function injectMigration() {
+    await mkdir("/tmp/bench-warm", { recursive: true });
+    await writeFile("/tmp/bench-warm/warm.cs", `#:sdk Aspire.AppHost.Sdk@${aspireVersion}\n#:property AspireUseCliBundle=true\n` +
+        `#:package Aspire.Hosting.Dotnet@${aspireVersion}\nConsole.WriteLine();\n`);
+    await sh("cp", ["/app/NuGet.config", "/tmp/bench-warm/NuGet.config"]);
+    await sh("dotnet", ["restore", "/tmp/bench-warm/warm.cs"], { timeout: 600_000 });
+    await sh("rm", ["-rf", "/tmp/bench-warm"]);
+    const baseline = await describeResources();
+    for (const name of migratedProjects) {
+        assert.equal(baseline[name]?.type, "Project", `${name} must start as a legacy project resource`);
+        assert(!baseline[name].v2, `${name} must not already be a Project v2 resource`);
+    }
+    return { baseline, identity: await appHostIdentity() };
+}
+
+// The reference migration: every AddProject<Projects.T>(name[, launchProfileName]) becomes
+// AddDotnetProject(name, path[, LaunchProfileName]), the #:project directives go (they made the
+// Projects.* types) and the Project v2 package is referenced; then the AppHost is restarted.
+async function migrateAppHost() {
+    let source = await readFile("/app/apphost.cs", "utf8");
+    const paths = Object.fromEntries([...source.matchAll(/^#:project (\S+)\n/gm)]
+        .map(([, path]) => [path.split("/").pop().replace(/\.csproj$/, "").replace(/\./g, "_"), path]));
+    source = source.replace(/^#:project \S+\n/gm, "")
+        .replace(/^(#:package Aspire\.Hosting\.JavaScript@\S+\n)/m, `$1#:package Aspire.Hosting.Dotnet@${aspireVersion}\n`)
+        .replace(/builder\.AddProject<Projects\.(\w+)>\("([^"]+)"(?:, launchProfileName: "([^"]+)")?\)/g, (_, type, name, profile) => {
+            assert(paths[type], `No #:project directive for ${type}`);
+            return `builder.AddDotnetProject("${name}", "${paths[type]}"${profile ? `, options => options.LaunchProfileName = "${profile}"` : ""})`;
+        });
+    assert(!/AddProject\b/.test(source), "AddProject calls remain");
+    await writeFile("/app/apphost.cs", source);
+    await sh("aspire", ["stop", "--apphost", "/app/apphost.cs", "--non-interactive", "--nologo"], { timeout: 300_000 });
+    // `aspire stop` returns before DCP has removed the containers; a start right after collides on the
+    // fixed container names (see entrypoint.sh, cold-start-warm).
+    for (let i = 0; i < 120 && (await sh("docker", ["ps", "-aq"])) !== ""; i++) await sleep(1_000);
+    await sh("bash", ["/opt/benchmark/bootstrap-aspire.sh"], { timeout: 1_200_000 });
+}
+
 // ---------------------------------------------------------------- lifecycle
 
 async function setup() {
@@ -275,7 +398,8 @@ async function setup() {
     else if (fault === "read-only") await injectReadOnly();
     else if (fault === "slow-redis") state.cache = await injectSlowRedis(endpoints);
     else if (fault === "stuck-db") state.stuck = await injectStuckDb(endpoints);
-    else assert.equal(fault, "none", `Unknown fault ${fault}`);
+    else if (fault === "migration") state.migration = await injectMigration();
+    else assert(["none", "export"].includes(fault), `Unknown fault ${fault}`);
     await writeFile(statePath, JSON.stringify(state), { mode: 0o600 });
 
     await mkdir("/logs/environment", { recursive: true });
@@ -285,7 +409,12 @@ async function setup() {
     }).unref();
     // Let live traffic exercise the incident so runtime evidence exists before the agent starts.
     await sleep(30_000);
-    console.log(`setup complete: ${JSON.stringify(state.audit ?? state.cache ?? {})}`);
+    // export: the incident happens under that traffic and is over before the agent starts.
+    if (fault === "export") {
+        state.incident = await injectExportIncident();
+        await writeFile(statePath, JSON.stringify(state), { mode: 0o600 });
+    }
+    console.log(`setup complete: ${JSON.stringify(state.audit ?? state.cache ?? state.incident ?? state.migration ?? {})}`);
 }
 
 async function stopTraffic() {
@@ -498,6 +627,94 @@ async function verifyColdStart(endpoints, details) {
     details.endpoints = endpoints;
 }
 
+// export: four checks, all required. appKeptRunning: the AppHost process of setup still runs (the prompt
+// says not to restart; a restart also empties the dashboard's telemetry store). files: something was
+// written under /app/bug-report. spans: a trace-data file carries at least one of the incident's error
+// trace IDs. logs: a log-data file carries the incident's error message. The app must still serve.
+async function verifyExport(state, endpoints, details) {
+    const { traceIds, identity } = state.incident;
+    const checks = details.checks = { appKeptRunning: false, files: false, spans: false, logs: false };
+    const failures = [];
+    const attempt = async (name, body) => {
+        try { await body(); checks[name] = true; } catch (error) { failures.push(`${name}: ${error.message}`); }
+    };
+    await attempt("appKeptRunning", async () => {
+        assert.equal(await appHostIdentity().catch(() => "gone"), identity, "The AppHost process was stopped or restarted");
+    });
+    const exported = await readExport();
+    details.exportFiles = exported.map(({ path, bytes, traces, logs }) => ({ path, bytes, traces, logs }));
+    await attempt("files", async () => {
+        assert(exported.some(file => file.bytes > 0), `Nothing was exported to ${exportDir}`);
+    });
+    await attempt("spans", async () => {
+        const hits = exported.filter(file => file.traces).map(file => traceIds.filter(id => file.text.includes(id)).length);
+        details.incidentTracesExported = Math.max(0, ...hits);
+        assert(details.incidentTracesExported > 0, `No exported trace data contains the incident's traces (${traceIds.length} error traces)`);
+    });
+    await attempt("logs", async () => {
+        const hits = exported.filter(file => file.logs && file.text.includes(incidentMessage));
+        details.incidentLogFiles = hits.map(file => file.path);
+        assert(hits.length > 0, `No exported log data contains the incident's error ('${incidentMessage}')`);
+    });
+    assert.equal(failures.length, 0, failures.join(" | "));
+}
+
+// migration: four checks, all required. migrated: apphost.cs has no AddProject call and the three
+// projects run as Project v2 resources. resources: every resource of the baseline exists, and the
+// ones that were running and healthy are again (the migration worker has finished). endpoints: the
+// same endpoint names and schemes per resource (ports are allocated per run). functional: the
+// scoreboard answers through service discovery, and the app's own checks pass.
+async function verifyMigration(state, endpoints, details) {
+    const { baseline } = state.migration;
+    const checks = details.checks = { migrated: false, resources: false, endpoints: false, functional: false };
+    const failures = [];
+    const attempt = async (name, body) => {
+        try { await body(); checks[name] = true; } catch (error) { failures.push(`${name}: ${error.message}`); }
+    };
+    let now = {};
+    for (let i = 0; i < 24; i++) {
+        now = await describeResources().catch(() => ({}));
+        const settled = Object.entries(baseline).every(([name, before]) => !now[name] || now[name].state === before.state && now[name].health === before.health);
+        if (settled) break;
+        await sleep(5_000);
+    }
+    details.resources = now;
+    details.appHostRestarted = await appHostIdentity().then(id => id !== state.migration.identity).catch(() => null);
+    await attempt("migrated", async () => {
+        const source = await readFile("/app/apphost.cs", "utf8");
+        assert(!/\bAddProject\s*[<(]/.test(source), "apphost.cs still calls AddProject");
+        const legacy = migratedProjects.filter(name => !now[name]?.v2);
+        assert.equal(legacy.length, 0, `Not running as Project v2 resources: ${legacy.join(", ")}`);
+    });
+    await attempt("resources", async () => {
+        const wrong = Object.entries(baseline)
+            .filter(([name, before]) => !now[name] || now[name].state !== before.state || now[name].health !== before.health)
+            .map(([name, before]) => `${name} ${now[name]?.state ?? "missing"}/${now[name]?.health ?? "-"} (was ${before.state}/${before.health ?? "-"})`);
+        assert.equal(wrong.length, 0, `Resources not as before: ${wrong.join(", ")}`);
+    });
+    await attempt("endpoints", async () => {
+        const changed = Object.entries(baseline)
+            .filter(([name, before]) => JSON.stringify(now[name]?.endpoints ?? []) !== JSON.stringify(before.endpoints))
+            .map(([name, before]) => `${name} ${JSON.stringify(now[name]?.endpoints ?? [])} (was ${JSON.stringify(before.endpoints)})`);
+        assert.equal(changed.length, 0, `Endpoints changed: ${changed.join(", ")}`);
+    });
+    await attempt("functional", async () => {
+        await verifyCommon(state, endpoints, details);
+        const id = `verify-${nonce()}`;
+        const imported = await importSquares(endpoints.admin, [square(id, "Migration probe")]);
+        assert.equal(imported.status, 200, `Fresh import: HTTP ${imported.status}`);
+        await verifyFunctional(endpoints, id);
+        const { resources } = JSON.parse(await sh("aspire", ["describe", "--apphost", "/app/apphost.cs",
+            "--format", "Json", "--non-interactive", "--nologo"]));
+        const url = resources.find(r => (r.displayName ?? r.name) === "scoreboard")?.urls?.find(u => u.url.startsWith("http://"))?.url;
+        assert(url, "No HTTP endpoint for scoreboard");
+        const board = await http(new URL(url).origin, "/api/scoreboard");
+        assert.equal(board.status, 200, `Scoreboard: HTTP ${board.status}`);
+        assert(Number.isInteger(JSON.parse(board.body).calledSquares), "Scoreboard must report called squares");
+    });
+    assert.equal(failures.length, 0, failures.join(" | "));
+}
+
 async function verify() {
     const state = coldStart
         ? { fault, kind, squares: [] }
@@ -508,7 +725,9 @@ async function verify() {
         const endpoints = await resolveEndpoints();
         // stuck-db records its own checks first; the common checks would wait on the lock.
         if (state.fault === "stuck-db") await verifyStuckDb(state, endpoints, details);
-        await verifyCommon(state, endpoints, details);
+        else if (state.fault === "export") await verifyExport(state, endpoints, details);
+        else if (state.fault === "migration") await verifyMigration(state, endpoints, details);
+        if (state.fault !== "migration") await verifyCommon(state, endpoints, details);
         if (state.fault === "slow-sql") await verifySlowSql(state, endpoints, details);
         else if (state.fault === "read-only") await verifyReadOnly(state, endpoints, details);
         else if (state.fault === "slow-redis") await verifySlowRedis(state, endpoints, details);
@@ -548,10 +767,26 @@ async function solve() {
         await sh("aspire", ["resource", "postgres", "restart", "--apphost", "/app/apphost.cs", "--non-interactive", "--nologo"]);
         await sh("aspire", ["wait", "postgres", "--apphost", "/app/apphost.cs", "--non-interactive", "--timeout", "300", "--nologo"], { timeout: 330_000 });
         await sleep(5_000);
+    } else if (state.fault === "export") {
+        // The documented route: the CLI's telemetry bundle of every resource.
+        await mkdir(exportDir, { recursive: true });
+        await sh("aspire", ["export", "--apphost", "/app/apphost.cs", "--output", `${exportDir}/telemetry.zip`,
+            "--non-interactive", "--nologo"], { timeout: 300_000 });
+    } else if (state.fault === "migration") {
+        await migrateAppHost();
     }
 }
 
-const commands = { setup, verify, solve, endpoints: async () => console.log(JSON.stringify(await resolveEndpoints())) };
+// publishing (PLAN T3.4) has its own environment, grader and reference deployment (publishing/grade.mjs):
+// nothing runs under an AppHost, and its setup is publishing/setup.sh, called by entrypoint.sh.
+async function delegated(command) {
+    const code = await new Promise(resolve => spawn(process.execPath, ["/opt/benchmark/publishing/grade.mjs", command],
+        { stdio: "inherit" }).on("exit", resolve));
+    if (code !== 0) process.exit(code ?? 1);
+}
+const commands = fault === "publishing"
+    ? { verify: () => delegated("verify"), solve: () => delegated("solve") }
+    : { setup, verify, solve, endpoints: async () => console.log(JSON.stringify(await resolveEndpoints())) };
 const command = commands[process.argv[2]];
 assert(command, "Usage: node bench.mjs setup|verify|solve|endpoints");
 await command();
