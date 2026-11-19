@@ -1586,12 +1586,13 @@ server). Arms: raw, `aspire-cli`, the skill alone, the v0.0.6 bundle and the bun
 plus `cold-start` (reported) and the luna `slow-sql`/`slow-redis` guard.
 - **`shrink` (body), by the coordinating session's reading of row 3.** On luna the skill alone was worse than the
   CLI in all three cells: 2.13× (restart-change, p 0.002), 2.36× (two-app, p 0.009) and 3/6 against 5/6
-  (port-conflict); on terra 1.00–1.08×, every cell 6/6. Restart-change's cost is the body's verification after the
-  restart (`aspire wait` 10 times and the status command 7 times after the fix across six luna trials, against none
-  for the CLI arm); port-conflict's three failures follow its "port in use → stop, then restart" row into a product
-  race that luna's CLI arm also ran into without failing (same route in 5/6, timing-dependent) ([FINDINGS F56](../FINDINGS.md#f56-a-start-right-after-aspire-stop-adopts-containers-the-old-instance-is-still-removing));
-  two-app is not charged to the body (4 of 6 trials never loaded it). The `no verdict` reading (main path = the way
-  to the fix) is recorded beside it.
+  (port-conflict); on terra 1.00–1.08×, every cell 6/6. The cost is the body's verification after the restart on
+  restart-change (`aspire wait` 10 times and the status command 7 times after the fix across six luna trials, against
+  none for the CLI arm). Port-conflict's three failures are a product race on a stop-then-start route that luna's CLI
+  arm also ran in 5/6 without failing (timing-dependent; inferred from a local reproduction), so they are not charged
+  to the guidance ([FINDINGS F56](../FINDINGS.md#f56-a-start-right-after-aspire-stop-adopts-containers-the-old-instance-is-still-removing));
+  two-app is not charged to the body (4 of 6 trials never loaded it). The proposed shrink is the restart-change steps only (no every-resource
+  wait after a single-resource restart). The `no verdict` reading (main path = the way to the fix) is recorded beside it.
 - **Selection:** the `split` row fires on v0.0.6 (orchestration takes the router's run/restart prompts on terra) and
   is discharged by the router's removal: `t31-sel` under `norouter` gave those prompts to orchestration or to no
   skill, never to another, with orchestration's own prompts 12/12.
