@@ -1,0 +1,25 @@
+READY tele-aspire-slow-redis-aspire-redis-traced-p2int
+1
+== verify before repair (must fail)
+{"fault":"slow-redis","kind":"aspire","passed":false,"squaresPreserved":43,"statusMs":[4841,4831,4773,4878,4956,4904,4806,4760],"callMs":[322,337,307,309,304,324,338,323],"baselineStatusMs":4544,"failure":"Status still takes 4841 ms (limit 300)"}
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Status still takes 4841 ms (limit 300)
+    at verifySlowRedis (file:///opt/benchmark/bench.mjs:425:5)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async verify (file:///opt/benchmark/bench.mjs:514:48)
+    at async file:///opt/benchmark/bench.mjs:557:1 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v24.14.0
+== reference repair
+== verify after repair (must pass)
+{"fault":"slow-redis","kind":"aspire","passed":true,"squaresPreserved":43,"statusMs":[8,8,9,9,12,14,13,13],"callMs":[3,3,2,3,14,2,2,2],"baselineStatusMs":4544,"cacheCommandsOver100Ms":0}

@@ -40,7 +40,11 @@ LATER_PIN_PAIRS = [("aspire-cli", "raw"), ("aspire-skills-plugin", "aspire-skill
                    ("aspire-lean-traced", "aspire-lean"), ("aspire-lean-mcp-all-traced", "aspire-lean-mcp-all"),
                    ("aspire-cli-traced", "aspire-cli"), ("raw-otel", "raw"), ("aspire-lean-traced", "raw-otel"),
                    # T2.6: generic step 3 (describe-connect patch) against the hand-written step on the source control.
-                   ("aspire-lean-connect", "aspire-lean-src")]
+                   ("aspire-lean-connect", "aspire-lean-src"),
+                   # T2.5 follow-up: the span-table row against the same arm without it.
+                   ("aspire-lean-spanrow", "aspire-lean"), ("aspire-lean-spanrow-traced", "aspire-lean-traced"),
+                   ("aspire-lean-mcp-all-spanrow", "aspire-lean-mcp-all"),
+                   ("aspire-lean-mcp-all-spanrow-traced", "aspire-lean-mcp-all-traced")]
 FIRST_PIN = "2026-11-09"
 DEFAULT_AGENT = "github-copilot-cli"
 METRICS = [("agent_seconds", "s"), ("input_tokens", "tok"), ("cost_usd", "$")]

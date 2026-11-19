@@ -1960,6 +1960,27 @@ the next measurement (≈ $0.50). Upstream: the issue draft
 [`skills-aspireify-redis-client-tracing.md`](../upstream-issues/skills-aspireify-redis-client-tracing.md) is
 updated with this result and stays unfiled; [FINDINGS F47](../FINDINGS.md#f47-cache-client-spans-make-a-blocked-cache-look-like-an-n1-and-the-cheapest-model-patches-the-caller).
 
+#### T2.5 follow-up: span-table row (rule written 2026-11-19, before any `t25-span` trial)
+
+A secondary measurement under T2.5, approved by the coordinating session; it does not change T2.5's verdict.
+
+- **Change.** Skill set `lean-spanrow` = `lean` with `spanrow-overrides/aspire-diagnose/SKILL.md`: one row added to
+  step 2's span table, right under the N+1 row: "Many near-identical client spans to one dependency, each slow → The
+  dependency is slow (queued or blocked), not the caller: go to step 3." Nothing else changes; new file, new
+  fingerprint, so nothing pools with `t25`.
+- **Cells**, round `t25-span` (part of run `t25`, which has `raw`), luna, n = 6: `slow-redis` × {`aspire-lean-spanrow`, `aspire-lean-spanrow-traced`,
+  `aspire-lean-mcp-all-spanrow`, `aspire-lean-mcp-all-spanrow-traced`} against {`aspire-lean`, `aspire-lean-traced`,
+  `aspire-lean-mcp-all`, `aspire-lean-mcp-all-traced`} re-run in the same round (not reused from `t25`); guard
+  `slow-sql` × `aspire-lean-spanrow` against `aspire-lean`, same round, since a table row is a route change. 60
+  trials.
+- **Rule.** The row is **worth proposing** if luna `aspire-lean-mcp-all-spanrow-traced` passes ≥ 5/6 **and** no
+  lean cell with the row (the four `slow-redis` cells and the `slow-sql` guard) passes more than one trial fewer
+  than its same-round control or has a median `agent_seconds` above 1.15× the control's. Otherwise **not worth
+  proposing**, naming the cell. Reported beside it: trials that edited `/app/src`, `seconds_to_redis_reply`, and
+  whether the row is quoted in the trajectory before step 3.
+- **If it holds**, the issue draft gets the row as the remedy next to the template change; nothing is filed.
+  Expected ≈ $1.3 (60 luna at ≈ $0.02); stop and report above $3.
+
 ### T2.6 A "reach this resource" surface
 
 | | |

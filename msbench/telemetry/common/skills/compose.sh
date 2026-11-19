@@ -9,6 +9,7 @@
 #   norouter current without the `aspire` router, nothing added (PLAN T1.3; T3.8's bundle-minus)
 #   lean-noorch  lean without aspire-orchestration; the start job moves to AGENTS.md v2 (PLAN T2.11)
 #   lean-connect lean with aspire-diagnose step 3 reduced to describe's `connect` block (PLAN T2.6)
+#   lean-spanrow lean with one span-table row: many slow client spans to one dependency (PLAN T2.5 follow-up)
 #   lean-start-wait  lean + aspire-start rewritten to one `aspire start --wait` (PLAN T2.2, patched CLI)
 #   lean-tracetable  lean with aspire-diagnose step 2 reading the trace tree, not JSON (PLAN T2.3, patched CLI)
 #   lean-mcpstep  lean with aspire-diagnose step 3 telling MCP users to leave MCP for the dependency (PLAN T2.8)
@@ -42,6 +43,9 @@ case "$set_name" in
     lean-connect) cp -R "$here/current/." "$dest/"; cp -R "$here/new/." "$dest/"
              rm -rf "$dest/aspire"
              cp -R "$here/lean-overrides/." "$dest/"; cp -R "$here/connect-overrides/." "$dest/" ;;
+    lean-spanrow) cp -R "$here/current/." "$dest/"; cp -R "$here/new/." "$dest/"
+             rm -rf "$dest/aspire"
+             cp -R "$here/lean-overrides/." "$dest/"; cp -R "$here/spanrow-overrides/." "$dest/" ;;
     *) echo "Unknown skill set: $set_name" >&2; exit 1 ;;
 esac
 rm -f "$dest/LICENSE"

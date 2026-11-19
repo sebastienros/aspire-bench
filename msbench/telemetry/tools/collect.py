@@ -137,6 +137,7 @@ SKILL_SETS = {  # what common/skills/compose.sh copies for each set, in order; `
     "lean-tracetable": ["current", "new", "-aspire", "lean-overrides", "diagnose-table"],
     "lean-mcpstep": ["current", "new", "-aspire", "lean-overrides", "mcp-step"],
     "lean-connect": ["current", "new", "-aspire", "lean-overrides", "connect-overrides"],
+    "lean-spanrow": ["current", "new", "-aspire", "lean-overrides", "spanrow-overrides"],
 }
 
 
@@ -894,7 +895,9 @@ ARM_ORDER = ["raw", "aspire-cli", "aspire-skills", "aspire-mcp", "aspire-skills-
              "aspire-mcp-compact2", "aspire-lean-mcp-compact2", "aspire-mcp-tools8", "aspire-lean-mcp-tools8",
              "aspire-lean-mcp-all-conn", "aspire-lean-mcp-all-hint", "aspire-lean-mcp-all-step",
              # T2.6: the generic step 3 on the describe-connect patch.
-             "aspire-lean-connect"]
+             "aspire-lean-connect",
+             # T2.5 follow-up: one span-table row in aspire-diagnose.
+             "aspire-lean-spanrow", "aspire-lean-spanrow-traced", "aspire-lean-mcp-all-spanrow", "aspire-lean-mcp-all-spanrow-traced"]
 
 
 def arm_order(cell_arm):
