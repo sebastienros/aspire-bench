@@ -3193,12 +3193,22 @@ checks):
     and `--isolated` "to avoid port conflicts" in worktrees) is quoted in the results beside what each trial did.
 
 **Guard** (ruling 5): `aspire-skills-noorchestration` and `aspire-skills` on luna `slow-sql` and `slow-redis` × 6, same
-round (48 trials: the card's 24 plus the same-round `aspire-skills` control).
+round (24 trials: this skill's 12 of the card's 24, plus 12 of the same-round `aspire-skills` control; the 48 first
+written here counted both skills' guards, corrected before any guard trial).
 
 **Rounds.** Pilots (ruling 7): `aspire-cli` × luna, terra × 2 per new scenario, rounds `p3-pilot-<scenario>`, ledger
 `excluded`. No agent-timeout multiplier: 900 s for every arm (written now; if a pilot shows a scenario near the
 limit, that is reported before the round, not changed after it). Oracle gates `gate-t31` (every task). Round
-`t31`: 4 scenarios × 5 arms × luna, terra × 6 (240) plus the guard (48), submitted together.
+`t31`: 4 scenarios × 5 arms × luna, terra × 6 (240) plus the guard (24), submitted together.
+
+**Restore checks and pilots (2026-11-19, ruling 7; read for price, duration, floor/ceiling only).** CES restore
+check `gate-p3o-restore`: raw and `aspire-cli` oracles of the three new scenarios, all reward 1 (the restart-change
+oracles rebuild the admin inside a CES trial). Pilots `p3-pilot-restart-change`, `-two-app`, `-port-conflict`
+(`aspire-cli`, 2 per model, ledger `excluded`): 12 of 12 passed, no exception or 5xx, $0.33. Durations: restart-change
+luna 45–49 s, terra 49–69 s; two-app luna 29–81 s, terra 37–40 s; port-conflict luna 295–384 s, terra 54–233 s, all
+far from 900 s, so no multiplier. Price per trial: luna $0.004–0.017, terra $0.029–0.056 (≈ $7 for `t31` at these
+rates, inside the card). **All three scenarios sit at a pass-rate ceiling for `aspire-cli`** (4/4 each), so keep's
+pass clause can only fire if `aspire-cli` drops in the round; the decisive comparison is time.
 
 **Rule, applied in this order** (§7 table, rulings 2–6, 9). Decisive cells: `restart-change`, `two-app`,
 `port-conflict` (ruling 4), each × model; `skill-only` = `aspire-skill-orchestration`.
@@ -3246,7 +3256,7 @@ stop` of the AppHost / `kill` of an app process (`restart-change`); the skill's 
 "port already in use → stop, then restart" row), `--isolated`, a launch-profile edit, and any signal sent to the
 preview process (`port-conflict`).
 
-**Cost.** Card 240 + 24 ≈ $10.10; with the same-round guard control 288 trials. At the Phase 2 rates (≈ 2×) the
+**Cost.** Card 240 + 24 ≈ $10.10; with the same-round guard control 264 trials. At the Phase 2 rates (≈ 2×) the
 expectation is ≈ $20; the 3× stop is $30.30.
 
 #### T3.2 and T3.3 fixtures and rules, as computed (written 2026-11-19, before any T3.2 or T3.3 trial)

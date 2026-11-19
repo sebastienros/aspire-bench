@@ -295,6 +295,30 @@ def report(rows):
             lines.append(f"| `{key[0]}` | {key[1]} | {key[2]} | {len(mine)} | {mix} |")
         lines.append("")
 
+    # T3.1's split-row re-run (coordinating session, Q3 ruling; rule in PLAN T3.1 before the run)
+    t31 = [r for r in usable if r["round"].startswith("t31-sel")]
+    if t31:
+        lines += ["## T3.1 selection re-run (`t31-sel`)", "",
+                  "The router's and `aspire-orchestration`'s six prompts each, on the bundle without the router (T1.3's",
+                  "proposal) and the shipped bundle in the same round. Rule (PLAN T3.1, row 6): under `norouter` no skill",
+                  "other than `aspire-orchestration` on the router's prompts, and orchestration's own rate ≥ 10/12.", "",
+                  "| Arm | Model | Prompts | Runs | First skill |", "|---|---|---|---:|---|"]
+        for key in sorted({(r["arm"], r["model"], owners.get(r["scenario"])) for r in t31}):
+            mine = [r for r in t31 if (r["arm"], r["model"], owners.get(r["scenario"])) == key]
+            mix = ", ".join(f"{k} {v}" for k, v in collections.Counter(r["selected"] for r in mine).most_common())
+            lines.append(f"| `{key[0]}` | {key[1]} | {key[2]}'s | {len(mine)} | {mix} |")
+        for model in sorted({r["model"] for r in t31}):
+            nr = [r for r in t31 if r["arm"] == "aspire-skills-norouter" and r["model"] == model]
+            router = [r for r in nr if owners.get(r["scenario"]) == "aspire"]
+            own = [r for r in nr if owners.get(r["scenario"]) == "aspire-orchestration"]
+            others = collections.Counter(r["selected"] for r in router if r["selected"] not in ("aspire-orchestration", "none"))
+            if router and own:
+                k = sum(r["selected"] == "aspire-orchestration" for r in own)
+                verdict = "discharged" if not others and k >= 10 else "split / narrow stands"
+                lines.append(f"\n{model}, `norouter`: other skills on the router's prompts "
+                             f"{dict(others) or 0}; orchestration own {k}/{len(own)} → **{verdict}**.")
+        lines.append("")
+
     lines += ["## Per prompt", "", "| Prompt | Owner | Arm | Model | Selected (runs) |", "|---|---|---|---|---|"]
     for key in sorted({(r["scenario"], r["arm"], r["model"]) for r in usable}):
         mine = [r for r in usable if (r["scenario"], r["arm"], r["model"]) == key]
