@@ -1,0 +1,73 @@
+== re-pin to Aspire 17.1.0-preview.1.26569.1
+Generated 12 track/tasks folders pinned to suite 819db77ca5b140f8b9ad314525640094c60a5888 (17.1.0-preview.1.26569.1, skills v0.0.6)
+Wrote 12 track/dataset.jsonl rows pinned to tasks 5871c9343d57f49b7269b49f984166596549b047
+dry run: these three commits would land on sebros/p4-infra-b885a5:
+  ff54a74 telemetry: track dataset pinned to tasks 5871c93 (T4.5, commit 3 of 3)
+  5871c93 telemetry: track tasks pinned to suite 819db77 (T4.5, commit 2 of 3)
+  819db77 telemetry: track re-pin to Aspire 17.1.0-preview.1.26569.1: track/common (T4.5, commit 1 of 3)
+files changed outside msbench/telemetry/track/ (must be none):
+  none
+track/common: lines that differ from common/ (the pins):
+     2 <     <PackageVersion Include="Aspire.Hosting.JavaScript" Version="17.1.0-preview.1.26567.3" />
+     2 <     <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="17.1.0-preview.1.26567.3" />
+     1 <     <PackageVersion Include="Aspire.Hosting.RabbitMQ" Version="17.1.0-preview.1.26567.3" />
+     2 <     <PackageVersion Include="Aspire.Hosting.Redis" Version="17.1.0-preview.1.26567.3" />
+     1 <     <PackageVersion Include="Aspire.Hosting.SqlServer" Version="17.1.0-preview.1.26567.3" />
+     1 <     <PackageVersion Include="Aspire.StackExchange.Redis.DistributedCaching" Version="17.1.0-preview.1.26567.3" />
+     1 < # Every Aspire* package id published at the pinned daily (17.1.0-preview.1.26567.3) on the dnceng
+     1 < #:package Aspire.Hosting.Docker@17.1.0-preview.1.26567.3
+     3 < #:package Aspire.Hosting.JavaScript@17.1.0-preview.1.26567.3
+     3 < #:package Aspire.Hosting.PostgreSQL@17.1.0-preview.1.26567.3
+     1 < #:package Aspire.Hosting.RabbitMQ@17.1.0-preview.1.26567.3
+     2 < #:package Aspire.Hosting.Redis@17.1.0-preview.1.26567.3
+     1 < #:package Aspire.Hosting.SqlServer@17.1.0-preview.1.26567.3
+     5 < #:sdk Aspire.AppHost.Sdk@17.1.0-preview.1.26567.3
+     1 < const aspireVersion = "17.1.0-preview.1.26567.3";
+     2 >     <PackageVersion Include="Aspire.Hosting.JavaScript" Version="17.1.0-preview.1.26569.1" />
+     2 >     <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="17.1.0-preview.1.26569.1" />
+     1 >     <PackageVersion Include="Aspire.Hosting.RabbitMQ" Version="17.1.0-preview.1.26569.1" />
+     2 >     <PackageVersion Include="Aspire.Hosting.Redis" Version="17.1.0-preview.1.26569.1" />
+     1 >     <PackageVersion Include="Aspire.Hosting.SqlServer" Version="17.1.0-preview.1.26569.1" />
+     1 >     <PackageVersion Include="Aspire.StackExchange.Redis.DistributedCaching" Version="17.1.0-preview.1.26569.1" />
+     1 > # Every Aspire* package id published at the pinned daily (17.1.0-preview.1.26569.1) on the dnceng
+     1 > #:package Aspire.Hosting.Docker@17.1.0-preview.1.26569.1
+     3 > #:package Aspire.Hosting.JavaScript@17.1.0-preview.1.26569.1
+     3 > #:package Aspire.Hosting.PostgreSQL@17.1.0-preview.1.26569.1
+     1 > #:package Aspire.Hosting.RabbitMQ@17.1.0-preview.1.26569.1
+     2 > #:package Aspire.Hosting.Redis@17.1.0-preview.1.26569.1
+     1 > #:package Aspire.Hosting.SqlServer@17.1.0-preview.1.26569.1
+     5 > #:sdk Aspire.AppHost.Sdk@17.1.0-preview.1.26569.1
+     1 > const aspireVersion = "17.1.0-preview.1.26569.1";
+track/common/PIN.json:
+  {
+    "aspire_version": "17.1.0-preview.1.26569.1",
+    "aspire_commit": "4ad3cfe685bcf47d79c8d16d64fc4be6363280dd",
+    "sha256_amd64": "fe6653adab6be9d244a62948679aeaaa24658d9e91eba1ad62ed7053136f28c3",
+    "sha256_arm64": "23ccee12e1084eb99ca37fec779fc124fb88cb50a7eb24b8317daabf52384e73",
+    "skills_tag": "v0.0.6",
+    "skills_sha": "e529b608336cd41c1b1262aa76d00d9e4ef1bff8",
+    "copied_from": "msbench/telemetry/common",
+    "replaced": {
+      "aspire_version": "17.1.0-preview.1.26567.3",
+      "aspire_commit": "30326eb876d6897b1feadc8bc800f78e466b1b52"
+    }
+  }
+Dockerfile pins of track/tasks/slow-sql/aspire-lean:
+  ARG ASPIRE_COMMIT=4ad3cfe685bcf47d79c8d16d64fc4be6363280dd
+  ARG ASPIRE_SHA256_AMD64=fe6653adab6be9d244a62948679aeaaa24658d9e91eba1ad62ed7053136f28c3
+  ARG ASPIRE_SHA256_ARM64=23ccee12e1084eb99ca37fec779fc124fb88cb50a7eb24b8317daabf52384e73
+  ARG ASPIRE_VERSION=17.1.0-preview.1.26569.1
+track/tasks: 72 files; track/dataset.jsonl:
+  {"benchmark":"aspire-telemetry-slow-sql","instance_id":"aspire-telemetry-slow-sql","run_platform":"linux_container","container_registry":"msbenchstaging.azurecr.io","task_style":"harbor-native","tas
+  {"benchmark":"aspire-telemetry-slow-sql-aspire-cli","instance_id":"aspire-telemetry-slow-sql","run_platform":"linux_container","container_registry":"msbenchstaging.azurecr.io","task_style":"harbor-n
+  {"benchmark":"aspire-telemetry-slow-sql-aspire-skills-mcp","instance_id":"aspire-telemetry-slow-sql","run_platform":"linux_container","container_registry":"msbenchstaging.azurecr.io","task_style":"h
+  {"benchmark":"aspire-telemetry-slow-sql-aspire-lean","instance_id":"aspire-telemetry-slow-sql","run_platform":"linux_container","container_registry":"msbenchstaging.azurecr.io","task_style":"harbor-
+  {"benchmark":"aspire-telemetry-slow-redis","instance_id":"aspire-telemetry-slow-redis","run_platform":"linux_container","container_registry":"msbenchstaging.azurecr.io","task_style":"harbor-native",
+  {"benchmark":"aspire-telemetry-slow-redis-aspire-cli","instance_id":"aspire-telemetry-slow-redis","run_platform":"linux_container","container_registry":"msbenchstaging.azurecr.io","task_style":"harb
+  {"benchmark":"aspire-telemetry-slow-redis-aspire-skills-mcp","instance_id":"aspire-telemetry-slow-redis","run_platform":"linux_container","container_registry":"msbenchstaging.azurecr.io","task_style
+  {"benchmark":"aspire-telemetry-slow-redis-aspire-lean","instance_id":"aspire-telemetry-slow-redis","run_platform":"linux_container","container_registry":"msbenchstaging.azurecr.io","task_style":"har
+  {"benchmark":"aspire-telemetry-cold-start","instance_id":"aspire-telemetry-cold-start","run_platform":"linux_container","container_registry":"msbenchstaging.azurecr.io","task_style":"harbor-native",
+  {"benchmark":"aspire-telemetry-cold-start-aspire-cli","instance_id":"aspire-telemetry-cold-start","run_platform":"linux_container","container_registry":"msbenchstaging.azurecr.io","task_style":"harb
+  {"benchmark":"aspire-telemetry-cold-start-aspire-skills-mcp","instance_id":"aspire-telemetry-cold-start","run_platform":"linux_container","container_registry":"msbenchstaging.azurecr.io","task_style
+  {"benchmark":"aspire-telemetry-cold-start-aspire-lean","instance_id":"aspire-telemetry-cold-start","run_platform":"linux_container","container_registry":"msbenchstaging.azurecr.io","task_style":"har
+dry run done: this checkout is unchanged (7014a13f15ca8972bf24f381958646d8c801fe8f 0e3fb071dd13)
