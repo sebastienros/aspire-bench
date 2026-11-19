@@ -91,7 +91,10 @@ export const scenarios = {
             // T1.4's guard on the source build: lean + MCP, unpatched control and compact telemetry.
             "aspire-lean-mcp-src", "aspire-lean-mcp-compact",
             // T2.10's guard: the instructions file on the proposed set.
-            "aspire-lean-agents"],
+            "aspire-lean-agents",
+            // T2.5: the cache on the Aspire Redis client integration (traced), and the raw app with
+            // OpenTelemetry and a file exporter (instrumented, no Aspire).
+            "aspire-cli-traced", "aspire-lean-traced", "aspire-lean-mcp-all-traced", "raw-otel"],
         instruction: sluggish,
     },
     "read-only": {
@@ -215,12 +218,21 @@ export const arms = {
     // T2.11: file v2 (common/agents-md/*-v2.md) on lean, and on lean without aspire-orchestration.
     "aspire-lean-agents-v2": { kind: "aspire", skills: "lean", mcp: false, agents: "lean-v2" },
     "aspire-lean-noorch-agents": { kind: "aspire", skills: "lean-noorch", mcp: false, agents: "lean-noorch-v2" },
+    // T2.5: application variants (common/app-variants/<variant>, build argument APP_VARIANT). The traced
+    // arms are their untraced namesakes with the cache on Aspire.StackExchange.Redis.DistributedCaching;
+    // raw-otel is raw with OpenTelemetry (same instrumentation set) and a JSON-lines file exporter.
+    "aspire-cli-traced": { kind: "aspire", skills: "none", mcp: false, variant: "aspire-redis-traced" },
+    "aspire-lean-traced": { kind: "aspire", skills: "lean", mcp: false, variant: "aspire-redis-traced" },
+    "aspire-lean-mcp-all-traced": { kind: "aspire", skills: "lean", mcp: true, cli: "agentic-all", variant: "aspire-redis-traced" },
+    "raw-otel": { kind: "raw", skills: "none", mcp: false, variant: "raw-otel" },
 };
 const onlyIn = {
     "aspire-lean-start": ["cold-start"], "aspire-skills-plugin": ["slow-sql"],
     "aspire-skills-mon": ["slow-sql", "read-only"], "aspire-skills-norouter": ["slow-sql", "read-only"],
     "aspire-lean-agents": ["slow-sql"], "aspire-cli-agents": ["slow-sql"], "aspire-skills-agents": ["slow-sql"],
     "aspire-lean-agents-v2": ["cold-start"], "aspire-lean-noorch-agents": ["slow-sql"],
+    // T2.5: slow-redis carries them in its arm list; slow-sql gets the traced lean arm as the guard.
+    "aspire-cli-traced": [], "aspire-lean-traced": ["slow-sql"], "aspire-lean-mcp-all-traced": [], "raw-otel": [],
 };
 
 // The Aspire MCP server as every harness registers it. Copilot CLI receives it from task.toml
@@ -296,7 +308,7 @@ args = [${aspireMcp.args.map(a => JSON.stringify(a)).join(", ")}]
 ` : ""}`;
 }
 
-function compose(fault, { kind, skills, cli, agents }, suiteSha, app) {
+function compose(fault, { kind, skills, cli, agents, variant }, suiteSha, app) {
     const git = (sha, path) => `${repo}.git#${sha}:${path}`;
     const contexts = Object.entries(apps[app].contexts(suiteSha))
         .map(([name, [variable, sha, path]]) => `\n        ${name}: \${${variable}:-${git(sha, path)}}`).join("");
@@ -310,7 +322,8 @@ function compose(fault, { kind, skills, cli, agents }, suiteSha, app) {
         FAULT: ${fault}${cli ? `
         CLI_KIND: source
         CLI_PATCH: ${cli}` : ""}${agents ? `
-        AGENTS_MD: ${agents}` : ""}
+        AGENTS_MD: ${agents}` : ""}${variant ? `
+        APP_VARIANT: ${variant}` : ""}
       additional_contexts:
         suite: \${TELEMETRY_SUITE_CONTEXT:-${git(suiteSha, "msbench/telemetry/common")}}${contexts}
 `;

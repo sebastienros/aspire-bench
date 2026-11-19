@@ -1,0 +1,26 @@
+READY tele-raw-slow-redis-raw-otel-p2int
+== verify before repair (must fail)
+{"fault":"slow-redis","kind":"raw","passed":false,"squaresPreserved":43,"statusMs":[5612,7343,7147,5570,6681,7881,6353,5579],"callMs":[791,487,467,340,532,495,348,599],"baselineStatusMs":4275,"failure":"Status still takes 6681 ms (limit 300)"}
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Status still takes 6681 ms (limit 300)
+    at verifySlowRedis (file:///opt/benchmark/bench.mjs:425:5)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async verify (file:///opt/benchmark/bench.mjs:514:48)
+    at async file:///opt/benchmark/bench.mjs:557:1 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v24.14.0
+== reference repair
+== verify after repair (must pass)
+{"fault":"slow-redis","kind":"raw","passed":true,"squaresPreserved":43,"statusMs":[13,4,3,4,3,11,4,5],"callMs":[3,2,1,2,2,5,1,2],"baselineStatusMs":4275,"cacheCommandsOver100Ms":0}
+
+[exited with code 0]

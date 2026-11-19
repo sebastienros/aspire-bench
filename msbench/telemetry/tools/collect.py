@@ -313,7 +313,7 @@ def analyze_trial(result_path, entry):
                            and seen_pattern.search(json.dumps(e["data"].get("result", "")))), None)
         if seen_index is not None:
             row["tool_calls_to_root_cause_seen"] = sum(e.get("type") == "tool.execution_start" for e in events[:seen_index])
-    row.update(verified_up(events, entry["scenario"], "raw" if entry["arm"] == "raw" else "aspire"))
+    row.update(verified_up(events, entry["scenario"], "raw" if entry["arm"].startswith("raw") else "aspire"))
     # Bytes returned to the model by tools: the context the agent had to read.
     row["tool_result_chars"] = sum(len(json.dumps(e["data"].get("result", "")))
                                    for e in events if e.get("type") == "tool.execution_complete")
@@ -808,7 +808,9 @@ ARM_ORDER = ["raw", "aspire-cli", "aspire-skills", "aspire-mcp", "aspire-skills-
              # Listed so their order is fixed (it used to follow set iteration order).
              "raw-check", "aspire-lean-start", "aspire-skills-plugin", "aspire-skills-mon", "aspire-skills-norouter",
              "aspire-lean-agents", "aspire-cli-agents", "aspire-skills-agents", "aspire-lean-agents-v2",
-             "aspire-lean-noorch-agents"]
+             "aspire-lean-noorch-agents",
+             # T2.5: traced app variant and the instrumented raw app.
+             "raw-otel", "aspire-cli-traced", "aspire-lean-traced", "aspire-lean-mcp-all-traced"]
 
 
 def arm_order(cell_arm):

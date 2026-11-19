@@ -73,6 +73,12 @@ FROM cli-${CLI_KIND} AS cli
 FROM base AS app-raw
 COPY --from=raw-app / /app/
 COPY --from=suite raw-overlay/ /app/
+# PLAN T2.5: an application variant (common/app-variants/<APP_VARIANT>/) copied over the overlay, for
+# example the cache on the Aspire Redis client integration, or the raw app with OpenTelemetry and a file
+# exporter. Empty (every other arm) copies nothing.
+ARG APP_VARIANT=
+RUN --mount=type=bind,from=suite,source=.,target=/mnt/suite \
+    if [ -n "$APP_VARIANT" ]; then cp -R "/mnt/suite/app-variants/$APP_VARIANT/." /app/; fi
 RUN rm -rf /app/.github \
     && dotnet build AspireifyBingo.slnx --nologo -v q \
     && (cd src/bingo-board && npm ci --no-audit --no-fund)
@@ -106,6 +112,12 @@ RUN if [ -x /usr/local/aspire-source/aspire ]; then \
     fi
 COPY --from=aspire-app / /app/
 COPY --from=suite aspire-overlay/ /app/
+# PLAN T2.5: an application variant (common/app-variants/<APP_VARIANT>/) copied over the overlay, for
+# example the cache on the Aspire Redis client integration, or the raw app with OpenTelemetry and a file
+# exporter. Empty (every other arm) copies nothing.
+ARG APP_VARIANT=
+RUN --mount=type=bind,from=suite,source=.,target=/mnt/suite \
+    if [ -n "$APP_VARIANT" ]; then cp -R "/mnt/suite/app-variants/$APP_VARIANT/." /app/; fi
 RUN rm -rf /app/.github \
     && dotnet build src/BingoBoard.Admin/BingoBoard.Admin.csproj --nologo -v q \
     && dotnet build src/BingoBoard.MigrationService/BingoBoard.MigrationService.csproj --nologo -v q \
