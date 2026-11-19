@@ -135,6 +135,11 @@ held-out cell runs the unchanged app.
 |---|---|---|
 | `heldout-cache` (log-visible) | The catalogue shows each product's units sold and shoppers over the last seven days and member prices for loyalty members, and its in-memory cache is keyed per shopper. Live traffic comes from 50,000 shoppers, so almost every page view ranks the week's orders again (`SUM` and `COUNT(DISTINCT Customer)` over the order history). Setup grows the week's orders until a new shopper's catalogue costs at least 700 ms after a checkpoint, then measures again under live traffic and rejects the fixture below 500 ms. Nothing fails. | Aspire: a SQL span with the ranking statement on every `GET /api/products`. Standard app: EF Core's `Executed DbCommand (NNN ms)` line with the statement in `api.log` (setup asserts it is there). Neither shows the cache; the key is in the source. |
 
+**Multi-step probe (PLAN T4.4).** `t44-probe` (`aspire-cli` only) is a two-step Harbor task on the `slow-sql` image:
+step 1 gives a code word, step 2 asks for it with no tool call, so it passes only if the runner carries the
+conversation (`BENCH_RESUME_TRAJECTORY=1`). Its runs are in `results/multistep-ledger.jsonl`, outside every table.
+Result: the runner refuses step 2 on its own lock ([T4.4 results](PLAN.md#t44-results)).
+
 A third scenario, `cold-start`, has no fault: nothing is running and the agent must
 bring the application up. It measures the new `aspire-start` skill. `cold-start-warm`
 (aspirified app only) has the same prompt, but setup has already started and stopped the

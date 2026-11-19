@@ -1670,3 +1670,15 @@ interactive one for T3.6; T3.5 at luna n = 12 in one round; T3.3's grader strict
 3 luna trials, verdict-invariant); the T3.4 publishing fixture's setup race (fixed for future tasks only); the
 `remove` row's ±25 % interval, rarely reachable at n = 6 (T3.1's shared-tooling note); the terra price of authoring
 jobs for any Phase 4 estimate; and fourteen issue drafts, none filed.
+
+**Phase 4, T4.4: multi-turn session, `not runnable` on this harness.** Ruling 2 runs the card only if the MSBench
+runner carries the Copilot CLI conversation from one step of a task to the next (F05). One excluded luna probe of a
+two-step task (step 1 gives a code word, step 2 asks for it without any tool call), submitted with
+`--harbor-resume-trajectory` after an oracle gate with reward 1, gave the answer. The pinned runner ran step 1 in its
+`harbor-multistep-resume` mode, with a session derived from the trial id. On step 2 it found the `.runner-lock` that
+step 1 had left in the preserved `/output` and exited with code 0 before any model call. The instruction was never
+delivered and the step scored 0, with no exception recorded. This is the lock refusal F05 recorded a month earlier on
+the same package. The runner would need to accept its own lock on a resumed step and resume the session it created.
+No T4.4 trial was submitted; cost $0.0014 against $0.70. The multi-turn questions stay open (T3.7's approval step, a
+skill's reuse of earlier discovery), and so does the README's default of a fresh conversation per step.
+[PLAN.md, T4.4 results](PLAN.md#t44-results).

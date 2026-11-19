@@ -230,6 +230,20 @@ make skills/MCP workflows usable from a fresh conversation against an already
 running application. Once supported, evaluate whether retained context avoids
 repeated discovery and health-assessment work.
 
+**Re-check 2026-11-19 (telemetry PLAN T4.4, runner probe):** the same pinned
+package (`github-copilot-cli-pkg-main-20261014-215627`, CLI 1.0.99-0) under
+msbench-cli 0.3.70 still does not carry the conversation. In one luna trial of a
+two-step task with `--harbor-resume-trajectory`
+([2026111976653508](https://msbenchapp.azurewebsites.net/run-analysis/2026111976653508)),
+step 1 ran in the runner's `harbor-multistep-resume` mode. That mode creates a
+session from the trial id, so the runner has the start of the contract. Step 2
+then exited at once on `/output/.runner-lock` ("This runner has already been
+executed", exit code 0), with no model call. It never received its instruction
+and scored 0, and Harbor recorded no exception. The runner would need to accept
+its own step-1 lock on a resumed step and resume the session it created. T4.4 is
+recorded `not runnable` on this harness ([PLAN T4.4 results](telemetry/PLAN.md#t44-results)).
+A reward-only reading of such a trial blames the model.
+
 **Limits / status:** Genuine continuation comparison remains blocked.
 Not evidence of an Aspire defect or a definitively identified submission-CLI
 bug. The initial Copilot exit remains unexplained.

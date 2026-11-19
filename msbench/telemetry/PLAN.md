@@ -4108,7 +4108,7 @@ $0.12; gates model-free.
 | T4.1 | **Integration discoverability audit** (REPORT §12.1) | The Redis port finding is a sample of one; the skill's step 3 and T2.6 need the matrix | No model. One AppHost per hosting integration (PostgreSQL, Redis, SQL Server, MySQL, MongoDB, RabbitMQ, Kafka, NATS, Azure Storage emulator, Cosmos emulator, Elasticsearch, Qdrant, Keycloak, Valkey, Garnet, Seq); a script scores six questions per row (container or PID in `describe`; credentials without source; documented native tool works inside the container with the generic recipe; client span present; health text distinguishes down/slow/refusing; a safe restart command). Output: a matrix in `msbench/telemetry/audit/`, one issue draft per failing cell | 0 model trials; two to three days of fixture work | [done 2026-11-19](#t41-results): Q3 generic recipe 6/15 |
 | T4.2 | **Cross-service fault** | The span-pattern table's "error on a client span under a 200" row is untested | Bingo's frontend proxy to the admin returns errors the frontend swallows (a misconfigured upstream path); nothing in the admin log; the aspirified trace shows a client span with 5xx under a 200 | `raw`, `aspire-cli`, `aspire-skills-mcp`, `aspire-lean` × luna, terra × 6 = 48 ≈ $1.90 | pending |
 | T4.3 | **Application-code fault** | "Time not covered by any child span" row untested; raw app's log has nothing | An N+1 in the status endpoint (one query per square) after a data growth step; verifier: median status under a limit and query count per request under a limit | Same arms, 48 ≈ $1.90 | pending |
-| T4.4 | **Multi-turn session** | All 461 trials are single turn; a real session reuses context | Two-step task: diagnose, then a follow-up change on the same running app; only if the runner demonstrably keeps the conversation (F05) | 24 ≈ $1.00 after the runner check | pending |
+| T4.4 | **Multi-turn session** | All 461 trials are single turn; a real session reuses context | Two-step task: diagnose, then a follow-up change on the same running app; only if the runner demonstrably keeps the conversation (F05) | 24 ≈ $1.00 after the runner check | [`not runnable`](#t44-results) (2026-11-19): the runner refuses step 2 on its own `.runner-lock`; $0.0014 |
 | T4.5 | **Tracking schedule** (REPORT §11) | Every later product daily and skills release gets the core matrix | Workflow on this repo: re-pin, gate, submit core matrix, collect, series, open an issue on a flag | 120 trials ≈ $5 per run | pending |
 | T4.6 | **Cheaper rounds** | The plan's cost is bounded by queue time more than money | Local gate before every cloud submission; one image per app kind with skill sets mounted at run time instead of baked | none | pending |
 | T4.7 | **Claude Code adapter** (proposed 2026-11-18, not built) | T1.7 found that no skill and no MCP server reach the `claude-code` harness, and that only Claude models run under it | Skills copied to `/app/.claude/skills`, the MCP server registered the way Harbor's `claude_code` agent does it, a real CLI version pin; `claude-haiku-5.5` on both harnesses: [card below](#t47-claude-code-adapter-proposed) | 72 ≈ $5 plus a re-pin and gates | proposed |
@@ -4438,6 +4438,32 @@ the window is the cell's last five earlier runs, a run is the round name up to t
    collect, series and the draft writer. Gates are not exercised (no task changed), and at n = 1 a flag is
    unlikely, so the draft writer is also run on a row that already carries a `regress-*` flag in `series.jsonl`,
    with its output kept as evidence, not under `upstream-issues/tracking/`.
+
+#### T4.4 results
+
+**`not runnable` on this harness (outcome 2 of the rule block), 2026-11-19.** No T4.4 trial was submitted.
+
+- **Gate** `gate-t44-probe` (run `2026111976187152`, oracle, no resume): reward 1 on both steps.
+- **Probe** `p4-probe-t44` (run `2026111976653508`, luna, `--harbor-resume-trajectory`, excluded; ledger
+  `results/multistep-ledger.jsonl`): Harbor and the adapter ran both steps with `resume_trajectory: true` in each
+  step's metadata. **Step 1** ran: the pinned runner (package `github-copilot-cli-pkg-main-20261014-215627`, CLI
+  1.0.99-0) logged `run context mode=harbor-multistep-resume … step=1/2 … session=<id> session_action=create
+  session_source=trial`, started Copilot CLI in a per-trial `COPILOT_HOME`, and luna answered `noted` in one model
+  call (10,942 prompt tokens), reward 1. **Step 2 never reached the model:** `harbor-runner-output.txt` for the step
+  reads "Runner lock file found at /output/.runner-lock. This runner has already been executed (exit code: 0)",
+  the adapter returned `MSBENCH_ADAPTER_RUNNER_EXIT_CODE=0` in 0.7 s, no second `run context` line and no second
+  `user.message` exist, `/app/codeword.txt` was never written, and step 2's verifier gave 0. Harbor recorded no
+  exception: a reward-only reading would call this a model failure.
+- **What the runner would need**: the runner already derives a session from the trial id and has a
+  `harbor-multistep-resume` mode, so the missing piece is narrow. On a resumed step (`harbor_step.current_step` > 1
+  with `resume_trajectory: true`), it must not refuse on the lock its own step 1 left in the preserved `/output`.
+  It should key the lock by step, or clear it on the adapter's `resume` entry. It must then start Copilot CLI on
+  the session it created (`session_action=resume`, same `COPILOT_HOME`) with the step's instruction as the next
+  user message. Removing the lock by hand from the task is not a fix: the rule block's runnable test also needs the
+  conversation to be carried, and only the runner can do that.
+- Same failure as F05's run `2026101503460490` a month earlier, on the same package. The submission CLI (0.3.67 →
+  0.3.70) and the adapter's new `resume` entry point did not change it.
+- Cost: $0.0014 (one luna call); gate model-free. Card estimate $0.70.
 
 ### T4.7 Claude Code adapter (proposed)
 
