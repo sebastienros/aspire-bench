@@ -1658,6 +1658,56 @@ source build against its `-src` control.
 | Issue draft | [aspire-start-blocking.md](../upstream-issues/aspire-start-blocking.md) |
 | Results | pending |
 
+#### T2.2 rule, as computed (written 2026-11-19, before any `t22` result was read)
+
+- **Patch** `common/aspire-patches/cli-start-wait.patch` (`aspire start` only, `StartCommand.cs`): after the
+  AppHost starts, wait for resources to be healthy with the same backchannel wait `aspire wait` and the MCP
+  `wait_for_resources` tool use (one 120 s budget), then print one line per resource (`Resource '<name>' is
+  healthy. (<s>s)`, `… finished (exit code 0)` for a resource that runs to completion, or its state and a pointer
+  to `aspire logs` when it is not ready) and an `Endpoints:` list (each resource's non-internal URLs, as
+  `describe` shows them). `--wait` with no names waits for every visible resource except parameters; `--wait a b`
+  for the named ones. **It is the default under `--non-interactive`** (not with `--format Json`), so the
+  README's own start line blocks; `--no-wait` keeps today's behaviour. The exit code is non-zero when a resource
+  is not ready; the AppHost keeps running. Built on branch `sebros/p2-start-wait` of the local Aspire checkout.
+  Locally (`cold-start`, warm build cache) the start returned in 15 s with all seven resources ready.
+- **Source builds need the official bundle on cold start.** A source-built CLI has no DCP/dashboard bundle
+  (`aspire setup` exists only in bundle builds), and on `cold-start` the agent's own `aspire start` builds the
+  AppHost, which asks the CLI on PATH for that bundle and fails (`ASPIRE009`). No `-src` arm had run on
+  `cold-start` before. `entrypoint.sh` therefore replaces `aspire` on PATH, in cold-start images with a source
+  CLI only, with `common/bench/aspire-source-shim.sh`: it sets `AspireCliBundlePath` to the official daily's
+  layout (extracting it on first use with `/usr/local/aspire/aspire setup`, ≈ 1.4 s, as the daily does on its
+  first start) and execs the source CLI. Control and patched arms get the same shim; official images are
+  unchanged; existing tasks keep their suite pin.
+- **Cells**, round `t22`, Copilot CLI 1.0.99, `cold-start` × luna, terra, `gpt-6.2-sol` × 6: `raw`,
+  `aspire-cli-src` (no skill, unpatched source build) and `aspire-cli-wait` (no skill, patched). With them in
+  the same round: `aspire-lean-start-wait` (lean + `aspire-start` rewritten to one `aspire start
+  --non-interactive --wait`, skill set `lean-start-wait`, patched) and T2.9's four official arms. Secondary,
+  luna × 6 only: `aspire-lean-noorch-agents-v3` (T2.11's winner with `lean-noorch-v3.md`, whose "Run it" is the
+  one `--wait` command, 1,062 B; patched) against `aspire-lean-noorch-agents-src` (v2 file, unpatched source
+  build: same build) and `aspire-lean-noorch-agents` (v2, official: the T2.11 arm).
+- **Measure:** `seconds_to_verified_up` (T2.11's definition). The patched start's `Resource '<name>' is healthy.`
+  lines are wait evidence under the existing reader, so a blocking start that reports both `bingoboard` and
+  `boardadmin` is the verified-up point. Medians over graded trials, same round.
+- **Gap and closure per model:** G = median(`aspire-cli-src`) − median(`raw`); closed = median(`aspire-cli-src`) −
+  median(`aspire-cli-wait`). The model's clause holds if closed ≥ G / 2 and `aspire-cli-wait` passes at least
+  `aspire-cli-src`'s count minus one. **Where G ≤ 0** (no gap: `t16` sol had raw 41.5 s against `aspire-cli`
+  40.4 s), the clause is "`aspire-cli-wait` ≤ `aspire-cli-src`" (no regression) — put to the user before submission.
+- **`ship`** if the clause holds on all three models; **`revise`** if on one or two (named); **`drop`** if on none.
+  p (exact two-sided Mann-Whitney, `aspire-cli-wait` vs `aspire-cli-src`) is reported, not in the rule.
+- **Reported whatever the verdict:** `agent_seconds`, `commands_to_verified_up` and tokens per arm; T2.11's phase
+  split (model time before the start command / start command / waits / after) for raw, `-src`, `-wait`; how many
+  patched trials still ran `aspire wait` or `aspire describe` after the start, and how many saw the start come
+  back unfinished (Copilot's shell returns after `initial_wait`, 30 s in a third of earlier sol starts, and sol
+  ran the start detached in 14 of 37); `aspire-lean-start-wait` against `aspire-cli-wait` (same build) and against
+  same-round official `aspire-lean-start` (build differs: managed single-file vs NativeAOT); the v3 reading
+  against the `-src` v2 arm; the warm start from T0.1 (`t01b-warm`, luna, 3 trials: verified-up 34.5 s against
+  `t01b` cold 49.0 s, `aspire-lean`).
+- **No guard cells:** the patch changes `aspire start` only, and on `slow-sql` and `slow-redis` the app is
+  running when the agent begins (no trial at the pin started it). Any `aspire start` in this lane's guard
+  scenarios is counted.
+- A trial at the 900 s limit is a failure counted separately; a trial lost before the agent ran is re-run once.
+  Expected spend for `t22` (T2.2 + T2.9, 162 trials): ≈ $8.7 (sol ≈ 48 × $0.15), against $4.80 on the two cards.
+
 ### T2.3 SQL text in the trace detail table
 
 | | |
@@ -1668,6 +1718,32 @@ source build against its `-src` control.
 | Decision rule | Ship if characters read drop and time to root cause does not rise; drop if agents still go to JSON (the table is then not the issue) |
 | Trials / cost | 2 × 2 × 6 = 24 + 12 guard = 36 ≈ $1.20 |
 | Results | pending |
+
+#### T2.3 rule, as computed (written 2026-11-19, before any `t23` result was read)
+
+- **Patch** `common/aspire-patches/cli-trace-detail.patch` (`TelemetryTracesCommand.cs`): in `aspire otel
+  traces -t <id>`'s span tree, each span that carries `db.query.text`, `db.statement`, `url.full` or `http.url`
+  gets one dimmed line under it with that value, whitespace collapsed, cut at 160 characters. Nothing else
+  changes (the JSON is byte-identical). Branch `sebros/p2-trace-sql`. Locally, redirected: the 1.57 s `postgresql`
+  span of an import trace now shows `UPDATE "BingoSquares" SET "Label" = @p0, …`.
+- **The skill moves with it.** `aspire-diagnose` step 2 says "Use JSON here, not the table: only JSON carries …
+  `db.query.text`": with the skill unchanged, every agent goes to JSON by construction (12/12 luna and 12/12 terra
+  `slow-sql` lean trials at the pin fetched the trace as JSON). The patched arm therefore gets skill set
+  `lean-tracetable`: lean with step 2 rewritten to `aspire otel traces -t <trace-id>` ("the tree lists every span
+  … and under each database or HTTP client span the statement or URL it ran"; JSON only for attributes the tree
+  does not show). The comparison is the product change plus the skill line it allows, against today's pair.
+- **Cells**, round `t23`, Copilot CLI: `slow-sql` × luna, terra × 6, `aspire-lean-src` (unpatched source build,
+  lean; existing task) vs `aspire-lean-tracetable` (patched + revised step 2); guard `slow-redis` luna × 6 on
+  both (new tasks); `raw` on `slow-sql` and `slow-redis` × luna, terra × 6 in the same run (series).
+- **Measures:** characters read = `tool_result_content_chars`; time to root cause = `seconds_to_root_cause_seen`
+  (`square_audit` on screen: the trigger's table, which no trace span carries, so the metric does not fire on the
+  new tree line); new `collect.py` fields `trace_detail_json` / `trace_detail_table` (shell calls that fetch one
+  trace by `-t`/`--trace-id`, with and without `--format json`). If a trial's `seconds_to_root_cause_seen` is
+  missing or fired on an `rg` for the SQL text, its time to root cause is read from the trajectory and listed.
+- **`drop`** if agents still go to JSON: on either model, ≥ 4 of 6 patched trials fetch a trace as JSON.
+- **`ship`** otherwise, if on both models median characters read are lower than the control's and median time to
+  root cause is ≤ 1.10 × the control's, and the guard holds (`slow-redis` luna passes ≥ control − 1).
+- **`revise`** otherwise, naming the failed clause. p values are reported, not in the rule.
 
 ### T2.4 Redis plain port, or a hint where the agent looks
 
@@ -1680,6 +1756,41 @@ source build against its `-src` control.
 | Trials / cost | 2 × 2 × 6 = 24 ≈ $1.00 |
 | Issue draft | [aspire-redis-default-ports.md](../upstream-issues/aspire-redis-default-ports.md) |
 | Results | pending |
+
+#### T2.4 rule, as computed (written 2026-11-19, before any `t23` result was read)
+
+- **Choice: the hint, not the port swap.** The swap lives in `Aspire.Hosting.Redis` (the TLS callback in
+  `RedisBuilderExtensions.cs`), which the AppHost takes from NuGet; the dashboard's terminal hint ships in the
+  CLI bundle. The source-build arms rebuild only `Aspire.Cli`, so the swap would need a hosting-package build
+  and a NuGet-cache overlay that no lane has gated. The hint also sits where the decision arm already looks:
+  11 of 12 `aspire-cli` `slow-redis` trials at the pin ran `aspire describe` before their first `redis-cli`. The
+  dashboard half of the hint is out of reach for the same reason as the swap and is not measured.
+- **Patch** `common/aspire-patches/cli-redis-connect-hint.patch`: for a resource whose type is Redis and whose
+  container arguments carry `--tls-port X --port Y`, `aspire describe` adds to the URLs cell, and `describe
+  --format Json` adds as `connect`: "Port X is TLS inside the container; a bare redis-cli fails there. Plain TCP
+  is on Y: docker exec <container.id> sh -c 'REDISCLI_AUTH="$REDIS_PASSWORD" redis-cli -p Y <command>'" (the
+  auth prefix only when `--requirepass` is set). Read from the arguments, not hard-coded. Branch
+  `sebros/p2-redis-hint`. Leak review: it says how to connect, as the lean skill's step 3 does; no command, key,
+  client or fault.
+- **Before the run, from the pin's trajectories:** in the decision arm the trap is rare. A bare `redis-cli`
+  failed first in 1 of 6 terra `aspire-cli` trials; luna reached `redis-cli` in 1 of 6 (it edits code, 0/6 pass in
+  `t01b`). Terra learns port 6380 from the `ps` listing of the container's `redis-server` arguments. Where the
+  trap does fire is the shipped set without MCP (`aspire-skills`: first `redis-cli` failed in 5 of 12 luna and 2 of
+  6 terra trials) and with MCP (sol 6/6). A small effect in the decision arm is therefore expected and is not a
+  reason to re-run.
+- **Measure.** `seconds_to_root_cause_seen` is unusable on `slow-redis`: it fires on any result that names
+  `report-exporter`, including the opening `ps` listing (terra `aspire-cli` median 4.3 s). The time measure is
+  therefore a new `collect.py` field, `seconds_to_redis_reply`: from the first trajectory event to the first
+  `redis-cli` call that got an answer (output, and none of the TLS-port errors), with `redis_cli_first_failed`.
+  `seconds_to_first_fix` (stopping the exporter) is reported.
+- **Cells**, round `t23`: `slow-redis` × luna, terra × 6, `aspire-cli-src` (no skill, unpatched) vs
+  `aspire-cli-redishint` (no skill, patched). The hint changes what `describe` shows, so a guard: `slow-sql` luna
+  × 6 on both.
+- **`ship`** if, on luna or on terra, `aspire-cli-redishint`'s median `seconds_to_redis_reply` is ≤ 0.80 × the
+  control's or it passes ≥ control + 2, and on neither model does it pass < control − 1, and the guard holds
+  (`slow-sql` luna passes ≥ control − 1). Otherwise **`drop`**: keep the skill note (lean step 3) and close.
+- Secondary, outside the rule, only if the coordinator approves the extra ≈ $1.7: the shipped set without MCP,
+  `aspire-skills-src` vs `aspire-skills-redishint`, `slow-redis` × luna, terra × 6, where the trap fires.
 
 ### T2.5 Redis client tracing in the aspirified template
 
@@ -1786,6 +1897,22 @@ source build against its `-src` control.
 | Decision rule | Informational for the blocking-start card: if the MCP route is within 10% of `aspire-lean-start`, the gap to raw is the start itself and T2.2 is the only lever; if it is faster, `aspire-start` should say so |
 | Trials / cost | 3 × 6 = 18 ≈ $1.20 |
 | Results | pending |
+
+#### T2.9 rule, as computed (written 2026-11-19, before any `t22` result was read)
+
+- **Cells**, round `t22` (same round as T2.2), `cold-start` × luna, terra, `gpt-6.2-sol` × 6, official daily:
+  `aspire-lean-mcp` (lean + MCP server; new task) against same-round `aspire-lean`, `aspire-lean-start` and
+  `aspire-cli` (re-run here, not `t16`).
+- **Measure:** `seconds_to_verified_up`. `collect.py`'s reader now also takes MCP evidence: `list_resources`
+  (snake_case `display_name`, `state` Running, `health_status` Healthy) and `wait_for_resources` ("# WAIT
+  RESULT", a resource's unique name with `"outcome": "success"`). On the 361 cold-start trials already
+  collected, this changes one value (`t01b` `aspire-skills-mcp` luna 2026111819733324, 43.4 → 39.7 s: it waited
+  through MCP).
+- **Per model:** R = median(`aspire-lean-mcp`) ÷ median(`aspire-lean-start`). 0.90 ≤ R ≤ 1.10: the start itself is
+  the gap, and T2.2 is the only lever; R < 0.90: the MCP route is faster, and `aspire-start` should say so;
+  R > 1.10: the MCP route is slower. The card's reading is the one that holds on at least two of the three models;
+  otherwise it is "mixed". Informational, no ship verdict. MCP tool calls used (`wait_for_resources`,
+  `list_resources`) and `agent_seconds` are reported.
 
 ### T2.10 Agent instructions file beside the AppHost (`AGENTS.md`)
 

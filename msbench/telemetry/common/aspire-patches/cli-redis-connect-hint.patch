@@ -1,0 +1,85 @@
+diff --git a/src/Aspire.Cli/Backchannel/ResourceSnapshotMapper.cs b/src/Aspire.Cli/Backchannel/ResourceSnapshotMapper.cs
+index 2e053cf4d1..32e79ae8e4 100644
+--- a/src/Aspire.Cli/Backchannel/ResourceSnapshotMapper.cs
++++ b/src/Aspire.Cli/Backchannel/ResourceSnapshotMapper.cs
+@@ -161,6 +161,7 @@ public static ResourceJson MapToResourceJson(ResourceSnapshot snapshot, IReadOnl
+             StopTimestamp = snapshot.StoppedAt,
+             DashboardUrl = dashboardUrl,
+             Urls = urls,
++            Connect = GetConnectHint(snapshot),
+             Volumes = volumes,
+             Environment = environment,
+             HealthReports = healthReports,
+@@ -170,6 +171,38 @@ public static ResourceJson MapToResourceJson(ResourceSnapshot snapshot, IReadOnl
+         };
+     }
+ 
++    /// <summary>
++    /// Agentic patch (aspire-bench T2.4): Aspire's Redis container serves TLS on 6379 (the port a bare
++    /// <c>redis-cli</c> uses) and plain TCP on another port, so the generic command fails with an I/O error.
++    /// Returns the command that works inside the container, read from the arguments the container was started with.
++    /// </summary>
++    internal static string? GetConnectHint(ResourceSnapshot snapshot)
++    {
++        if (!string.Equals(snapshot.ResourceTypeDisplayName, "Redis", StringComparison.OrdinalIgnoreCase) ||
++            !snapshot.Properties.TryGetValue("resource.appArgs", out var argsNode) ||
++            argsNode is not System.Text.Json.Nodes.JsonArray args)
++        {
++            return null;
++        }
++
++        var values = args.Select(static a => a?.GetValueKind() == System.Text.Json.JsonValueKind.String ? a.GetValue<string>() : null).ToList();
++        string? ValueAfter(string flag)
++        {
++            var index = values.IndexOf(flag);
++            return index >= 0 && index + 1 < values.Count ? values[index + 1] : null;
++        }
++
++        var tlsPort = ValueAfter("--tls-port");
++        var plainPort = ValueAfter("--port");
++        if (tlsPort is null || plainPort is null)
++        {
++            return null;
++        }
++
++        var auth = values.Contains("--requirepass") ? "REDISCLI_AUTH=\"$REDIS_PASSWORD\" " : "";
++        return $"Port {tlsPort} is TLS inside the container; a bare redis-cli fails there. Plain TCP is on {plainPort}: docker exec <container.id> sh -c '{auth}redis-cli -p {plainPort} <command>'";
++    }
++
+     private static string[]? GetResolvedWaitingForDependencies(ResourceSnapshot snapshot, IReadOnlyList<ResourceSnapshot> allSnapshots)
+     {
+         var waitingFor = snapshot.WaitingFor;
+diff --git a/src/Aspire.Cli/Commands/DescribeCommand.cs b/src/Aspire.Cli/Commands/DescribeCommand.cs
+index 175084cb59..ee3e2b99fa 100644
+--- a/src/Aspire.Cli/Commands/DescribeCommand.cs
++++ b/src/Aspire.Cli/Commands/DescribeCommand.cs
+@@ -401,6 +401,12 @@ private void DisplayResourcesTable(IReadOnlyList<ResourceSnapshot> snapshots, st
+                     .Select(e => FormatEndpointUrl(e.Url, e.DisplayProperties?.DisplayName)))
+                 : "-";
+ 
++            // Agentic patch (aspire-bench T2.4): the in-container connect hint, where the endpoints are read.
++            if (ResourceSnapshotMapper.GetConnectHint(snapshot) is { } connectHint)
++            {
++                endpoints += Environment.NewLine + connectHint.EscapeMarkup();
++            }
++
+             var type = snapshot.ResourceTypeDisplayName?.EscapeMarkup() ?? "-";
+             var stateText = GetSnapshotStateMarkup(snapshot);
+             var healthText = ColorHealth(snapshot.HealthStatus?.EscapeMarkup() ?? "-");
+diff --git a/src/Shared/Model/Serialization/ResourceJson.cs b/src/Shared/Model/Serialization/ResourceJson.cs
+index 1bb876267e..e60e8aaada 100644
+--- a/src/Shared/Model/Serialization/ResourceJson.cs
++++ b/src/Shared/Model/Serialization/ResourceJson.cs
+@@ -99,6 +99,12 @@ internal sealed class ResourceJson
+     /// </summary>
+     public ResourceUrlJson[]? Urls { get; set; }
+ 
++    /// <summary>
++    /// How to reach the resource with its own tool from inside its container, when that is not the
++    /// tool's default (agentic patch, aspire-bench T2.4: Redis serves TLS on the default port).
++    /// </summary>
++    public string? Connect { get; set; }
++
+     /// <summary>
+     /// The volumes associated with the resource.
+     /// </summary>

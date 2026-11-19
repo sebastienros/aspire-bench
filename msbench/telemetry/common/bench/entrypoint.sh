@@ -28,6 +28,12 @@ if [[ "${BENCH_FAULT:-}" == cold-start* ]]; then
     # would be on a developer machine, so image pulls do not dominate either arm.
     docker pull -q postgres:18.3 >/logs/environment/application-setup.log 2>&1
     docker pull -q redis:8.6 >>/logs/environment/application-setup.log 2>&1
+    if [[ -x /usr/local/aspire-source/aspire ]]; then
+        # Source-built CLI (PLAN T2.2): it carries no DCP/dashboard bundle, and here the agent's own
+        # `aspire start` builds the AppHost, which asks the CLI on PATH for that bundle. Point the build
+        # at the official daily's layout, extracted on first use as the daily does it itself.
+        rm -f /usr/local/bin/aspire && install -m 0755 /opt/benchmark/aspire-source-shim.sh /usr/local/bin/aspire
+    fi
     if [[ "$BENCH_FAULT" == cold-start-warm ]]; then
         # Warm workspace: the AppHost already ran once with persisted ports in isolated mode
         # (Aspire #21013), then stopped; generated ports stay in /app/.aspire/state.

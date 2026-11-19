@@ -8,6 +8,8 @@
 #   mon      current, with only aspire-monitoring's description replaced by lean's (PLAN T1.2)
 #   norouter current without the `aspire` router, nothing added (PLAN T1.3; T3.8's bundle-minus)
 #   lean-noorch  lean without aspire-orchestration; the start job moves to AGENTS.md v2 (PLAN T2.11)
+#   lean-start-wait  lean + aspire-start rewritten to one `aspire start --wait` (PLAN T2.2, patched CLI)
+#   lean-tracetable  lean with aspire-diagnose step 2 reading the trace tree, not JSON (PLAN T2.3, patched CLI)
 set -eu
 here="$(cd "$(dirname "$0")" && pwd)"
 set_name="$1"; dest="$2"
@@ -26,6 +28,12 @@ case "$set_name" in
     lean-noorch) cp -R "$here/current/." "$dest/"; cp -R "$here/new/." "$dest/"
              rm -rf "$dest/aspire" "$dest/aspire-orchestration"
              cp -R "$here/lean-overrides/." "$dest/" ;;
+    lean-start-wait) cp -R "$here/current/." "$dest/"; cp -R "$here/new/." "$dest/"; cp -R "$here/start-wait/." "$dest/"
+             rm -rf "$dest/aspire"
+             cp -R "$here/lean-overrides/." "$dest/" ;;
+    lean-tracetable) cp -R "$here/current/." "$dest/"; cp -R "$here/new/." "$dest/"
+             rm -rf "$dest/aspire"
+             cp -R "$here/lean-overrides/." "$dest/"; cp -R "$here/diagnose-table/." "$dest/" ;;
     *) echo "Unknown skill set: $set_name" >&2; exit 1 ;;
 esac
 rm -f "$dest/LICENSE"

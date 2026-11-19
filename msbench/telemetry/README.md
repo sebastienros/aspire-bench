@@ -38,6 +38,10 @@ The two Aspire product patches are in [upstream/](upstream/).
 | `aspire-skills-norouter` | Aspirified app | `norouter` = current minus the `aspire` router, nothing added (PLAN T1.3, T3.8) | no |
 | `aspire-lean-agents`, `aspire-cli-agents`, `aspire-skills-agents` | Aspirified app plus `/app/AGENTS.md` beside the AppHost ([`common/agents-md`](common/agents-md), one file per skill family; PLAN T2.10) | `lean` / none / `current` | no |
 | `aspire-lean-agents-v2`, `aspire-lean-noorch-agents` | Aspirified app plus `/app/AGENTS.md` v2 (start, `describe` as the resource list, `wait <resource-name>`; `common/agents-md/*-v2.md`; PLAN T2.11) | `lean` / `lean-noorch` = lean minus `aspire-orchestration` | no |
+| `aspire-cli-src`, `aspire-skills-src`, `aspire-lean-noorch-agents-src` | Aspirified app, CLI built from source at the daily's commit (control); on `cold-start` a shim points the AppHost build at the daily's bundle (PLAN T2.2) | none / `current` / `lean-noorch` + `AGENTS.md` v2 | no |
+| `aspire-cli-wait`, `aspire-lean-start-wait`, `aspire-lean-noorch-agents-v3` | Same, plus the blocking-start patch (`aspire start` waits for resources and prints endpoints; default under `--non-interactive`; PLAN T2.2) | none / `lean-start-wait` = lean + one-command `aspire-start` / `lean-noorch` + `AGENTS.md` v3 | no |
+| `aspire-lean-tracetable` | Same, plus the trace-detail patch (statement/URL under each span of `otel traces -t`; PLAN T2.3) | `lean-tracetable` = lean with `aspire-diagnose` step 2 reading the tree | no |
+| `aspire-cli-redishint`, `aspire-skills-redishint` | Same, plus the Redis connect-hint patch (`describe` table and JSON; PLAN T2.4) | none / `current` | no |
 
 `raw` versus any Aspire arm is the product comparison. The Aspire arms share one
 application, one AppHost and one toolchain, so differences between them isolate

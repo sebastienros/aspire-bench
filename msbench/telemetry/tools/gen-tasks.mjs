@@ -94,7 +94,11 @@ export const scenarios = {
             "aspire-lean-agents",
             // T2.5: the cache on the Aspire Redis client integration (traced), and the raw app with
             // OpenTelemetry and a file exporter (instrumented, no Aspire).
-            "aspire-cli-traced", "aspire-lean-traced", "aspire-lean-mcp-all-traced", "raw-otel"],
+            "aspire-cli-traced", "aspire-lean-traced", "aspire-lean-mcp-all-traced", "raw-otel",
+            // T2.3 guard (trace tree with statements) and T2.4 (Redis connect hint), each next to its -src control.
+            "aspire-lean-src", "aspire-lean-tracetable", "aspire-cli-src", "aspire-cli-redishint",
+            // T2.4 secondary: the shipped set without MCP, where the TLS-port trap fires.
+            "aspire-skills-src", "aspire-skills-redishint"],
         instruction: sluggish,
     },
     "read-only": {
@@ -115,7 +119,11 @@ describes this workspace. No report is required.
         arms: ["raw", "aspire-cli", "aspire-skills", "aspire-skills-mcp", "aspire-lean", "aspire-lean-start",
             "aspire-skills-norouter", "aspire-lean-agents", "aspire-cli-agents", "aspire-skills-agents",
             // T2.11: file v2 (start, describe as the resource list, wait <resource-name>), with and without orchestration.
-            "aspire-lean-agents-v2", "aspire-lean-noorch-agents"],
+            "aspire-lean-agents-v2", "aspire-lean-noorch-agents",
+            // T2.9: the MCP route on cold start. T2.2: blocking start (source builds, patched vs -src control),
+            // the one-command aspire-start skill, and file v3 whose start line is that command (with its v2 -src control).
+            "aspire-lean-mcp", "aspire-cli-src", "aspire-cli-wait", "aspire-lean-start-wait",
+            "aspire-lean-noorch-agents-src", "aspire-lean-noorch-agents-v3"],
         instruction: coldStart,
     },
     // Same prompt as cold-start, but setup has already started and stopped the AppHost once with
@@ -225,6 +233,19 @@ export const arms = {
     "aspire-lean-traced": { kind: "aspire", skills: "lean", mcp: false, variant: "aspire-redis-traced" },
     "aspire-lean-mcp-all-traced": { kind: "aspire", skills: "lean", mcp: true, cli: "agentic-all", variant: "aspire-redis-traced" },
     "raw-otel": { kind: "raw", skills: "none", mcp: false, variant: "raw-otel" },
+    // Phase 2 CLI lane. Source builds at the pin's commit: the unpatched control, and one patch each.
+    "aspire-cli-src": { kind: "aspire", skills: "none", mcp: false, cli: "control" },
+    // T2.2: `aspire start` waits for resources and prints endpoints (default under --non-interactive).
+    "aspire-cli-wait": { kind: "aspire", skills: "none", mcp: false, cli: "cli-start-wait" },
+    "aspire-lean-start-wait": { kind: "aspire", skills: "lean-start-wait", mcp: false, cli: "cli-start-wait" },
+    "aspire-lean-noorch-agents-src": { kind: "aspire", skills: "lean-noorch", mcp: false, agents: "lean-noorch-v2", cli: "control" },
+    "aspire-lean-noorch-agents-v3": { kind: "aspire", skills: "lean-noorch", mcp: false, agents: "lean-noorch-v3", cli: "cli-start-wait" },
+    // T2.3: `aspire otel traces -t` shows each client span's statement or URL; aspire-diagnose step 2 reads that tree.
+    "aspire-lean-tracetable": { kind: "aspire", skills: "lean-tracetable", mcp: false, cli: "cli-trace-detail" },
+    // T2.4: `aspire describe` carries an in-container connect hint for Redis (TLS on the default port).
+    "aspire-cli-redishint": { kind: "aspire", skills: "none", mcp: false, cli: "cli-redis-connect-hint" },
+    "aspire-skills-src": { kind: "aspire", skills: "current", mcp: false, cli: "control" },
+    "aspire-skills-redishint": { kind: "aspire", skills: "current", mcp: false, cli: "cli-redis-connect-hint" },
 };
 const onlyIn = {
     "aspire-lean-start": ["cold-start"], "aspire-skills-plugin": ["slow-sql"],
@@ -233,6 +254,11 @@ const onlyIn = {
     "aspire-lean-agents-v2": ["cold-start"], "aspire-lean-noorch-agents": ["slow-sql"],
     // T2.5: slow-redis carries them in its arm list; slow-sql gets the traced lean arm as the guard.
     "aspire-cli-traced": [], "aspire-lean-traced": ["slow-sql"], "aspire-lean-mcp-all-traced": [], "raw-otel": [],
+    // Phase 2 CLI lane: slow-sql gets the T2.3 arm and the T2.4 guard; the cold-start arms are listed there.
+    "aspire-cli-src": ["slow-sql"], "aspire-cli-redishint": ["slow-sql"], "aspire-lean-tracetable": ["slow-sql"],
+    "aspire-skills-src": ["slow-redis"], "aspire-skills-redishint": ["slow-redis"],
+    "aspire-cli-wait": ["cold-start"], "aspire-lean-start-wait": ["cold-start"],
+    "aspire-lean-noorch-agents-src": ["cold-start"], "aspire-lean-noorch-agents-v3": ["cold-start"],
 };
 
 // The Aspire MCP server as every harness registers it. Copilot CLI receives it from task.toml

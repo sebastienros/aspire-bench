@@ -6,6 +6,8 @@
 | `mon` (PLAN T1.2) | `current` + `lean-overrides/aspire-monitoring/SKILL.md` | One change on the shipped set: `aspire-monitoring`'s frontmatter description replaced by the lean one (and its `FOR SINGLE OPERATIONS` line dropped); body, router and every other skill byte-identical to `current`. The description names `aspire-diagnose`, which this set does not contain. Arm `aspire-skills-mon`. Added 2026-11-18. |
 | `norouter` (PLAN T1.3, T3.8 `bundle-minus`) | `current` without `aspire/` | One change on the shipped set: the router removed, nothing added. Arm `aspire-skills-norouter`. Added 2026-11-18. |
 | `lean-noorch` (PLAN T2.11) | `lean` without `aspire-orchestration/` | The start job moves to `AGENTS.md` v2 (`common/agents-md/lean-noorch-v2.md`). Arm `aspire-lean-noorch-agents`. Added 2026-11-19. |
+| `lean-start-wait` (PLAN T2.2) | `lean` + `start-wait/aspire-start/SKILL.md` | `aspire-start` with the same description, its start flow rewritten to one `aspire start --non-interactive --wait` (needs the `cli-start-wait` patch). Arm `aspire-lean-start-wait`. Added 2026-11-19. |
+| `lean-tracetable` (PLAN T2.3) | `lean` + `diagnose-table/aspire-diagnose/SKILL.md` | `aspire-diagnose` with step 2 reading `aspire otel traces -t <id>` (the tree) instead of JSON (needs the `cli-trace-detail` patch); every other line unchanged. Arm `aspire-lean-tracetable`. Added 2026-11-19. |
 | `current` before 2026-11-17 | `microsoft/aspire-skills` @ `1117facb04b403dd2fc15f048bc0e63fc67c502f` (v0.0.5), same path | What REPORT.md and every round up to `r7b` measured (pin `2026-11-09`). Recover it with `git show 942d1b9:msbench/telemetry/common/skills/current/...`. |
 
 The benchmark copies a set into `/app/.github/skills` (Copilot CLI project-skill

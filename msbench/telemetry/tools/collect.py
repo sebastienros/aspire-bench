@@ -131,6 +131,8 @@ SKILL_SETS = {  # what common/skills/compose.sh copies for each set, in order; `
     "lean": ["current", "new", "-aspire", "lean-overrides"],
     "lean-start": ["current", "new", "start", "-aspire", "lean-overrides"],
     "lean-noorch": ["current", "new", "-aspire", "-aspire-orchestration", "lean-overrides"],
+    "lean-start-wait": ["current", "new", "start-wait", "-aspire", "lean-overrides"],
+    "lean-tracetable": ["current", "new", "-aspire", "lean-overrides", "diagnose-table"],
 }
 
 
@@ -314,6 +316,9 @@ def analyze_trial(result_path, entry):
         if seen_index is not None:
             row["tool_calls_to_root_cause_seen"] = sum(e.get("type") == "tool.execution_start" for e in events[:seen_index])
     row.update(verified_up(events, entry["scenario"], "raw" if entry["arm"].startswith("raw") else "aspire"))
+    row.update(trace_detail_reads(events))
+    if entry["scenario"] == "slow-redis" and started:
+        row.update(redis_reply(events, started))
     # Bytes returned to the model by tools: the context the agent had to read.
     row["tool_result_chars"] = sum(len(json.dumps(e["data"].get("result", "")))
                                    for e in events if e.get("type") == "tool.execution_complete")
@@ -325,6 +330,54 @@ def analyze_trial(result_path, entry):
         for e in events if e.get("type") == "tool.execution_complete"
         for result in [e["data"].get("result", "")])
     return row
+
+
+# PLAN T2.3: one trace fetched by ID (`aspire otel traces -t <id>` / `--trace-id`), as JSON or as the tree.
+TRACE_DETAIL = re.compile(r"\baspire\s+otel\s+traces\b[^|;&\n]*?(?:\s-t\s|\s--trace-id[\s=])")
+JSON_FORMAT = re.compile(r"--format[\s=]+json\b|\s-f\s+json\b", re.I)
+
+
+def trace_detail_reads(events):
+    """Shell calls that fetch one trace by ID, split by output format (Copilot CLI rows)."""
+    json_reads = table_reads = 0
+    for e in events:
+        if e.get("type") != "tool.execution_start":
+            continue
+        for part in re.split(r"&&|\|\||;|\n", _command(e.get("data", {}).get("arguments")) or ""):
+            if TRACE_DETAIL.search(part + " "):
+                if JSON_FORMAT.search(part):
+                    json_reads += 1
+                else:
+                    table_reads += 1
+    return {"trace_detail_json": json_reads, "trace_detail_table": table_reads}
+
+
+# PLAN T2.4: on slow-redis, seconds_to_root_cause_seen fires on any `ps` listing that names the exporter, so the
+# time measure is the first redis-cli call that got an answer from the server, from the first trajectory event.
+# A reply is a result with output and none of the connection errors a bare redis-cli gets from the TLS port.
+REDIS_ERROR = re.compile(r"I/O error|Connection reset|Could not connect|NOAUTH|WRONGPASS|wrong version number"
+                         r"|Error: Server closed|Connection refused|Protocol error", re.I)
+
+
+def redis_reply(events, started):
+    starts = {}
+    first_failed = None
+    for e in events:
+        data = e.get("data", {})
+        if e.get("type") == "tool.execution_start":
+            starts[data.get("toolCallId")] = _command(data.get("arguments")) or ""
+            continue
+        if e.get("type") != "tool.execution_complete" or "redis-cli" not in starts.get(data.get("toolCallId"), ""):
+            continue
+        result = data.get("result", "")
+        text = atif_text(result.get("content")) if isinstance(result, dict) else str(result)
+        failed = bool(REDIS_ERROR.search(text)) or not re.sub(r"<shellId:[^>]*>|\s", "", text)
+        if first_failed is None:
+            first_failed = failed
+        if not failed:
+            return {"seconds_to_redis_reply": round((parse_time(e["timestamp"]) - started).total_seconds(), 1),
+                    "redis_cli_first_failed": first_failed}
+    return {"seconds_to_redis_reply": None, "redis_cli_first_failed": first_failed}
 
 
 # Cold start (PLAN T2.11): when did the agent have evidence that both the player page and the admin
@@ -361,13 +414,22 @@ def describe_evidence(text, name):
             if re.search(r"\bRunning\b", line) and re.search(r"\bHealthy\b", line):
                 healthy = True
             ports.update(re.findall(r"localhost:(\d+)", line))
-    for match in re.finditer(rf'"(?:displayName|name)"\s*:\s*"{re.escape(name)}"', text):
+    # describe JSON is camelCase (displayName); the MCP list_resources tool writes snake_case (display_name).
+    for match in re.finditer(rf'"(?:displayName|display_name|name)"\s*:\s*"{re.escape(name)}"', text):
         window = text[match.start():match.start() + 4000]
-        nxt = re.search(r'"(?:displayName)"\s*:\s*"(?!' + re.escape(name) + r'")', window[20:])
+        nxt = re.search(r'"(?:displayName|display_name)"\s*:\s*"(?!' + re.escape(name) + r'")', window[20:])
         window = window[:20 + nxt.start()] if nxt else window
         if re.search(r'"state"\s*:\s*"Running"', window) and re.search(r'"Healthy"', window):
             healthy = True
         ports.update(re.findall(r"localhost:(\d+)", window))
+    # MCP wait_for_resources ("# WAIT RESULT"): one object per resource, named by its unique name
+    # (display name plus a suffix), with "outcome": "success" once it reached the target state.
+    if "WAIT RESULT" in text:
+        for obj in re.finditer(r"\{[^{}]*\}", text):
+            body = obj.group(0)
+            if (re.search(rf'"name"\s*:\s*"{re.escape(name)}(?:-[a-z0-9]{{8}})?"', body)
+                    and re.search(r'"outcome"\s*:\s*"success"', body)):
+                healthy = True
     return healthy, ports
 
 
@@ -409,7 +471,7 @@ def verified_up(events, scenario, kind="aspire"):
         command = starts.get(data.get("toolCallId"), "")
         for match in TABLE_ROW.finditer(text):
             listed.add(match.group(1))
-        for match in re.finditer(r'"displayName"\s*:\s*"([\w-]+)"', text):
+        for match in re.finditer(r'"(?:displayName|display_name)"\s*:\s*"([\w-]+)"', text):
             listed.add(match.group(1))
         for name in names:
             if name in evidence:
@@ -810,7 +872,11 @@ ARM_ORDER = ["raw", "aspire-cli", "aspire-skills", "aspire-mcp", "aspire-skills-
              "aspire-lean-agents", "aspire-cli-agents", "aspire-skills-agents", "aspire-lean-agents-v2",
              "aspire-lean-noorch-agents",
              # T2.5: traced app variant and the instrumented raw app.
-             "raw-otel", "aspire-cli-traced", "aspire-lean-traced", "aspire-lean-mcp-all-traced"]
+             "raw-otel", "aspire-cli-traced", "aspire-lean-traced", "aspire-lean-mcp-all-traced",
+             # Phase 2 CLI lane (T2.2, T2.9, T2.3, T2.4): source builds, patched next to their -src control.
+             "aspire-cli-src", "aspire-cli-wait", "aspire-lean-start-wait",
+             "aspire-lean-noorch-agents-src", "aspire-lean-noorch-agents-v3", "aspire-lean-tracetable",
+             "aspire-cli-redishint", "aspire-skills-src", "aspire-skills-redishint"]
 
 
 def arm_order(cell_arm):
