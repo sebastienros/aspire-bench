@@ -1880,9 +1880,13 @@ source build against its `-src` control.
   spans into every trace. Controls are the existing tasks (`tasks 1479041e`, suite `305a8ed`); every
   change to `common/` and the template since `305a8ed` is additive (348 insertions, 0 deletions), so a
   traced arm differs from its control by the variant only.
-- **Seconds to root cause** = `seconds_to_root_cause_seen` from `collect.py` (first tool result showing
-  `report-exporter` or the `KEYS` script), median over the trials where it fired, with the count fired.
-  Known flaw, same in every arm: it also fires on a `ps` listing that shows `report-exporter.sh`.
+- **Seconds to root cause** = `seconds_to_redis_reply` from `collect.py` (T2.4's field: first `redis-cli`
+  call whose result is a reply from the server), median over the trials where it fired, with the count
+  fired. *Amended 2026-11-19 ~05:20 UTC, after `t25` was submitted and before any `t25` result was read:*
+  the rule first named `seconds_to_root_cause_seen`, which the T2.4 lane has since shown fires on the
+  opening `ps` listing on this scenario (REPORT §6 metrics note); on the lean arms the two fields agree at
+  this pin (luna lean 38.9 vs 39.0 s, mcp-all 54.8 vs 56.0), on `raw` and `aspire-cli` they do not, so the
+  companion readings would be wrong on the old field. `seconds_to_root_cause_seen` is reported beside it.
   Time = `agent_seconds`; p = exact two-sided Mann-Whitney.
 - **`ship`** if all hold: (a) luna `aspire-lean-mcp-all-traced` passes ≥ 5/6; (b) on luna, the median
   seconds to root cause is lower on the traced arm than on its control for **both** `aspire-lean` and
