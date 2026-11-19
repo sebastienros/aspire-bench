@@ -4753,8 +4753,8 @@ to `raw` (median `agent_seconds`) with the exact Mann-Whitney p and the 90 % boo
 
 **`row not confirmed` (rule as computed, 2026-11-19).** On luna, `aspire-lean` passed 6/6 but read the row's pattern
 before its first edit in 0 of its passing trials (≤ 3). Round `t42`: 48 trials, n = 6 per cell, no infrastructure
-failure. Every arm found the misconfigured path in `vite.config.js` from the source, with a median of 9–37 s to the
-cause on screen. Luna `aspire-lean` loaded `aspire-diagnose` in 1 of 6 trials and produced trace output in 1 of 6.
+failure. On luna every arm found the misconfigured path in `vite.config.js` from the source, with a median of 11–37 s
+to the cause on screen (terra `aspire-lean` read the trace first in 2 trials). Luna `aspire-lean` loaded `aspire-diagnose` in 1 of 6 trials and produced trace output in 1 of 6.
 The symptom is cosmetic, and the agent searches the source for "version" first, so the row is never needed. That
 limits what the card measures, as the rule block said.
 
@@ -4769,8 +4769,13 @@ limits what the card measures, as the rule block said.
 | terra | `aspire-skills-mcp` | 6/6 | 0 / 0 | 0 | 1 | 85.1 | 1.03× [0.22–1.16], 1.000 | 15.0 |
 | terra | `aspire-lean` | 4/6 | 1 / 2 | 2 | 2 | 78.6 | 0.95× [0.21–1.12], 0.394 | 18.1 |
 
-- Terra `aspire-lean` loaded `aspire-diagnose` 6/6. Its two failures served the placeholders at the end. The
-  failing `aspire-cli` luna trial did too.
+- Terra `aspire-lean` loaded `aspire-diagnose` 6/6.
+- **The three failures are verifier strictness, not misses.** Terra `aspire-lean` ×2 and luna `aspire-cli` ×1 fixed
+  the path, and their frontend served the admin's build (`baacba3`, `10.0.0`). They had also replaced the admin's
+  `viteVersion: "dev"` with the frontend's own Vite version (`7.3.6`), and the verifier's deep-equal rejects that.
+  Under a check of the fields the admin knows (commit, .NET), terra `aspire-lean` would be 6/6 and luna
+  `aspire-cli` 6/6. The word is unchanged: luna lean is 6/6 with 0 reads either way. The verifier stays as written
+  for this round.
 - The column `pattern_read_aggregate` (added after `t43`, see T4.3 results) equals the marker on this scenario,
   because a pair of spans has no aggregate form.
 - Reader note: the harness's copy of the trajectory under `harbor_logs/…/agent/` redacts hex strings (tool call ids,
@@ -4815,9 +4820,22 @@ unexercised: an N+1 does not exercise it (a lock or CPU fault would).
 - **MCP.** `aspire-skills-mcp` called `list_traces` in 12 of 12 trials (24 calls). 13 calls returned 0 traces
   ("Earlier N traces not returned because of size limits"), and none showed a status trace's child spans, so the
   arm's one luna and one terra read came through the CLI.
-- **Failures.** The verifier measured a slow status request after the agent's change: luna `raw` 2 (about
-  1.75 s), luna `aspire-cli` 1 and luna `aspire-skills-mcp` 1 (about 1.7 s); terra `raw` 2 (810 ms against a
-  778 ms limit, and 2,847 statements per request).
+- **Failures** all still ran the per-square statements: 1,850–2,850 SQL statements per status request against the
+  limit of 20.
+  - Luna `raw` 2, luna `aspire-cli` 1 and luna `aspire-skills-mcp` 1 were also still slow (about 1.7 s).
+  - Terra `raw` 2: one took 806 ms against a 778 ms limit; the other was fast (574 ms) but ran 2,847 statements, an
+    index-style repair.
+  - Passing trials sat far from the time limit (median status at most 0.62 of the limit, median 0.03), so the
+    Mac-calibrated limit did not decide any trial.
+- **The four unmarked luna lean trials, one by one.** All four fetched a status trace, which spilled, and processed
+  the saved file before their first edit:
+  - 2 show a grouped count in the result (`pattern_read_aggregate`: "Client postgresql … 2244"; "boardadmin
+    postgresql, 119");
+  - 2 ran a `jq group_by(name, query)` count over the saved JSON whose result both copies of the trajectory record
+    as `******`, masked by the runner. In one of these the agent's next message reads "producer status performs
+    about 2,244 one-row PostgreSQL checks".
+
+  The reader cannot score a masked result, so these two count as hint-only.
 - **Reader.**
   - `pattern_read_aggregate` was added after the round, by the coordinator's ruling, as a separate field for the
     next card to pre-register: the marker, or a short trace-output line with a count ≥ 10 next to the span name

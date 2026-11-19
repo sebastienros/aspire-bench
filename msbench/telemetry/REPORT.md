@@ -1731,15 +1731,18 @@ were fixed before any trial.
   server swallows a 404 from a misconfigured admin path and serves placeholder build information. Bingo's frontend
   has no OpenTelemetry, so the Aspire arms ran an app variant with the Node SDK (F58: Aspire passes OTLP settings to
   JavaScript resources that send nothing without one).
-  - Every arm found the wrong path in `vite.config.js` from the source. Luna `aspire-lean` passed 6/6, read the
-    pattern 0/6, and loaded `aspire-diagnose` once. The cosmetic symptom never sent it to the trace.
+  - On luna every arm found the wrong path in `vite.config.js` from the source. Luna `aspire-lean` passed 6/6, read
+    the pattern 0/6, and loaded `aspire-diagnose` once. The cosmetic symptom never sent it to the trace.
+  - The three failures (terra lean 2, luna CLI 1) had fixed the path but also changed the Vite version field, which
+    the verifier's deep-equal rejects. That is verifier strictness.
   - Luna time ratios to `raw`: `aspire-lean` 0.75× (p 0.31), `aspire-cli` 0.64× (p 0.49), `aspire-skills-mcp` 1.40×
     (p 0.026). Terra was level (0.95–1.05×), with `aspire-lean` at 4/6. $1.90.
 - **T4.3, `grown-catalog`** (row *many near-identical child spans*). An N+1 in the status endpoint, made slow by a
   data growth step and silent in the raw log, puts about 2,000 identical SQL spans under each status trace.
   - Luna `aspire-lean` passed 6/6 and loaded `aspire-diagnose` 6/6. It met the pre-registered marker (≥ 10 rows in one
-    result) in only 2. At least 2 more read the pattern as a grouped count over the spilled trace ("postgresql …
-    2244"). The descriptive hint is 6/6 against 0/6 for `aspire-cli`.
+    result) in only 2. Two more read the pattern as a grouped count over the spilled trace ("postgresql …
+    2244"). The last two ran the same grouping, but the runner masked its result (`******`); one agent then wrote
+    "about 2,244 one-row PostgreSQL checks". The descriptive hint is 6/6 against 0/6 for `aspire-cli`.
   - The coordinating session ruled the word as computed, `row not confirmed`, with the counter-evidence in the
     verdict line. Under an aggregate-counting marker, not pre-registered, the word would be `row confirmed`; that
     field (`pattern_read_aggregate`) is now in the reader for the next card to pre-register.
