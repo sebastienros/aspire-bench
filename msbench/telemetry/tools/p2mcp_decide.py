@@ -209,7 +209,7 @@ def t28():
 
 
 def t28s():
-    cells = rows({"t28-skills"})
+    cells = rows({"t28-skills", "t28-skills-topup"})
     base_redis, base_sql = cells[("slow-redis", LUNA, "aspire-skills-mcp-all")], cells[("slow-sql", LUNA, "aspire-skills-mcp-all")]
     official = cells[("slow-redis", LUNA, "aspire-skills-mcp")]
     print("## T2.8 on the shipped set + MCP (round t28-skills)\n")
