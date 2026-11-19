@@ -1694,6 +1694,55 @@ source build against its `-src` control.
 | Issue draft | [skills-aspireify-redis-client-tracing.md](../upstream-issues/skills-aspireify-redis-client-tracing.md) |
 | Results | pending |
 
+#### T2.5 rule, as computed (written 2026-11-19, before any `t25` trial)
+
+- **The change measured.** `common/app-variants/aspire-redis-traced/` (build argument `APP_VARIANT`, both
+  arms' images otherwise identical): `BingoBoard.Admin` registers its cache with
+  `builder.AddRedisDistributedCache("cache")` from `Aspire.StackExchange.Redis.DistributedCaching`
+  instead of `AddStackExchangeRedisCache`; nothing else in the source. The SignalR backplane keeps its
+  own untraced connection. Defaults are kept, so the change also adds the integration's Redis health
+  check to `boardadmin`'s `/health` and moves the app's OpenTelemetry core from 1.15.3 to 1.18.0 (the
+  package requires it). The `aspireify` text change is drafted in the issue only: no skill file changes,
+  so every traced arm has the same skill fingerprint as its control.
+- **Instrumented raw** (`raw-otel`, `common/app-variants/raw-otel/`): the raw app with the same
+  instrumentation set as the traced Aspire app (ASP.NET Core with `/health` filtered, HttpClient, Npgsql,
+  StackExchange.Redis on the cache's connection), a JSON-lines file exporter (one span per line, name,
+  kind, duration, attributes) at `.script-state/traces.jsonl`, and one README sentence saying so, as the
+  Aspire README names `aspire otel`. No Aspire, no skill.
+- **Cells**, one round `t25`, Copilot CLI 1.0.99, pin 2026-11-17, n = 6: `slow-redis` × luna, terra ×
+  {`aspire-lean-traced`, `aspire-lean-mcp-all-traced`, `aspire-cli-traced`, `raw-otel`} against
+  {`aspire-lean`, `aspire-lean-mcp-all`, `aspire-cli`, `raw`} re-run in the same round (96). Guard:
+  `slow-sql` luna `aspire-lean-traced` vs `aspire-lean` × 6 (12), because the template change puts cache
+  spans into every trace. Controls are the existing tasks (`tasks 1479041e`, suite `305a8ed`); every
+  change to `common/` and the template since `305a8ed` is additive (348 insertions, 0 deletions), so a
+  traced arm differs from its control by the variant only.
+- **Seconds to root cause** = `seconds_to_root_cause_seen` from `collect.py` (first tool result showing
+  `report-exporter` or the `KEYS` script), median over the trials where it fired, with the count fired.
+  Known flaw, same in every arm: it also fires on a `ps` listing that shows `report-exporter.sh`.
+  Time = `agent_seconds`; p = exact two-sided Mann-Whitney.
+- **`ship`** if all hold: (a) luna `aspire-lean-mcp-all-traced` passes ≥ 5/6; (b) on luna, the median
+  seconds to root cause is lower on the traced arm than on its control for **both** `aspire-lean` and
+  `aspire-lean-mcp-all` (lower median, no significance bar at n = 6; p reported); (c) guard: `slow-sql`
+  luna `aspire-lean-traced` passes ≥ the control − 1 and its time ratio is ≤ 1.15. **`drop`** if (b)
+  fails on both lean arms. Otherwise **`revise`**, naming the failed condition. Terra is reported, not
+  gating. Note before the round: luna `aspire-lean-mcp-all` passed 6/6 at this pin (T1.4 guard), so (a)
+  no longer separates the arms; (b) carries the decision.
+- **Companion readings** (REPORT §12.4), reported, not gating: `raw-otel` ÷ `raw` (pass, time, seconds
+  to root cause) and `aspire-lean-traced` ÷ `raw-otel`. "Traces carry most of it" if `raw-otel` closes at
+  least half of the luna `raw` → `aspire-lean-traced` gap in median `agent_seconds` and passes at least as
+  many trials as `aspire-lean-traced` − 1; "the CLI and skill carry it" if it closes under a quarter.
+  `aspire-cli-traced` ÷ `aspire-cli` is the no-skill reading.
+- **Mechanism measures**: trials that patch application code; first command after a result showing
+  `HMGET` spans; trials whose `aspire otel traces -t … --format Json` result exceeded 20,000 characters
+  (F31's preview cutoff; one local status trace was 19,173 bytes with 47 spans); `raw-otel` trials that
+  read `traces.jsonl`. Seen in the local gate before the round, recorded and not tuned for: the traced
+  status trace holds about 45 `HMGET` client spans of 120–280 ms each, which the skill's span table
+  reads as "many near-identical child spans → N+1 in the caller", and their `destination` is
+  `localhost:<port>`, not the resource name.
+- A trial at the 900 s limit is a failure, counted separately; a trial lost before the agent ran is
+  re-run once. Expected spend ≈ $5.4 (48 luna at ≈ $0.019, 48 terra at ≈ $0.09, 12 guard), against the
+  card's $4.00; stop and report above $12.
+
 ### T2.6 A "reach this resource" surface
 
 | | |
@@ -2199,6 +2248,73 @@ Where the router is absent or rarely wins, the runs match: `aspire-lean` 42/42 a
 | T4.7 | **Claude Code adapter** (proposed 2026-11-18, not built) | T1.7 found that no skill and no MCP server reach the `claude-code` harness, and that only Claude models run under it | Skills copied to `/app/.claude/skills`, the MCP server registered the way Harbor's `claude_code` agent does it, a real CLI version pin; `claude-haiku-5.5` on both harnesses: [card below](#t47-claude-code-adapter-proposed) | 72 ≈ $5 plus a re-pin and gates | proposed |
 | T4.8 | **VS Code parity settings** (proposed 2026-11-18, from [T1.9](#t19-results)) | Under VS Code the MCP tools sit behind `tool_search` (15 of 18 terra `aspire-skills-mcp` trials never searched for them) and the inner limit (`agentSeconds: 720`) leaves about 534 s of work against Copilot CLI's 900 s; four `aspire-skills-mcp` trials hit it | Raise `agentSeconds` (and Harbor's multiplier with it) so net working time matches 900 s; find whether VS Code can list MCP tools eagerly, and if it can, run that as a separate assets folder. If it cannot, deferred MCP is the product condition under VS Code and is reported as such. Re-run `slow-sql`, `slow-redis` × `aspire-skills-mcp` × luna, terra | 24 ≈ $2.40 | proposed |
 | T4.9 | **What makes luna investigate under VS Code** (proposed 2026-11-18, from [T1.9](#t19-results)) | Under VS Code, raw luna runs 2.5–5 shell commands and patches code (1/6 and 0/6 pass); with `aspire-lean` it runs 14–19.5 and passes 5/6 and 4/6. The time ratio inverts that effect | Under VS Code, `slow-sql`, `slow-redis` × luna × `aspire-cli` (commands, no skill) and `aspire-lean-agents` / `aspire-cli-agents` (T2.10's file, which VS Code also reads) × 6; decide on pass rate and time-to-pass, not the raw ratio | 36 ≈ $2.50 | proposed |
+
+### T4.1 Integration discoverability audit
+
+#### T4.1 scoring, as computed (written 2026-11-19, before any row ran)
+
+- **Where.** AppHosts, the shared client and the scorer are in [`audit/integration/`](audit/integration/);
+  outputs (raw `describe` JSON, every command with its exit code and output, the matrix) go to
+  `evidence/integration-audit/<UTC date>/`. The card named `audit/` for the matrix; the matrix is
+  committed with the evidence and copied into the results block below.
+- **Environment.** Each row runs inside the suite's own `app-aspire` image stage (pin 2026-11-17: Aspire
+  daily `17.1.0-preview.1.26567.3+30326eb8`, Linux, the private `dockerd` the trials use, `redis-tools`
+  as in every trial image), with `/usr/local/aspire/aspire` starting the AppHost and answering every
+  command. The Mac host's own `aspire` (a local build) is never used. One row at a time, `aspire stop` and
+  a `docker system prune` between rows. Rows whose image has no arm64 build (SQL Server) run the whole
+  container under `linux/amd64` emulation, as the held-out lane does; a row whose container cannot reach
+  `Running` there in 10 minutes is marked **skipped (cannot run here)**, not scored.
+- **One AppHost per row**: the hosting integration with its defaults (`Add<X>("<row>")`, written `res` below, no volume, no
+  extra options; Cosmos and Storage as `RunAsEmulator` / `RunAsPreviewEmulator`, whichever the
+  integration documents for local use) plus one client project (`audit-client`) that references it with
+  the **Aspire client integration** for that technology and performs one operation every 2 s. Client
+  spans are therefore scored for an app that uses Aspire's client package; Bingo's plain
+  `AddStackExchangeRedisCache`, which emits nothing, is T2.5's premise, not an audit failure.
+  Elasticsearch has no hosting package in `microsoft/aspire` at the pin commit (`git ls-tree 30326eb8
+  src/` lists none; it moved to the Community Toolkit) and is reported as **no package at pin**.
+- **Q1 container.** Pass if `aspire describe res --format Json` has `properties."container.id"` (or a PID
+  for a process) and that ID is a running container in `docker ps`.
+- **Q2 credentials without source.** Recorded as two columns, and pass if either holds: (a) the
+  credential the recipe needs is an environment variable inside the container (`docker exec <id> env`);
+  (b) `describe` carries a usable connection string or credential value (not `null`). A row whose service
+  has no authentication by default is **n/a (no auth)** and counts as pass.
+- **Q3 generic recipe.** One command per row, fixed in `audit/integration/recipes.json` in this commit:
+  the tool the vendor documents for the server, run with `docker exec <container.id> sh -c '…'`,
+  credentials only from the container's own environment, no transport or port flag, and a trivial read
+  (`SELECT 1`, `PING`, list topics/queues). Pass if it exits 0 within 20 s and prints the expected token.
+  On a fail, the scorer runs that row's listed alternatives in order and records the first that works:
+  that is the row's step 3 line. Two columns go with it: **tool in image** (the binary exists in the
+  container) and **plain on default port** (the server's documented default port inside the container
+  accepts the plain protocol). A row whose image has no tool fails Q3 and the alternative is the host tool
+  with the endpoint from `describe`.
+- **Q4 client span.** After the client has run for 30 s, pass if `aspire otel spans audit-client
+  --format Json` holds a client or producer span whose destination is `res` (or whose attributes carry
+  `db.system*`, `messaging.system` or `server.address` naming it) **and** the span carries the statement,
+  command, key, topic or routing key. A span without that attribute is "span, no statement". Seq is a
+  telemetry sink with no client call to trace: **n/a**.
+- **Q5 health text.** Two induced states, each read from `healthReports` and `state` in `describe`:
+  *hung* = `docker pause <id>`, read after the report changes or 60 s; *down* = `docker kill <id>`,
+  read after 15 s, then `aspire resource res start`. Pass if a health report exists, it leaves `Healthy`
+  under *hung*, and the state-plus-health text under *hung* differs from that under *down*.
+  *Refusing writes* has no generic induction across 15 servers and is recorded **not induced** for
+  every row; it is not scored as a pass.
+- **Q6 safe restart.** Pass if `commands.restart` is `Enabled` and `aspire resource res restart` returns
+  the resource to `Running` (and `Healthy` when it has a check) within 120 s. Reported beside it, not
+  gating: container ID before/after, whether a marker written with the Q3 command (or its alternative)
+  before the restart is still readable after it, and any non-lifecycle command the resource offers
+  (its "describe my state").
+- **Calibration before the other rows.** PostgreSQL must pass Q3 and Redis must fail Q3 on the generic
+  `redis-cli PING` and pass with `-p 6380` (the known TLS-on-6379 finding). If the scorer does not
+  reproduce both, no other row is run until it does.
+- **Outputs that decide T2.6.** The matrix columns *tool in image*, *credentials in container env*,
+  *credentials in describe* and *plain on default port* decide between a CLI `exec` (needs the tool in
+  the image) and a `connect` block in `describe` (works from the host): `exec` if the tool is in the image
+  in at least 11 of the 15 scored rows, otherwise `connect`. FINDINGS gets one entry per integration
+  whose generic recipe fails.
+
+#### T4.1 results
+
+pending
 
 ### T4.7 Claude Code adapter (proposed)
 

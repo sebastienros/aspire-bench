@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+  <!-- PLAN T4.1: one worker for every audit row. AUDIT_KIND picks the Aspire client integration it
+       registers and the operation it repeats every 2 s, so client spans are scored on the package an
+       Aspire app would use. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
+    <NoWarn>$(NoWarn);NU1603;NU1608</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AspireVersion>17.1.0-preview.1.26567.3</AspireVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Aspire.Npgsql" Version="$(AspireVersion)" />
+    <PackageReference Include="Aspire.StackExchange.Redis" Version="$(AspireVersion)" />
+    <PackageReference Include="Aspire.Microsoft.Data.SqlClient" Version="$(AspireVersion)" />
+    <PackageReference Include="Aspire.MySqlConnector" Version="$(AspireVersion)" />
+    <PackageReference Include="Aspire.MongoDB.Driver" Version="$(AspireVersion)" />
+    <PackageReference Include="Aspire.RabbitMQ.Client" Version="$(AspireVersion)" />
+    <PackageReference Include="Aspire.Confluent.Kafka" Version="$(AspireVersion)" />
+    <PackageReference Include="Aspire.NATS.Net" Version="$(AspireVersion)" />
+    <PackageReference Include="Aspire.Azure.Storage.Blobs" Version="$(AspireVersion)" />
+    <PackageReference Include="Aspire.Microsoft.Azure.Cosmos" Version="$(AspireVersion)" />
+    <PackageReference Include="Aspire.Qdrant.Client" Version="$(AspireVersion)" />
+    <PackageReference Include="Aspire.Seq" Version="$(AspireVersion)" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.15.1" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.0" />
+  </ItemGroup>
+</Project>
