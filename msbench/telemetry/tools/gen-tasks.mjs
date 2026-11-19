@@ -7,7 +7,9 @@
 // so a new arm or scenario does not move the hash of any task already measured.
 // Every arm of a scenario gets the same prompt, budgets, verifier and reference repair;
 // only the build arguments (application kind, skill set) and the MCP declaration differ.
-import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { selectionPrompts, suitePromptIds } from "./selection-prompts.mjs";
@@ -405,6 +407,11 @@ export const arms = {
     "aspire-skills-mcp": { kind: "aspire", skills: "current", mcp: true },
     "aspire-plus": { kind: "aspire", skills: "plus", mcp: false },
     "aspire-lean": { kind: "aspire", skills: "lean", mcp: false },
+    // PLAN T4.6 prototype: the skill-less image (the aspire-cli recipe) with the lean set bind-mounted from the
+    // task folder at run time, and its baked twin (aspire-lean's recipe); both checksum the skill files the agent
+    // sees into /logs/verifier/skills.sha256 from tests/test.sh, which is task-level, so neither image changes.
+    "aspire-lean-mounted": { kind: "aspire", skills: "none", mount: "lean", mcp: false, checksum: true },
+    "aspire-lean-baked": { kind: "aspire", skills: "lean", mcp: false, checksum: true },
     "aspire-lean-mcp": { kind: "aspire", skills: "lean", mcp: true },
     // Source-built CLI at the same commit: unpatched control versus the MCP output patch.
     "aspire-mcp-src": { kind: "aspire", skills: "none", mcp: true, cli: "control" },
@@ -500,6 +507,8 @@ for (const short of auditedSkills) {
 }
 const onlyIn = {
     "aspire-lean-start": ["cold-start"], "aspire-skills-plugin": ["slow-sql"],
+    // T4.6 prototype pair (slow-sql only, emitted by the infrastructure lane's own re-pin; [] until then).
+    "aspire-lean-mounted": [], "aspire-lean-baked": [],
     "aspire-skills-mon": ["slow-sql", "read-only"], "aspire-skills-norouter": ["slow-sql", "read-only"],
     "aspire-lean-agents": ["slow-sql"], "aspire-cli-agents": ["slow-sql"], "aspire-skills-agents": ["slow-sql"],
     "aspire-lean-agents-v2": ["cold-start"], "aspire-lean-noorch-agents": ["slow-sql"],
@@ -568,7 +577,7 @@ ${mcp ? `mcp:
 const args = Object.fromEntries(process.argv.slice(3).reduce((pairs, value, index, all) =>
     value.startsWith("--") ? [...pairs, [value.slice(2), all[index + 1]]] : pairs, []));
 
-function taskToml(scenario, arm, { seed, kind, steps }, { skills, mcp }) {
+function taskToml(scenario, arm, { seed, kind, steps }, { skills, mcp, mount }) {
     const selection = kind === "selection";
     return `schema_version = "1.3"
 ${steps ? 'multi_step_reward_strategy = "final"\n' : ""}
@@ -591,7 +600,7 @@ memory_mb = 8192
 storage_mb = 20480
 workdir = "/app"
 network_mode = "public"
-${skills === "none" || skills === "plugin" ? "" : 'skills_dir = "/opt/agent-skills"\n'}
+${(skills === "none" || skills === "plugin") && !mount ? "" : 'skills_dir = "/opt/agent-skills"\n'}
 [environment.healthcheck]
 command = "test -f /opt/benchmark/ready && docker info >/dev/null"
 retries = 400
@@ -607,7 +616,7 @@ name = "${step.name}"
 `).join("")}`;
 }
 
-function compose(fault, { kind, skills, cli, agents, variant, claudeCode, mcp }, suiteSha, app, common = "msbench/telemetry/common") {
+function compose(fault, { kind, skills, cli, agents, variant, claudeCode, mcp, mount }, suiteSha, app, common = "msbench/telemetry/common") {
     const git = (sha, path) => `${repo}.git#${sha}:${path}`;
     const contexts = Object.entries(apps[app].contexts(suiteSha))
         .map(([name, [variable, sha, path]]) => `\n        ${name}: \${${variable}:-${git(sha, path)}}`).join("");
@@ -625,7 +634,10 @@ function compose(fault, { kind, skills, cli, agents, variant, claudeCode, mcp },
         APP_VARIANT: ${variant}` : ""}${claudeCode ? `
         CLAUDE_CODE: ${mcp ? "skills-mcp" : "skills"}` : ""}
       additional_contexts:
-        suite: \${TELEMETRY_SUITE_CONTEXT:-${git(suiteSha, common)}}${contexts}
+        suite: \${TELEMETRY_SUITE_CONTEXT:-${git(suiteSha, common)}}${contexts}${mount ? `
+    volumes:
+      - ./skills:/app/.github/skills:ro
+      - ./skills:/opt/agent-skills:ro` : ""}
 `;
 }
 
@@ -685,11 +697,21 @@ printf '1\\n' >/logs/verifier/reward.txt
                 cpSync(join(root, "tools/authoring/solution", scenario), join(dir, "solution"), { recursive: true });
                 continue;
             }
+            if (config.mount) {
+                // The skill set as compose.sh builds it from the suite commit the task pins, mounted by compose.
+                const tree = execFileSync("git", ["-C", root, "archive", suiteSha, "common/skills"]);
+                const work = mkdtempSync(join(tmpdir(), "mount-"));
+                execFileSync("tar", ["-x", "-C", work], { input: tree });
+                execFileSync("sh", [join(work, "common/skills/compose.sh"), config.mount, join(dir, "environment/skills")], { stdio: "ignore" });
+                rmSync(work, { recursive: true, force: true });
+            }
             writeFileSync(join(dir, "tests/test.sh"), `#!/usr/bin/env bash
 set -euo pipefail
 mkdir -p /logs/verifier
 printf '0\\n' >/logs/verifier/reward.txt
-node /opt/benchmark/bench.mjs verify
+${config.checksum ? `# PLAN T4.6: what the agent's skill folders hold at run time.
+for d in /app/.github/skills /opt/agent-skills; do (cd "$d" && find . -type f | LC_ALL=C sort | xargs sha256sum | sed "s|  \\./|  $d/|"); done >/logs/verifier/skills.sha256 || true
+` : ""}node /opt/benchmark/bench.mjs verify
 printf '1\\n' >/logs/verifier/reward.txt
 `);
             writeFileSync(join(dir, "solution/solve.sh"), `#!/usr/bin/env bash
