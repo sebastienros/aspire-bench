@@ -1300,18 +1300,16 @@ CLI `exec`, so T2.6 builds a `connect` block in `describe` instead
 
 **Phase 2, T2.5: Redis client tracing in the aspirified template.** The Bingo template with its cache on
 `AddRedisDistributedCache`, against the untraced app, same round `t25` (108 trials, $5.65 against $4.00), plus an
-instrumented raw arm (OpenTelemetry SDK, the same instrumentation, a JSON-lines file, no Aspire). Verdict
-**revise**: on luna the lean CLI route got better (6/6 against 5/6, Redis reached in 22 s against 39 s, p = 0.10)
-and the lean MCP route got worse (3/6 against 6/6); the `slow-sql` guard held. The cache spans are the cause in
-both directions: a slow request now carries about 45 `HMGET` spans, which the diagnosis skill's span table reads as
-an N+1, and the trace detail (44 KB as JSON, 66 KB through MCP) is over the harness's preview limit. The failing
-luna trials batched the cache reads in the application, as did every instrumented-raw trial (0/6; raw 3/6 here and 3/24
-across the pin), so traces without the CLI and skill did not help the cheapest model; terra passed every cell.
-A replicate round one day later reversed the MCP pass counts (5/6 traced, 2/6 untraced; 8/12 each pooled) and
-confirmed only the CLI route's faster time to the cache (22 vs 38 s again), so the MCP loss is not a stable effect
-at n = 6. The template change needs a span-table row ("many slow client spans to one dependency → the dependency is slow")
-before it ships ([FINDINGS F47](../FINDINGS.md#f47-cache-client-spans-make-a-blocked-cache-look-like-an-n1-and-the-cheapest-model-patches-the-caller);
-issue draft updated). [PLAN.md, T2.5 results](PLAN.md#t25-results).
+instrumented raw arm (OpenTelemetry SDK, the same instrumentation, a JSON-lines file, no Aspire). Verdict **revise**
+as computed on `t25`: luna lean on MCP passed 3/6 traced against 6/6 untraced. The same tasks one round later (the
+span-row follow-up's controls) gave 5/6 against 2/6, so pooled over 12 trials per cell the pass rate is equal traced
+and untraced on both routes, and the MCP gap is not stable at n = 6. What held in both rounds is time: with the cache
+traced, luna on the lean CLI route reaches it in about 22 s instead of 38 s, because the trace now names it (about 45
+`HMGET` spans per slow request). Luna on MCP patches the caller in some trials with or without those spans; the
+instrumented raw app did not help (0/6, all six edited the source; raw luna is 3/24 across the pin). Terra passed
+every cell. The trace detail (44 KB as JSON, 66 KB through MCP) is over the harness's preview limit, which is the
+open part of the revision; a span-table row aimed at the misreading was measured and is not worth proposing
+([FINDINGS F47](../FINDINGS.md#f47-with-the-cache-traced-the-lean-skill-reaches-a-blocked-cache-sooner-the-cheapest-models-pass-rate-does-not-change); issue draft updated). [PLAN.md, T2.5 results](PLAN.md#t25-results).
 
 **Phase 2, T2.1: compact `list_resources` and `list_console_logs`.** Patch 0001 plus one line per resource in
 `list_resources` (the JSON behind `details`) and `limit` (default 50) / `severity` on `list_console_logs`, against patch
@@ -1354,6 +1352,10 @@ given; one mis-copied the 64-character container ID and one wrote its own `redis
 The field name is shared with T2.4's Redis-only hint
 ([FINDINGS F50](../FINDINGS.md#f50-a-connect-block-in-describe-lets-a-skill-drop-every-integration-specific-line-at-no-cost);
 issue draft `aspire-describe-connect.md`). [PLAN.md, T2.6 results](PLAN.md#t26-results).
+
+**Phase 2 integrations lane (T4.1, T2.5, T2.6), spend.** $6.86 in model trials against the cards' ≈ $4.40: T2.5
+$5.65 (`t25`, 108 trials), its span-table follow-up $0.89 (`t25-span`, 60; ruled "not worth proposing" as computed),
+T2.6 $0.32 (`t26`, 24); T4.1 and every gate model-free. Terra carried two-thirds of it ($4.52 of `t25`).
 
 **Phase 2, T2.2 and T2.9: blocking start, and cold start through MCP.** `aspire start` patched to wait for every
 resource and print endpoints, by default under `--non-interactive`, against the unpatched source build in the

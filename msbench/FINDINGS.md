@@ -1682,7 +1682,12 @@ http://127.0.0.1:<published 6333>/collections` returns `"status":"ok"`.
 
 **Limits / status:** One image tag. Not upstreamed.
 
-## F47: Cache client spans make a blocked cache look like an N+1, and the cheapest model patches the caller
+## F47: With the cache traced, the lean skill reaches a blocked cache sooner; the cheapest model's pass rate does not change
+
+**In short:** the robust effect is that, with the cache traced, the lean skill on the CLI reaches the cache faster on
+luna (22 s against 38 s, in two rounds). The MCP pass-rate gap seen in `t25` (3/6 against 6/6) **did not replicate**
+(5/6 against 2/6 one round later). The N+1 misreading is what the failing trials did, but luna on MCP also patches the
+caller without cache spans.
 
 **Evidence:** Task T2.5 ([PLAN.md, T2.5 results](telemetry/PLAN.md#t25-results)), round `t25`, 108 trials, pin
 2026-11-17. The aspirified Bingo app with its cache on `Aspire.StackExchange.Redis.DistributedCaching`
@@ -1695,13 +1700,14 @@ instrumentation, file exporter, no Aspire) passed 0/6 (raw 3/6). Every failure b
 `BingoService.cs` and left the exporter running; all six `raw-otel` trials read `traces.jsonl` and edited the
 source. Terra passed 6/6 in every cell and edited no source.
 
-**Improvement candidate:** Keep the template change, and add one row to `aspire-diagnose`'s span table: "many
-near-identical client spans to one dependency, each slow → the dependency is slow; go to step 3", so the N+1 row is
-not the only reading of many child spans. The trace detail for a ~45-span request should fit under the harness's
-preview limit (the compact trace work in T2.1/T2.3). On the product side, `aspireify` should still propose the
-client integration (the lean CLI route gained), but only with that skill row.
+**Improvement candidate:** Keep the template change and the `aspireify` proposal for the timing gain (the trace names
+the cache, so the lean CLI agent goes there sooner). Do not expect it to change outcomes for the cheapest model on its
+own. To carry the gain to MCP and larger traces, the trace detail for a ~45-span request has to fit under the harness's
+preview limit (the compact trace work in T2.1/T2.3). An extra span-table row ("many slow client spans to one
+dependency → the dependency is slow") was measured and is not worth proposing (PLAN "T2.5 follow-up results").
 
-**Limits / status:** One fault, n = 6 per cell, one round; the luna differences in pass count have Fisher p = 0.18.
+**Limits / status:** One fault, n = 6 per cell in each of two rounds; the `t25` pass differences (Fisher p = 0.18) did
+not replicate.
 The traced template also moves the app's OpenTelemetry core to 1.18.0 and adds a Redis health check (it stayed
 `Healthy` under this fault). **Replication (`t25-span`, same tasks, next round):** luna lean + MCP passed 5/6 traced
 and 2/6 untraced (4/6 untraced trials also edited the source), so pooled 8/12 each: the MCP pass gap is not stable

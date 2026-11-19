@@ -31,16 +31,15 @@ proposal text. The same applies to the workshop sample that this app came from.
 that tells the agent where to look it still fixed 5 of 6 on the cheapest model; a trace
 that names the cache span would remove the need for that hint.
 
-## Measured (T2.5, 2026-11-19): ship only with a skill change
+## Measured (T2.5, 2026-11-19)
 
 The proposal was measured in the aspire-bench telemetry suite (PLAN T2.5, FINDINGS F47): the aspirified Bingo
-app with `AddRedisDistributedCache("cache")` against the same app without it, same round, `slow-redis`, n = 6.
-With the cache traced, a slow request carries about 45 `HMGET` client spans. On the cheapest model the lean
-skill on the CLI got better (6/6 against 5/6, Redis reached in 22 s against 39 s), but the same skill over MCP got
-worse (3/6 against 6/6), and so did a raw app instrumented with the OpenTelemetry SDK and no Aspire (0/6 against
-3/6): those agents read "many near-identical child spans" as an N+1 in the caller and batched the cache reads
-instead of looking at the cache. A stronger model passed every cell either way.
+app with `AddRedisDistributedCache("cache")` against the same app without it, on a fault where another client blocks
+the cache, n = 6 per cell in each of two rounds. With the cache traced, a slow request carries about 45 `HMGET` client
+spans, and on the cheapest model the diagnosis skill on the CLI reached the cache in about 22 s instead of 38 s in both
+rounds. Pass rates did not change: pooled over 12 trials per cell they were equal traced and untraced, on the CLI
+(11/12) and over MCP (8/12). A stronger model passed every cell either way.
 
-So the proposal stands, with a condition: the diagnosis skill's span table should say that many near-identical
-client spans to one dependency, each slow, mean the dependency is slow, before this lands in the template or the
-`aspireify` guidance. Status: draft, not filed.
+So the proposal stands for what it measurably buys, a faster route to the dependency, not for changing outcomes on its
+own. One caveat for the sample: the trace of such a request (44 KB as JSON) exceeds the preview limit of at least one
+agent harness, so the gain depends on trace output staying compact. Status: draft, not filed.
