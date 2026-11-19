@@ -44,7 +44,14 @@ LATER_PIN_PAIRS = [("aspire-cli", "raw"), ("aspire-skills-plugin", "aspire-skill
                    # T2.5 follow-up: the span-table row against the same arm without it.
                    ("aspire-lean-spanrow", "aspire-lean"), ("aspire-lean-spanrow-traced", "aspire-lean-traced"),
                    ("aspire-lean-mcp-all-spanrow", "aspire-lean-mcp-all"),
-                   ("aspire-lean-mcp-all-spanrow-traced", "aspire-lean-mcp-all-traced")]
+                   ("aspire-lean-mcp-all-spanrow-traced", "aspire-lean-mcp-all-traced"),
+                   # Phase 2 CLI lane: each patch against its unpatched source control (T2.2, T2.3, T2.4), the
+                   # one-command skill and file v3 on the patched build, and the MCP route on cold start (T2.9).
+                   ("aspire-cli-wait", "aspire-cli-src"), ("aspire-cli-src", "raw"), ("aspire-lean-start-wait", "aspire-cli-wait"),
+                   ("aspire-lean-start-wait", "aspire-lean-start"), ("aspire-lean-noorch-agents-v3", "aspire-lean-noorch-agents-src"),
+                   ("aspire-lean-mcp", "aspire-lean-start"), ("aspire-lean-mcp", "aspire-lean"),
+                   ("aspire-lean-tracetable", "aspire-lean-src"), ("aspire-cli-redishint", "aspire-cli-src"),
+                   ("aspire-skills-redishint", "aspire-skills-src")]
 FIRST_PIN = "2026-11-09"
 DEFAULT_AGENT = "github-copilot-cli"
 METRICS = [("agent_seconds", "s"), ("input_tokens", "tok"), ("cost_usd", "$")]
