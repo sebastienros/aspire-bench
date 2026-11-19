@@ -3285,6 +3285,28 @@ Bingo template; stage chosen by `FAULT`), scripts `common/authoring/`, verifier 
   against the 900 s limit, and whether a scenario sits at a floor or a ceiling. Any agent-timeout multiplier is
   written here after the pilots and before the round, and is the same for every arm and both models of a scenario.
 
+**Gates and pilots (recorded 2026-11-19, before the rounds).**
+- `gate-p3a`: 14/14 oracle runs reward 1 on CES (the 12 scenario × arm tasks and the two guard tasks). Each gate's
+  AppHost ran `17.1.0-preview.1.26567.3` from the vendored folder: the ruling-7 restore check passes on CES.
+- Pilots (`aspire-cli`, 2 per scenario and model, excluded), 11/12 pass, no infrastructure failure, no skill loaded:
+
+  | Scenario | Luna s | Luna $ | Terra s | Terra $ |
+  |---|---|---|---|---|
+  | adoption | 382, 298 | 0.043, 0.038 | 185, 147 | 0.128, 0.101 |
+  | add-dependency | 115, 126 | 0.010, 0.014 | 141, 192 | 0.095, 0.138 |
+  | greenfield | 744 (fail), 208 | 0.014, 0.020 | 122, 136 | 0.074, 0.077 |
+
+  - The luna greenfield failure started the AppHost with `dotnet run` in an async shell that ended with the session:
+    an agent miss.
+  - Both luna adoption pilots pinned stable Aspire versions themselves (`17.0.0`, `13.6.5`, restored from
+    nuget.org). They passed; by the rule above, such trials count as they are and are listed.
+  - The scenarios sit near the pass-rate ceiling for `aspire-cli`, so time decides most cells.
+- **Timeout: no multiplier** (900 s for every arm and model). The longest pilot was 744 s.
+- **Projected cost** at the pilots' prices:
+  - T3.2: ≈ $7.3 (96 trials + 24 guard), under its 3× stop of $12.90.
+  - T3.3: ≈ $2.2 (48), under $5.70.
+  - Pilots: $0.60.
+
 **Scenarios.**
 - **`adoption`** (T3.2; port of A01): the raw Bingo app with its own launcher, no AppHost, nothing running. The
   overlay has no check script (F24).
