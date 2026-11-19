@@ -1305,8 +1305,8 @@ instrumented raw arm (OpenTelemetry SDK, the same instrumentation, a JSON-lines 
 and the lean MCP route got worse (3/6 against 6/6); the `slow-sql` guard held. The cache spans are the cause in
 both directions: a slow request now carries about 45 `HMGET` spans, which the diagnosis skill's span table reads as
 an N+1, and the trace detail (44 KB as JSON, 66 KB through MCP) is over the harness's preview limit. The failing
-luna trials batched the cache reads in the application, as did every instrumented-raw trial (0/6 against raw's
-3/6), so traces without the CLI and skill made the cheapest model worse, not better; terra passed every cell.
+luna trials batched the cache reads in the application, as did every instrumented-raw trial (0/6; raw 3/6 here and 3/24
+across the pin), so traces without the CLI and skill did not help the cheapest model; terra passed every cell.
 A replicate round one day later reversed the MCP pass counts (5/6 traced, 2/6 untraced; 8/12 each pooled) and
 confirmed only the CLI route's faster time to the cache (22 vs 38 s again), so the MCP loss is not a stable effect
 at n = 6. The template change needs a span-table row ("many slow client spans to one dependency → the dependency is slow")

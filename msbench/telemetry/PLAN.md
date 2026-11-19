@@ -2221,8 +2221,8 @@ gate, so the integration's health check added nothing.
 
 **Companion readings** (REPORT §12.4): neither pre-registered reading holds. `raw-otel` closed 68 % of the luna
 `raw` → `aspire-lean-traced` time gap, but only by failing faster (0/6 against the ≥ 5/6 the "traces carry it"
-reading needs), so on the cheapest model traces without the CLI and skill made the outcome worse than no traces
-(0/6 vs 3/6, p = 0.18). On terra traces add nothing either way (164.6 vs 172.1 s).
+reading needs), so on the cheapest model traces without the CLI and skill did not help: 0/6, with all six editing
+the source, against raw's 3/6 in this round (p = 0.18) and 3/24 across the pin, so not a measured loss either. On terra traces add nothing either way (164.6 vs 172.1 s).
 
 *Replication (2026-11-19, `t25-span`, [below](#t25-follow-up-results)): the same tasks one round later gave luna lean + MCP
 5/6 traced and 2/6 untraced; pooled 8/12 each. The CLI route's faster time to the cache replicated (22.3 vs 38.4 s).*
@@ -3216,7 +3216,7 @@ Readings:
   was gone after it (8 rows with a marker; F34 now covers 15 rows). "Restart" is safe for availability and
   destructive for data unless a volume was added. No row offers a "describe my state" command (`commands` holds
   `restart` and `stop` only).
-- **Q2: 14/15** (13 pass, 2 n/a). The scorer passed Seq on `SEQ_FIRSTRUN_NOAUTHENTICATION`, which is not a
+- **Q2: 14/15** (12 pass, 2 n/a, NATS fails; counting Seq as n/a, 11 pass and 3 n/a). The scorer passed Seq on `SEQ_FIRSTRUN_NOAUTHENTICATION`, which is not a
   credential; Seq has no authentication by default, so that cell is really n/a. Values never appear in `describe` (`null`), names do. NATS is the exception:
   its user and password are container *arguments*, not environment variables, so the only source outside the
   AppHost code is `docker inspect`.
