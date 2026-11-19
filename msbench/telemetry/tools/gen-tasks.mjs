@@ -319,6 +319,39 @@ scenarios["slow-redis"].arms.push("aspire-skills-noorchestration");
 for (const { id } of selectionPrompts.filter(({ id }) => /^(router|orch)-/.test(id))) scenarios[`sel-${id}`].arms = ["aspire-skills", "aspire-skills-norouter"];
 
 // Applications: the image template and the build contexts each one needs.
+// T4.4's runner probe (PLAN "T4.4 runner probe, as computed", ruling 2): two prompts in one Harbor multi-step
+// task on the slow-sql image. Step 2 can be answered only from step 1's message in the same conversation; its
+// verifier compares a hash, so the word appears in no file the agent can reach except Harbor's own logs.
+const probeWord = "tangerine-kestrel-5183";
+const probeWordSha = "56cd46f97e8af6cb94217d52a2b10ed3cffab63d9839a2058632f4879132c724"; // sha256 of probeWord
+scenarios["t44-probe"] = {
+    seed: 61, fault: "slow-sql", arms: ["aspire-cli"],
+    steps: [
+        {
+            name: "remember",
+            instruction: `This is the first of two messages in this conversation. Remember this code word for
+my next message: ${probeWord}
+
+Do not write the code word to any file, do not run any command and do not change
+anything. Reply only with the word "noted".
+`,
+            test: `test ! -e /app/codeword.txt`,
+            solve: "true",
+        },
+        {
+            name: "recall",
+            instruction: `In my previous message in this conversation I gave you a code word.
+
+Without running any command and without searching or reading any file, write that code
+word, alone, to /app/codeword.txt. If my previous message is not part of this
+conversation, write UNKNOWN to /app/codeword.txt instead. Do nothing else.
+`,
+            test: `test "$(tr -d '[:space:]' </app/codeword.txt | sha256sum | cut -d' ' -f1)" = ${probeWordSha}`,
+            solve: `printf '%s\\n' ${probeWord} >/app/codeword.txt`,
+        },
+    ],
+};
+
 const apps = {
     bingo: {
         dockerfile: "Dockerfile",
@@ -515,10 +548,10 @@ ${mcp ? `mcp:
 const args = Object.fromEntries(process.argv.slice(3).reduce((pairs, value, index, all) =>
     value.startsWith("--") ? [...pairs, [value.slice(2), all[index + 1]]] : pairs, []));
 
-function taskToml(scenario, arm, { seed, kind }, { skills, mcp }) {
+function taskToml(scenario, arm, { seed, kind, steps }, { skills, mcp }) {
     const selection = kind === "selection";
     return `schema_version = "1.3"
-
+${steps ? 'multi_step_reward_strategy = "final"\n' : ""}
 [metadata]
 suite = "aspire-telemetry"
 scenario = "${scenario}"
@@ -548,7 +581,10 @@ name = "${aspireMcp.name}"
 transport = "stdio"
 command = "${aspireMcp.command}"
 args = [${aspireMcp.args.map(a => JSON.stringify(a)).join(", ")}]
-` : ""}`;
+` : ""}${(steps ?? []).map(step => `
+[[steps]]
+name = "${step.name}"
+`).join("")}`;
 }
 
 function compose(fault, { kind, skills, cli, agents, variant }, suiteSha, app) {
@@ -585,15 +621,31 @@ if (process.argv[2] === "tasks") {
             const dir = join(root, "tasks", scenario, arm);
             if (add && existsSync(dir)) continue;
             written++;
-            for (const sub of ["environment", "tests", "solution"]) mkdirSync(join(dir, sub), { recursive: true });
+            for (const sub of definition.steps ? ["environment"] : ["environment", "tests", "solution"]) mkdirSync(join(dir, sub), { recursive: true });
             writeFileSync(join(dir, "task.toml"), taskToml(scenario, arm, definition, config));
-            writeFileSync(join(dir, "instruction.md"), definition.instruction);
+            // A multi-step task (T4.4) has one instruction, verifier and reference per step and none at the top.
+            for (const step of definition.steps ?? []) {
+                const stepDir = join(dir, "steps", step.name);
+                for (const sub of ["tests", "solution"]) mkdirSync(join(stepDir, sub), { recursive: true });
+                writeFileSync(join(stepDir, "instruction.md"), step.instruction);
+                writeFileSync(join(stepDir, "tests/test.sh"), `#!/usr/bin/env bash
+set -uo pipefail
+mkdir -p /logs/verifier
+if ${step.test}; then printf '1\\n'; else printf '0\\n'; fi >/logs/verifier/reward.txt
+`);
+                writeFileSync(join(stepDir, "solution/solve.sh"), `#!/usr/bin/env bash
+set -euo pipefail
+${step.solve}
+`);
+            }
+            if (!definition.steps) writeFileSync(join(dir, "instruction.md"), definition.instruction);
             const app = definition.app ?? "bingo";
             cpSync(join(root, "tools/templates", apps[app].dockerfile), join(dir, "environment/Dockerfile"));
             // A scenario-level application variant (Phase 3 fixtures) applies to every arm of that scenario.
             writeFileSync(join(dir, "environment/docker-compose.yaml"),
                 compose(definition.fault ?? scenario, { ...config, variant: (typeof definition.variant === "object"
                     ? definition.variant[config.kind] : definition.variant) ?? config.variant }, suiteSha, app));
+            if (definition.steps) continue;
             if (definition.kind === "selection") {
                 // No outcome to grade: the reward only says the run finished; the hook's log of every
                 // tool call and decision is kept with the verifier output.

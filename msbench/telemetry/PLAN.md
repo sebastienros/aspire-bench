@@ -4324,6 +4324,42 @@ Even then an `exec` would not be generic for Kafka: its client is present under 
 listener is unreachable inside the container, so `exec` would need the same per-integration knowledge T2.6 is
 meant to take out of the skill. The coordinating session confirmed the rule as computed (2026-11-19).
 
+### T4.4 Multi-turn session
+
+#### T4.4 runner probe, as computed (written 2026-11-19, before the probe was submitted)
+
+Ruling 2: the card runs only if the MSBench runner carries the Copilot CLI conversation from one step of a task to
+the next (F05). The probe is one excluded luna trial of a two-step Harbor task.
+
+- **Task** `t44-probe/aspire-cli` (suite `4cab9e4`, the slow-sql image with no skill and no MCP; `[[steps]]`
+  `remember`, `recall`; `multi_step_reward_strategy = "final"`). Step 1 gives a code word
+  (`tangerine-kestrel-5183`) and asks for no command, no file and the reply "noted". Step 2 asks for that word,
+  written alone to `/app/codeword.txt` with no command, search or file read, or `UNKNOWN` if the previous message is
+  not part of the conversation. Step 2's verifier compares a SHA-256, so the word is in no task file the agent can
+  reach; it is on disk only in what Harbor and the runner keep between steps (Copilot CLI session state, agent logs).
+- **Submission**: `BENCH_RESUME_TRAJECTORY=1` (`--harbor-resume-trajectory`, the only mode that can carry a
+  conversation; without it Harbor resets `OUTPUT_DIR` and the adapter calls `run`, not `resume`, for every step),
+  the pinned package `github-copilot-cli-pkg-main-20261014-215627` and CLI 1.0.99, `gpt-6-luna`, round
+  `p4-probe-t44`, ledger `results/multistep-ledger.jsonl` with an `excluded` reason (outside every table; collect.py
+  does not read multi-step trials). This is the package that, with the flag, hit `/output/.runner-lock` in run
+  `2026101503460490` (msbench-cli 0.3.67 then, 0.3.70 now, whose adapter has a separate `resume` entry point).
+- **Oracle gate first**, without the flag (oracle does not support resume): round `gate-t44-probe`, reward 1
+  required.
+- **Outcome, read in this order from the trial's per-step logs:**
+  1. Step 1 ends before any model action, or the trial fails in setup: **infrastructure**; re-submit once; if the
+     second also fails, report and ask.
+  2. Step 2 does not run its instruction (runner lock, exit before a model call, the step skipped): **`not
+     runnable`**.
+  3. Step 2 runs in a fresh conversation (writes `UNKNOWN`, or a wrong word, or its first model request carries no
+     step-1 message): **`not runnable`**.
+  4. Step 2 writes the word but ran a command, search or file read before writing it: **not demonstrated**; report
+     and ask (the word may have come from disk).
+  5. Step 2 writes the word with no tool call before the write, **and** the conversation is shown to be carried:
+     the same Copilot CLI session id in both steps' logs, or step 2's first model request carrying step 1's
+     messages (its input larger than step 1's first request by at least step 1's exchange): **runnable**.
+- `not runnable` closes the card with what the runner would need, and nothing more is submitted. `runnable` opens
+  the 12-trial design of ruling 2, whose step-2 fixture and rule are written before any of those trials.
+
 ### T4.7 Claude Code adapter (proposed)
 
 | | |

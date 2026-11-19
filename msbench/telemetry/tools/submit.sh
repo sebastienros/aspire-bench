@@ -13,6 +13,7 @@
 # harness, the Aspire build and skills tag the task was pinned to (and BENCH_TASK, the plan card, if set).
 # BENCH_LEDGER names another ledger file; the selection benchmark (T3.9) keeps its runs in
 # results/selection-ledger.jsonl so they never enter trials.jsonl, the cells or the series.
+# BENCH_EXCLUDED=<reason> writes the ledger line with that `excluded` reason (pilots and probes).
 set -euo pipefail
 suite="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 repo="$(cd "$suite/../.." && pwd)"
@@ -50,6 +51,9 @@ if [[ "$model" == oracle ]]; then
 else
     mode=(--agent "$agent_package" --model "$model" ${agent_env[@]+"${agent_env[@]}"}
         --workers 1 --repeat "$repeat" --parallel_repeats --tag kind=model --tag "agent=$agent")
+    # T4.4: BENCH_RESUME_TRAJECTORY=1 asks Harbor to resume each later step of a multi-step task in the
+    # previous step's session (--harbor-resume-trajectory); oracle does not support it. Recorded in the ledger.
+    if [[ "${BENCH_RESUME_TRAJECTORY:-}" == 1 ]]; then mode+=(--harbor-resume-trajectory); fi
     if [[ -n "${BENCH_AGENT_TIMEOUT_MULTIPLIER:-}" ]]; then
         mode+=(--harbor_agent_timeout_multiplier "$BENCH_AGENT_TIMEOUT_MULTIPLIER")
     fi
@@ -89,7 +93,7 @@ while read -r run_id; do
         --arg submitted_at "$stamp" --arg dataset_sha256 "$dataset_sha" --arg log "$log" --arg task_sha "$task_sha" \
         --arg aspire_build "$aspire_build" --arg skills_sha "$skills_sha" --arg task "${BENCH_TASK:-}" \
         --arg agent "$agent" --arg timeout_mult "${BENCH_AGENT_TIMEOUT_MULTIPLIER:-}" --arg agent_package "$agent_package" --arg assets "${agent_assets#"$suite/"}" --arg assets_sha "$assets_sha" \
-        --arg agents_md "$agents_md" --arg agents_md_bytes "$agents_md_bytes" \
+        --arg agents_md "$agents_md" --arg agents_md_bytes "$agents_md_bytes" --arg resume "${BENCH_RESUME_TRAJECTORY:-}" --arg excluded "${BENCH_EXCLUDED:-}" \
         '{run_id: $run_id, scenario: $scenario, arm: $arm, model: $model, round: $round, submitted_at: $submitted_at,
           dataset_sha256: $dataset_sha256, log: $log, task_repo_commit: $task_sha, aspire_build: $aspire_build,
           skills_sha: $skills_sha}
@@ -98,5 +102,7 @@ while read -r run_id; do
          + (if $assets == "" then {} else {agent_assets: $assets, agent_assets_sha256: $assets_sha} end)
          + (if $task == "" then {} else {task: $task} end)
          + (if $agents_md == "" then {} else {agents_md: $agents_md, agents_md_bytes: ($agents_md_bytes|tonumber)} end)
-         + (if $timeout_mult == "" or $agent == "" then {} else {agent_timeout_multiplier: ($timeout_mult|tonumber)} end)' | tee -a "$ledger"
+         + (if $timeout_mult == "" or $agent == "" then {} else {agent_timeout_multiplier: ($timeout_mult|tonumber)} end)
+         + (if $resume == "1" and $agent != "" then {resume_trajectory: true} else {} end)
+         + (if $excluded == "" then {} else {excluded: $excluded} end)' | tee -a "$ledger"
 done
