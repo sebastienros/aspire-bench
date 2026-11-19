@@ -193,6 +193,42 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 
 # Pin 2026-11-17: Aspire 17.1.0-preview.1.26567.3+30326eb8, aspire-skills v0.0.6 (e529b608)
 
+## add-dependency / gpt-6-luna
+
+| Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
+| aspire-cli | 6/6 | 138 | - | - | 516,954 | 8,409 | 0.014 | 40 | - | 0 | 169,788 |
+| aspire-skill-aspireify | 6/6 | 236 | - | - | 805,558 | 14,956 | 0.022 | 50 | aspireifyx6 | 0 | 193,162 |
+| aspire-skills | 6/6 | 333 | - | - | 1,254,848 | 19,425 | 0.031 | 62 | aspirex5, aspire-monitoringx1, aspire-orchestrationx5, aspireifyx6 | 0 | 300,530 |
+| aspire-skills-noaspireify | 6/6 | 301 | - | - | 990,295 | 15,702 | 0.025 | 60 | aspirex6, aspire-monitoringx1, aspire-orchestrationx5, aspireifyx1 | 0 | 295,595 |
+
+## add-dependency / gpt-6.1-terra
+
+| Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
+| aspire-cli | 6/6 | 206 | - | - | 983,618 | 7,218 | 0.145 | 52 | - | 0 | 254,361 |
+| aspire-skill-aspireify | 6/6 | 349 | - | - | 1,298,406 | 10,296 | 0.192 | 66 | aspireifyx6 | 0 | 309,558 |
+| aspire-skills | 6/6 | 238 | - | - | 1,279,425 | 7,004 | 0.177 | 57 | aspirex1, aspire-monitoringx2, aspire-orchestrationx6, aspireifyx6 | 0 | 269,690 |
+| aspire-skills-noaspireify | 6/6 | 239 | - | - | 986,710 | 5,926 | 0.156 | 47 | aspirex6, aspire-monitoringx1, aspire-orchestrationx6 | 0 | 304,924 |
+
+## adoption / gpt-6-luna
+
+| Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
+| aspire-cli | 6/6 | 398 | - | - | 1,602,012 | 22,225 | 0.036 | 88 | - | 0 | 365,544 |
+| aspire-skill-aspireify | 6/6 | 536 | - | - | 2,693,850 | 34,820 | 0.059 | 112 | aspireifyx6 | 0 | 433,626 |
+| aspire-skills | 6/6 | 457 | - | - | 2,433,995 | 29,054 | 0.055 | 110 | aspirex5, aspire-initx6, aspire-monitoringx2, aspire-orchestrationx4, aspireifyx6 | 0 | 480,184 |
+| aspire-skills-noaspireify | 6/6 | 624 | - | - | 2,721,332 | 34,923 | 0.059 | 120 | aspirex6, aspire-initx6, aspire-monitoringx1, aspire-orchestrationx6, aspireifyx1 | 0 | 534,992 |
+
+## adoption / gpt-6.1-terra
+
+| Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
+| aspire-cli | 6/6 | 282 | - | - | 952,600 | 8,366 | 0.150 | 52 | - | 0 | 246,800 |
+| aspire-skill-aspireify | 6/6 | 346 | - | - | 1,334,210 | 7,570 | 0.176 | 67 | aspireifyx6 | 0 | 403,707 |
+| aspire-skills | 6/6 | 342 | - | - | 1,689,320 | 7,000 | 0.211 | 68 | aspirex4, aspire-initx6, aspire-orchestrationx6, aspireifyx6 | 0 | 344,514 |
+| aspire-skills-noaspireify | 6/6 | 386 | - | - | 1,781,456 | 7,608 | 0.217 | 70 | aspirex5, aspire-initx6, aspire-orchestrationx6, aspireifyx1 | 0 | 447,589 |
+
 ## cold-start / gpt-6-luna
 
 | Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
@@ -276,6 +312,24 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 | aspire-skill-monitoring | 12/12 | 54 | - | - | 211,016 | 2,274 | 0.051 | 14 | aspire-monitoringx12 | 0 | 60,318 |
 | aspire-skills | 6/6 | 52 | - | - | 242,002 | 2,120 | 0.054 | 14 | aspire-monitoringx6 | 0 | 69,061 |
 | aspire-skills-nomonitoring | 6/6 | 56 | - | - | 239,570 | 2,100 | 0.053 | 16 | aspirex6 | 0 | 45,329 |
+
+## greenfield / gpt-6-luna
+
+| Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
+| aspire-cli | 3/6 | 490 | - | - | 657,006 | 8,254 | 0.015 | 47 | - | 0 | 159,909 |
+| aspire-skill-init | 3/6 | 161 | - | - | 856,596 | 10,278 | 0.019 | 47 | aspire-initx6 | 0 | 159,344 |
+| aspire-skills | 6/6 | 186 | - | - | 785,606 | 7,588 | 0.018 | 40 | aspirex2, aspire-initx6, aspire-monitoringx2, aspire-orchestrationx5, aspireifyx6 | 0 | 162,557 |
+| aspire-skills-noinit | 6/6 | 190 | - | - | 872,788 | 8,476 | 0.019 | 46 | aspirex6, aspire-initx2, aspire-monitoringx2, aspire-orchestrationx4, aspireifyx6 | 0 | 153,870 |
+
+## greenfield / gpt-6.1-terra
+
+| Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
+| aspire-cli | 6/6 | 129 | - | - | 475,075 | 3,378 | 0.074 | 34 | - | 0 | 121,474 |
+| aspire-skill-init | 6/6 | 80 | - | - | 311,028 | 2,261 | 0.061 | 30 | aspire-initx6 | 0 | 86,002 |
+| aspire-skills | 6/6 | 162 | - | - | 479,032 | 1,943 | 0.086 | 29 | aspirex3, aspire-initx6, aspire-orchestrationx6, aspireifyx6 | 0 | 93,728 |
+| aspire-skills-noinit | 6/6 | 174 | - | - | 523,360 | 2,122 | 0.086 | 30 | aspirex6, aspire-orchestrationx6, aspireifyx6 | 0 | 111,053 |
 
 ## heldout-cache / claude-opus-5.5
 
@@ -437,13 +491,14 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 | aspire-lean-src | 12/12 | 110 | 31 | 57 | 497,670 | 7,436 | 0.015 | 38 | aspire-diagnosex12 | 0 | 211,764 |
 | aspire-lean-traced | 11/12 | 94 | 22 | 44 | 418,824 | 5,405 | 0.013 | 30 | aspire-diagnosex12 | 0 | 189,321 |
 | aspire-lean-tracetable | 4/6 | 119 | 35 | 59 | 692,303 | 8,284 | 0.018 | 44 | aspire-diagnosex6 | 0 | 211,418 |
-| aspire-skills | 0/12 | 222 | 60 | - | 784,350 | 11,218 | 0.022 | 46 | aspire-monitoringx6, aspire-orchestrationx3 | 0 | 266,807 |
+| aspire-skills | 1/18 | 191 | 110 | 358 | 874,039 | 10,442 | 0.022 | 46 | aspire-monitoringx9, aspire-orchestrationx7 | 0 | 269,434 |
 | aspire-skills-mcp | 0/18 | 163 | 4 | - | 1,013,608 | 9,587 | 0.023 | 48 | aspirex10, aspire-monitoringx11, aspire-orchestrationx2 | 11 | 434,759 |
 | aspire-skills-mcp-all | 0/6 | 163 | - | - | 812,372 | 9,598 | 0.020 | 42 | aspirex2, aspire-monitoringx3, aspire-orchestrationx1 | 13 | 326,670 |
 | aspire-skills-mcp-all-conn | 1/6 | 216 | 50 | 472 | 1,198,576 | 11,935 | 0.027 | 50 | aspirex6, aspire-monitoringx6, aspire-orchestrationx2 | 15 | 394,900 |
 | aspire-skills-mcp-all-hint | 0/6 | 164 | 56 | - | 913,775 | 9,570 | 0.022 | 46 | aspirex5, aspire-monitoringx4, aspire-orchestrationx5 | 12 | 321,885 |
 | aspire-skills-mcp-all-step | 0/6 | 173 | 54 | - | 976,304 | 10,454 | 0.025 | 48 | aspirex4, aspire-monitoringx4, aspire-orchestrationx4 | 10 | 326,164 |
 | aspire-skills-mon | 0/6 | 205 | 59 | - | 590,980 | 8,078 | 0.016 | 40 | aspirex2, aspire-monitoringx2, aspire-orchestrationx2 | 0 | 226,285 |
+| aspire-skills-noaspireify | 0/6 | 169 | - | - | 749,225 | 10,326 | 0.020 | 46 | aspirex1, aspire-monitoringx2, aspire-orchestrationx4 | 0 | 261,194 |
 | aspire-skills-norouter | 0/6 | 202 | 9 | - | 966,487 | 11,128 | 0.023 | 48 | aspire-monitoringx3, aspire-orchestrationx4 | 0 | 302,931 |
 | aspire-skills-redishint | 0/6 | 148 | 24 | - | 749,502 | 9,146 | 0.019 | 48 | aspire-orchestrationx1 | 0 | 266,268 |
 | aspire-skills-src | 0/6 | 134 | 11 | 162 | 768,760 | 9,070 | 0.019 | 44 | aspire-monitoringx1, aspire-orchestrationx1 | 0 | 256,964 |
@@ -514,7 +569,7 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 | aspire-mcp-compact2 | 6/6 | 166 | 37 | 78 | 968,271 | 11,259 | 0.023 | 52 | - | 14 | 346,574 |
 | aspire-mcp-src | 9/12 | 155 | 49 | 66 | 769,480 | 11,788 | 0.021 | 49 | - | 8 | 436,909 |
 | aspire-mcp-tools8 | 6/6 | 188 | 55 | 91 | 1,013,270 | 13,162 | 0.025 | 54 | - | 10 | 481,226 |
-| aspire-skills | 20/21 | 184 | 69 | 126 | 803,909 | 10,862 | 0.021 | 48 | aspire-monitoringx8, aspire-orchestrationx1 | 0 | 260,974 |
+| aspire-skills | 24/27 | 188 | 69 | 122 | 853,122 | 11,158 | 0.022 | 50 | aspirex1, aspire-monitoringx10, aspire-orchestrationx2 | 0 | 260,974 |
 | aspire-skills-agents | 6/6 | 235 | 77 | 135 | 1,202,770 | 17,634 | 0.031 | 53 | aspirex6, aspire-monitoringx6 | 0 | 194,531 |
 | aspire-skills-mcp | 11/12 | 198 | 77 | 112 | 1,252,184 | 14,204 | 0.029 | 54 | aspirex8, aspire-monitoringx11, aspire-orchestrationx1 | 10 | 524,502 |
 | aspire-skills-mcp-all | 6/6 | 186 | 62 | 119 | 806,122 | 11,484 | 0.021 | 41 | aspirex3, aspire-monitoringx4, aspire-orchestrationx2 | 10 | 323,280 |
@@ -522,6 +577,7 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 | aspire-skills-mcp-all-hint | 6/6 | 154 | 46 | 91 | 658,180 | 8,845 | 0.018 | 38 | aspirex3, aspire-monitoringx4 | 9 | 294,784 |
 | aspire-skills-mcp-all-step | 6/6 | 119 | 41 | 86 | 649,795 | 6,933 | 0.018 | 35 | aspirex4, aspire-monitoringx4 | 8 | 271,058 |
 | aspire-skills-mon | 6/6 | 295 | 112 | 157 | 982,398 | 12,704 | 0.022 | 48 | aspirex1, aspire-monitoringx2 | 0 | 221,254 |
+| aspire-skills-noaspireify | 6/6 | 180 | 58 | 102 | 878,636 | 13,652 | 0.023 | 52 | aspirex1, aspire-monitoringx4 | 0 | 310,896 |
 | aspire-skills-norouter | 6/6 | 136 | 53 | 75 | 565,650 | 7,923 | 0.016 | 38 | aspire-monitoringx3, aspire-orchestrationx1 | 0 | 218,230 |
 | aspire-skills-plugin | 3/3 | 146 | 49 | 77 | 688,677 | 10,198 | 0.019 | 48 | - | 0 | 260,578 |
 | raw | 35/36 | 114 | 24 | 47 | 438,509 | 7,734 | 0.014 | 34 | - | 0 | 183,516 |

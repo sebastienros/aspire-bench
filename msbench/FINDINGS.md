@@ -1807,6 +1807,106 @@ consider a `--since` window on `aspire export` and `aspire otel`, which is what 
 exceeds the effect; the truncation note is from the local gate and the CLI's behaviour, not from a failing trial (no
 trial used the default limit for its export). Not upstreamed.
 
+## F52: `aspireify` makes agents slower at wiring an AppHost, and the cost is its own main path
+
+**Evidence:**
+- **Setup:** task T3.2 ([PLAN.md, T3.2 results](telemetry/PLAN.md#t32-results)), round `t32`, 120 trials, pin
+  2026-11-17.
+- **Scenarios:**
+  - `adoption`: the raw Bingo app, no AppHost; add one that runs it, existing lines unchanged.
+  - `add-dependency`: the aspirified app without Redis; add Redis and move the admin's distributed cache to it.
+- **Pass rates:** `aspire-cli`, `aspireify` alone, the v0.0.6 bundle and the bundle without `aspireify` passed
+  every trial on luna and terra.
+- **Time, `aspireify` alone against the CLI:** 1.35× and 1.71× on luna (p 0.26, 0.002), 1.23× and 1.69× on terra
+  (p 0.041, 0.004).
+- **Where the time goes** (trajectories):
+  - On luna `add-dependency`, half the +103 s is before the first edit. That is the body's "load these references
+    before editing" (median 2 skill references, `apphost-wiring.md` alone 21 KB) and the `aspire docs api search` /
+    `aspire integration search` lookups it prescribes.
+  - The other half is after the restart: its "VALIDATE → `aspire wait` <each resource>" step (71 wait/describe/ps
+    calls against 44).
+  - On `adoption`, every skill-arm trial took `aspire init` (36/36) where the CLI arm wrote a file-based AppHost by
+    hand (0/12). `aspire init` then meets NU1008 on a central-package-management repo (F54).
+- **The bundle:** on luna `add-dependency` it was 2.42× the CLI with or without `aspireify` (333 and 301 s).
+
+**Improvement candidate:**
+- **Shrink the skill (T3.2's verdict).** For a one-off integration in a repo that has an AppHost, put the four-step
+  main path in the body: `aspire add <package id>`, `WithReference` / `WaitFor`, client registration, restart and
+  wait on the changed resources. Load references only when a step fails.
+- **Draft:** `upstream-issues/skills-shrink-aspireify.md`.
+- **The bundle's time on these jobs** comes as much from the router and the other skills' lookups; that is not
+  fixed by this change.
+
+**Limits / status:**
+- **Ceiling:** every arm passed every trial, so this is time only.
+- **Attribution:** read from trajectories, not an ablation of the body.
+- **Rows not run:** TypeScript toolchain repair, Go and other integrations.
+- **Selection:** luna loads the router first in the bundle (5/6), so the luna selection column fails.
+- Not upstreamed.
+
+## F53: Without `aspire-init`, agents start a new AppHost with `dotnet run` in a session-bound shell
+
+**Evidence:**
+- **Setup:** task T3.3 ([PLAN.md, T3.3 results](telemetry/PLAN.md#t33-results)), round `t33`, 48 trials. Scenario
+  `greenfield`: create an Aspire app with an API (`api`) using PostgreSQL (`db`), start it, leave it running.
+- **Luna `aspire-cli`:**
+  - 5 of 6 trials started the AppHost with `dotnet run` in the agent's shell.
+  - Three failed: either the AppHost ended with the session, or the shell held the turn to 750–768 s.
+  - The pilot's failure was the same (744 s).
+- **The skill arms:** 35 of 36 trials of the three skill arms used `aspire start` (detached).
+- **Pass and time, `aspire-init` alone against the CLI:**
+  - luna 3/6 against 3/6, 0.33× (p 0.065); 0.93× on passed trials only;
+  - terra 6/6 against 6/6, 0.62× (p 0.002) with 35 % fewer input tokens.
+- **The skill's own luna failures:** all three named the PostgreSQL server `db` and the database `appdb`, so `api`
+  got `ConnectionStrings__appdb`, where the prompt names the database resource `db`.
+
+**Improvement candidate:**
+- What the skill adds that an agent does not find alone is `aspire start` instead of `dotnet run`. That is one line,
+  and it belongs in the CLI's own guidance too: `aspire new`'s closing output, or the `AGENTS.md` that
+  `aspire new` / `aspire agent init` write (T2.11's file v2 already says it).
+- For the skill: name the database (not the server) after the user's name.
+
+**Limits / status:**
+- **Verdict:** `no verdict`. Luna selection (`aspire-init` first in 4 of 6 bundle trials) closes `keep`, and terra is
+  not equivalent, which closes `remove`.
+- **Sample:** n = 6 per cell, one scenario.
+- Not upstreamed.
+
+## F54: The daily feed floats under a pinned CLI, and `aspire init` breaks restore on a central-package-management repo
+
+**Evidence:**
+- **The float:** on 2026-11-19 the pinned daily CLI `17.1.0-preview.1.26567.3` ran `aspire new` with templates
+  `17.1.0-preview.1.26568.1`, the newest daily on the dnceng feed. Every project it creates then references a
+  different build than the CLI; any benchmark that lets the agent run `aspire new`, `init` or `add` drifts from day
+  to day.
+- **The workaround used by T3.2 and T3.3:**
+  - The image vendors every `Aspire*` package of the pinned daily (141 ids) and points the CLI at the folder with
+    its install sidecar (`.aspire-install.json`, `packages`). `ASPIRE_CLI_PACKAGES` is the environment equivalent.
+  - The CLI then resolves the pin from disk. Proven with the feed blackholed locally and on CES: every gate's
+    AppHost ran 26567.3.
+  - The cost: an "Aspire CLI is emulating identity 'daily'…" notice on stderr before every human-readable command.
+    No agent reacted to it in 168 trials.
+- **The `aspire init` restore break:**
+  - `aspire init --language csharp` on a repo with `ManagePackageVersionsCentrally` writes an AppHost project with
+    versioned `PackageReference`s. Restore rejects it with NU1008, and `aspire add` fails on the same project.
+  - 20 of 36 skill-arm adoption trials met it; all repaired it. `aspire init --non-interactive` also needs
+    `--language`.
+- **Agents pinning versions themselves:** three trials pinned stable Aspire (`13.6.5`, `17.0.0`) from nuget.org and
+  passed.
+
+**Improvement candidate:**
+- **For benchmarks:** vendor the feed for any scenario where the agent creates or extends an AppHost (the method is
+  in `telemetry/common/authoring/vendor.sh`).
+- **For the CLI:**
+  - Resolve templates to the CLI's own version on the daily channel when it is published.
+    `TryGetCurrentCliTemplateVersionPackage` tries that match but returned the newer build here; why was not
+    investigated.
+  - Have `aspire init` write `PackageVersion` entries when the repo uses central package management.
+
+**Limits / status:**
+- The float was seen on one day; the NU1008 break was measured locally and in trajectories.
+- Not upstreamed.
+
 ## Recording future findings
 
 Give each finding a stable ID and include evidence links, exact observed

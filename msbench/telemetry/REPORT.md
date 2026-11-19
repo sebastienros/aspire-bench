@@ -1538,3 +1538,29 @@ added a median of 1–2 reference reads and 16 % input tokens on terra (p 0.006)
 newest 200 records unless `--limit` is raised, so an export at the default misses an incident minutes old; no
 trial fell for it ([FINDINGS F51](../FINDINGS.md#f51-the-cli-alone-exports-an-incidents-telemetry-as-well-as-the-monitoring-skill)).
 $2.31 against $1.90. [PLAN.md, T3.5 results](PLAN.md#t35-results).
+
+**Phase 3, T3.2 and T3.3: the authoring skills (`aspireify`, `aspire-init`).** Three new scenarios on one image
+that vendors the pinned daily's 141 `Aspire*` packages behind the CLI's install sidecar. Without it, `aspire new`
+floated to a newer daily on the day of the run
+([FINDINGS F54](../FINDINGS.md#f54-the-daily-feed-floats-under-a-pinned-cli-and-aspire-init-breaks-restore-on-a-central-package-management-repo)).
+- **Scenarios:** `adoption` (raw Bingo, add an AppHost, existing lines unchanged), `add-dependency` (add Redis and
+  move the admin's cache to it) and `greenfield` (create an app with an API and PostgreSQL).
+- **Arms:** `aspire-cli`, the audited skill alone, the v0.0.6 bundle and the bundle without it, on luna and terra
+  × 6, plus T3.2's `bundle-minus` guard on luna `slow-sql` and `slow-redis`.
+- **T3.2 `aspireify`: `shrink`.**
+  - All 96 scenario trials passed. `aspireify` alone was slower than the CLI in every cell: luna 1.35× and 1.71×
+    (`add-dependency`, p 0.002), terra 1.23× and 1.69×.
+  - The cost is the skill's own main path. It loads references before editing and runs `aspire docs` /
+    `integration search` lookups (half of luna's +103 s). Then it waits on every resource (the other half). On
+    `adoption` it also sends every agent through `aspire init`, which meets NU1008 on this repo.
+  - Removing `aspireify` does not make the bundle faster: luna `add-dependency` is 2.42× the CLI either way, and
+    luna `adoption` without it is 1.36× slower
+    ([FINDINGS F52](../FINDINGS.md#f52-aspireify-makes-agents-slower-at-wiring-an-apphost-and-the-cost-is-its-own-main-path)).
+- **T3.3 `aspire-init`: `no verdict`.**
+  - Terra is 0.62× (p 0.002, 6/6 each).
+  - Luna is 0.33× (p 0.065, 3/6 each). That is mostly three CLI trials that started the AppHost with `dotnet run`
+    in the session's shell and hung or lost it; on passed trials it is 0.93×. Every skill arm used `aspire start`.
+  - Luna selection (4/6 first in the bundle) closes `keep`, and terra closes `remove`
+    ([FINDINGS F53](../FINDINGS.md#f53-without-aspire-init-agents-start-a-new-apphost-with-dotnet-run-in-a-session-bound-shell)).
+- **Cost:** T3.2 $11.78 against $4.30 (2.7×; terra's skill arms carry it), T3.3 $2.48 against $1.90.
+  [PLAN.md, T3.2 results](PLAN.md#t32-results), [T3.3 results](PLAN.md#t33-results).

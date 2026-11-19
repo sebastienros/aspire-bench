@@ -51,6 +51,8 @@ The two Aspire product patches are in [upstream/](upstream/).
 | `aspire-cli-redishint`, `aspire-skills-redishint` | Same, plus the Redis connect-hint patch (`describe` table and JSON; PLAN T2.4) | none / `current` | no |
 | `aspire-skill-monitoring`, `aspire-skill-migration`, `aspire-skill-deployment` | Aspirified app (`export`, `migration`, `publishing`; PLAN T3.5, T3.7, T3.4) | `skill-<short>` = that one shipped v0.0.6 skill alone (Phase 3 `skill-only`) | no |
 | `aspire-skills-nomonitoring`, `aspire-skills-nomigration`, `aspire-skills-nodeployment` | Same | `no<short>` = v0.0.6 without that skill (Phase 3 `bundle-minus`) | no |
+| `aspire-skill-aspireify`, `aspire-skill-init` | Authoring image ([`tools/templates/Dockerfile.authoring`](tools/templates/Dockerfile.authoring): the pinned daily's `Aspire*` packages vendored behind the CLI's install sidecar; `adoption`, `add-dependency`, `greenfield`; PLAN T3.2, T3.3) | `skill-aspireify` / `skill-init` = that shipped skill alone | no |
+| `aspire-skills-noaspireify`, `aspire-skills-noinit` | Same (`noaspireify` also on `slow-sql` and `slow-redis`, the T3.2 guard) | `noaspireify` / `noinit` = v0.0.6 without it | no |
 
 `raw` versus any Aspire arm is the product comparison. The Aspire arms share one
 application, one AppHost and one toolchain, so differences between them isolate
@@ -156,6 +158,24 @@ PostgreSQL and Redis on an external network; the prompt asks to publish and run 
 18080/18081. Its private Docker daemon gets P01's DNS plan (a relay on its bridge on CES, whose resolver is loopback).
 No `raw` arm for `export` and `migration`.
 
+**Phase 3 authoring scenarios (PLAN T3.2, T3.3).** One image template,
+[`Dockerfile.authoring`](tools/templates/Dockerfile.authoring) (stage by fault), vendors every `Aspire*` package
+of the pinned daily into `/usr/local/aspire/packages` and points the CLI at it with its install sidecar
+([`common/authoring/vendor.sh`](common/authoring/vendor.sh)). `aspire new`, `init` and `add` therefore resolve the
+pin from disk; without it, `aspire new` floated to a newer daily (FINDINGS F54). Every human-readable CLI command
+then prints an "emulating identity" notice on stderr, in every arm.
+- `adoption`: the raw Bingo app with its launcher, no AppHost, nothing running; the prompt asks for an AppHost that
+  runs the whole app under Aspire (`boardadmin`, `bingoboard`), existing lines unchanged.
+- `add-dependency`: the aspirified app without Redis
+  ([`common/authoring/add-dependency`](common/authoring/add-dependency): the admin uses an in-memory distributed
+  cache), running at start; the prompt asks for Redis in the AppHost and the admin's cache moved to it.
+- `greenfield`: `/app` with only an empty `.github` folder in every arm (`aspire new --output` refuses a non-empty
+  folder, and the skill arms' skills live there); the prompt asks for an app with an ASP.NET Core API (`api`) using
+  PostgreSQL (`db`), started.
+
+The approval the skills ask for is pre-granted in the prompts. There is no `raw` arm. The verifier and the reference
+solutions travel in each task's `tests/` and `solution/` ([`tools/authoring`](tools/authoring)), not in the image.
+
 **Selection benchmark (PLAN T3.9).** `sel-*` tasks are not trials: a static copy of the aspirified workspace,
 nothing running, and a Copilot CLI policy hook ([`common/bench/selection`](common/bench/selection), installed in
 `/etc/github-copilot/policy.d/` because repository hooks are not loaded under the eval driver) that ends the run at
@@ -193,6 +213,27 @@ only. It never reads an agent report.
   resources (`resource.launchConfigurationType` `project-with-external-build.v1`); every baseline resource back in its
   baseline state and health; the same endpoint names and schemes; squares kept, a fresh write/call/clear, and the
   scoreboard answering through service discovery.
+- `adoption`: six checks, all required:
+  - a running AppHost (`aspire ps`) with `boardadmin` and `bingoboard` live;
+  - exactly one PostgreSQL and one Redis container, both AppHost resources;
+  - one admin backend process with its `db` and `cache` connection strings;
+  - migrations and seed data present;
+  - login, the player page and its API and SignalR proxies, a fresh import reaching PostgreSQL, call/clear/status;
+  - every file of the handed-over tree keeps its original lines in order (`NuGet.config`, `package-lock.json`
+    exempt).
+- `add-dependency`: six checks, all required:
+  - `boardadmin` and `bingoboard` live;
+  - exactly one Redis container, an AppHost resource, Running and Healthy;
+  - `boardadmin` references it and gets its connection string;
+  - calling a fresh square writes the admin's `global_square_<id>` entry into that Redis;
+  - the functional checks;
+  - every square present at setup still in PostgreSQL.
+- `greenfield`: five checks, all required:
+  - a running AppHost with a resource `api`, live with an HTTP(S) endpoint;
+  - one PostgreSQL container and a resource `db` Running and Healthy;
+  - `api` gets `ConnectionStrings__db`;
+  - the API answers below HTTP 500.
+- Every authoring verifier records the AppHost's Aspire version from `aspire ps` (`pinned`).
 - `publishing` ([`common/bench/publishing/grade.mjs`](common/bench/publishing/grade.mjs), ported from P01): three
   checks, all required: no supplied file changed and the environment's dependencies, network, volume and data as at
   setup; exactly the two Compose services, images built during the trial, Production, loopback-only ports, no bind
