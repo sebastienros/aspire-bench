@@ -5,6 +5,15 @@ set -euo pipefail
 mkdir -p /logs/environment
 dockerd_options=()
 if [[ "${BENCH_FAULT:-}" == publishing ]]; then
+    # Harbor collects /logs/artifacts even when the environment never becomes ready, so the setup's
+    # logs, the resolver and the disk are copied there on any exit before the agent starts.
+    mkdir -p /logs/artifacts/environment
+    publishing_diagnostics() {
+        cp -f /logs/environment/*.log /logs/environment/*.json /logs/artifacts/environment/ 2>/dev/null || true
+        cp -f /etc/resolv.conf /logs/artifacts/environment/resolv.conf 2>/dev/null || true
+        { df -h / /var/lib/docker /tmp; docker system df; } >/logs/artifacts/environment/disk.txt 2>&1 || true
+    }
+    trap publishing_diagnostics EXIT
     # Preconfigured publishing (PLAN T3.4): production images are built inside the private daemon, and
     # their build steps resolve package feeds. Docker gives an outer container a loopback resolver
     # (127.0.0.11) that nested containers cannot reach, so the private daemon gets the outer resolvers,
@@ -38,9 +47,13 @@ if [[ "${BENCH_FAULT:-}" == publishing ]]; then
     fi
     # Nothing of the application runs: the environment's PostgreSQL and Redis, seeded, and the base
     # images the production Dockerfiles use, pulled as a developer machine would have them.
-    bash /opt/benchmark/publishing/setup.sh >/logs/environment/application-setup.log 2>&1 || {
-        cat /logs/environment/application-setup.log >&2; exit 1;
+    # Written where Harbor collects it as it runs, so a setup that hangs still shows how far it got.
+    bash /opt/benchmark/publishing/setup.sh >/logs/artifacts/environment/application-setup.log 2>&1 || {
+        cat /logs/artifacts/environment/application-setup.log >&2; exit 1;
     }
+    cp /logs/artifacts/environment/application-setup.log /logs/environment/application-setup.log
+    publishing_diagnostics
+    trap - EXIT
     touch /opt/benchmark/ready
     exec "$@"
 fi

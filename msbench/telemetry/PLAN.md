@@ -3549,6 +3549,17 @@ could (ruling 9). Ceiling and floor: when every arm is 6/6 the verdict rests on 
 the oracle gate, then `t35` (export), `t37` (migration), `t34` (publishing). A timeout multiplier, if the pilot
 shows a trial near the 900 s limit, is written here before its round and applies to every arm of the card.
 
+**Gates and pilots (2026-11-19, before any card round).** `gate-p3ops`: export 4/4 and migration 4/4 reward 1
+(the migrated AppHost restored `Aspire.Hosting.Dotnet` from the warmed cache on CES); publishing 3/5 reward 1
+(`aspire deploy` 43–46 s, the inner daemon's builds reached nuget.org and npm), 2/5 environment failures (setup
+never wrote `ready`, no log exported), so the publishing setup now writes its progress, the resolver and the disk to
+`/logs/artifacts` and retries a stalled image pull, and the five publishing tasks are regenerated and re-gated
+before `t34` (they had no counted trial). Pilots, `aspire-cli`, all reward 1: export luna 118 s ($0.011), terra 56 s
+($0.043); migration luna 332 s ($0.027), terra 353 s ($0.215); publishing luna 229 s ($0.017), terra 181 s
+($0.101). **No timeout multiplier** for any of the three cards (longest pilot 353 s of 900 s). Prices at the pilot
+rates: T3.5 ≈ $1.30 (card $1.90), T3.4 ≈ $3.50 ($2.40, 3× = $7.20), **T3.7 ≈ $5.80 ($1.90, 3× = $5.70)**: T3.7's
+round waits for the coordinating session (the 3× stop).
+
 #### T3.5 fixture, as computed (written 2026-11-19, before any `t35` or pilot trial)
 
 - **Measured on the pin first.** `aspire export [resource] [--output file]` writes a zip of `resources/`,
