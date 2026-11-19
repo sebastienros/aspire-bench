@@ -1,0 +1,13 @@
+services:
+  main:
+    privileged: true
+    build:
+      args:
+        APP_KIND: aspire
+        SKILLS: lean-noorch
+        FAULT: slow-sql
+        AGENTS_MD: lean-noorch-v2
+      additional_contexts:
+        suite: ${TELEMETRY_SUITE_CONTEXT:-https://github.com/sebastienros/aspire-bench.git#f3e0fd6efa45fdd7b884d81d04c32fd2cd094291:msbench/telemetry/common}
+        raw-app: ${TELEMETRY_RAW_APP_CONTEXT:-https://github.com/sebastienros/aspire-bench.git#baacba3e17181491c9a4d419db7d0e6763c3d363:msbench/bingo/common/raw-app}
+        aspire-app: ${TELEMETRY_ASPIRE_APP_CONTEXT:-https://github.com/sebastienros/aspire-bench.git#baacba3e17181491c9a4d419db7d0e6763c3d363:msbench/bingo/common/aspire-app}
