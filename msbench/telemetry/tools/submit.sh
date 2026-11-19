@@ -5,7 +5,7 @@
 # BENCH_AGENT picks the harness, each pinned to one package version:
 #   github-copilot-cli (default)  Copilot CLI, the harness every result before T0.4 used
 #   vscode                        VS Code agent mode; assets from agents/vscode (gen-tasks.mjs agent-assets)
-#   claude-code                   Claude Code (CLI pinned with CLAUDE_CODE_VERSION; the -cc arms are its variants)
+#   claude-code                   Claude Code (the CLI is `latest` at setup, recorded per trial; the -cc arms are its variants)
 # BENCH_AGENT_TIMEOUT_MULTIPLIER (optional) scales task.toml's agent timeout through Harbor, so a
 # harness with fixed start-up overhead (VS Code: ~50 s launch + 186 s transport fallback, T0.4) gets
 # the same working budget; it is recorded in the ledger as agent_timeout_multiplier.
@@ -48,13 +48,13 @@ case "$agent" in
         BENCH_AGENT_TIMEOUT_MULTIPLIER="${BENCH_AGENT_TIMEOUT_MULTIPLIER:-1.5}" ;;
     claude-code)
         agent_package="claude-code=v0.33.1794879102"
-        # T4.7: the package installs @anthropic-ai/claude-code@latest unless CLAUDE_CODE_VERSION is set; 2.1.327 is
-        # what `latest` resolved to on CES on 2026-11-18 (T1.7's probe). ALLOWED_TOOLS is the runner's default list
-        # plus the aspire MCP server's tools, which it would otherwise refuse in its non-interactive permission
-        # mode; the same list for every claude-code arm (raw has no such server).
-        export CLAUDE_CODE_VERSION=2.1.327
+        # T4.7: the package installs @anthropic-ai/claude-code@latest in Harbor's agent setup. Its CLAUDE_CODE_VERSION
+        # pin cannot be used here: on CES --env reaches the runner but not setup, and the runner then refuses the
+        # mismatch (probes p4-probe-cc, 2026-11-19). The version every trial used is recorded instead (collect.py
+        # agent_version). ALLOWED_TOOLS is read by the runner: its default list plus the aspire MCP server's tools,
+        # which it would otherwise refuse in its non-interactive permission mode; the same for every claude-code arm.
         export ALLOWED_TOOLS="Bash,Edit,Glob,Grep,KillShell,LSP,MCPSearch,NotebookEdit,Read,Skill,Task,TaskCreate,TaskGet,TaskList,TaskOutput,TaskUpdate,ToolSearch,Write,mcp__aspire"
-        agent_env=(--env CLAUDE_CODE_VERSION ALLOWED_TOOLS) ;;
+        agent_env=(--env ALLOWED_TOOLS) ;;
     *) echo "Unknown BENCH_AGENT '$agent' (github-copilot-cli, vscode, claude-code)" >&2; exit 1 ;;
 esac
 

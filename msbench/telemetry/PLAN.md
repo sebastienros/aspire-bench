@@ -4503,16 +4503,22 @@ the window is the cell's last five earlier runs, a run is the round name up to t
   third time into `/app/.claude/skills`, and with MCP `common/claude-code/claude.json` (the same `aspire agent mcp`
   definition as `task.toml`, checked by `gen-tasks.mjs`) copied to `/root/.claude.json`. `task.toml` is the parent's
   but for `variant`. `raw` needs no variant. `submit.sh` refuses a `-cc` arm under any other harness. Under
-  `claude-code` every arm gets `CLAUDE_CODE_VERSION=2.1.327` (the version `latest` resolved to on CES on 2026-11-18)
-  and `ALLOWED_TOOLS` = the runner's default list plus `mcp__aspire` (without it the runner's non-interactive
-  permission mode refuses every MCP call); the ledger records `agent_cli_version_requested`, `collect.py` the
-  version used per trial (`agent_version`), the servers and Aspire skills Claude Code listed at start
-  (`agent_mcp_servers`, `agent_skills_listed`) and refused MCP calls (`mcp_permission_denied`).
+  `claude-code` every arm gets `ALLOWED_TOOLS` = the runner's default list plus `mcp__aspire` (without it the
+  runner's non-interactive permission mode refuses every MCP call). `collect.py` records the CLI version used per
+  trial (`agent_version`), the servers and Aspire skills Claude Code listed at start (`agent_mcp_servers`,
+  `agent_skills_listed`) and refused MCP calls (`mcp_permission_denied`).
+- **CLI version (amended 2026-11-19 after the first two probes, before any graded trial).** The package's pin,
+  `CLAUDE_CODE_VERSION`, was first forwarded with `--env` (2.1.327). On CES it reaches the runner but not Harbor's
+  agent setup, which installed `latest` (2.1.328); the runner then refused the mismatch before any model call
+  (both probes `MSBenchAgentRunError`, no grade, $0). No other route to setup exists from `submit.sh`, so the card's
+  fallback applies: no pin, the version recorded per trial, the round submitted within one day. If the round's
+  trials report more than one version, that is reported per cell beside the verdict.
 - **Probe** (round `p4-probe-cc`, ledger `excluded`): one `claude-code` × `claude-haiku-5.5` × `slow-sql` trial per
   `-cc` arm. Passes when `agent_mcp_servers` lists `aspire` and the init tool list carries its tools
   (`aspire-skills-mcp-cc`), `agent_skills_listed` carries the arm's set, `aspire-diagnose` is in `skills_loaded`
   on `aspire-lean-cc`, `mcp_calls` > 0 with `mcp_permission_denied` = 0 and at least one MCP result with content on
-  `aspire-skills-mcp-cc`, `agent_version` used = 2.1.327 with source `env`, and the verifier grades. A failed check
+  `aspire-skills-mcp-cc`, the CLI version recorded, and the verifier grades. (The first probe pair, round
+  `p4-probe-cc`, stopped at the version pin; the re-probe is round `p4-probe-cc2`.) A failed check
   stops the card before pilots.
 - **Pilots** (round `p4-pilot-haiku`, ledger `excluded`, ruling 3): `aspire-skills-mcp-cc` under `claude-code`,
   `aspire-skills-mcp` and `raw` under Copilot CLI, `claude-haiku-5.5`, one `slow-sql` and one `slow-redis` trial each
