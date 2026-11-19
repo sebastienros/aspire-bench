@@ -685,6 +685,9 @@ VSCODE_MCP_TOOL = re.compile(r"^mcp_aspire_(.+)$")
 # Claude Code (T4.7) names an MCP tool mcp__<server>__<tool> and loads a skill with its `Skill` tool.
 CLAUDE_MCP_TOOL = re.compile(r"^mcp__aspire__(.+)$")
 CLAUDE_PERMISSION_DENIED = re.compile(r"requested permissions to use|haven't granted it yet")
+# T4.7 ruling: a shell listing that excludes the skill folders (.claude/ or .github/), as T1.7's and the p4-probe-cc2
+# haiku trials did, recorded per claude-code trial as a mechanism marker.
+SKILL_DIR_EXCLUDED = re.compile(r"(?:grep\s+-\w*v\w*|-not\s+-path|!\s+-path|--exclude(?:-dir)?)[^|;&\n]*\.(?:claude|github)\b")
 
 
 def atif_steps(trajectory):
@@ -774,6 +777,12 @@ def analyze_atif(trial_dir, entry, row):
     row["mcp_calls"] = {name: n for name, n in counts.items() if name and name.startswith("aspire-")}
     row["skills_loaded"] = [skill for skill in map(skill_of, calls) if skill]
     if row["agent"] == "claude-code":
+        # T4.7 ruling: under Claude Code a skill load is a `Skill` tool call only; reading a SKILL.md is not one.
+        row["skills_loaded"] = [c["arguments"].get("skill") or c["arguments"].get("command") for c in calls if c["name"] == "Skill"]
+        row["skill_md_read"] = sorted({m.group(1) for c in calls if c["name"] != "Skill" for v in c["arguments"].values()
+                                       if isinstance(v, str) for m in [SKILL_FILE.search(v)] if m})
+        row["listing_excludes_skill_dirs"] = any(SKILL_DIR_EXCLUDED.search(c["arguments"].get("command") or "")
+                                                 for c in calls if c["name"] == "Bash")
         claude_code_settings(trial_dir, entry, row)
         # A call the harness refused (tool not allowed) still counts in mcp_calls; this says how many.
         row["mcp_permission_denied"] = sum(bool(c["name"].startswith("aspire-") and CLAUDE_PERMISSION_DENIED.search(c["result"]))
@@ -973,11 +982,6 @@ def analyze_vscode(trial_dir, entry, row):
     row["tool_counts"] = dict(counts)
     row["mcp_calls"] = {name: n for name, n in counts.items() if name and name.startswith("aspire-")}
     row["skills_loaded"] = [skill for skill in map(skill_of, calls) if skill]
-    if row["agent"] == "claude-code":
-        claude_code_settings(trial_dir, entry, row)
-        # A call the harness refused (tool not allowed) still counts in mcp_calls; this says how many.
-        row["mcp_permission_denied"] = sum(bool(c["name"].startswith("aspire-") and CLAUDE_PERMISSION_DENIED.search(c["result"]))
-                                           for c in calls if c["name"])
     aspire, protected, harness_paths = collections.Counter(), 0, set()
     for call in calls:
         text = json.dumps(call["arguments"])

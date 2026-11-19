@@ -4676,7 +4676,20 @@ to `raw` (median `agent_seconds`) with the exact Mann-Whitney p and the 90 % boo
   (`aspire-skills-mcp-cc`), `agent_skills_listed` carries the arm's set, `aspire-diagnose` is in `skills_loaded`
   on `aspire-lean-cc`, `mcp_calls` > 0 with `mcp_permission_denied` = 0 and at least one MCP result with content on
   `aspire-skills-mcp-cc`, the CLI version recorded, and the verifier grades. (The first probe pair, round
-  `p4-probe-cc`, stopped at the version pin; the re-probe is round `p4-probe-cc2`.) A failed check
+  `p4-probe-cc`, stopped at the version pin; the re-probe is round `p4-probe-cc2`.)
+- **Probe outcome and ruling (2026-11-19, before any pilot or cell trial).** `p4-probe-cc2`, both reward 1, CLI
+  2.1.328, $0.11 and $0.12. `aspire-skills-mcp-cc` (`2026111977826660`): `init` listed server `aspire` with its 15
+  tools and the eight shipped skills; 2 MCP calls (`list_resources` 11.5 kB, `list_traces` 34.7 kB of content),
+  0 refused. `aspire-lean-cc` (`2026111977831108`): `init` listed the lean set, `aspire-diagnose` included, but the
+  agent made no `Skill` call (17 `Bash`, 2 `Read`). **The check as written ("`aspire-diagnose` is loaded on
+  `aspire-lean-cc`") failed on that probe; its delivery reading (the skill reaches Claude Code: `init` lists the
+  lean set) passed.** The coordinating session ruled that the card proceeds on the delivery reading: whether
+  haiku selects `aspire-diagnose` under Claude Code is what the card measures (skill selection is a named
+  mechanism), and the probe is not a skill load. No further probe. Added by the same ruling, before the round:
+  under `claude-code`, `skills_loaded` counts `Skill` tool calls only (a `SKILL.md` read is `skill_md_read`), and
+  `listing_excludes_skill_dirs` marks per trial a shell listing that filters `.claude/` or `.github/` out (true for
+  T1.7's haiku probe and the `aspire-skills-mcp-cc` probe, false for the `aspire-lean-cc` probe), reported per cell
+  beside the verdict as a mechanism marker. A failed check
   stops the card before pilots.
 - **Pilots** (round `p4-pilot-haiku`, ledger `excluded`, ruling 3): `aspire-skills-mcp-cc` under `claude-code`,
   `aspire-skills-mcp` and `raw` under Copilot CLI, `claude-haiku-5.5`, one `slow-sql` and one `slow-redis` trial each
