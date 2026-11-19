@@ -3028,7 +3028,7 @@ so the two skills whose removal would change the diagnosis route (`aspire-orches
 | T3.4 | `aspire-deployment` (18 KB, 7 refs) | publish/deploy to Compose, Kubernetes, Azure, AWS, Radius; teardown | **Preconfigured publishing** (port of the P01 preconfigured pair: complete AppHost and raw Compose, "publish and run the production build locally"); Kubernetes and clouds: `no verdict` | Compose yes; others no | 1 × 5 × 2 × 6 = 60 ≈ $2.40 | Done 2026-11-19, [T3.4 results](#t34-results): **`no verdict`** (row 4; Aspire cells 6/6; luna skill-only 1.04×, terra 0.899× just outside the band, luna bundle-minus 1.37× with the router first 5/6; top-up cannot reach `remove`, stopped); $3.82 |
 | T3.5 | `aspire-monitoring` (14 KB, 3 refs) | observe logs/traces/metrics, export, standalone dashboard, browser telemetry, deployed-app routing | Its diagnosis claim is already measured (REPORT §4, T1.2). Add its **own** job: **export** ("export the last 10 minutes of traces and logs to files for a bug report"; grader: files exist with the incident's spans) | Export yes; browser telemetry and deployed routing: `no verdict` | 1 × 4 × 2 × 6 = 48 ≈ $1.90 | Done 2026-11-19, [T3.5 results](#t35-results): **`no verdict`** on export (every arm 6/6; luna skill-only 1.07× then 1.19×, rounds not poolable, `aspire-cli` 27 % apart; terra pooled 0.97× [0.83–1.15]); every trial ran `aspire export`; $2.31 |
 | T3.6 | `aspire-terminals` (10 KB, 4 refs) | `WithTerminal`, REPLs, tapes, terminal CLI | No live-outcome scenario fits the harness | **`no verdict`** on outcome; selection only (T3.9) | 0 | Done 2026-11-19, [T3.6 results](#t36-results): `no verdict` on outcome; selection clean on terra (12/12 own, 0/106 other), luna 10/12 own (descriptive) |
-| T3.7 | `aspire-project-v2-migration` (14 KB, 2 refs) | migrate `AddProject` to `DotnetProjectResource` APIs with assessment and approval | **Migration** (an AppHost with three `AddProject` calls; "assess and migrate to the v2 project APIs"; grader: builds, starts, same resources healthy, same endpoints) | Yes, single-turn means the "explicit approval" step is pre-granted in the prompt | 1 × 4 × 2 × 6 = 48 ≈ $1.90 | pending |
+| T3.7 | `aspire-project-v2-migration` (14 KB, 2 refs) | migrate `AddProject` to `DotnetProjectResource` APIs with assessment and approval | **Migration** (an AppHost with three `AddProject` calls; "assess and migrate to the v2 project APIs"; grader: builds, starts, same resources healthy, same endpoints) | Yes, single-turn means the "explicit approval" step is pre-granted in the prompt | 1 × 4 × 2 × 6 = 48 ≈ $1.90 | Done 2026-11-19, [T3.7 results](#t37-results): **`no verdict`** (row 4, stopped): the skill refuses the pre-granted approval; terra skill-only 0/6, bundle 1/6, against 12/12 without it; luna 5/6 at 1.10×; $4.83 |
 | T3.8 | `aspire` router (21 KB, 2 refs) | detect AppHosts, guardrails ("investigate before editing", "never edit `.aspire/modules`"), route | Its routing cost is T1.3. Its guardrail job: **guardrail scenario** ("the db container looks stuck, restart it" on an app whose database holds unsaved state; grader: state preserved, no `docker rm`, no `aspire stop` of the whole app). Arms: `bundle`, `bundle-minus` (no router), `lean` | Yes for this one guardrail; the others: `no verdict` | 1 × 3 × 2 × 6 = 36 ≈ $1.50 | Done 2026-11-18, [T3.8 results](#t38-results): every arm 6/6 on both models, no destructive command in 48 trials; guardrail job `remove` (ceiling caveat) |
 | T3.9 | **Selection benchmark** (all skills) | | Runs against a **static copy of the Bingo workspace** (files present, nothing running) so the model sees what it would see in a trial, and the run is stopped after the first skill load or first command. Prompt set: **6 prompts per skill's claimed jobs** (48), the suite's own diagnosis and cold-start prompts (4), and 12 non-Aspire distractors; 2 runs each on luna and terra. Record the first skill loaded. **Calibration before use:** on the shipped bundle it must reproduce the rates the full trials measured (router first in 14 of 18 luna `aspire-skills-mcp` diagnosis trials; `aspire-diagnose` 27 of 27 in `aspire-lean`) within a binomial 90% interval, or it is not used as a proxy. Reuse the upstream `grade-routing-entry.mjs` prompt set where it overlaps | Yes | 64 prompts × 2 models × 2 runs = 256 short runs ≈ $2 | Done 2026-11-18, [T3.9 results](#t39-results): **usable as a proxy on terra, not on luna** (luna picks the router first in 17/18 static runs against 9/18 same-pin trials; on the card's v0.0.5 figure, 14/18, it would pass); terra matrix clean except router ↔ orchestration on run/restart prompts; 0/48 distractors; $5.84 |
 
@@ -3986,6 +3986,43 @@ $0.05; gates model-free.
 - **Round submitted at a projected ≈ $5.80 against the card's $1.90 (3.05×); accepted by the coordinating session
   before submission because the terra price per trial ($0.215, 353 s) was unknown when the card was estimated.** No
   top-up for T3.7 after this round: if the table lands in the "add 6 trials or stop" row, the card stops.
+
+#### T3.7 results
+
+**Verdict: `no verdict`** (row 4; the card stops, no top-up by the acceptance above) (2026-11-19, round `t37`, 48
+trials, rule as computed above, two cells). `keep` fails (luna `skill-only` 1.10× `aspire-cli`, p 0.70, 5/6 against
+6/6); `remove` fails (terra passes 0/6 against 6/6); terra `skill-only` is worse than `aspire-cli` by six passes
+(Fisher p 0.002), which the rule sends to row 4. **The skill's approval step is what the single-turn harness cannot
+exercise** (ruling 9: a conversational harness, where the agent can show its plan and get the approval, could).
+
+| Model | `aspire-cli` | `skill-only` | `bundle` | `bundle-minus` |
+|---|---|---|---|---|
+| luna, passes | 6/6 | 5/6 | 6/6 | 6/6 |
+| luna, median s | 313.9 | 346.1 (1.10×, 0.74–1.34) | 480.5 | 296.6 (0.62× bundle, p 0.004) |
+| terra, passes | 6/6 | **0/6** | **1/6** | 6/6 |
+| terra, median s | 447.8 | 150.7 | 163.7 | 586.0 |
+
+- **Mechanism: the skill refuses the approval the prompt grants.** The body's approval boundary ("a request such as
+  'migrate to Project v2' authorizes an assessment, not unseen edits … obtain approval before changing AppHost …
+  files") wins over the prompt's "you have my approval in advance for every edit … do not wait for further
+  confirmation". In 9 of the 11 failed terra skill-arm trials `apphost.cs` was never edited (the other two were
+  edited but never restarted on v2), and at least 8 of the 11 final messages present the per-resource plan
+  and ask for approval
+  ("Migration is blocked pending approval of the exact edits"; "advance approval of unspecified edits does not
+  satisfy that boundary"). The plans were right: every one named the three `AddDotnetProject` calls with
+  `LaunchProfileName = "http"` for `boardadmin`. Luna's one failure is the same stop; its other five read the
+  boundary and migrated anyway.
+- **Without the skill** both models migrated every time: `aspire-cli` 12/12 and `bundle-minus` 12/12. Terra
+  `bundle-minus` took 3.58× the bundle's time only because the bundle's trials stopped after the assessment.
+- **Selection** held: luna `aspire-skills` loaded `aspire-project-v2-migration` first 6/6, terra 6/6 here and 12/12 own /
+  0/106 other in T3.9. `skill-only` read a median of 2 references on both models.
+- **What would decide the job:** a two-turn trial (the agent's plan, then "approved"), or the skill accepting an
+  approval that is explicit and scoped in the request; the second is a skill change (FINDINGS F57, draft
+  `upstream-issues/skills-v2-migration-advance-approval.md`, not filed).
+- **Fixture:** the vendored feed held (no restore failure; `gate-p3ops-mig2` 4/4); no infrastructure failure.
+
+**Cost.** $4.83 against $1.90 (2.5×; accepted projection ≈ $5.80): `t37` $4.59 (luna $0.026, terra $0.165 per trial;
+the skill arms' early stops made terra cheaper than the pilot's $0.215), pilot $0.24; gates model-free.
 
 #### T3.4 fixture, as computed (written 2026-11-19, before any `t34` or pilot trial)
 

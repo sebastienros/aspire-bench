@@ -193,7 +193,8 @@ they are listed in trials.jsonl and excluded from every other column.
 | aspire-lean-mcp-all | 3 | 3/3 | 3/3 | 62 (+17%) | 218,927 (+27%) | 0.062 (+14%) | 18 | 22 | - |
 | raw-check | 6 | 6/6 | 6/6 | 54 (+3%) | 164,064 (-5%) | 0.054 (-1%) | 20 | 15 | - |
 
-# Pin 2026-11-17: Aspire 17.1.0-preview.1.26567.3+30326eb8, aspire-skills v0.0.6 (e529b608)
+# Pin 2026-11-17: Aspire 17.1.0-preview.1.26567.3
+17.1.0-preview.1.26567.3+30326eb8, 17.1.0-preview.1.26567.3+30326eb8, aspire-skills v0.0.6 (e529b608)
 
 ## add-dependency / gpt-6-luna
 
@@ -409,6 +410,24 @@ they are listed in trials.jsonl and excluded from every other column.
 | aspire-skills-mcp | 12 | 12/12 | 12/12 | 119 (-9%) | 443,659 (+32%) | 0.097 (+34%) | 29 | 43 | - |
 | aspire-lean (tasks 1479041e) | 6 | 6/6 | 6/6 | 113 (-14%) | 301,804 (-10%) | 0.070 (-3%) | 26 | 54 | - |
 | aspire-lean (tasks 916a57ce) | 6 | 6/6 | 6/6 | 90 (-31%) | 310,502 (-8%) | 0.075 (+4%) | 28 | 44 | - |
+
+## migration / gpt-6-luna
+
+| Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| aspire-cli | 6 | 6/6 | 6/6 | 314 | 1,019,550 | 0.025 | 70 | - | - |
+| aspire-skills | 6 | 6/6 | 6/6 | 480 | 1,260,613 | 0.033 | 79 | - | - |
+| aspire-skill-migration | 6 | 5/6 | 6/6 | 346 | 1,033,814 | 0.028 | 74 | - | - |
+| aspire-skills-nomigration | 6 | 6/6 | 6/6 | 297 | 983,767 | 0.024 | 59 | - | - |
+
+## migration / gpt-6.1-terra
+
+| Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| aspire-cli | 6 | 6/6 | 6/6 | 448 | 1,689,271 | 0.224 | 70 | - | - |
+| aspire-skills | 6 | 1/6 | 6/6 | 164 | 369,814 | 0.100 | 37 | - | - |
+| aspire-skill-migration | 6 | 0/6 | 6/6 | 151 | 187,822 | 0.069 | 30 | - | - |
+| aspire-skills-nomigration | 6 | 6/6 | 6/6 | 586 | 1,606,907 | 0.224 | 64 | - | - |
 
 ## port-conflict / gpt-6-luna
 
@@ -826,6 +845,12 @@ tool calls' arguments; search results are not reads). Later pins only; cells whe
 | heldout-slow-sql | gpt-6.1-terra | aspire-skills-mcp | 12 | 1/12 | 0 | `aspire-monitoring/references/monitoring.md` 1 |
 | heldout-slow-sql | gpt-6.1-terra | aspire-lean (tasks 916a57ce) | 6 | 1/6 | 0 | `aspire-orchestration/references/resource-management.md` 1 |
 | heldout-stuck-orders | gpt-6-luna | aspire-skills-mcp | 12 | 1/12 | 0 | `aspire-monitoring/references/monitoring.md` 1 |
+| migration | gpt-6-luna | aspire-skills | 6 | 6/6 | 2 | `aspire-project-v2-migration/references/compatibility-and-validation.md` 6, `aspire-project-v2-migration/references/migration-patterns.md` 6 |
+| migration | gpt-6-luna | aspire-skill-migration | 6 | 6/6 | 2 | `aspire-project-v2-migration/references/compatibility-and-validation.md` 6, `aspire-project-v2-migration/references/migration-patterns.md` 6 |
+| migration | gpt-6-luna | aspire-skills-nomigration | 6 | 4/6 | 1.5 | `aspire/references/aspire-13-5-breaking-changes.md` 3, `aspire-orchestration/references/app-commands.md` 1, `aspire-orchestration/references/resource-management.md` 1, `aspireify/references/apphost-wiring.md` 1, `aspireify/references/csharp-authoring.md` 1, `aspireify/references/validation.md` 1 |
+| migration | gpt-6.1-terra | aspire-skills | 6 | 6/6 | 2 | `aspire-project-v2-migration/references/compatibility-and-validation.md` 6, `aspire-project-v2-migration/references/migration-patterns.md` 6, `aspire-orchestration/references/safety-guardrails.md` 2 |
+| migration | gpt-6.1-terra | aspire-skill-migration | 6 | 6/6 | 2 | `aspire-project-v2-migration/references/compatibility-and-validation.md` 6, `aspire-project-v2-migration/references/migration-patterns.md` 6 |
+| migration | gpt-6.1-terra | aspire-skills-nomigration | 6 | 1/6 | 0 | `aspire-orchestration/references/safety-guardrails.md` 1 |
 | port-conflict | gpt-6-luna | aspire-skills | 6 | 5/6 | 1.5 | `aspire-orchestration/references/app-commands.md` 3, `aspire-orchestration/references/resource-management.md` 3, `aspire-orchestration/references/safety-guardrails.md` 3, `aspireify/references/apphost-wiring.md` 1, `aspireify/references/csharp-authoring.md` 1 |
 | port-conflict | gpt-6-luna | aspire-skill-orchestration | 6 | 6/6 | 2.5 | `aspire-orchestration/references/app-commands.md` 6, `aspire-orchestration/references/resource-management.md` 5, `aspire-orchestration/references/safety-guardrails.md` 4, `aspire-orchestration/references/detection.md` 1 |
 | port-conflict | gpt-6.1-terra | aspire-skill-orchestration | 6 | 1/6 | 0 | `aspire-orchestration/references/app-commands.md` 1 |

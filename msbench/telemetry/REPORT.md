@@ -1603,3 +1603,15 @@ plus `cold-start` (reported) and the luna `slow-sql`/`slow-redis` guard.
   File locks cannot occur on this Linux harness (`no verdict`, a Windows harness would exercise them).
 - **Cold start (tie to T2.11):** the bundle without orchestration was 0.84× the bundle on luna (p 0.039); the skill
   alone 1.37× the CLI (p 0.093). $9.09 against $10.10. [PLAN.md, T3.1 results](PLAN.md#t31-results).
+
+**Phase 3, T3.7: `aspire-project-v2-migration`.** New scenario `migration`: a running file-based AppHost with three
+`AddProject` calls (the Bingo app plus a `scoreboard` project), "assess and migrate to the Project v2 APIs" with the
+approval granted in the prompt (the card's single-turn design); feed vendored at the pin (the authoring lane's
+mechanism); grader: no `AddProject`, the three projects running as Project v2 resources, the same resources healthy
+and the same endpoint names. **`no verdict`** (row 4, the card stops): the skill refuses the pre-granted approval. Terra
+with the skill passed 0/6 alone and 1/6 in the bundle; it stopped after a correct plan and asked for approval of
+the exact edits. Without the skill both models migrated 12/12; luna mostly ignored the boundary (5/6, 1.10× the
+CLI's time). The skill's own claim, assessment and approval in conversation, needs a two-turn harness
+([FINDINGS F57](../FINDINGS.md#f57-aspire-project-v2-migration-refuses-an-approval-granted-in-advance-so-a-single-turn-migration-never-happens),
+draft `skills-v2-migration-advance-approval.md`, not filed). $4.83 against $1.90 (accepted at ≈ $5.80).
+[PLAN.md, T3.7 results](PLAN.md#t37-results).

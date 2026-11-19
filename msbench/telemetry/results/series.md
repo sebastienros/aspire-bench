@@ -38,6 +38,8 @@ infrastructure failures are left out.
 | github-copilot-cli | t31 | 20261119 | 2026-11-17 | t31, t31-infra | 17.1.0-preview.1.26567.3+30326eb8 | v0.0.6 | T3.1 |
 | github-copilot-cli | t35 | 20261119 | 2026-11-17 | t35, t35-topup | 17.1.0-preview.1.26567.3+30326eb8 | v0.0.6 | T3.5 |
 | github-copilot-cli | t34 | 20261119 | 2026-11-17 | t34, t34-rerun | 17.1.0-preview.1.26567.3+30326eb8 | v0.0.6 | T3.4 |
+| github-copilot-cli | t37 | 20261119 | 2026-11-17 | t37 | 17.1.0-preview.1.26567.3
+17.1.0-preview.1.26567.3+30326eb8 | v0.0.6 | T3.7 |
 
 ## add-dependency / gpt-6-luna
 
@@ -312,6 +314,24 @@ infrastructure failures are left out.
 | aspire-skills-mcp | t02 | 12 | 12/12 | 119 (22) | 443,659 | 0.91× | – | 1.32× | – | 100% | 7 | 255,727 |  | ▄ |
 | aspire-lean | t02 (tasks 916a57ce) | 6 | 6/6 | 90 (6) | 310,502 | 0.69× | – | 0.92× | – | 100% | 0 | 140,733 |  | ▄ |
 | aspire-lean | t02 (tasks 1479041e) | 6 | 6/6 | 113 (14) | 301,804 | 0.86× | 0.69× | 0.90× | 0.92× | 100% | 0 | 140,766 | regress-time | ▁█ |
+
+## migration / gpt-6-luna
+
+| Arm | Run | n | Pass | Agent s (MAD) | Input tok | Time × raw | trail | Tokens × raw | trail | Skill sel. | MCP calls | Chars read | Flags | Time ratio |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---|
+| aspire-cli | t37 | 6 | 6/6 | 314 (17) | 1,019,550 | – | – | – | – | 0% | 0 | 249,554 | no-raw |  |
+| aspire-skills | t37 | 6 | 6/6 | 480 (78) | 1,260,613 | – | – | – | – | 100% | 0 | 315,164 | no-raw |  |
+| aspire-skill-migration | t37 | 6 | 5/6 | 346 (64) | 1,033,814 | – | – | – | – | 100% | 0 | 266,946 | no-raw |  |
+| aspire-skills-nomigration | t37 | 6 | 6/6 | 297 (84) | 983,767 | – | – | – | – | 100% | 0 | 296,364 | no-raw |  |
+
+## migration / gpt-6.1-terra
+
+| Arm | Run | n | Pass | Agent s (MAD) | Input tok | Time × raw | trail | Tokens × raw | trail | Skill sel. | MCP calls | Chars read | Flags | Time ratio |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---|
+| aspire-cli | t37 | 6 | 6/6 | 448 (88) | 1,689,271 | – | – | – | – | 0% | 0 | 422,693 | no-raw |  |
+| aspire-skills | t37 | 6 | 1/6 | 164 (56) | 369,814 | – | – | – | – | 100% | 0 | 236,934 | no-raw |  |
+| aspire-skill-migration | t37 | 6 | 0/6 | 151 (17) | 187,822 | – | – | – | – | 100% | 0 | 181,812 | no-raw |  |
+| aspire-skills-nomigration | t37 | 6 | 6/6 | 586 (101) | 1,606,907 | – | – | – | – | 100% | 0 | 380,766 | no-raw |  |
 
 ## port-conflict / gpt-6-luna
 

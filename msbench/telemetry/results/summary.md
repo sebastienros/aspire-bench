@@ -191,7 +191,8 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 | raw | 6/6 | 53 | 13 | 25 | 173,038 | 1,890 | 0.054 | 20 | - | 0 | 110,035 |
 | raw-check | 6/6 | 54 | 15 | 27 | 164,064 | 1,850 | 0.054 | 20 | - | 0 | 103,274 |
 
-# Pin 2026-11-17: Aspire 17.1.0-preview.1.26567.3+30326eb8, aspire-skills v0.0.6 (e529b608)
+# Pin 2026-11-17: Aspire 17.1.0-preview.1.26567.3
+17.1.0-preview.1.26567.3+30326eb8, 17.1.0-preview.1.26567.3+30326eb8, aspire-skills v0.0.6 (e529b608)
 
 ## add-dependency / gpt-6-luna
 
@@ -407,6 +408,24 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 | aspire-lean (tasks 916a57ce) | 6/6 | 90 | 44 | 70 | 310,502 | 2,916 | 0.075 | 28 | aspire-diagnosex6 | 0 | 140,733 |
 | aspire-skills-mcp | 12/12 | 119 | 43 | 81 | 443,659 | 3,310 | 0.097 | 29 | aspirex1, aspire-monitoringx12 | 7 | 255,727 |
 | raw | 12/12 | 131 | 8 | 88 | 336,867 | 3,468 | 0.072 | 24 | - | 0 | 100,020 |
+
+## migration / gpt-6-luna
+
+| Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
+| aspire-cli | 6/6 | 314 | - | - | 1,019,550 | 15,924 | 0.025 | 70 | - | 0 | 249,554 |
+| aspire-skill-migration | 5/6 | 346 | - | - | 1,033,814 | 20,272 | 0.028 | 74 | aspire-project-v2-migrationx6 | 0 | 266,946 |
+| aspire-skills | 6/6 | 480 | - | - | 1,260,613 | 22,748 | 0.033 | 79 | aspire-monitoringx2, aspire-orchestrationx1, aspire-project-v2-migrationx6 | 0 | 315,164 |
+| aspire-skills-nomigration | 6/6 | 297 | - | - | 983,767 | 12,960 | 0.024 | 59 | aspirex6, aspire-monitoringx4, aspire-orchestrationx4, aspire-project-v2-migrationx5 | 0 | 296,364 |
+
+## migration / gpt-6.1-terra
+
+| Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
+| aspire-cli | 6/6 | 448 | - | - | 1,689,271 | 11,880 | 0.224 | 70 | - | 0 | 422,693 |
+| aspire-skill-migration | 0/6 | 151 | - | - | 187,822 | 3,302 | 0.069 | 30 | aspire-project-v2-migrationx6 | 0 | 181,812 |
+| aspire-skills | 1/6 | 164 | - | - | 369,814 | 4,369 | 0.100 | 37 | aspire-monitoringx1, aspire-orchestrationx5, aspire-project-v2-migrationx6 | 0 | 236,934 |
+| aspire-skills-nomigration | 6/6 | 586 | - | - | 1,606,907 | 10,706 | 0.224 | 64 | aspirex6, aspire-monitoringx2, aspire-orchestrationx6, aspire-project-v2-migrationx1 | 0 | 380,766 |
 
 ## port-conflict / gpt-6-luna
 

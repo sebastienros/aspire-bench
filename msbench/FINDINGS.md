@@ -1964,6 +1964,27 @@ avoid it was not tested. One application; the delay is timing-dependent (the loc
 at once). Not upstreamed
 (draft [`aspire-stop-teardown-race.md`](upstream-issues/aspire-stop-teardown-race.md)).
 
+## F57: `aspire-project-v2-migration` refuses an approval granted in advance, so a single-turn migration never happens
+
+**Evidence:** Task T3.7 ([PLAN.md, T3.7 results](telemetry/PLAN.md#t37-results)), round `t37`, 48 trials, pin
+2026-11-17. A running file-based AppHost with three `AddProject` calls. The prompt: assess and migrate to the Project
+v2 APIs, "you have my approval in advance for every edit the migration needs … do not wait for further
+confirmation". Without the skill, both models migrated in every trial (`aspire-cli` 12/12, the bundle without it
+12/12). With it, terra passed 0/6 alone and 1/6 in the shipped bundle (Fisher p 0.002 against the CLI). In 9 of
+those 11 failures `apphost.cs` was never touched (two were edited and not restarted). The agent stopped after a correct per-resource plan and asked
+for approval, citing the skill's boundary: "advance approval of unspecified edits does not satisfy that boundary".
+Luna mostly went ahead (5/6) and took 1.10× the CLI's time.
+
+**Improvement candidate:** Let the skill treat an explicit approval in the request as approval, at least when the
+request scopes it to the migration's own edits (the AppHost and its package references), and still show the plan
+before editing. Otherwise a non-interactive caller cannot use the skill for the job it is named after. Draft:
+[`skills-v2-migration-advance-approval.md`](upstream-issues/skills-v2-migration-advance-approval.md).
+
+**Limits / status:** One fixture, single turn. The skill's own claim, assessment plus approval in conversation, is
+not exercised: a two-turn harness would measure it, and the card is `no verdict`. The refusal is the skill working
+as written. Whether that is the intended behaviour for an explicit advance approval is the question for upstream.
+Not filed.
+
 ## Recording future findings
 
 Give each finding a stable ID and include evidence links, exact observed

@@ -215,6 +215,10 @@ Each pin (toolchain) has its own table; trials of different pins are never compa
 | heldout-stuck-orders | gpt-6.1-terra | aspire-lean (tasks 1479041e) vs aspire-skills-mcp | 6 vs 12 | -5% (p=0.397) | 0.95x [0.70-1.17] | -32% (p=0.007) | -27% (p=0.000) |
 | heldout-stuck-orders | gpt-6.1-terra | aspire-lean (tasks 916a57ce) vs aspire-skills-mcp | 6 vs 12 | -24% (p=0.010) | 0.76x [0.58-0.91] | -30% (p=0.018) | -23% (p=0.013) |
 | heldout-stuck-orders | gpt-6.1-terra | aspire-cli vs raw | 12 vs 12 | -28% (p=0.052) | 0.72x [0.60-0.94] | -34% (p=0.266) | -13% (p=0.319) |
+| migration | gpt-6-luna | aspire-skill-migration vs aspire-cli | 6 vs 6 | +10% (p=0.699) | 1.10x [0.74-1.34] | +1% (p=0.937) | +11% (p=0.394) |
+| migration | gpt-6-luna | aspire-skills-nomigration vs aspire-skills | 6 vs 6 | -38% (p=0.004) | 0.62x [0.32-0.82] | -22% (p=0.004) | -26% (p=0.004) |
+| migration | gpt-6.1-terra | aspire-skill-migration vs aspire-cli | 6 vs 6 | -66% (p=0.004) | 0.34x [0.24-0.51] | -89% (p=0.009) | -69% (p=0.009) |
+| migration | gpt-6.1-terra | aspire-skills-nomigration vs aspire-skills | 6 vs 6 | +258% (p=0.041) | 3.58x [1.35-5.24] | +335% (p=0.065) | +123% (p=0.093) |
 | port-conflict | gpt-6-luna | aspire-cli vs raw | 6 vs 6 | +346% (p=0.002) | 4.46x [3.99-5.77] | +329% (p=0.002) | +203% (p=0.002) |
 | port-conflict | gpt-6-luna | aspire-skill-orchestration vs aspire-cli | 6 vs 6 | +65% (p=0.180) | 1.65x [0.96-2.10] | +153% (p=0.132) | +94% (p=0.093) |
 | port-conflict | gpt-6-luna | aspire-skills-noorchestration vs aspire-skills | 6 vs 6 | -31% (p=0.310) | 0.69x [0.35-1.37] | -49% (p=0.132) | -40% (p=0.310) |
