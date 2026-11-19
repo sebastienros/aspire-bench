@@ -131,7 +131,10 @@ repin() {
         echo "files changed outside msbench/telemetry/track/ (must be none):"
         git -C "$clone" diff --name-only "$base" HEAD | grep -v '^msbench/telemetry/track/' | sed 's/^/  /' || echo "  none"
         echo "track/common: lines that differ from common/ (the pins):"
-        diff -r "$clone/msbench/telemetry/common" "$clone/msbench/telemetry/track/common" | grep '^[<>]' | sort | uniq -c | sed 's/^/  /' | head -40
+        { diff -r "$clone/msbench/telemetry/common" "$clone/msbench/telemetry/track/common" || true; } | grep '^[<>]' | sort | uniq -c | sed 's/^/  /' || true
+        echo "track/common/PIN.json:"; sed 's/^/  /' "$clone/msbench/telemetry/track/common/PIN.json"
+        echo "Dockerfile pins of track/tasks/slow-sql/aspire-lean:"
+        grep -E '^ARG ASPIRE_(VERSION|COMMIT|SHA256)' "$clone/msbench/telemetry/track/tasks/slow-sql/aspire-lean/environment/Dockerfile" | sort -u | sed 's/^/  /'
         echo "track/tasks: $(git -C "$clone" diff --name-only "$base" HEAD -- msbench/telemetry/track/tasks | wc -l | tr -d ' ') files; track/dataset.jsonl:"
         sed 's/^/  /' "$clone/msbench/telemetry/track/dataset.jsonl" | cut -c1-200
         rm -rf "$(dirname "$clone")"
