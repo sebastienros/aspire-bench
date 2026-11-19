@@ -30,7 +30,7 @@ These are the user's calls. The plan proceeds on the defaults in the second colu
 
 | Decision | Default assumed here | Why it matters |
 |---|---|---|
-| Model budget per phase | Phase 0 ≈ $14, Phase 1 ≈ $42 at the cards' estimates, re-estimated to ≈ $60 after the model lane (T1.1, T1.6, T1.7, T1.8) cost $45.91 against $27.50 (sol $0.287 and Opus $0.370 per trial on Bingo measured, not $0.118 and $0.25; sol cold start $0.15, so the sol cold-start cells of T2.2 and T2.9 keep their estimates), Phase 2 ≈ $15, Phase 3 ≈ $26, Phase 4 ≈ $5 plus ≈ $5 per tracking run (model cost only, summed from the cards' estimates at this dataset's per-trial means; Opus assumed at $0.25 per trial before T1.8 measured $0.370) | Sets n per cell and how many scenarios the skill audit gets |
+| Model budget per phase | Phase 0 ≈ $14, Phase 1 ≈ $42 at the cards' estimates, re-estimated to ≈ $60 after the model lane (T1.1, T1.6, T1.7, T1.8) cost $45.91 against $27.50 (sol $0.287 and Opus $0.370 per trial on Bingo measured, not $0.118 and $0.25; sol cold start $0.15, so the sol cold-start cells of T2.2 and T2.9 keep their estimates), Phase 2 ≈ $18.50 (T2.10 added 2026-11-18), Phase 3 ≈ $26, Phase 4 ≈ $5 plus ≈ $5 per tracking run (model cost only, summed from the cards' estimates at this dataset's per-trial means; Opus assumed at $0.25 per trial before T1.8 measured $0.370) | Sets n per cell and how many scenarios the skill audit gets |
 | Models | `gpt-6-luna` and `gpt-6.1-terra` in every decision cell; **`gpt-6.2-sol` replaces `gpt-6.1-sol`** and **`claude-opus-5.5` is added**; both run on ship gates and on their own lane (T1.8), not in every cell | Luna is where guidance decides the outcome. Catalogue prices per 1M input tokens: luna 10, terra 100, sol 200 (6.1 and 6.2 alike), Opus 5.5 400; Opus 4.8 and 5 are marked for deprecation, so 5.5 is the Opus to use. A one-trial probe of each on `cold-start`/`raw` (round `probe-models`) passed on 2026-11-17 under the pinned Copilot CLI; numbers in T1.8 |
 | Skills baseline | `microsoft/aspire-skills` **v0.0.6** (released 2026-11-17) | v0.0.5 is no longer what `aspire agent init` registers |
 | Held-out application | A second Bingo-sized app with a different stack (minimal API + SQL Server + RabbitMQ worker), built in this repo; eShop only if that proves too small | Every "ship" verdict on `aspire-diagnose` is gated on it |
@@ -1467,6 +1467,23 @@ source build against its `-src` control.
 | Trials / cost | 3 × 6 = 18 ≈ $1.20 |
 | Results | pending |
 
+### T2.10 Agent instructions file beside the AppHost (`AGENTS.md`)
+
+Added 2026-11-18. Not a source build: the product change is a file that `aspire new` templates and
+`aspire agent init` would write; until the CLI does, the image places the same file itself.
+
+| | |
+|---|---|
+| Hypothesis | Skills are pull: the model must pick one from a one-line description, once, at the moment it knows least. An instructions file beside the AppHost is push: it is in context on every turn, before the plan forms. The measured failures are selection failures, not knowledge failures: luna loaded no skill in 4 of 6 skills-only trials (F17), no shipped-set trial reached the duration filter three hops down (0 of 48), the router overrides a narrowed trigger (T1.2), and two harnesses never see the skills at all (T1.7, T1.9). A short file that names the AppHost, the start and diagnosis commands, and which skill owns which job should recover those cells, and it works on any harness that reads `AGENTS.md` or `CLAUDE.md` with no plugin, MCP or skill plumbing |
+| Change | **Product:** `aspire new` templates and `aspire agent init` write `AGENTS.md` next to the AppHost (`CLAUDE.md` too, or a one-line pointer, for Claude Code). **Simulated here:** the image copies `common/agents-md/AGENTS.md` to `/app/AGENTS.md` in the `-agents` arms, with the AppHost path filled in; nothing else differs from the control arm. The file is at most 400 tokens (bytes recorded in the ledger) and says only: this is an Aspire app and where the AppHost is; how to start it and wait for resources; `aspire describe` for endpoints and state; console logs per resource; `aspire otel traces` with a `duration:>` filter as the first move for "slow"; one line per skill naming its job (this replaces the router). It names no fault, no resource type and no fix, and is reviewed against the fixtures before the round, like the lock-comment leak in T0.2 |
+| Arms | `aspire-lean-agents` vs `aspire-lean` (primary: does the file fix selection for the proposed set); `aspire-cli-agents` vs `aspire-cli` (does the file alone teach the commands, with no skill to route to); `aspire-skills-agents` vs `aspire-skills` (does it rescue the shipped bundle without editing it). Controls are reused from the same pin where a cell exists (`t01b`, `t13`, `t16`); otherwise re-run in the round |
+| Cells | `slow-sql`, `cold-start` × luna, terra × 6 on the three `-agents` arms; `heldout-cache` × luna × 6 on `aspire-lean-agents` (same file, only the AppHost path differs: generalization); guard `slow-redis` × luna × 6 on `aspire-lean-agents` |
+| Measures | Time and tokens (the file is a per-turn tax, so tokens are reported next to time), first skill loaded and whether the duration filter was used (from the trajectory), characters read; cold start: commands to first healthy page |
+| Decision rule | `ship` (file an issue for `aspire new` and `aspire agent init` to write it) if `aspire-lean-agents` is ≥ 20% faster than `aspire-lean` on luna in `slow-sql` or `cold-start` (p < 0.10), terra does not regress by more than 10%, total tokens do not rise by more than 10%, and the guard holds (`slow-redis` luna passes ≥ `aspire-lean` minus one). If `aspire-cli-agents` matches `aspire-lean` within 10%, report that the commands, not the skills, carry the gain: the file then replaces the diagnosis skills for Phase 3 to weigh. If `aspire-skills-agents` closes the shipped set's gap to `aspire-lean`, the file is the cheaper fix than the Phase 3 rewrite. `drop` if no luna cell moves |
+| Caveat | The workspace README in every image already says the app is Aspire and gives the start commands (prompts end with "README.md describes this workspace"), so the benchmark measures injected context, not discovery of Aspire. In the field, where a README may say nothing, the effect is larger, not smaller. Copilot CLI first; VS Code reads `AGENTS.md` too and follows in the T1.9 lane; Claude Code waits for T4.7 and would read `CLAUDE.md` |
+| Trials / cost | 3 arms × 2 scenarios × 2 models × 6 = 72 + 6 held-out + 6 guard = 84 ≈ $3.50, plus controls not on the pin |
+| Results | pending |
+
 ---
 
 ## 7. Phase 3: bottom-up audit of the shipped skills
@@ -1598,7 +1615,7 @@ Order of work:
    matrix feeds T1.2, T1.3 and every Phase 3 card.
 3. **Phase 1 in three or four rounds** once T0.1 is in; T1.1's verdict waits for T0.2. The model lane (T1.8) can go in T0.1's round since it needs nothing new; the VS Code lane (T1.9) waits for T0.4.
 4. **Phase 2** product patches are built while Phase 1 runs and measured after, each
-   with its guard cells; T2.6 and T2.5 wait for T4.1's matrix.
+   with its guard cells; T2.6 and T2.5 wait for T4.1's matrix. T2.10 needs no patch and can run in the first Phase 2 round.
 5. **Phase 3** scenario ports (A01, S01, P01 preconfigured) are fixture work that can
    proceed during Phases 1 and 2; their model rounds run after.
 6. **Filing** happens per card when its rule is met, not per phase.
@@ -1609,7 +1626,7 @@ Budget at the assumed defaults:
 |---|---:|---:|---|
 | 0 | 210 + 96 + 3 (+ 48 reserved) | ≈ $13.40 (+ $2) | Held-out app fixtures, harness adapters |
 | 1 | 84 + 72 + 108 + 72 + 12 + 36 + 108 + 108 = 600 | ≈ $42 estimated (of which Opus ≈ $14, VS Code ≈ $4); **≈ $60 re-estimated** 2026-11-18 with T1.1 ($4.31), T1.6 ($5.36), T1.7 ($0.81) and T1.8 ($35.43) at actual cost, the other cards at their estimates | Three to four CES rounds; VS Code trajectory adapter |
-| 2 | 54 + 54 + 36 + 24 + 96 + 24 + 36 + 42 + 18 = 384 | ≈ $15 | Nine product patches on source builds |
+| 2 | 54 + 54 + 36 + 24 + 96 + 24 + 36 + 42 + 18 + 84 = 468 | ≈ $18.50 | Nine product patches on source builds; T2.10 is a placed file, no build |
 | 3 | 240 + 96 + 48 + 60 + 48 + 48 + 36 + 24 guard = 600, plus 256 short | ≈ $26 | Four fixture ports, two new graders |
 | 4 | 48 + 48 + 24 = 120, plus 120 per tracking run | ≈ $5, plus ≈ $5 per run | Audit fixtures (16 AppHosts) |
 
