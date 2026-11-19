@@ -101,7 +101,9 @@ export const scenarios = {
             "aspire-skills-src", "aspire-skills-redishint",
             // Phase 2 MCP lane guards on lean + MCP: T2.1 (list_resources/list_console_logs compact, over 0001)
             // against aspire-lean-mcp-compact; T2.7 (eight tools) against aspire-lean-mcp-src.
-            "aspire-lean-mcp-compact2", "aspire-lean-mcp-tools8"],
+            "aspire-lean-mcp-compact2", "aspire-lean-mcp-tools8",
+            // T2.8: three MCP routes to the dependency on lean + both patches, against aspire-lean-mcp-all.
+            "aspire-lean-mcp-all-conn", "aspire-lean-mcp-all-hint", "aspire-lean-mcp-all-step"],
         instruction: sluggish,
     },
     "read-only": {
@@ -257,6 +259,12 @@ export const arms = {
     // against aspire-mcp-src; guard on lean against aspire-lean-mcp-src.
     "aspire-mcp-tools8": { kind: "aspire", skills: "none", mcp: true, cli: "mcp-tools8" },
     "aspire-lean-mcp-tools8": { kind: "aspire", skills: "lean", mcp: true, cli: "mcp-tools8" },
+    // T2.8, each against aspire-lean-mcp-all (lean + agentic-all): (A) a get_resource_connection MCP tool
+    // (agentic-all-conn.patch), (B) list_resources text naming the CLI dependency step (agentic-all-hint.patch),
+    // (C) aspire-diagnose step 3 telling MCP users to leave MCP (skill set lean-mcpstep, unpatched agentic-all).
+    "aspire-lean-mcp-all-conn": { kind: "aspire", skills: "lean", mcp: true, cli: "agentic-all-conn" },
+    "aspire-lean-mcp-all-hint": { kind: "aspire", skills: "lean", mcp: true, cli: "agentic-all-hint" },
+    "aspire-lean-mcp-all-step": { kind: "aspire", skills: "lean-mcpstep", mcp: true, cli: "agentic-all" },
 };
 const onlyIn = {
     "aspire-lean-start": ["cold-start"], "aspire-skills-plugin": ["slow-sql"],
@@ -272,6 +280,7 @@ const onlyIn = {
     "aspire-lean-noorch-agents-src": ["cold-start"], "aspire-lean-noorch-agents-v3": ["cold-start"],
     "aspire-mcp-compact2": ["slow-sql", "read-only"], "aspire-lean-mcp-compact2": ["slow-redis"],
     "aspire-mcp-tools8": ["slow-sql", "read-only"], "aspire-lean-mcp-tools8": ["slow-redis"],
+    "aspire-lean-mcp-all-conn": ["slow-sql"], "aspire-lean-mcp-all-hint": ["slow-sql"], "aspire-lean-mcp-all-step": ["slow-sql"],
 };
 
 // The Aspire MCP server as every harness registers it. Copilot CLI receives it from task.toml

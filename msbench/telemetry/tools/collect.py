@@ -135,6 +135,7 @@ SKILL_SETS = {  # what common/skills/compose.sh copies for each set, in order; `
     "lean-noorch": ["current", "new", "-aspire", "-aspire-orchestration", "lean-overrides"],
     "lean-start-wait": ["current", "new", "start-wait", "-aspire", "lean-overrides"],
     "lean-tracetable": ["current", "new", "-aspire", "lean-overrides", "diagnose-table"],
+    "lean-mcpstep": ["current", "new", "-aspire", "lean-overrides", "mcp-step"],
 }
 
 
@@ -889,7 +890,8 @@ ARM_ORDER = ["raw", "aspire-cli", "aspire-skills", "aspire-mcp", "aspire-skills-
              "aspire-cli-src", "aspire-cli-wait", "aspire-lean-start-wait",
              "aspire-lean-noorch-agents-src", "aspire-lean-noorch-agents-v3", "aspire-lean-tracetable",
              "aspire-cli-redishint", "aspire-skills-src", "aspire-skills-redishint",
-             "aspire-mcp-compact2", "aspire-lean-mcp-compact2", "aspire-mcp-tools8", "aspire-lean-mcp-tools8"]
+             "aspire-mcp-compact2", "aspire-lean-mcp-compact2", "aspire-mcp-tools8", "aspire-lean-mcp-tools8",
+             "aspire-lean-mcp-all-conn", "aspire-lean-mcp-all-hint", "aspire-lean-mcp-all-step"]
 
 
 def arm_order(cell_arm):

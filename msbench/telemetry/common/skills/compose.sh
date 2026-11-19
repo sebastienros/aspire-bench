@@ -10,6 +10,7 @@
 #   lean-noorch  lean without aspire-orchestration; the start job moves to AGENTS.md v2 (PLAN T2.11)
 #   lean-start-wait  lean + aspire-start rewritten to one `aspire start --wait` (PLAN T2.2, patched CLI)
 #   lean-tracetable  lean with aspire-diagnose step 2 reading the trace tree, not JSON (PLAN T2.3, patched CLI)
+#   lean-mcpstep  lean with aspire-diagnose step 3 telling MCP users to leave MCP for the dependency (PLAN T2.8)
 set -eu
 here="$(cd "$(dirname "$0")" && pwd)"
 set_name="$1"; dest="$2"
@@ -34,6 +35,9 @@ case "$set_name" in
     lean-tracetable) cp -R "$here/current/." "$dest/"; cp -R "$here/new/." "$dest/"
              rm -rf "$dest/aspire"
              cp -R "$here/lean-overrides/." "$dest/"; cp -R "$here/diagnose-table/." "$dest/" ;;
+    lean-mcpstep) cp -R "$here/current/." "$dest/"; cp -R "$here/new/." "$dest/"
+             rm -rf "$dest/aspire"
+             cp -R "$here/lean-overrides/." "$dest/"; cp -R "$here/mcp-step/." "$dest/" ;;
     *) echo "Unknown skill set: $set_name" >&2; exit 1 ;;
 esac
 rm -f "$dest/LICENSE"

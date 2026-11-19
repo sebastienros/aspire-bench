@@ -8,6 +8,7 @@
 | `lean-noorch` (PLAN T2.11) | `lean` without `aspire-orchestration/` | The start job moves to `AGENTS.md` v2 (`common/agents-md/lean-noorch-v2.md`). Arm `aspire-lean-noorch-agents`. Added 2026-11-19. |
 | `lean-start-wait` (PLAN T2.2) | `lean` + `start-wait/aspire-start/SKILL.md` | `aspire-start` with the same description, its start flow rewritten to one `aspire start --non-interactive --wait` (needs the `cli-start-wait` patch). Arm `aspire-lean-start-wait`. Added 2026-11-19. |
 | `lean-tracetable` (PLAN T2.3) | `lean` + `diagnose-table/aspire-diagnose/SKILL.md` | `aspire-diagnose` with step 2 reading `aspire otel traces -t <id>` (the tree) instead of JSON (needs the `cli-trace-detail` patch); every other line unchanged. Arm `aspire-lean-tracetable`. Added 2026-11-19. |
+| `lean-mcpstep` (PLAN T2.8) | `lean` + `mcp-step/aspire-diagnose/SKILL.md` | `aspire-diagnose` with four sentences at the top of step 3: the MCP tools cover steps 1, 2 and 4, none shows a dependency's own state, so for step 3 leave MCP and run the commands below with the shell; every other line unchanged. Arm `aspire-lean-mcp-all-step` (with `agentic-all`). Added 2026-11-19. |
 | `current` before 2026-11-17 | `microsoft/aspire-skills` @ `1117facb04b403dd2fc15f048bc0e63fc67c502f` (v0.0.5), same path | What REPORT.md and every round up to `r7b` measured (pin `2026-11-09`). Recover it with `git show 942d1b9:msbench/telemetry/common/skills/current/...`. |
 
 The benchmark copies a set into `/app/.github/skills` (Copilot CLI project-skill

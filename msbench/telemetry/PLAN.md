@@ -1974,6 +1974,44 @@ source build against its `-src` control.
 | Trials / cost | 3 variants × 6 = 18 + 24 guard = 42 ≈ $0.70 |
 | Results | pending |
 
+#### T2.8 decision rule, as computed (written 2026-11-19, before any `t28` result was read)
+
+- **Premise, checked before the run.** The card assumes the control fails: at the 11-09 pin MCP agents stayed in MCP on
+  `slow-redis` and patched code. At pin 2026-11-17 the control `aspire-lean-mcp-all` passed `slow-redis` luna **6/6** (`t14`)
+  and its lean MCP siblings 5/6 (`aspire-lean-mcp-compact`) and 4/6 (`-src`, `t14-guard`); the failure the card describes is
+  on the shipped set with MCP (`aspire-skills-mcp` 0/6 in `t01b` and in `t17-copilot`). Put to the coordinating session on
+  2026-11-18 with two alternatives (move the variants to the shipped set + MCP, or bar a variant at control + 2 trials).
+  Until it rules, the card's base stands and the clause below decides what a passing control means.
+- **Round `t28`**, Copilot CLI 1.0.99, pin 2026-11-17, n = 6, luna only, with its own `raw` on `slow-redis` and `slow-sql`
+  (series only). Every arm below in the same round, the control included.
+- **Arms**, each on `slow-redis` (target) and `slow-sql` (guard): control `aspire-lean-mcp-all` (lean + patches 0001 and 0002,
+  `agentic-all`); **A** `aspire-lean-mcp-all-conn`, a `get_resource_connection` MCP tool (container ID, image, names of the
+  credential variables, a `docker exec` line for psql / redis-cli with example read-only commands; `agentic-all-conn.patch`);
+  **B** `aspire-lean-mcp-all-hint`, `list_resources`' description and response naming the CLI step (`aspire describe <resource>
+  --format Json` for `container.id`, then the same two `docker exec` lines as `aspire-diagnose`; `agentic-all-hint.patch`);
+  **C** `aspire-lean-mcp-all-step`, skill set `lean-mcpstep`: `aspire-diagnose` with four sentences at the top of step 3
+  (the MCP tools cover steps 1, 2 and 4, none shows a dependency's own state, for step 3 leave MCP and use the shell),
+  unpatched `agentic-all`. Each variant differs from the control by that one thing.
+- **Ship clause (the card's):** a variant ships if luna passes `slow-redis` at least 5/6 and its `slow-sql` median agent
+  seconds is at most 1.15 × the control's in the same round. Two or more qualifying: the higher `slow-redis` pass count, then
+  the lower `slow-redis` median time.
+- **When the control itself passes `slow-redis` at least 5/6** in this round, no variant can bring luna there and the ship
+  clause cannot discriminate: the verdict is **"no verdict, premise not reproduced"**. Each variant is then reported against
+  the control on pass count, how many trials ran the cache's own client (`redis-cli`) and read `SLOWLOG` or `CLIENT LIST`,
+  `seconds_to_redis_reply` (collect.py), use of the variant itself (`get_resource_connection` calls, hint text read, skill
+  loaded) and `slow-sql` time against the 1.15 bar, and the base-arm question goes back to the coordinating session.
+- **If the control passes fewer than 5/6 and no variant reaches 5/6**, the recommendation stands as the card says: "CLI-only
+  lean for cheap models on silent faults".
+- **Gates.** Local up → verify fails → reference repair → verify passes on `slow-redis` lean for A (`agentic-all-conn`,
+  status 5,884 ms before repair), B (`agentic-all-hint`, 5,027 ms) and C (`lean-mcpstep` + `agentic-all`, 4,839 ms; the
+  image's `aspire-diagnose` carries the new sentences), 2026-11-19; oracle gates on every new task before model trials.
+  In the A cell `get_resource_connection` returned 822 characters for `cache` (container ID, `REDIS_PASSWORD`, the
+  `redis-cli -p 6380` line) and 762 for `postgres`; B's `list_resources` is 10,825 characters (control 10,321).
+- **Run on the card's base without a ruling.** The coordinating session had not answered by the time the variants were
+  gated; the card's base is run as written so that the same-round control settles the premise, and nothing here rules
+  on the alternative.
+- Infrastructure failures as in T2.1.
+
 ### T2.9 Cold start through MCP
 
 | | |
