@@ -1644,7 +1644,7 @@ source build against its `-src` control.
 | Cells | `slow-sql`, `read-only` × luna, terra × 6, `aspire-mcp-compact2` vs `aspire-mcp-compact`; guard `slow-redis` luna |
 | Decision rule | Ship if characters read drop ≥ 30% and time does not regress; the time gain is expected to be small and is not the gate |
 | Trials / cost | 2 × 2 × 2 × 6 + 6 = 54 ≈ $2.00 |
-| Results | pending |
+| Results | **2026-11-19: `drop`** by the rule as computed: characters read fell 16 % to 23 % in three of four cells and rose 11 % in luna `slow-sql`, so no cell met the 30 % gate, and the `slow-redis` guard failed (2/6 against 4/6). `list_resources` itself shrank from 10,321 to a median 1,360–2,252 characters per call, and MCP content per trial fell 4 % to 35 %. Neither tool crossed Copilot CLI's 20 KB spill threshold in either arm, so the F31 mechanism was not in play. Gating on MCP content instead (alternative (b), put to the coordinating session before the run, no ruling) gives revise (one cell, terra `slow-sql` −35 %). [T2.1 results](#t21-results) below |
 
 #### T2.1 decision rule, as computed (written 2026-11-18, before any `t21` result was read)
 
@@ -1689,6 +1689,77 @@ source build against its `-src` control.
   `limit`/`severity`; byte counts of each tool on the started Bingo app before and after
   (`evidence/agent-surface/2026-11-18-mcp/`).
 - A trial that reaches the 900 s limit or fails with model-service 5xx is an infrastructure failure and is re-run once.
+
+#### T2.1 results
+
+**Verdict: `drop`, by the rule as computed.** No cell met the gate (characters read ≥ 30 % lower) and the guard
+failed. Alternative (b), gating on MCP content only, was put to the coordinating session on 2026-11-18 before the run
+and not ruled on; under it the gate is met in one cell (terra `slow-sql`, −35 %) and the verdict would be revise. Nothing
+was re-run.
+
+**Round `t21`** (Copilot CLI 1.0.99, 90 trials, 2026-11-19), tasks `b3c1f0d` for the new arms, earlier graphs for the
+controls (patch alone differs, see the rule). Gates `gate-t21` 6/6 reward 1 (`2026111918349402`…`18361706`). 90 of 90
+graded; no 900 s hit, no model-service 5xx, no exclusion.
+
+| Scenario | Model | Arm | Pass | Time | ÷ raw | Input tokens | Chars read | MCP chars | MCP calls | $/trial | Run IDs |
+|---|---|---|---|---:|---:|---:|---:|---:|---:|---:|---|
+| slow-sql | luna | raw | 6/6 | 110 | 1.00× | 459k | 89k | 0 | 0 | 0.014 | `2026111919328460`…`332562` |
+| slow-sql | luna | aspire-mcp-compact | 6/6 | 125 | 1.14× | 618k | 123k | 56k | 10 | 0.019 | `2026111919124288`…`128364` |
+| slow-sql | luna | aspire-mcp-compact2 | 6/6 | 166 | 1.51× | 968k | 136k | 54k | 14.5 | 0.022 | `2026111919108980`…`113042` |
+| slow-sql | terra | raw | 6/6 | 55 | 1.00× | 189k | 53k | 0 | 0 | 0.056 | `2026111919359684`…`364190` |
+| slow-sql | terra | aspire-mcp-compact | 6/6 | 54 | 0.98× | 253k | 96k | 50k | 6 | 0.075 | `2026111919179044`…`182610` |
+| slow-sql | terra | aspire-mcp-compact2 | 6/6 | 58 | 1.05× | 268k | 74k | 33k | 6.5 | 0.070 | `2026111919170954`…`174560` |
+| read-only | luna | raw | 6/6 | 97 | 1.00× | 429k | 75k | 0 | 0 | 0.014 | `2026111919344006`…`348102` |
+| read-only | luna | aspire-mcp-compact | 6/6 | 98 | 1.01× | 696k | 133k | 67k | 11.5 | 0.018 | `2026111919154938`…`159576` |
+| read-only | luna | aspire-mcp-compact2 | 6/6 | 118 | 1.22× | 718k | 105k | 50k | 12.5 | 0.018 | `2026111919139392`…`143140` |
+| read-only | terra | raw | 6/6 | 54 | 1.00× | 197k | 58k | 0 | 0 | 0.059 | `2026111919390280`…`394038` |
+| read-only | terra | aspire-mcp-compact | 6/6 | 51 | 0.94× | 342k | 94k | 68k | 10.5 | 0.080 | `2026111919203380`…`207190` |
+| read-only | terra | aspire-mcp-compact2 | 6/6 | 49 | 0.91× | 307k | 79k | 55k | 10.5 | 0.077 | `2026111919187476`…`191770` |
+| slow-redis | luna | raw | 0/6 | 236 | 1.00× | 525k | 87k | 0 | 0 | 0.018 | `2026111919404394`…`408440` |
+| slow-redis | luna | aspire-lean-mcp-compact | 4/6 | 141 | 0.60× | 745k | 126k | 63k | 11.5 | 0.020 | `2026111919227988`…`232188` |
+| slow-redis | luna | aspire-lean-mcp-compact2 | 2/6 | 189 | 0.80× | 893k | 107k | 35k | 9.5 | 0.022 | `2026111919219720`…`223292` |
+
+Time = agent seconds, median; chars read = `tool_result_content_chars`; MCP chars = `mcp_result_content_chars`
+(both median per trial).
+
+**Patch against its control** (exact two-sided Mann-Whitney, n = 6 vs 6, `tools/p2mcp_decide.py t21`):
+
+| Scenario | Model | Chars read | p | MCP chars | Time | p | Input tokens | p | Pass |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---|
+| slow-sql | luna | +11 % | 0.24 | −4 % | +33 % | 0.49 | +57 % | 0.59 | 6/6 vs 6/6 |
+| slow-sql | terra | −23 % | 0.015 | −35 % | +7 % | 0.18 | +6 % | 0.59 | 6/6 vs 6/6 |
+| read-only | luna | −21 % | 0.009 | −25 % | +20 % | 0.065 | +3 % | 1.00 | 6/6 vs 6/6 |
+| read-only | terra | −16 % | 0.026 | −19 % | −4 % | 1.00 | −10 % | 0.39 | 6/6 vs 6/6 |
+
+No time regression by the rule (no cell slower with p < 0.05); luna is slower in both cells, not significantly.
+
+**Guard: fails.** `aspire-lean-mcp-compact2` 2/6 against `aspire-lean-mcp-compact` 4/6 (needs ≥ 3). Every one of the
+12 trials ran `redis-cli` and read `SLOWLOG` or `CLIENT LIST`; the four compact2 failures ended at 393 to 705 ms against
+the 300 ms limit (control failures 665 and 819 ms). All six failing trials, in both arms, reached the cache and then
+patched the application instead of stopping the exporter; two of the four compact2 failures had killed the exporter's
+Redis client (`CLIENT KILL`), which reconnects (`2026111919221196`, `…222588`). That is the failure T2.10 recorded, and it
+looks the same in both arms; nothing in the trajectories points at the compact shape (`…221196` used the CLI for the whole
+dependency step). At 2/6 against 4/6 the difference itself is not significant (Fisher p = 0.57).
+
+**Mechanism, against F31.**
+1. **Neither tool crossed the 20 KB spill threshold in either arm.** 0 of 74 `list_resources` and 0 of 51
+   `list_console_logs` results were spilled with compact2, and none with patch 0001. In the trials, console-log results had a
+   per-cell median of 0.1k to 3.8k characters (agents pass `search` or name a quiet resource), well under the 34.7 KB that the
+   probe's unfiltered `boardadmin` call returns. The spills that remain are `list_structured_logs` (patch 0001's shape,
+   5 to 8 per `read-only` cell in both arms). So the patch works only on what already went into the context whole.
+2. **`list_resources` shrank, and agents asked for more.** Median per call 10,321 → 1,360 (`{}`), 491 for one resource,
+   2,252 in `read-only`; 26 of 74 calls asked for `details` (10.3k back) and 25 named one resource. Luna `slow-sql` made
+   25 calls against 13. `limit` appeared on all 51 `list_console_logs` calls and `severity` on 22, so the new schema
+   was read and used.
+3. **Net: MCP content fell 4 % to 35 %, the total 16 % to 23 % in three cells**, and luna `slow-sql` read more in total
+   (+11 %): more `list_resources` and console calls, and more file reads. The share the two tools held (12 % to 25 % of
+   the total in `t14`) set the ceiling, as stated before the run.
+4. The schema grew by 781 bytes (`tools/list` 10,624 → 11,405), paid on every model call (T2.7 prices that at about
+   0.2 tokens per byte).
+
+Byte counts on the started app: [`evidence/agent-surface/2026-11-18-mcp/`](evidence/agent-surface/2026-11-18-mcp/README.md).
+
+**Cost.** $3.50 for `t21` (54 card trials plus the 6 control trials of the guard and 30 `raw`), against the card's $2.00.
 
 ### T2.2 Blocking start that prints endpoints
 
@@ -2044,7 +2115,7 @@ A secondary measurement under T2.5, approved by the coordinating session; it doe
 | Cells | `slow-sql`, `read-only` × luna × 6, `aspire-mcp-src` with 8 tools vs 15; guard `slow-redis` luna × 6 on both |
 | Decision rule | Pursue if input tokens drop ≥ 5% with no change in route or pass rate; drop if under 2% (the prefix is dominated by other things) |
 | Trials / cost | 2 × 6 × 2 = 24 + 12 guard = 36 ≈ $0.60 |
-| Results | pending |
+| Results | **2026-11-19: no verdict between the bars**, by the rule as computed: removing the seven tools cuts Copilot CLI's tool schema from 7,659 to 6,770 tokens per model call (−889; the 15 Aspire tools cost 1,986), which is 1.8 % (`slow-sql`) and 2.2 % (`read-only`) of a luna trial's input tokens. The card's median input tokens moved +32 % and −23 % (p = 0.065, 0.093) with pass counts swinging both ways (6/6 vs 3/6, 3/6 vs 5/6): route noise, not the schema. Recommendation: none of the three changes is worth making for tokens; if the docs tools are touched, put them behind one tool (about half the saving). [T2.7 results](#t27-results) below |
 
 #### T2.7 decision rule, as computed (written 2026-11-18, before any `t21-t27` result was read)
 
@@ -2076,6 +2147,60 @@ A secondary measurement under T2.5, approved by the coordinating session; it doe
   descriptions, from the schema bytes of each tool (`tools/list` on the started Bingo app, `evidence/agent-surface/2026-11-18-mcp/`).
 - Infrastructure failures as in T2.1.
 
+#### T2.7 results
+
+**Verdict: no verdict between the bars, by the rule as computed.** The attributable drop is 1.8 % in `slow-sql` (under
+the 2 % drop bar) and 2.2 % in `read-only` (between the bars), so neither "pursue" (≥ 5 % in both) nor "drop" (< 2 % in
+both) holds. In substance the change sits at the drop bar: the schema is not where the MCP arms' tokens go.
+
+**Round `t21-t27`** (run `t21`, sharing its `raw` cells; 36 trials, 2026-11-19), tasks `b3c1f0d`; gates in `gate-t21`.
+36 of 36 graded; no 900 s hit, no 5xx, no exclusion.
+
+| Scenario | Model | Arm | Pass | Time | ÷ raw | Input tokens | `tool_tokens` per call | Model calls | MCP calls | $/trial | Run IDs |
+|---|---|---|---|---:|---:|---:|---:|---:|---:|---:|---|
+| slow-sql | luna | aspire-mcp-src | 3/6 | 146 | 1.32× | 770k | 7,659 | 17 | 10.5 | 0.022 | `2026111919258302`…`262296` |
+| slow-sql | luna | aspire-mcp-tools8 | 6/6 | 188 | 1.71× | 1,013k | 6,770 | 22 | 9.5 | 0.025 | `2026111919243400`…`247340` |
+| read-only | luna | aspire-mcp-src | 5/6 | 166 | 1.71× | 958k | 7,659 | 20 | 10.5 | 0.024 | `2026111919282980`…`287234` |
+| read-only | luna | aspire-mcp-tools8 | 3/6 | 126 | 1.30× | 734k | 6,770 | 17 | 10 | 0.018 | `2026111919267368`…`271190` |
+| slow-redis | luna | aspire-lean-mcp-src | 4/6 | 202 | 0.86× | 906k | | | 5 | 0.025 | `2026111919313458`…`317434` |
+| slow-redis | luna | aspire-lean-mcp-tools8 | 3/6 | 221 | 0.93× | 932k | | | 1.5 | 0.025 | `2026111919298378`…`302288` |
+
+÷ raw against `t21`'s raw; model calls and `tool_tokens` from Copilot CLI's `session.usage_checkpoint` and
+`model.call_start` events (`tools/p2mcp_decide.py t27`); `tool_tokens` was the same in every trial of an arm.
+
+| Measure | slow-sql | read-only |
+|---|---:|---:|
+| (ii) attributable: 889 tokens × model calls ÷ input tokens, median per trial | **1.8 %** | **2.2 %** |
+| (i) median input tokens, tools8 vs src | +32 % (p = 0.065) | −23 % (p = 0.093) |
+| Agent seconds | +29 % (p = 0.065) | −24 % (p = 0.39) |
+| Pass | 6/6 vs 3/6 (Fisher p = 0.18) | 3/6 vs 5/6 (p = 0.55) |
+
+- **The schema, deterministically.** Copilot CLI counts 7,659 tool-schema tokens per model call with the 15-tool server and
+  5,673 for `raw`'s 16 built-in tools, so the Aspire server costs 1,986 tokens per call: 4.1 % to 4.4 % of a luna MCP
+  trial's input. The eight-tool build costs 1,097 (−889, −45 %, matching `tools/list` 9,494 → 5,145 bytes at about
+  0.2 tokens per byte).
+- **(i) is route noise**, in opposite directions in the two cells, and so are the pass counts: both arms fail the way
+  luna MCP arms fail at this pin (`slow-sql`: the slow insert left in place, 3 src trials, 2 of them without `psql`;
+  `read-only`: the session-level workaround instead of the database default, 3 tools8 trials and 1 src, the failure T1.4
+  recorded). The per-tool MCP counts are the same tools in both arms; the one call any src trial made to a removed tool
+  was a single `doctor`. The rule's "no change in pass rate" is not met in either cell, in opposite directions, and neither
+  difference is significant; it bears on "pursue" only, which the share already excludes. (i) does not put either cell in
+  another band with p < 0.05, so nothing goes to the coordinating session on that count.
+- **Guard holds:** `aspire-lean-mcp-tools8` 3/6 against `aspire-lean-mcp-src` 4/6 (needs ≥ 3).
+
+**Recommendation** (from the schema bytes of each tool, `evidence/agent-surface/2026-11-18-mcp/README.md`):
+- **Lazy registration** (`refresh_tools` exists): at most the same 889 tokens, and only under a client that re-reads the list
+  on `tools/list_changed`, which this run did not test under Copilot CLI. Not worth the protocol dependency.
+- **One docs tool for `list_docs`, `search_docs`, `get_doc`:** 2,229 of the 4,342 removable bytes, about 450 tokens per
+  call (≈ 1 % of a luna trial), with no loss of function. The cheapest of the three if the list is touched at all.
+- **Shorter descriptions:** the eight kept tools are 5,145 bytes. Descriptions are where the compact patches add bytes
+  (patch 0001 +1,130, T2.1 +781), so new arguments should be described tersely; rewriting the existing ones has no
+  measured payoff.
+- **Overall:** none of the three changes is worth an upstream issue on token grounds. The MCP penalty in these cells is the
+  content the tools return (32k to 67k characters per trial) and the extra turns, not the tool list.
+
+**Cost.** $0.83 for `t21-t27`, against the card's $0.60.
+
 ### T2.8 An MCP route to the dependency
 
 | | |
@@ -2085,7 +2210,7 @@ A secondary measurement under T2.5, approved by the coordinating session; it doe
 | Cells | `slow-redis` × luna × 6, `aspire-lean-mcp-all` with each variant vs the current one; guard `slow-sql` luna × 6 on every variant (a hint that sends agents to the dependency too early would show there) |
 | Decision rule | Ship the variant that brings luna to ≥ 5/6 on `slow-redis` without a time regression above 15% on `slow-sql`; if none does, the recommendation stands as "CLI-only lean for cheap models on silent faults" |
 | Trials / cost | 3 variants × 6 = 18 + 24 guard = 42 ≈ $0.70 |
-| Results | pending |
+| Results | **2026-11-19: no verdict, premise not reproduced**, by the rule as computed: the same-round control `aspire-lean-mcp-all` passed `slow-redis` luna 5/6, and every control trial ran `redis-cli` and read `SLOWLOG` or `CLIENT LIST`. Lean + MCP agents leave MCP at this pin. Variant A (`get_resource_connection`) passed 6/6 and was called in every trial before the first `redis-cli`; `slow-sql` 0.73× the control's time (p = 0.065). B (list_resources hint) 4/6, C (skill text) 5/6. A meets the card's own ship clause; whether that ships, and whether to run the variants on the shipped set + MCP where the failure is, is put to the coordinating session. [T2.8 results](#t28-results) below |
 
 #### T2.8 decision rule, as computed (written 2026-11-19, before any `t28` result was read)
 
@@ -2124,6 +2249,47 @@ A secondary measurement under T2.5, approved by the coordinating session; it doe
   gated; the card's base is run as written so that the same-round control settles the premise, and nothing here rules
   on the alternative.
 - Infrastructure failures as in T2.1.
+
+#### T2.8 results
+
+**Verdict: no verdict, premise not reproduced, by the rule as computed.** The same-round control passed `slow-redis`
+luna 5/6, so no variant could "bring luna to 5/6". On the card's own ship clause alone, variant A
+(`get_resource_connection`) would ship: 6/6 on `slow-redis`, and `slow-sql` at 0.73× the control's time (bar ≤ 1.15).
+That case, and the base-arm question (the shipped set + MCP is where agents still stay in MCP), are put to the
+coordinating session; nothing was re-run.
+
+**Round `t28`** (60 trials, 2026-11-19), tasks `9438613`; gates `gate-t28` 6/6 reward 1 (`2026111919577782`…`19590200`).
+60 of 60 graded; no 900 s hit, no 5xx, no exclusion. Extractions taken while the round was finishing were deleted and
+fetched again after `wait.py` reported it finalized.
+
+| Arm | slow-redis pass | ran `redis-cli` | read `SLOWLOG`/`CLIENT LIST` | s to first Redis reply | slow-redis time | variant used | slow-sql pass | slow-sql time | ÷ control | p |
+|---|---|---:|---:|---:|---:|---|---|---:|---:|---:|
+| raw | 1/6 | | | | 184 | | 6/6 | 130 | | |
+| aspire-lean-mcp-all (control) | 5/6 | 6 | 6 | 37.3 | 103 | aspire-diagnose 6/6 | 6/6 | 99 | 1.00 | |
+| A `-conn` | **6/6** | 6 | 6 | 28.8 (p = 0.18) | 90 (p = 0.24) | `get_resource_connection` 6/6 | 6/6 | 72 | **0.73** | 0.065 |
+| B `-hint` | 4/6 | 5 | 5 | 37.7 | 147 | `list_resources` 4/6 | 6/6 | 97 | 0.98 | 0.94 |
+| C `-step` | 5/6 | 6 | 6 | 32.4 | 111 | aspire-diagnose 6/6 | 6/6 | 78 | 0.79 | 0.13 |
+
+Time = agent seconds, median; p = exact Mann-Whitney against the control (`tools/p2mcp_decide.py t28`).
+
+- **The premise does not hold on lean at this pin.** 23 of the 24 lean + MCP `slow-redis` trials ran `redis-cli` in the
+  container and read `SLOWLOG` or `CLIENT LIST`; the one that did not was B's. With `aspire-lean-mcp-all` 6/6 in `t14` and
+  5/6 here, it is 11/12 over two rounds. The failures that remain reached the cache and still
+  patched the application instead of stopping the exporter (control `2026111920173078`, B `…199756`, C `…209440`), as in
+  T2.1's guard; B's `…198942` never ran `redis-cli`.
+- **A is used when offered.** Every A trial called `get_resource_connection` on `bingo-redis` (two also on `bingo-postgres`)
+  2 to 5 tool calls before its first `redis-cli`, ran `redis-cli` in the container ID it returned, and never ran
+  `aspire describe` at all (the control's route to `container.id`). Its first Redis reply came 8.5 s earlier (median,
+  p = 0.18). It also took the `slow-sql` cell 27 % faster (p = 0.065), the largest change in the round; every A `slow-sql`
+  trial called the tool once (on the database), so the tool may be the cause, but at n = 6 chance is not excluded.
+- **B did not help.** Its text sits in the `list_resources` response (10,825 characters against 10,321). Two trials never
+  called `list_resources` (both ran `redis-cli`, one passed); the one trial that skipped `redis-cli` (`2026111920198942`)
+  had read the hint four times.
+- **C** (four sentences in step 3) changed nothing measurable: the control's agents already leave MCP for step 3.
+- Variant A is the MCP twin of T2.6's CLI `connect` block (`describe --format Json`) and of T2.4's Redis hint; the three
+  should be read together.
+
+**Cost.** $0.91 for `t28`, against the card's $0.70.
 
 ### T2.9 Cold start through MCP
 

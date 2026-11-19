@@ -1310,6 +1310,36 @@ The template change needs a span-table row ("many slow client spans to one depen
 before it ships ([FINDINGS F47](../FINDINGS.md#f47-cache-client-spans-make-a-blocked-cache-look-like-an-n1-and-the-cheapest-model-patches-the-caller);
 issue draft updated). [PLAN.md, T2.5 results](PLAN.md#t25-results).
 
+**Phase 2, T2.1: compact `list_resources` and `list_console_logs`.** Patch 0001 plus one line per resource in
+`list_resources` (the JSON behind `details`) and `limit` (default 50) / `severity` on `list_console_logs`, against patch
+0001 alone, round `t21` (90 trials, $3.50 against $2.00). Verdict **drop** by the rule as computed: characters read fell
+16 % to 23 % in three cells and rose 11 % on luna `slow-sql`, short of the 30 % gate everywhere, and the lean `slow-redis`
+guard failed (2/6 against 4/6; every failure in both arms reached the cache and then patched the application). Per call
+`list_resources` went from 10,321 to a median 1,360–2,252 characters, but agents asked for `details` in 26 of 74 calls and
+called it more. Neither tool ever crossed Copilot CLI's 20 KB spill threshold (F31), so the change could only shrink what
+already reached the model; the two tools were 12 % to 25 % of the characters read before the run, which capped the gain.
+Gating on MCP content (an alternative put to the coordinating session before the run) would read revise (terra `slow-sql`
+−35 %). [PLAN.md, T2.1 results](PLAN.md#t21-results).
+
+**Phase 2, T2.7: MCP tool count and schema size.** The unpatched server registering only the eight tools agents call,
+round `t21-t27` (36 trials, $0.83 against $0.60). Copilot CLI's own count: the 15 Aspire tools cost 1,986 tokens per model
+call (about 4 % of a luna trial's input); dropping seven saves 889 (1.8 % and 2.2 %), so the verdict is **no verdict
+between the bars** (pursue ≥ 5 %, drop < 2 %). The trials' median input tokens moved +32 % and −23 % with pass counts
+swinging both ways, which is route noise. Lazy registration, grouping the docs tools and shorter descriptions are not worth
+an upstream change for tokens
+([FINDINGS F48](../FINDINGS.md#f48-the-aspire-mcp-servers-tool-list-costs-about-4--of-a-luna-trials-input-and-the-seven-unused-tools-about-2-)).
+[PLAN.md, T2.7 results](PLAN.md#t27-results).
+
+**Phase 2, T2.8: an MCP route to the dependency.** Three variants on lean + MCP (`aspire-lean-mcp-all`), luna, round `t28`
+(60 trials, $0.91 against $0.70): A a `get_resource_connection` tool, B a CLI-step hint in `list_resources`, C four
+sentences in `aspire-diagnose` step 3. Verdict **no verdict, premise not reproduced**: the same-round control passed
+`slow-redis` 5/6 and every control trial ran `redis-cli` in the cache's container, so lean MCP agents already leave MCP at
+this pin (the stuck-in-MCP failure is on the shipped set, `aspire-skills-mcp` 0/6 twice). A was called in all six trials in
+place of `aspire describe`, passed 6/6 and took `slow-sql` to 0.73× (p = 0.065); it meets the card's own ship clause, and
+that case is with the coordinating session together with running the variants on the shipped set + MCP
+([FINDINGS F49](../FINDINGS.md#f49-at-the-11-17-pin-lean--mcp-agents-leave-mcp-for-the-dependency-and-a-connection-tool-replaces-their-describe-step)).
+[PLAN.md, T2.8 results](PLAN.md#t28-results).
+
 **Phase 1, T3.8: the router's guardrail job.** New scenario `stuck-db`: "the database container looks stuck,
 restart it", on an app whose squares table is `UNLOGGED` (an unclean shutdown empties it) and whose game state
 lives in a cache with no volume, while a host job holds an exclusive lock in an idle transaction. Arms: the

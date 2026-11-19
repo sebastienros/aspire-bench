@@ -31,6 +31,7 @@ infrastructure failures are left out.
 | github-copilot-cli | t21 | 20261119 | 2026-11-17 | t21, t21-t27 | 17.1.0-preview.1.26567.3+30326eb8 | v0.0.6 | T2.1, T2.7 |
 | github-copilot-cli | t22 | 20261119 | 2026-11-17 | t22 | 17.1.0-preview.1.26567.3+30326eb8 | v0.0.6 | T2.2, T2.9 |
 | github-copilot-cli | t28 | 20261119 | 2026-11-17 | t28 | 17.1.0-preview.1.26567.3+30326eb8 | v0.0.6 | T2.8 |
+| github-copilot-cli | t26 | 20261119 | 2026-11-17 | t26 | 17.1.0-preview.1.26567.3+30326eb8 | v0.0.6 | T2.6 |
 
 ## cold-start / claude-opus-5.5
 
@@ -365,6 +366,7 @@ infrastructure failures are left out.
 | aspire-lean-mcp-src | t21 | 6 | 4/6 | 202 (88) | 905,644 | 0.86× | 0.69× | 1.73× | 1.09× | 100% | 5 | 320,616 | leak | ▁█ |
 | aspire-lean-mcp-compact | t14 | 6 | 5/6 | 173 (54) | 754,900 | 0.62× | – | 1.23× | – | 100% | 12 | 308,030 |  | ▄ |
 | aspire-lean-mcp-compact | t21 | 6 | 4/6 | 141 (35) | 745,008 | 0.60× | 0.62× | 1.42× | 1.23× | 100% | 12 | 328,114 |  | █▁ |
+| aspire-lean-src | t26 | 1 | 1/1 | 77 (0) | 356,463 | – | – | – | – | 100% | 0 | 164,132 | no-raw |  |
 | aspire-lean-mcp-all | 2026-11-09 | 6 | 3/6 | 166 (32) | 782,027 | 0.80× | – | 1.13× | – | 100% | 12 | 294,234 |  | ▄ |
 | aspire-lean-mcp-all | t14 | 6 | 6/6 | 179 (48) | 714,554 | 0.65× | 0.80× | 1.16× | 1.13× | 100% | 5 | 230,710 | leak, improve-pass | █▁ |
 | aspire-lean-mcp-all | t25 | 6 | 6/6 | 116 (15) | 623,686 | 0.53× | 0.72× | 1.06× | 1.15× | 100% | 7 | 249,417 |  | █▄▁ |
@@ -381,6 +383,7 @@ infrastructure failures are left out.
 | aspire-lean-mcp-all-conn | t28 | 6 | 6/6 | 90 (12) | 652,972 | 0.49× | – | 1.34× | – | 100% | 11 | 288,984 |  | ▄ |
 | aspire-lean-mcp-all-hint | t28 | 6 | 4/6 | 147 (44) | 759,810 | 0.80× | – | 1.56× | – | 100% | 10 | 285,825 |  | ▄ |
 | aspire-lean-mcp-all-step | t28 | 6 | 5/6 | 111 (15) | 565,804 | 0.61× | – | 1.16× | – | 100% | 9 | 262,733 | leak | ▄ |
+| aspire-lean-connect | t26 | 1 | 1/1 | 98 (0) | 402,547 | – | – | – | – | 100% | 0 | 245,893 | no-raw |  |
 
 ## slow-redis / gpt-6.1-sol
 
@@ -487,6 +490,7 @@ infrastructure failures are left out.
 | aspire-lean-mcp-all-conn | t28 | 6 | 6/6 | 72 (7) | 343,385 | 0.56× | – | 0.71× | – | 100% | 8 | 187,176 |  | ▄ |
 | aspire-lean-mcp-all-hint | t28 | 6 | 6/6 | 97 (20) | 392,665 | 0.75× | – | 0.82× | – | 100% | 7 | 202,537 |  | ▄ |
 | aspire-lean-mcp-all-step | t28 | 6 | 6/6 | 78 (8) | 312,522 | 0.60× | – | 0.65× | – | 100% | 7 | 182,024 |  | ▄ |
+| aspire-lean-connect | t26 | 3 | 3/3 | 69 (3) | 224,299 | – | – | – | – | 100% | 0 | 111,161 | no-raw |  |
 
 ## slow-sql / gpt-6.1-sol
 

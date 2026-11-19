@@ -405,6 +405,7 @@ they are listed in trials.jsonl and excluded from every other column.
 | aspire-lean (tasks 916a57ce) | 6 | 4/6 | 4/6 | 150 (-43%) | 555,040 (-17%) | 0.015 (-26%) | 40 | 37 | - |
 | aspire-lean-mcp-src | 12 | 8/12 | 8/12 | 191 (-27%) | 701,304 (+5%) | 0.018 (-9%) | 42 | 43 | - |
 | aspire-lean-mcp-compact | 12 | 9/12 | 9/12 | 141 (-46%) | 745,008 (+11%) | 0.020 (-2%) | 43 | 49 | - |
+| aspire-lean-src | 1 | 1/1 | 1/1 | 77 (-70%) | 356,463 (-47%) | 0.010 (-48%) | 32 | 26 | - |
 | aspire-lean-mcp-all | 18 | 17/18 | 17/18 | 124 (-53%) | 669,193 (+0%) | 0.017 (-14%) | 42 | 40 | - |
 | aspire-skills-mon | 6 | 0/6 | 0/6 | 205 (-22%) | 590,980 (-12%) | 0.016 (-20%) | 40 | 59 | - |
 | aspire-skills-norouter | 6 | 0/6 | 0/6 | 202 (-23%) | 966,487 (+45%) | 0.023 (+16%) | 48 | 9 | - |
@@ -418,6 +419,7 @@ they are listed in trials.jsonl and excluded from every other column.
 | aspire-lean-mcp-all-conn | 6 | 6/6 | 6/6 | 90 (-66%) | 652,972 (-2%) | 0.016 (-19%) | 39 | 29 | - |
 | aspire-lean-mcp-all-hint | 6 | 4/6 | 4/6 | 147 (-44%) | 759,810 (+14%) | 0.020 (+1%) | 44 | 38 | - |
 | aspire-lean-mcp-all-step | 6 | 5/6 | 5/6 | 111 (-58%) | 565,804 (-15%) | 0.016 (-19%) | 38 | 32 | - |
+| aspire-lean-connect | 1 | 1/1 | 1/1 | 98 (-63%) | 402,547 (-40%) | 0.013 (-37%) | 38 | 33 | - |
 
 ## slow-redis / gpt-6.1-terra
 
@@ -480,6 +482,7 @@ they are listed in trials.jsonl and excluded from every other column.
 | aspire-lean-mcp-all-conn | 6 | 6/6 | 6/6 | 72 (-36%) | 343,385 (-23%) | 0.011 (-26%) | 25 | 19 | - |
 | aspire-lean-mcp-all-hint | 6 | 6/6 | 6/6 | 97 (-15%) | 392,665 (-12%) | 0.012 (-18%) | 32 | 20 | - |
 | aspire-lean-mcp-all-step | 6 | 6/6 | 6/6 | 78 (-31%) | 312,522 (-30%) | 0.011 (-26%) | 24 | 21 | - |
+| aspire-lean-connect | 3 | 3/3 | 3/3 | 69 (-39%) | 224,299 (-50%) | 0.008 (-46%) | 22 | 21 | - |
 
 ## slow-sql / gpt-6.1-sol
 

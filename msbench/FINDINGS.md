@@ -1352,7 +1352,9 @@ the product: keep each MCP telemetry result under the common harness limits (abo
 the agent gets data rather than a pointer to a file.
 
 **Limits / status:** One Copilot CLI build; the threshold was inferred from observed sizes, not from Copilot
-CLI's source or documentation. Whether the 11-09 rounds spilled the same way was not checked (same package, so
+CLI's source or documentation. T2.1 (round `t21`, 2026-11-19): `list_resources` (10,321 characters) and
+`list_console_logs` (per-cell trial medians 0.1k to 3.8k) never crossed the threshold in either arm, so compacting them
+works only on content that already reached the model whole; the spills that remain are `list_structured_logs`. Whether the 11-09 rounds spilled the same way was not checked (same package, so
 probably). Not reported upstream.
 
 ## F32: Under VS Code, the cheapest model edits code instead of investigating unless a skill gives it commands
@@ -1656,6 +1658,50 @@ client integration (the lean CLI route gained), but only with that skill row.
 The traced template also moves the app's OpenTelemetry core to 1.18.0 and adds a Redis health check (it stayed
 `Healthy` under this fault). Verdict `revise`; not upstreamed (issue draft
 [`skills-aspireify-redis-client-tracing.md`](upstream-issues/skills-aspireify-redis-client-tracing.md) updated).
+
+## F48: The Aspire MCP server's tool list costs about 4 % of a luna trial's input, and the seven unused tools about 2 %
+
+**Evidence:** Task T2.7 ([PLAN.md, T2.7 results](telemetry/PLAN.md#t27-results)), round `t21-t27`, 36 trials, pin
+2026-11-17, Copilot CLI 1.0.99. Copilot CLI records the tool-schema size of every model call (`tool_tokens` in its
+`session.usage_checkpoint` event): 5,673 tokens for its own 16 tools (`raw`), 7,659 with the 15-tool Aspire server, so the
+server costs 1,986 tokens per call, 4.1 % to 4.4 % of a luna MCP-arm trial's input tokens. A build that registers only the
+eight tools agents used in 422 MCP-arm trials (no `select_apphost`, `list_integrations`, `doctor`, `refresh_tools`,
+`list_docs`, `search_docs`, `get_doc`) costs 6,770: −889 tokens per call, 1.8 % (`slow-sql`) and 2.2 % (`read-only`) of the
+trials' input. `tools/list` 9,494 → 5,145 bytes (about 0.2 tokens per byte). The trials' median input tokens moved +32 % and
+−23 % (p = 0.065, 0.093) with pass counts swinging in opposite directions: at n = 6 the route swamps the schema.
+
+**Effect:** Tool count is not where the MCP arms' tokens go; the content the tools return is (32k to 67k characters per
+trial in these cells) along with the turns it causes. Each new argument and description adds to every call: patch 0001
+added 1,130 bytes to the schema, T2.1's change another 781.
+
+**Improvement candidate:** None needed on token grounds. If the docs tools are revisited for other reasons, one docs tool
+in place of three saves about half the measured 889 tokens without losing a function. Keep argument descriptions short.
+
+**Limits / status:** One harness, one model, two scenarios; lazy registration (`refresh_tools`, `tools/list_changed`) was
+not tested under Copilot CLI. Verdict "no verdict between the bars" (pursue ≥ 5 %, drop < 2 %). Not reported upstream.
+
+## F49: At the 11-17 pin, lean + MCP agents leave MCP for the dependency, and a connection tool replaces their `describe` step
+
+**Evidence:** Task T2.8 ([PLAN.md, T2.8 results](telemetry/PLAN.md#t28-results)), round `t28`, 60 trials, luna, pin
+2026-11-17. The card assumed agents on MCP "never leave MCP" on the silent `slow-redis` fault (11-09 pin). With the lean
+set (`aspire-diagnose`) and the MCP server (patches 0001 + 0002), 23 of 24 `slow-redis` trials across the control and three
+variants ran `redis-cli` inside the cache's container and read `SLOWLOG` or `CLIENT LIST`. The control passed 5/6 (6/6 in
+`t14`); T2.1's lean MCP guard arms did the same (12 of 12 ran `redis-cli`). The failure on MCP is on the shipped set:
+`aspire-skills-mcp` 0/6 in `t01b` and in `t17-copilot`. Offered a `get_resource_connection` tool (container ID, credential
+variable names, a ready `docker exec … redis-cli -p 6380` line), all six trials called it before their first `redis-cli`,
+used the ID it returned and never ran `aspire describe`; 6/6, first Redis reply 28.8 s against 37.3 s (p = 0.18),
+`slow-sql` 0.73× the control's time (p = 0.065). A hint in `list_resources`' text (4/6) and four sentences in
+`aspire-diagnose` step 3 (5/6) changed nothing measurable.
+
+**Effect:** On lean, the dependency step comes from `aspire-diagnose`, whichever surface carries steps 1 and 2. What fails
+the remaining trials is the step after: agents that reach the cache still patch the application instead of stopping the
+exporter (every failing lean `slow-redis` trial in `t21` and `t28` but one).
+
+**Improvement candidate:** If the MCP server gains a dependency surface, a resource-connection tool is the shape agents use
+(the MCP twin of T2.6's CLI `connect` block). The open question is the shipped set + MCP, where agents still stay in MCP.
+
+**Limits / status:** Luna only, n = 6, one round. Verdict "no verdict, premise not reproduced"; A meets the card's own ship
+clause; the ruling is with the coordinating session. Not reported upstream.
 
 ## Recording future findings
 

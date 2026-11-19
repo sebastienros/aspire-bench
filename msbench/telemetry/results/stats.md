@@ -230,6 +230,7 @@ Each pin (toolchain) has its own table; trials of different pins are never compa
 | slow-redis | gpt-6-luna | aspire-cli-traced vs aspire-cli | 6 vs 12 | +0% (p=0.892) | +55% (p=0.553) | +22% (p=0.892) |
 | slow-redis | gpt-6-luna | raw-otel vs raw | 6 vs 42 | -51% (p=0.054) | -40% (p=0.142) | -32% (p=0.117) |
 | slow-redis | gpt-6-luna | aspire-lean-traced vs raw-otel | 6 vs 6 | -33% (p=0.132) | +2% (p=0.818) | -12% (p=0.394) |
+| slow-redis | gpt-6-luna | aspire-lean-connect vs aspire-lean-src | 1 vs 1 | +27% (p=1.000) | +13% (p=1.000) | +22% (p=1.000) |
 | slow-redis | gpt-6.1-terra | aspire-lean (tasks 1479041e) vs raw | 6 vs 12 | -60% (p=0.000) | -30% (p=0.010) | -29% (p=0.001) |
 | slow-redis | gpt-6.1-terra | aspire-lean (tasks 916a57ce) vs raw | 6 vs 12 | -67% (p=0.000) | -53% (p=0.001) | -45% (p=0.000) |
 | slow-redis | gpt-6.1-terra | aspire-skills-mcp vs raw | 6 vs 12 | -3% (p=0.750) | +52% (p=0.005) | +31% (p=0.003) |

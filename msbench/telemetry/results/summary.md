@@ -400,6 +400,7 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 | aspire-lean (tasks 1479041e) | 19/24 | 136 | 40 | 72 | 511,455 | 7,075 | 0.014 | 36 | aspire-diagnosex24, aspire-orchestrationx2 | 0 | 183,042 |
 | aspire-lean (tasks 916a57ce) | 4/6 | 150 | 37 | 66 | 555,040 | 8,366 | 0.015 | 40 | aspire-diagnosex6 | 0 | 193,064 |
 | aspire-lean-agents | 2/6 | 194 | 30 | 64 | 865,599 | 14,711 | 0.022 | 48 | aspire-diagnosex6, aspire-orchestrationx2 | 0 | 210,112 |
+| aspire-lean-connect | 1/1 | 98 | 33 | 75 | 402,547 | 6,442 | 0.013 | 38 | aspire-diagnosex1 | 0 | 245,893 |
 | aspire-lean-mcp-all | 17/18 | 124 | 40 | 65 | 669,193 | 8,918 | 0.017 | 42 | aspire-diagnosex18 | 8 | 249,417 |
 | aspire-lean-mcp-all-conn | 6/6 | 90 | 29 | 52 | 652,972 | 6,739 | 0.016 | 39 | aspire-diagnosex6 | 11 | 288,984 |
 | aspire-lean-mcp-all-hint | 4/6 | 147 | 38 | 65 | 759,810 | 10,388 | 0.020 | 44 | aspire-diagnosex6 | 10 | 285,825 |
@@ -409,6 +410,7 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 | aspire-lean-mcp-compact2 | 2/6 | 189 | 44 | 74 | 893,484 | 13,112 | 0.022 | 47 | aspire-diagnosex6 | 10 | 250,282 |
 | aspire-lean-mcp-src | 8/12 | 191 | 43 | 74 | 701,304 | 9,536 | 0.018 | 42 | aspire-diagnosex12 | 4 | 296,036 |
 | aspire-lean-mcp-tools8 | 3/6 | 221 | 40 | 65 | 932,100 | 15,678 | 0.025 | 48 | aspire-diagnosex6 | 2 | 252,758 |
+| aspire-lean-src | 1/1 | 77 | 26 | 57 | 356,463 | 4,820 | 0.010 | 32 | aspire-diagnosex1 | 0 | 164,132 |
 | aspire-lean-traced | 6/6 | 85 | 22 | 47 | 409,217 | 5,234 | 0.012 | 32 | aspire-diagnosex6 | 0 | 203,758 |
 | aspire-skills | 0/12 | 222 | 60 | - | 784,350 | 11,218 | 0.022 | 46 | aspire-monitoringx6, aspire-orchestrationx3 | 0 | 266,807 |
 | aspire-skills-mcp | 0/12 | 163 | 4 | - | 1,013,608 | 9,532 | 0.023 | 49 | aspirex6, aspire-monitoringx6, aspire-orchestrationx1 | 10 | 430,422 |
@@ -459,6 +461,7 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 | aspire-lean (tasks 1479041e) | 12/12 | 97 | 21 | 57 | 391,404 | 6,730 | 0.013 | 33 | aspire-diagnosex12 | 0 | 147,628 |
 | aspire-lean (tasks 916a57ce) | 6/6 | 112 | 26 | 59 | 383,232 | 7,168 | 0.012 | 30 | aspire-diagnosex6 | 0 | 164,680 |
 | aspire-lean-agents | 6/6 | 117 | 18 | 64 | 433,843 | 7,924 | 0.013 | 34 | aspire-diagnosex6 | 0 | 146,593 |
+| aspire-lean-connect | 3/3 | 69 | 21 | 14 | 224,299 | 3,615 | 0.008 | 22 | aspire-diagnosex3 | 0 | 111,161 |
 | aspire-lean-mcp-all | 6/6 | 99 | 22 | 51 | 429,944 | 7,297 | 0.013 | 32 | aspire-diagnosex6 | 8 | 223,614 |
 | aspire-lean-mcp-all-conn | 6/6 | 72 | 19 | 38 | 343,385 | 4,392 | 0.011 | 25 | aspire-diagnosex6 | 8 | 187,176 |
 | aspire-lean-mcp-all-hint | 6/6 | 97 | 20 | 51 | 392,665 | 6,170 | 0.012 | 32 | aspire-diagnosex6 | 7 | 202,537 |
