@@ -1757,6 +1757,22 @@ dependency step). At 2/6 against 4/6 the difference itself is not significant (F
 4. The schema grew by 781 bytes (`tools/list` 10,624 → 11,405), paid on every model call (T2.7 prices that at about
    0.2 tokens per byte).
 
+**Tool results over the 20 KB spill threshold, every MCP tool, per cell** (`tools/mcp_payloads.py --round t21,t21-t27`;
+calls / spilled, which tools spilled):
+
+| Scenario | Model | compact2 (T2.1) | compact (0001) | tools8 (T2.7) | src (control) |
+|---|---|---|---|---|---|
+| slow-sql | luna | 90 / 1 (structured logs 1) | 65 / 2 (structured logs 1, traces 1) | 60 / 31 (traces 23, structured logs 7, console 1) | 69 / 23 (traces 18, structured logs 5) |
+| slow-sql | terra | 40 / 0 | 37 / 1 (traces 1) | | |
+| read-only | luna | 81 / 8 (structured logs 8) | 69 / 8 (structured logs 7, traces 1) | 64 / 20 (structured logs 9, traces 7, console 4) | 75 / 21 (structured logs 17, console 3, traces 1) |
+| read-only | terra | 60 / 5 (structured logs 5) | 64 / 6 (structured logs 6) | | |
+| slow-redis | luna (lean) | 51 / 0 | 67 / 1 (structured logs 1) | 14 / 3 (traces 3) | 34 / 7 (traces 7) |
+
+In the three luna cells where both exist, patch 0001's arms spilled 11 times against the unpatched server's 51; compact2's
+spilled 9, none of them from its two tools. The unpatched server's `list_console_logs` did spill (3 and 4 times in the luna
+`read-only` cells); patch 0001 does not change that tool, so its absence from the 0001 arms' spills reflects what the
+agents asked for, not the tool.
+
 Byte counts on the started app: [`evidence/agent-surface/2026-11-18-mcp/`](evidence/agent-surface/2026-11-18-mcp/README.md).
 
 **Cost.** $3.50 for `t21` (54 card trials plus the 6 control trials of the guard and 30 `raw`), against the card's $2.00.
@@ -2393,7 +2409,9 @@ both) holds. In substance the change sits at the drop bar: the schema is not whe
   recorded). The per-tool MCP counts are the same tools in both arms; the one call any src trial made to a removed tool
   was a single `doctor`. The rule's "no change in pass rate" is not met in either cell, in opposite directions, and neither
   difference is significant; it bears on "pursue" only, which the share already excludes. (i) does not put either cell in
-  another band with p < 0.05, so nothing goes to the coordinating session on that count.
+  another band with p < 0.05, so nothing goes to the coordinating session on that count. `results/stats.md` pools `t14`'s `aspire-mcp-src`
+  trials with this round's (6 vs 12) and shows tools8's `slow-sql` input tokens +32 % at p = 0.018; the rule reads the
+  same-round pair only (p = 0.065).
 - **Guard holds:** `aspire-lean-mcp-tools8` 3/6 against `aspire-lean-mcp-src` 4/6 (needs ≥ 3).
 
 **Recommendation** (from the schema bytes of each tool, `evidence/agent-surface/2026-11-18-mcp/README.md`):
