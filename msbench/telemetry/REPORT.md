@@ -1238,7 +1238,8 @@ file reads rather than context, while luna agents made more drill-down calls on 
 
 **Phase 1, T1.9: VS Code lane.** The `t01b` cells under VS Code agent mode (round `t19`, 108 trials, $5.31).
 Verdict **harness-dependent**: 7 of 12 Aspire cells fall outside ±0.15 of Copilot CLI's time ratio to `raw`,
-though every arm loaded the same skills under both harnesses and `cold-start` graded 36/36. The gaps have three
+though the lean and cold-start skills loaded as under Copilot CLI and `cold-start` graded 36/36 (the
+shipped set's router loads differ by harness, and two terra lean cells are unattributed). The gaps have three
 VS Code causes. (1) With no guidance, luna edits code instead of investigating (2.5–5 shell commands; raw
 passed 1/6 on `slow-sql` and 0/6 on `slow-redis`, quitting at about 100 s), while `aspire-lean` brought it
 back to Copilot CLI's 14–19.5 commands and 5/6 and 4/6 passes, so the time ratio inverts an effect that is
@@ -1254,7 +1255,8 @@ under VS Code), [FINDINGS F32](../FINDINGS.md#f32-under-vs-code-the-cheapest-mod
 (0.93×, p = 0.94) and 14 % on cold start (0.86×, p = 0.002, short of the 20 % bar), and the `slow-redis` guard
 fell to 2/6 (control 14/18, same failure mode, Fisher p = 0.13). The file did fix selection: every agent without
 `aspire-diagnose` used the duration filter (24/24 against 1/27). Terra with no skills got 26 % faster (p =
-0.065), while luna with the shipped set got 70 % slower, because the file pointed it at the router. The commands
+0.065), while luna with the shipped set got 70 % slower on `slow-sql` (p = 0.083) after the file pointed it at
+the router (on cold start the same route was 13 % faster). The commands
 help; routing through the router does not
 ([FINDINGS F33](../FINDINGS.md#f33-an-instructions-file-beside-the-apphost-fixes-command-selection-but-on-the-cheapest-model-the-time-does-not-follow)).
 [PLAN.md, T2.10 results](PLAN.md#t210-results).

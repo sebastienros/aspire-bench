@@ -1348,7 +1348,10 @@ the application with `apply_patch`, and stopped: 1/6 and 0/6 passed (Copilot CLI
 behaviours: MCP tools are deferred behind `tool_search` (every trial that used an `aspire-*` tool searched for
 it first; 15 of 18 terra `aspire-skills-mcp` trials never did, so they ran without MCP), and the harness's own
 `agentSeconds: 720` limit leaves about 534 s of work after its ~186 s transport fallback (four
-`aspire-skills-mcp` trials reached it). Skills were discovered and loaded the same way under both harnesses.
+`aspire-skills-mcp` trials reached it). The lean skill and the cold-start skill were loaded as under Copilot
+CLI; the shipped set's router and monitoring loads differed by harness. One raw trajectory read in full
+(2026111876690348): source reads, an `apply_patch` making Redis reads concurrent, a build, no database query
+and no restart; in all 13 trajectories with an MCP call, `tool_search` came immediately before it.
 
 **Effect:** On the cheapest model the Aspire skills matter more under VS Code than under Copilot CLI: they are
 what turns the agent from editing code to running commands. The suite's time ratio to `raw` hides this,
@@ -1362,7 +1365,7 @@ AppHost, PLAN T2.10) reaches the agent under VS Code, while MCP tools wait behin
 T4.8 (parity: limit, MCP listing) and T4.9 (which guidance makes luna investigate under VS Code).
 
 **Limits / status:** One round, n = 6 per cell, one VS Code build; the shell/read counts come from
-`tool_counts`, not from a read of every trajectory. Not reported upstream.
+`tool_counts`; one raw trajectory was read in full. Not reported upstream.
 
 ## F33: An instructions file beside the AppHost fixes command selection, but on the cheapest model the time does not follow
 
@@ -1372,8 +1375,9 @@ trials). A 577–1,129-byte `/app/AGENTS.md` (AppHost path, start/wait, `describ
 as a 152–289-token `custom_instructions` segment. On `slow-sql` every agent without `aspire-diagnose` then used
 the duration filter (24/24, against 1/27 in the same arms without the file). Time did not follow on
 `gpt-6-luna`: with the lean set 0.93× (p = 0.94; the skill already reached the filter 6/6), with no skills
-0.95×, and with the shipped set 1.70× (p = 0.083), because the file's line for the `aspire` router made all six
-trials load it first and follow its route. On `gpt-6.1-terra` the file alone cut time 26 % (p = 0.065) and
+0.95×, and with the shipped set 1.70× (p = 0.083), where the file's line for the `aspire` router made all six
+trials load it and then `aspire-monitoring` (on cold start the same router-first load was 13 % faster, so this
+holds for one cell). On `gpt-6.1-terra` the file alone cut time 26 % (p = 0.065) and
 tokens 28 % (p = 0.002) with no skills. Cold start was 13–14 % faster with either skill set (p ≤ 0.015 on lean),
 against controls from earlier rounds. The `slow-redis` guard passed 2/6 against 14/18: the same failure as
 the control (the agent finds the exporter, then changes the app instead of stopping it), more often (Fisher
@@ -1381,7 +1385,8 @@ p = 0.13).
 
 **Effect:** The selection failures that motivated the file are real and the file fixes them, but on this
 fixture selecting the right command was not what cost luna time. A pointer to the shipped router is worse than
-no pointer.
+no pointer on
+luna `slow-sql`.
 
 **Improvement candidate:** If `aspire new` / `aspire agent init` write an `AGENTS.md`, keep it to the commands
 (it helps terra with no skills) and do not route through `aspire`. Before shipping it, rerun cold start with
