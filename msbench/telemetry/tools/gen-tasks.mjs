@@ -436,6 +436,9 @@ export const arms = {
     // sees into /logs/verifier/skills.sha256 from tests/test.sh, which is task-level, so neither image changes.
     "aspire-lean-mounted": { kind: "aspire", skills: "none", mount: "lean", mcp: false, checksum: true },
     "aspire-lean-baked": { kind: "aspire", skills: "lean", mcp: false, checksum: true },
+    // gate-t46's digests were redacted by MSBench's secret scan (bare 64-hex); the "2" pair prefixes them.
+    "aspire-lean-mounted2": { kind: "aspire", skills: "none", mount: "lean", mcp: false, checksum: 2 },
+    "aspire-lean-baked2": { kind: "aspire", skills: "lean", mcp: false, checksum: 2 },
     "aspire-lean-mcp": { kind: "aspire", skills: "lean", mcp: true },
     // Source-built CLI at the same commit: unpatched control versus the MCP output patch.
     "aspire-mcp-src": { kind: "aspire", skills: "none", mcp: true, cli: "control" },
@@ -533,6 +536,7 @@ const onlyIn = {
     "aspire-lean-start": ["cold-start"], "aspire-skills-plugin": ["slow-sql"],
     // T4.6 prototype pair (slow-sql only, ruling (a), 2026-11-19).
     "aspire-lean-mounted": ["slow-sql"], "aspire-lean-baked": ["slow-sql"],
+    "aspire-lean-mounted2": ["slow-sql"], "aspire-lean-baked2": ["slow-sql"],
     "aspire-skills-mon": ["slow-sql", "read-only"], "aspire-skills-norouter": ["slow-sql", "read-only"],
     "aspire-lean-agents": ["slow-sql"], "aspire-cli-agents": ["slow-sql"], "aspire-skills-agents": ["slow-sql"],
     "aspire-lean-agents-v2": ["cold-start"], "aspire-lean-noorch-agents": ["slow-sql"],
@@ -733,7 +737,13 @@ printf '1\\n' >/logs/verifier/reward.txt
 set -euo pipefail
 mkdir -p /logs/verifier
 printf '0\\n' >/logs/verifier/reward.txt
-${config.checksum ? `# PLAN T4.6: what the agent's skill folders hold at run time.
+${config.checksum === 2 ? `# PLAN T4.6 (gate-t46b): what the agent's skill folders hold at run time, digests prefixed so the
+# artifact secret scan keeps them, and one digest of the whole listing.
+for d in /app/.github/skills /opt/agent-skills; do (cd "$d" && find . -type f | LC_ALL=C sort | xargs sha256sum | sed "s|^|sha256:|; s|  \\./|  $d/|"); done >/logs/verifier/skills.sha256.tmp || true
+cat /logs/verifier/skills.sha256.tmp >/logs/verifier/skills.sha256
+printf 'listing sha256:%s\\n' "$(sha256sum </logs/verifier/skills.sha256.tmp | cut -d' ' -f1)" >>/logs/verifier/skills.sha256
+rm -f /logs/verifier/skills.sha256.tmp
+` : config.checksum ? `# PLAN T4.6: what the agent's skill folders hold at run time.
 for d in /app/.github/skills /opt/agent-skills; do (cd "$d" && find . -type f | LC_ALL=C sort | xargs sha256sum | sed "s|  \\./|  $d/|"); done >/logs/verifier/skills.sha256 || true
 ` : ""}node /opt/benchmark/bench.mjs verify
 printf '1\\n' >/logs/verifier/reward.txt

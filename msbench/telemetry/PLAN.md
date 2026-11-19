@@ -4413,6 +4413,16 @@ the next (F05). The probe is one excluded luna trial of a two-step Harbor task.
   and locally one image ID served two skill sets). **`keep baked`** otherwise (including a mounted gate whose
   environment fails to start: CES may not honour a relative bind mount). The verdict is about the delivery
   mechanism; it is not a change to any existing task, and adopting it for later arms is a separate decision.
+- **Addendum (coordinating session ruling, 2026-11-19, after `gate-t46`, before `gate-t46b`).** `gate-t46` is an
+  **instrument failure**: both oracles returned reward 1 and both `skills.sha256` files list the same 88 paths, but
+  MSBench's secret scan replaced every bare 64-hex digest with `***REDACTED***`, so equal digests are not shown on
+  CES (equal paths and the equal local digests are stated, and do not meet the clause). The pair is re-emitted as
+  `aspire-lean-baked2` / `aspire-lean-mounted2` (same recipes), whose `tests/test.sh` writes `sha256:<hex>  <path>`
+  per file and one `listing sha256:<hex>` line (the digest of the per-file lines), the format checked locally
+  first; one oracle each in round `gate-t46b`; the verdict is read from `gate-t46b` by ruling 7 as written. The
+  third clause is read against the T4.6 measurement: if CES builds the image on every trial, mounting alone does
+  not remove the per-arm build there, and `adopt` cannot be met without a registry-pulled image; that condition is
+  recorded as a proposal, and nothing is pushed to any registry.
 
 #### T4.5 tracking rule, as computed (written 2026-11-19, before any `t45-smoke` trial)
 
