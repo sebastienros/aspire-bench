@@ -1683,7 +1683,7 @@ No T4.4 trial was submitted; cost $0.0014 against $0.70. The multi-turn question
 skill's reuse of earlier discovery), and so does the README's default of a fresh conversation per step.
 [PLAN.md, T4.4 results](PLAN.md#t44-results).
 
-**Phase 4, T4.6: cheaper rounds, `keep baked`.** Over 3,138 trials at the 2026-11-17 pin, a model trial's median
+**Phase 4, T4.6: cheaper rounds, `adopt` by the rule as written; `keep baked` under the coordinating session's post-data reading, recorded beside it.** Over 3,138 trials at the 2026-11-17 pin, a model trial's median
 elapsed time is 517 s. Of that, 46 s is CES queue, 130 s image build, 107 s the fault's own setup inside the container
 and 115 s the agent; setup is 71 % of the summed time, agent 26 %. Every trial of a round runs at once, so a round
 takes 0.1 to 0.6 h. The card's premise holds, but the cost is the per-trial build and setup, not the queue. CES builds
