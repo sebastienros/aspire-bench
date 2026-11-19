@@ -287,6 +287,15 @@ export const arms = {
     "aspire-lean-mcp-all-spanrow": { kind: "aspire", skills: "lean-spanrow", mcp: true, cli: "agentic-all" },
     "aspire-lean-mcp-all-spanrow-traced": { kind: "aspire", skills: "lean-spanrow", mcp: true, cli: "agentic-all", variant: "aspire-redis-traced" },
 };
+// Phase 3 audit (PLAN §7, ruling 1): per audited skill, `skill-only` = aspire-skill-<short> (that shipped skill
+// alone, set skill-<short>) and `bundle-minus` = aspire-skills-no<short> (v0.0.6 without it, set no<short>), each
+// against aspire-cli and aspire-skills. Declared for every lane; a scenario lists them in its `arms` (onlyIn below
+// keeps them off the scenarios that have no arm list).
+export const auditedSkills = ["orchestration", "aspireify", "init", "deployment", "monitoring", "migration"];
+for (const short of auditedSkills) {
+    arms[`aspire-skill-${short}`] = { kind: "aspire", skills: `skill-${short}`, mcp: false };
+    arms[`aspire-skills-no${short}`] = { kind: "aspire", skills: `no${short}`, mcp: false };
+}
 const onlyIn = {
     "aspire-lean-start": ["cold-start"], "aspire-skills-plugin": ["slow-sql"],
     "aspire-skills-mon": ["slow-sql", "read-only"], "aspire-skills-norouter": ["slow-sql", "read-only"],
@@ -307,6 +316,7 @@ const onlyIn = {
     "aspire-skills-mcp-all": ["slow-sql"], "aspire-skills-mcp-all-conn": ["slow-sql"], "aspire-skills-mcp-all-hint": ["slow-sql"],
     "aspire-skills-mcp-all-step": ["slow-sql"],
 };
+for (const short of auditedSkills) onlyIn[`aspire-skill-${short}`] = onlyIn[`aspire-skills-no${short}`] = [];
 
 // The Aspire MCP server as every harness registers it. Copilot CLI receives it from task.toml
 // through Harbor (MSBENCH_MCP_CONFIG, written to the user-level MCP config); Claude Code should get

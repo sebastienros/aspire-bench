@@ -614,3 +614,63 @@ they are listed in trials.jsonl and excluded from every other column.
 | aspire-skills-mcp | 5 | 5/5 | 5/5 | 362 (+12%) | 439,695 (+36%) | 0.094 (+24%) | 31 | 247 | 1 |
 | aspire-lean | 6 | 6/6 | 6/6 | 343 (+6%) | 274,744 (-15%) | 0.064 (-16%) | 22 | 231 | - |
 
+# Skill references read
+
+Distinct skill files other than `SKILL.md` a trial opened (`references_read` in trials.jsonl, from the
+tool calls' arguments; search results are not reads). Later pins only; cells where no trial read one are omitted.
+
+## Pin 2026-11-17
+
+| Scenario | Model | Arm | n | Trials reading one | Median per trial | Files (trials) |
+|---|---|---|---:|---:|---:|---|
+| cold-start | gpt-6-luna | aspire-skills | 12 | 4/12 | 0 | `aspire-orchestration/references/app-commands.md` 4, `aspire-orchestration/references/safety-guardrails.md` 4 |
+| cold-start | gpt-6-luna | aspire-skills-mcp | 6 | 1/6 | 0 | `aspire-orchestration/references/app-commands.md` 1 |
+| cold-start | gpt-6-luna | aspire-lean (tasks 1479041e) | 18 | 17/18 | 2 | `aspire-orchestration/references/app-commands.md` 17, `aspire-orchestration/references/detection.md` 14, `aspire-orchestration/references/safety-guardrails.md` 5, `aspire-orchestration/references/agent-workflows.md` 4, `aspire-orchestration/references/resource-management.md` 1 |
+| cold-start | gpt-6-luna | aspire-lean (tasks 916a57ce) | 6 | 6/6 | 2.5 | `aspire-orchestration/references/app-commands.md` 6, `aspire-orchestration/references/detection.md` 5, `aspire-orchestration/references/safety-guardrails.md` 2, `aspire-orchestration/references/agent-workflows.md` 1, `aspire-orchestration/references/resource-management.md` 1 |
+| cold-start | gpt-6-luna | aspire-lean-mcp | 6 | 6/6 | 2 | `aspire-orchestration/references/app-commands.md` 6, `aspire-orchestration/references/detection.md` 4, `aspire-orchestration/references/agent-workflows.md` 2, `aspire-orchestration/references/safety-guardrails.md` 2 |
+| cold-start | gpt-6-luna | aspire-skills-norouter | 6 | 6/6 | 2 | `aspire-orchestration/references/app-commands.md` 6, `aspire-orchestration/references/detection.md` 5, `aspire-orchestration/references/safety-guardrails.md` 3 |
+| cold-start | gpt-6-luna | aspire-lean-agents | 6 | 6/6 | 1.5 | `aspire-orchestration/references/app-commands.md` 5, `aspire-orchestration/references/agent-workflows.md` 2, `aspire-orchestration/references/safety-guardrails.md` 2 |
+| cold-start | gpt-6-luna | aspire-lean-agents-v2 | 6 | 5/6 | 2 | `aspire-orchestration/references/app-commands.md` 5, `aspire-orchestration/references/agent-workflows.md` 4, `aspire-orchestration/references/safety-guardrails.md` 3 |
+| cold-start | gpt-6.2-sol | aspire-lean | 12 | 2/12 | 0 | `aspire-orchestration/references/app-commands.md` 2 |
+| cold-start-warm | gpt-6-luna | aspire-lean | 3 | 3/3 | 3 | `aspire-orchestration/references/app-commands.md` 3, `aspire-orchestration/references/detection.md` 3, `aspire-orchestration/references/safety-guardrails.md` 2 |
+| heldout-cache | gpt-6-luna | aspire-lean | 6 | 1/6 | 0 | `aspire-orchestration/references/agent-workflows.md` 1, `aspire-orchestration/references/resource-management.md` 1 |
+| heldout-cache | gpt-6-luna | aspire-lean-agents | 6 | 2/6 | 0 | `aspire-orchestration/references/resource-management.md` 2 |
+| heldout-cache | gpt-6.1-terra | aspire-lean | 6 | 1/6 | 0 | `aspire-orchestration/references/resource-management.md` 1 |
+| heldout-cache | gpt-6.2-sol | aspire-lean | 3 | 1/3 | 0 | `aspire-orchestration/references/resource-management.md` 1 |
+| heldout-slow-sql | gpt-6-luna | aspire-skills-mcp | 12 | 1/12 | 0 | `aspire-monitoring/references/monitoring.md` 1 |
+| heldout-slow-sql | gpt-6-luna | aspire-lean (tasks 1479041e) | 6 | 2/6 | 0 | `aspire-orchestration/references/resource-management.md` 2 |
+| heldout-slow-sql | gpt-6.1-terra | aspire-skills-mcp | 12 | 1/12 | 0 | `aspire-monitoring/references/monitoring.md` 1 |
+| heldout-slow-sql | gpt-6.1-terra | aspire-lean (tasks 916a57ce) | 6 | 1/6 | 0 | `aspire-orchestration/references/resource-management.md` 1 |
+| heldout-stuck-orders | gpt-6-luna | aspire-skills-mcp | 12 | 1/12 | 0 | `aspire-monitoring/references/monitoring.md` 1 |
+| read-only | gpt-6-luna | aspire-skills | 12 | 1/12 | 0 | `aspire-monitoring/references/monitoring.md` 1, `aspire-orchestration/references/resource-management.md` 1 |
+| read-only | gpt-6-luna | aspire-skills-mon | 6 | 1/6 | 0 | `aspire-orchestration/references/app-commands.md` 1, `aspire-orchestration/references/resource-management.md` 1 |
+| read-only | gpt-6-luna | aspire-skills-norouter | 6 | 1/6 | 0 | `aspire-orchestration/references/resource-management.md` 1, `aspire-orchestration/references/safety-guardrails.md` 1 |
+| slow-redis | gpt-6-luna | aspire-skills | 12 | 4/12 | 0 | `aspire-monitoring/references/monitoring.md` 3, `aspire-orchestration/references/resource-management.md` 2 |
+| slow-redis | gpt-6-luna | aspire-skills-mcp | 18 | 2/18 | 0 | `aspire-monitoring/references/monitoring.md` 2 |
+| slow-redis | gpt-6-luna | aspire-lean (tasks 1479041e) | 30 | 1/30 | 0 | `aspire-orchestration/references/resource-management.md` 1 |
+| slow-redis | gpt-6-luna | aspire-skills-mon | 6 | 1/6 | 0 | `aspire-monitoring/references/monitoring.md` 1 |
+| slow-redis | gpt-6-luna | aspire-skills-norouter | 6 | 4/6 | 1.5 | `aspire-orchestration/references/resource-management.md` 4, `aspire-monitoring/references/monitoring.md` 2, `aspire-orchestration/references/agent-workflows.md` 1, `aspire-orchestration/references/safety-guardrails.md` 1 |
+| slow-redis | gpt-6-luna | aspire-lean-agents | 6 | 1/6 | 0 | `aspire-orchestration/references/resource-management.md` 1 |
+| slow-redis | gpt-6-luna | aspire-skills-src | 6 | 2/6 | 0 | `aspire-monitoring/references/monitoring.md` 1, `aspire-orchestration/references/resource-management.md` 1, `aspire-orchestration/references/safety-guardrails.md` 1 |
+| slow-redis | gpt-6-luna | aspire-skills-redishint | 6 | 1/6 | 0 | `aspire-orchestration/references/agent-workflows.md` 1, `aspire-orchestration/references/resource-management.md` 1, `aspire-orchestration/references/safety-guardrails.md` 1 |
+| slow-redis | gpt-6-luna | aspire-skills-mcp-all | 6 | 2/6 | 0 | `aspire-monitoring/references/monitoring.md` 2 |
+| slow-redis | gpt-6-luna | aspire-skills-mcp-all-conn | 6 | 3/6 | 0.5 | `aspire-monitoring/references/monitoring.md` 3 |
+| slow-redis | gpt-6.1-terra | aspire-skills-mon | 6 | 1/6 | 0 | `aspire-monitoring/references/monitoring.md` 1 |
+| slow-redis | gpt-6.1-terra | aspire-skills-redishint | 6 | 1/6 | 0 | `aspire-monitoring/references/monitoring.md` 1 |
+| slow-sql | gpt-6-luna | aspire-skills | 21 | 7/21 | 0 | `aspire-monitoring/references/monitoring.md` 6, `aspire-monitoring/references/diagnostics-bridge.md` 1, `aspire-orchestration/references/agent-workflows.md` 1, `aspire-orchestration/references/app-commands.md` 1, `aspire-orchestration/references/detection.md` 1, `aspire-orchestration/references/resource-management.md` 1, `aspire-orchestration/references/safety-guardrails.md` 1 |
+| slow-sql | gpt-6-luna | aspire-skills-mcp | 12 | 4/12 | 0 | `aspire-monitoring/references/monitoring.md` 4 |
+| slow-sql | gpt-6-luna | aspire-skills-mon | 6 | 2/6 | 0 | `aspire-monitoring/references/monitoring.md` 2, `aspire-monitoring/references/diagnostics-bridge.md` 1 |
+| slow-sql | gpt-6-luna | aspire-skills-norouter | 6 | 2/6 | 0 | `aspire-monitoring/references/monitoring.md` 2 |
+| slow-sql | gpt-6-luna | aspire-skills-agents | 6 | 2/6 | 0 | `aspire-monitoring/references/monitoring.md` 2 |
+| slow-sql | gpt-6-luna | aspire-skills-mcp-all | 6 | 2/6 | 0 | `aspire-monitoring/references/monitoring.md` 2, `aspire-orchestration/references/resource-management.md` 1, `aspire-orchestration/references/safety-guardrails.md` 1 |
+| slow-sql | gpt-6-luna | aspire-skills-mcp-all-conn | 6 | 1/6 | 0 | `aspire-monitoring/references/diagnostics-bridge.md` 1, `aspire-monitoring/references/monitoring.md` 1 |
+| slow-sql | gpt-6-luna | aspire-skills-mcp-all-hint | 6 | 1/6 | 0 | `aspire-monitoring/references/monitoring.md` 1 |
+| slow-sql | gpt-6-luna | aspire-skills-mcp-all-step | 6 | 1/6 | 0 | `aspire-monitoring/references/monitoring.md` 1 |
+| slow-sql | gpt-6.1-terra | aspire-skills | 18 | 2/18 | 0 | `aspire-monitoring/references/monitoring.md` 2 |
+| stuck-db | gpt-6-luna | aspire-skills | 12 | 9/12 | 1.5 | `aspire-orchestration/references/resource-management.md` 9, `aspire-orchestration/references/safety-guardrails.md` 6 |
+| stuck-db | gpt-6-luna | aspire-lean | 6 | 5/6 | 2 | `aspire-orchestration/references/resource-management.md` 5, `aspire-orchestration/references/safety-guardrails.md` 3, `aspire-orchestration/references/detection.md` 2 |
+| stuck-db | gpt-6-luna | aspire-skills-norouter | 12 | 9/12 | 2.5 | `aspire-orchestration/references/resource-management.md` 9, `aspire-orchestration/references/safety-guardrails.md` 8, `aspire-orchestration/references/detection.md` 6, `aspire-orchestration/references/agent-workflows.md` 1, `aspire-orchestration/references/app-commands.md` 1 |
+| stuck-db | gpt-6.1-terra | aspire-skills | 6 | 6/6 | 1 | `aspire-orchestration/references/resource-management.md` 6 |
+| stuck-db | gpt-6.1-terra | aspire-lean | 6 | 5/6 | 1 | `aspire-orchestration/references/resource-management.md` 5 |
+| stuck-db | gpt-6.1-terra | aspire-skills-norouter | 6 | 6/6 | 1 | `aspire-orchestration/references/resource-management.md` 6 |
+

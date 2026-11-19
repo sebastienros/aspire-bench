@@ -4,11 +4,22 @@
 Reads results/trials.jsonl and writes results/stats.md. With 3 to 6 trials per cell the
 exact permutation distribution is enumerated, so no normal approximation is involved.
 The smallest attainable two-sided p is 2/C(n+m, n): 0.0022 for 6 vs 6, 0.1 for 3 vs 3.
+
+From the 2026-11-17 pin on, each pair also carries the percentile bootstrap 90 % interval of the
+ratio of median agent seconds, A over B (PLAN §7 `remove` row: ratio within 0.90-1.10 and interval
+inside 0.75-1.25). Each arm is resampled independently from the same trials the p uses; the
+generator is seeded from the cell key, so a regeneration prints the same interval.
+
+  stats.py                      writes results/stats.md (every round of a pin pooled per cell)
+  stats.py --rounds t31,t31-g   prints the same tables for those rounds only, writes nothing
+                                (same-round controls: a pooled cell mixes rounds)
 """
 import itertools
 import json
 import math
+import random
 import statistics
+import sys
 from collections import defaultdict
 from pathlib import Path
 
@@ -54,6 +65,11 @@ LATER_PIN_PAIRS = [("aspire-cli", "raw"), ("aspire-skills-plugin", "aspire-skill
                    ("aspire-lean-mcp", "aspire-lean-start"), ("aspire-lean-mcp", "aspire-lean"),
                    ("aspire-lean-tracetable", "aspire-lean-src"), ("aspire-cli-redishint", "aspire-cli-src"),
                    ("aspire-skills-redishint", "aspire-skills-src")]
+# Phase 3 audit (PLAN §7, ruling 1): skill-only against the CLI alone, bundle-minus against the bundle.
+AUDITED_SKILLS = ["orchestration", "aspireify", "init", "deployment", "monitoring", "migration"]
+LATER_PIN_PAIRS += [pair for short in AUDITED_SKILLS for pair in
+                    ((f"aspire-skill-{short}", "aspire-cli"), (f"aspire-skills-no{short}", "aspire-skills"))]
+BOOTSTRAP_REPS = 10000
 FIRST_PIN = "2026-11-09"
 DEFAULT_AGENT = "github-copilot-cli"
 METRICS = [("agent_seconds", "s"), ("input_tokens", "tok"), ("cost_usd", "$")]
@@ -90,12 +106,31 @@ def mann_whitney(a, b):
     return extreme / total
 
 
+def bootstrap_ratio(a, b, seed, reps=BOOTSTRAP_REPS, level=0.90):
+    """Percentile bootstrap interval of median(a) / median(b), each sample resampled with replacement.
+    None when either median can be zero."""
+    rng = random.Random(seed)
+    ratios = []
+    for _ in range(reps):
+        denominator = statistics.median(rng.choices(b, k=len(b)))
+        if not denominator:
+            return None
+        ratios.append(statistics.median(rng.choices(a, k=len(a))) / denominator)
+    ratios.sort()
+    tail = (1 - level) / 2
+    return ratios[int(tail * reps)], ratios[min(reps - 1, int((1 - tail) * reps))]
+
+
 def main():
+    rounds = None
+    if "--rounds" in sys.argv:
+        rounds = set(sys.argv[sys.argv.index("--rounds") + 1].split(","))
     pins = defaultdict(lambda: defaultdict(list))
     for line in (SUITE / "results/trials.jsonl").read_text().splitlines():
         row = json.loads(line)
         if (row["model_requested"] != "oracle" and row.get("agent_seconds") is not None
-                and not row.get("infrastructure_failure") and not row.get("excluded")):
+                and not row.get("infrastructure_failure") and not row.get("excluded")
+                and (rounds is None or row.get("round") in rounds)):
             # Rows written before T0.4 carry no agent: Copilot CLI. Harnesses are never pooled.
             agent = row.get("agent") or DEFAULT_AGENT
             pins[(row["pin"], agent)][(row["scenario"], row["model_requested"], row.get("cell_arm") or row["arm"])].append(row)
@@ -106,7 +141,12 @@ def main():
              "Each pin (toolchain) has its own table; trials of different pins are never compared.", ""]
     for (pin, agent), cells in sorted(pins.items(), key=lambda item: (item[0][1] != DEFAULT_AGENT, item[0])):
         title = f"## Pin {pin}" + ("" if agent == DEFAULT_AGENT else f", harness {agent}")
-        lines += [title, ""] + table(cells, PAIRS if pin == FIRST_PIN else PAIRS + LATER_PIN_PAIRS) + [""]
+        later = pin != FIRST_PIN
+        lines += [title, ""] + table(cells, PAIRS + LATER_PIN_PAIRS if later else PAIRS, pin if later else None) + [""]
+    if rounds is not None:
+        print(f"Rounds {', '.join(sorted(rounds))} only (results/stats.md not written)\n")
+        print("\n".join(lines[6:]))
+        return
     (SUITE / "results/stats.md").write_text("\n".join(lines).rstrip("\n") + "\n")
     print("\n".join(lines[6:]))
 
@@ -115,8 +155,13 @@ def variants(cells, scenario, model, arm):
     return sorted(c for s, m, c in cells if (s, m) == (scenario, model) and c.split(" (")[0] == arm)
 
 
-def table(cells, pairs):
-    lines = ["| Scenario | Model | A vs B | n | Agent seconds | Input tokens | Cost |", "|---|---|---|---|---|---|---|"]
+def table(cells, pairs, pin=None):
+    """pin=None: the first pin's table, as REPORT.md quoted it. Otherwise a time-ratio interval column."""
+    if pin is None:
+        lines = ["| Scenario | Model | A vs B | n | Agent seconds | Input tokens | Cost |", "|---|---|---|---|---|---|---|"]
+    else:
+        lines = ["| Scenario | Model | A vs B | n | Agent seconds | Time ratio, 90 % bootstrap | Input tokens | Cost |",
+                 "|---|---|---|---|---|---|---|---|"]
     for (scenario, model) in sorted({(s, m) for s, m, _ in cells}):
         # An arm split by a skill revision (collect.label_skill_variants) is compared per variant.
         for cell_a, cell_b in ((x, y) for a, b in pairs for x, y in itertools.product(
@@ -127,10 +172,14 @@ def table(cells, pairs):
                 x = [t[key] for t in first if t.get(key) is not None]
                 y = [t[key] for t in second if t.get(key) is not None]
                 if not x or not y or not statistics.median(y):
-                    parts.append("-")
+                    parts += ["-", "-"] if pin is not None and key == "agent_seconds" else ["-"]
                     continue
                 change = (statistics.median(x) - statistics.median(y)) / statistics.median(y)
                 parts.append(f"{change:+.0%} (p={mann_whitney(x, y):.3f})")
+                if pin is not None and key == "agent_seconds":
+                    interval = bootstrap_ratio(x, y, f"{pin}|{scenario}|{model}|{cell_a}|{cell_b}")
+                    parts.append(f"{statistics.median(x) / statistics.median(y):.2f}x" +
+                                 (f" [{interval[0]:.2f}-{interval[1]:.2f}]" if interval else ""))
             lines.append(f"| {scenario} | {model} | {cell_a} vs {cell_b} | {len(first)} vs {len(second)} | " + " | ".join(parts) + " |")
     return lines
 

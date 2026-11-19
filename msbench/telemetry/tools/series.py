@@ -46,7 +46,7 @@ WINDOW = 5
 WINDOW_STARTS = set()  # run ids that open a new trailing window (suite changes, not re-pins)
 THRESHOLD = 0.25
 SPARK = "▁▂▃▄▅▆▇█"
-SKILL_ARM = re.compile(r"skills|lean|plus")  # arms that ship a skill set (gen-tasks.mjs `skills` != none)
+SKILL_ARM = re.compile(r"skill|lean|plus")  # arms that ship a skill set (aspire-skill-<short> included) (gen-tasks.mjs `skills` != none)
 ARM_ORDER = ["raw", "aspire-cli", "aspire-skills", "aspire-skills-plugin", "aspire-mcp", "aspire-skills-mcp",
              "aspire-plus", "aspire-lean", "aspire-lean-mcp", "aspire-lean-start", "aspire-mcp-src",
              "aspire-mcp-compact", "aspire-lean-mcp-src", "aspire-lean-mcp-compact", "aspire-lean-src",

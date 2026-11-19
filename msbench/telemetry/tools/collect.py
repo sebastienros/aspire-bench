@@ -30,6 +30,24 @@ SUITE = Path(__file__).resolve().parent.parent
 DATA = Path(os.environ.get("TELEMETRY_DATA_DIR", Path.home() / ".aspire-bench/telemetry-runs"))
 VENV = Path.home() / "Library/Application Support/pipx/venvs/msbench-cli/bin"
 PROTECTED = re.compile(r"/opt/benchmark[\w./-]*|/solution\b|/tests/test\.sh|/logs/verifier")
+# A skill file other than SKILL.md named in a tool call's arguments (PLAN §7 ruling 8, `references_read`):
+# the image copies each set to /app/.github/skills and /opt/agent-skills. Copilot reads them with `view`,
+# VS Code with `read_file`, either may `cat` them. Search tools (grep, glob, rg over the folder) name no file
+# and are not counted; a search result that shows a reference's lines is not a read.
+SKILL_REFERENCE = re.compile(r"(?:\.github/skills|/opt/agent-skills)/([\w.-]+)/([\w./-]+\.[A-Za-z]+)")
+SEARCH_TOOLS = {"grep", "glob", "rg", "file_search", "grep_search", "semantic_search", "list_dir"}
+
+
+def references_read(calls):
+    """Distinct skill files other than SKILL.md a trial read, as `<skill>/<path>` (calls: (tool, arguments))."""
+    paths = set()
+    for name, arguments in calls:
+        if name in SEARCH_TOOLS:
+            continue
+        for skill, path in SKILL_REFERENCE.findall(json.dumps(arguments)):
+            if path != "SKILL.md":
+                paths.add(f"{skill}/{path}")
+    return sorted(paths)
 # Phase markers. "seen": the first tool result that puts the root cause on screen.
 # "fix": the first command that changes the system toward a repair.
 PHASES = {
@@ -140,6 +158,13 @@ SKILL_SETS = {  # what common/skills/compose.sh copies for each set, in order; `
     "lean-connect": ["current", "new", "-aspire", "lean-overrides", "connect-overrides"],
     "lean-spanrow": ["current", "new", "-aspire", "lean-overrides", "spanrow-overrides"],
 }
+# Phase 3 audit sets (compose.sh skill-<short>, no<short>): "current/<dir>" copies that one folder of current.
+AUDITED_SKILLS = {"orchestration": "aspire-orchestration", "aspireify": "aspireify", "init": "aspire-init",
+                  "deployment": "aspire-deployment", "monitoring": "aspire-monitoring",
+                  "migration": "aspire-project-v2-migration"}
+for _short, _folder in AUDITED_SKILLS.items():
+    SKILL_SETS[f"skill-{_short}"] = [f"current/{_folder}"]
+    SKILL_SETS[f"no{_short}"] = ["current", f"-{_folder}"]
 
 
 @functools.lru_cache(maxsize=None)
@@ -169,6 +194,9 @@ def skills_content(task_commit, scenario, arm):
     for step in SKILL_SETS[skill_set]:
         if step.startswith("-"):
             files = {path: blob for path, blob in files.items() if not path.startswith(step[1:] + "/")}
+        elif "/" in step:
+            top, folder = step.split("/", 1)
+            files.update({path: blob for path, blob in blobs[top].items() if path.startswith(folder + "/")})
         else:
             files.update(blobs[step])
     files.pop("LICENSE", None)
@@ -297,6 +325,8 @@ def analyze_trial(result_path, entry):
     row["aspire_cli"] = dict(aspire)
     row["protected_path_access"] = protected
     row["harness_paths_read"] = sorted(harness_paths)
+    row["references_read_paths"] = references_read((t.get("toolName"), t.get("arguments", {})) for t in tools)
+    row["references_read"] = len(row["references_read_paths"])
     # Phase timing, relative to the first trajectory event.
     def stamp(event):
         value = event.get("timestamp")
@@ -607,6 +637,8 @@ def analyze_atif(trial_dir, entry, row):
     row["aspire_cli"] = dict(aspire)
     row["protected_path_access"] = protected
     row["harness_paths_read"] = sorted(harness_paths)
+    row["references_read_paths"] = references_read((c["name"], c["arguments"]) for c in calls)
+    row["references_read"] = len(row["references_read_paths"])
     started = next((began(i) for i in range(len(steps)) if stamps[i]), None)
     if started and len([t for t in stamps if t]) > 1:
         row["agent_loop_seconds"] = round((max(t for t in stamps if t) - started).total_seconds(), 1)
@@ -800,6 +832,8 @@ def analyze_vscode(trial_dir, entry, row):
     row["aspire_cli"] = dict(aspire)
     row["protected_path_access"] = protected
     row["harness_paths_read"] = sorted(harness_paths)
+    row["references_read_paths"] = references_read((c["name"], c["arguments"]) for c in calls)
+    row["references_read"] = len(row["references_read_paths"])
     started = at(main["start_time_ms"]) if main else at(spans[0]["start_time_ms"])
     if main:
         row["agent_loop_seconds"] = round((main["end_time_ms"] - main["start_time_ms"]) / 1000, 1)
@@ -900,6 +934,8 @@ ARM_ORDER = ["raw", "aspire-cli", "aspire-skills", "aspire-mcp", "aspire-skills-
              "aspire-lean-connect",
              # T2.5 follow-up: one span-table row in aspire-diagnose.
              "aspire-lean-spanrow", "aspire-lean-spanrow-traced", "aspire-lean-mcp-all-spanrow", "aspire-lean-mcp-all-spanrow-traced"]
+# Phase 3 audit (PLAN §7): per skill, skill-only then bundle-minus.
+ARM_ORDER += [arm for short in AUDITED_SKILLS for arm in (f"aspire-skill-{short}", f"aspire-skills-no{short}")]
 
 
 def arm_order(cell_arm):
@@ -933,7 +969,38 @@ def compare(rows):
              "they are listed in trials.jsonl and excluded from every other column.", ""]
     for pin, pinned in by_pin(rows):
         lines += [f"# Pin {pin}: {pin_label(rows, pin)}", ""] + compare_pin(pinned)
+    lines += references_section(rows)
     return "\n".join(lines)
+
+
+def references_section(rows):
+    """Skill files other than SKILL.md read per trial (PLAN §7 `shrink` row), later pins only, so the
+    tables above stay as they were. Only cells whose trials read at least one such file are listed."""
+    lines = ["# Skill references read", "",
+             "Distinct skill files other than `SKILL.md` a trial opened (`references_read` in trials.jsonl, from the",
+             "tool calls' arguments; search results are not reads). Later pins only; cells where no trial read one are omitted.", ""]
+    for pin, pinned in by_pin(rows):
+        if pin == FIRST_PIN:
+            continue
+        cells = collections.defaultdict(list)
+        for row in pinned:
+            if row["model_requested"] != "oracle" and not row.get("infrastructure_failure") and row.get("agent_seconds") is not None:
+                cells[(row["scenario"], row["model_requested"], row["agent"], row["cell_arm"])].append(row)
+        table = []
+        for (scenario, model, agent, arm), trials in sorted(cells.items(), key=lambda kv: (kv[0][2] != DEFAULT_AGENT, kv[0][:3], arm_order(kv[0][3]))):
+            counts = [t.get("references_read") or 0 for t in trials]
+            if not any(counts):
+                continue
+            paths = collections.Counter(p for t in trials for p in t.get("references_read_paths") or [])
+            table.append("| {} | {} | {} | {} | {}/{} | {:g} | {} |".format(
+                scenario, model, arm if agent == DEFAULT_AGENT else f"{arm} / {agent}", len(trials),
+                sum(1 for c in counts if c), len(trials), statistics.median(counts),
+                ", ".join(f"`{p}` {n}" for p, n in sorted(paths.items(), key=lambda kv: (-kv[1], kv[0])))))
+        if table:
+            lines += [f"## Pin {pin}", "",
+                      "| Scenario | Model | Arm | n | Trials reading one | Median per trial | Files (trials) |",
+                      "|---|---|---|---:|---:|---:|---|"] + table + [""]
+    return lines
 
 
 def compare_pin(rows):
