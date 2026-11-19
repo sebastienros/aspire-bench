@@ -8,6 +8,6 @@ services:
         FAULT: migration
         APP_VARIANT: migration
       additional_contexts:
-        suite: ${TELEMETRY_SUITE_CONTEXT:-https://github.com/sebastienros/aspire-bench.git#953aa8cc71d0146da211da5b5bef04b583a29923:msbench/telemetry/common}
+        suite: ${TELEMETRY_SUITE_CONTEXT:-https://github.com/sebastienros/aspire-bench.git#4cab9e4a2ec4b994c77302aad687b6dbe9803366:msbench/telemetry/common}
         raw-app: ${TELEMETRY_RAW_APP_CONTEXT:-https://github.com/sebastienros/aspire-bench.git#baacba3e17181491c9a4d419db7d0e6763c3d363:msbench/bingo/common/raw-app}
         aspire-app: ${TELEMETRY_ASPIRE_APP_CONTEXT:-https://github.com/sebastienros/aspire-bench.git#baacba3e17181491c9a4d419db7d0e6763c3d363:msbench/bingo/common/aspire-app}
