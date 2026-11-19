@@ -110,7 +110,9 @@ describes this workspace. No report is required.
     "cold-start": {
         seed: 63,
         arms: ["raw", "aspire-cli", "aspire-skills", "aspire-skills-mcp", "aspire-lean", "aspire-lean-start",
-            "aspire-skills-norouter", "aspire-lean-agents", "aspire-cli-agents", "aspire-skills-agents"],
+            "aspire-skills-norouter", "aspire-lean-agents", "aspire-cli-agents", "aspire-skills-agents",
+            // T2.11: file v2 (start, describe as the resource list, wait <resource-name>), with and without orchestration.
+            "aspire-lean-agents-v2", "aspire-lean-noorch-agents"],
         instruction: coldStart,
     },
     // Same prompt as cold-start, but setup has already started and stopped the AppHost once with
@@ -210,11 +212,15 @@ export const arms = {
     "aspire-lean-agents": { kind: "aspire", skills: "lean", mcp: false, agents: "lean" },
     "aspire-cli-agents": { kind: "aspire", skills: "none", mcp: false, agents: "cli" },
     "aspire-skills-agents": { kind: "aspire", skills: "current", mcp: false, agents: "skills" },
+    // T2.11: file v2 (common/agents-md/*-v2.md) on lean, and on lean without aspire-orchestration.
+    "aspire-lean-agents-v2": { kind: "aspire", skills: "lean", mcp: false, agents: "lean-v2" },
+    "aspire-lean-noorch-agents": { kind: "aspire", skills: "lean-noorch", mcp: false, agents: "lean-noorch-v2" },
 };
 const onlyIn = {
     "aspire-lean-start": ["cold-start"], "aspire-skills-plugin": ["slow-sql"],
     "aspire-skills-mon": ["slow-sql", "read-only"], "aspire-skills-norouter": ["slow-sql", "read-only"],
     "aspire-lean-agents": ["slow-sql"], "aspire-cli-agents": ["slow-sql"], "aspire-skills-agents": ["slow-sql"],
+    "aspire-lean-agents-v2": ["cold-start"], "aspire-lean-noorch-agents": ["slow-sql"],
 };
 
 // The Aspire MCP server as every harness registers it. Copilot CLI receives it from task.toml

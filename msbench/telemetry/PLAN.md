@@ -1902,6 +1902,61 @@ file and one skill removed from a set.
 | Trials / cost | 36 + 12 + 6 = 54 ≈ $2 (cold-start trials cost $0.003 luna, $0.03 terra in `t16`; the guard ≈ $0.30) |
 | Results | pending |
 
+#### T2.11 rule, as computed (written 2026-11-19, before any `t211` result was read)
+
+- **Files and arms.** v1 (`cli.md`, `lean.md`, `skills.md`) stays as T2.10 measured it: its tasks are pinned to
+  suite `a69d80b`, and rewriting them would pool v1 and v2 trials in one cell, since cells key on skill content,
+  not on the instructions file. v2 is new files for all three families plus the new set: `cli-v2.md` 746 bytes /
+  182 tokens, `lean-v2.md` 1,298 / 319, `skills-v2.md` 1,283 / 318, `lean-noorch-v2.md` 1,188 / 293 (o200k). Only
+  "Run it" changes, identically in all four: (1) `aspire start --apphost /app/apphost.cs --non-interactive
+  --isolated`; (2) `aspire describe`, explained as the list of every resource with state, health and
+  endpoints, "the resources to wait on"; (3) `aspire wait <resource-name>` for each resource the task needs,
+  the name taken from that list, returning when healthy (the pin's default `--status healthy`; `aspire wait`
+  requires a name on this pin, `aspire wait --help`). `lean-noorch-v2.md` drops the orchestration line. Arms:
+  `aspire-lean-agents-v2` (lean + `lean-v2.md`) and `aspire-lean-noorch-agents` (set `lean-noorch` = lean minus
+  `aspire-orchestration`, + `lean-noorch-v2.md`). The ledger records `agents_md` and `agents_md_bytes`.
+- **Leak review of v2** (the T2.10 review stands for the unchanged lines): the new lines name no resource, no
+  fault and no fix. On `cold-start` they give the reference repair's three commands in order (`start`, then
+  `wait` per resource), but the workspace README already names the start command and both waits with the
+  resource names (`aspire wait boardadmin`, `aspire wait bingoboard`), so v2 adds the order and the role of
+  `describe`, not the answer. On `slow-sql`, `slow-redis` and `heldout-cache` the app is running at the start, and
+  the new lines are about starting it.
+- **Measure** (`collect.py`, Copilot CLI trajectories, cold-start only): `seconds_to_verified_up` runs from
+  the first `model.call_start` to the `tool.execution_complete` of the call that supplies evidence for the
+  second of `bingoboard` and `boardadmin`. Per resource, evidence is the first of: an `aspire wait` result
+  "Resource '<name>' is healthy|up"; a `describe` result (table, JSON, or a spilled copy read back) with that
+  resource `Running` and `Healthy`; a 2xx/3xx (the admin answers 302, its login redirect) from a curl/wget URL
+  whose port a describe listed for it (raw: the image's fixed ports 15173 and 18080); for raw, also the start
+  script's own checks ("OK: Player frontend", "OK: Admin portal"). `commands_to_verified_up` counts the tool
+  calls up to that one. Per trial also: `waits`, `describe_before_wait` (an `aspire describe` started before
+  the first `aspire wait`), and `wait_named_listed` (every wait named a resource an earlier result listed). The
+  measure finds evidence in all 126 `t16` and `t210` cold-start trials, and their values are in
+  `trials.jsonl` as history.
+- **Cells:** round `t211`, Copilot CLI. `cold-start` × luna, terra × 6 on `aspire-lean`, `aspire-lean-agents-v2`
+  and `aspire-lean-noorch-agents`; `raw` and `aspire-cli` × luna × 6; guard `slow-sql` × luna × 6 on
+  `aspire-lean-noorch-agents`. The terra floor comes from `t16`; the pull comparison is `t16`'s
+  `aspire-lean-start`.
+- **Ratios:** medians over graded trials, same round; p = exact two-sided Mann-Whitney. Tokens = per trial
+  `input_tokens + output_tokens`.
+- **An arm "moves"** if on luna its `seconds_to_verified_up` ÷ same-round `aspire-lean` ≤ 0.85 with p < 0.10.
+- **`ship`** if all hold:
+  - `aspire-lean-noorch-agents` moves;
+  - its luna `agent_seconds` ≤ 1.10 × same-round `aspire-cli` (faster counts);
+  - its luna tokens ≤ same-round `aspire-lean`'s;
+  - on terra it is ≤ 1.10 × `aspire-lean` on both `seconds_to_verified_up` and `agent_seconds`;
+  - the guard holds: `slow-sql` luna passes ≥ the pin's revised-text `aspire-lean` cell (`t17-copilot`, 6/6)
+    minus one, i.e. ≥ 5/6;
+  - and `aspire-lean-agents-v2` is not within 5 % of it (v2-kept ÷ noorch > 1.05 on luna
+    `seconds_to_verified_up`).
+- **`revise`** (keep the skill, ship the file) if either arm moves and `ship` fails, naming the failed
+  clause; this includes v2-kept within 5 % of noorch, where the gain is the v2 ordering, not the removal.
+- **`drop`** if neither luna arm moves.
+- **Gap to raw**, reported whatever the verdict. Split the noorch arm's and raw's time to verified-up into:
+  model time before the start command; the start command; the waits or checks after it; the model's own
+  verification after the last wait.
+- A trial at the 900 s limit is a failure counted separately; a trial lost before the agent ran is re-run
+  once. Expected spend ≈ $2 (54 trials).
+
 ---
 
 ## 7. Phase 3: bottom-up audit of the shipped skills

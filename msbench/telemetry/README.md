@@ -37,6 +37,7 @@ The two Aspire product patches are in [upstream/](upstream/).
 | `aspire-skills-mon` | Aspirified app | `mon` = current with only `aspire-monitoring`'s description replaced by lean's; router kept (PLAN T1.2) | no |
 | `aspire-skills-norouter` | Aspirified app | `norouter` = current minus the `aspire` router, nothing added (PLAN T1.3, T3.8) | no |
 | `aspire-lean-agents`, `aspire-cli-agents`, `aspire-skills-agents` | Aspirified app plus `/app/AGENTS.md` beside the AppHost ([`common/agents-md`](common/agents-md), one file per skill family; PLAN T2.10) | `lean` / none / `current` | no |
+| `aspire-lean-agents-v2`, `aspire-lean-noorch-agents` | Aspirified app plus `/app/AGENTS.md` v2 (start, `describe` as the resource list, `wait <resource-name>`; `common/agents-md/*-v2.md`; PLAN T2.11) | `lean` / `lean-noorch` = lean minus `aspire-orchestration` | no |
 
 `raw` versus any Aspire arm is the product comparison. The Aspire arms share one
 application, one AppHost and one toolchain, so differences between them isolate

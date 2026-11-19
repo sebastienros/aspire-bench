@@ -7,6 +7,7 @@
 #   lean-start  lean + the new aspire-start skill
 #   mon      current, with only aspire-monitoring's description replaced by lean's (PLAN T1.2)
 #   norouter current without the `aspire` router, nothing added (PLAN T1.3; T3.8's bundle-minus)
+#   lean-noorch  lean without aspire-orchestration; the start job moves to AGENTS.md v2 (PLAN T2.11)
 set -eu
 here="$(cd "$(dirname "$0")" && pwd)"
 set_name="$1"; dest="$2"
@@ -22,6 +23,9 @@ case "$set_name" in
              cp -R "$here/lean-overrides/." "$dest/" ;;
     mon)     cp -R "$here/current/." "$dest/"; cp -R "$here/lean-overrides/." "$dest/" ;;
     norouter) cp -R "$here/current/." "$dest/"; rm -rf "$dest/aspire" ;;
+    lean-noorch) cp -R "$here/current/." "$dest/"; cp -R "$here/new/." "$dest/"
+             rm -rf "$dest/aspire" "$dest/aspire-orchestration"
+             cp -R "$here/lean-overrides/." "$dest/" ;;
     *) echo "Unknown skill set: $set_name" >&2; exit 1 ;;
 esac
 rm -f "$dest/LICENSE"

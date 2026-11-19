@@ -130,6 +130,7 @@ SKILL_SETS = {  # what common/skills/compose.sh copies for each set, in order; `
     "current": ["current"], "plus": ["current", "new"],
     "lean": ["current", "new", "-aspire", "lean-overrides"],
     "lean-start": ["current", "new", "start", "-aspire", "lean-overrides"],
+    "lean-noorch": ["current", "new", "-aspire", "-aspire-orchestration", "lean-overrides"],
 }
 
 
@@ -312,6 +313,7 @@ def analyze_trial(result_path, entry):
                            and seen_pattern.search(json.dumps(e["data"].get("result", "")))), None)
         if seen_index is not None:
             row["tool_calls_to_root_cause_seen"] = sum(e.get("type") == "tool.execution_start" for e in events[:seen_index])
+    row.update(verified_up(events, entry["scenario"], "raw" if entry["arm"] == "raw" else "aspire"))
     # Bytes returned to the model by tools: the context the agent had to read.
     row["tool_result_chars"] = sum(len(json.dumps(e["data"].get("result", "")))
                                    for e in events if e.get("type") == "tool.execution_complete")
@@ -323,6 +325,117 @@ def analyze_trial(result_path, entry):
         for e in events if e.get("type") == "tool.execution_complete"
         for result in [e["data"].get("result", "")])
     return row
+
+
+# Cold start (PLAN T2.11): when did the agent have evidence that both the player page and the admin
+# application are serving? Per resource, the first tool result that shows it: an `aspire wait` that
+# reports it healthy/up, a `describe` (table, JSON, or a spilled copy read back) showing it Running and
+# Healthy, or an HTTP 200 from a URL whose port a describe listed for it. Time runs from the first model
+# call to the completion of the call that supplied the second resource's evidence.
+VERIFY_RESOURCES = {"cold-start": ("bingoboard", "boardadmin"), "cold-start-warm": ("bingoboard", "boardadmin")}
+WAIT_OK = re.compile(r"Resource '([\w-]+)' is (?:healthy|up)\b", re.I)
+WAIT_CMD = re.compile(r"\baspire\s+wait\s+(?:--?\S+\s+(?:\S+\s+)?)*([A-Za-z][\w-]*)")
+DESCRIBE_CMD = re.compile(r"\baspire\s+describe\b")
+# Status codes as curl/wget report them (`-w '%{http_code}'`, `-i`, `HTTP/1.1 200`); 2xx and 3xx mean serving
+# (the admin answers 302, its login redirect).
+HTTP_STATUS = re.compile(r"(?:HTTP/[\d.]+\s+|http_code\W{0,3}|:\s?|HTTP\s)([1-5]\d\d)\b")
+URL = re.compile(r"https?://(?:localhost|127\.0\.0\.1):(\d+)")
+# The raw application's fixed ports (image ENV FRONTEND_PORT, ADMIN_PORT).
+RAW_PORTS = {"bingoboard": {"15173"}, "boardadmin": {"18080"}}
+RAW_START_OK = {"bingoboard": r"OK: Player frontend", "boardadmin": r"OK: Admin portal"}
+# "port 15173: HTTP 200", from a loop over ports whose URL holds a shell variable.
+PORT_STATUS = re.compile(r"\b(\d{4,5})\b\D{0,24}?\b([1-5]\d\d)\b")
+TABLE_ROW = re.compile(r"│\s*([A-Za-z][\w-]*)[^│\n]*│[^│\n]*│\s*(?:Running|Starting|Finished|Exited|Waiting|NotStarted|Unknown|FailedToStart)")
+
+
+def describe_evidence(text, name):
+    """(running and healthy, ports) for one resource in a describe table or JSON."""
+    healthy, ports = False, set()
+    for line in text.splitlines():
+        if re.search(rf"(?<![\w-]){re.escape(name)}(?![\w-])", line):
+            if re.search(r"\bRunning\b", line) and re.search(r"\bHealthy\b", line):
+                healthy = True
+            ports.update(re.findall(r"localhost:(\d+)", line))
+    for match in re.finditer(rf'"(?:displayName|name)"\s*:\s*"{re.escape(name)}"', text):
+        window = text[match.start():match.start() + 4000]
+        nxt = re.search(r'"(?:displayName)"\s*:\s*"(?!' + re.escape(name) + r'")', window[20:])
+        window = window[:20 + nxt.start()] if nxt else window
+        if re.search(r'"state"\s*:\s*"Running"', window) and re.search(r'"Healthy"', window):
+            healthy = True
+        ports.update(re.findall(r"localhost:(\d+)", window))
+    return healthy, ports
+
+
+def verified_up(events, scenario, kind="aspire"):
+    names = VERIFY_RESOURCES.get(scenario)
+    if not names:
+        return {}
+    start = next((parse_time(e["timestamp"]) for e in events if e.get("type") == "model.call_start" and e.get("timestamp")), None)
+    starts = {}
+    order = []
+    for e in events:
+        if e.get("type") == "tool.execution_start":
+            data = e.get("data", {})
+            command = (data.get("arguments") or {}).get("command") or ""
+            starts[data.get("toolCallId")] = command
+            order.append((data.get("toolCallId"), command))
+    evidence, listed = {}, set()
+    ports = {n: set(RAW_PORTS.get(n, ())) if kind == "raw" else set() for n in names}
+    waits = [WAIT_CMD.search(c).group(1) for _, c in order if WAIT_CMD.search(c)]
+    first_wait = next((i for i, (_, c) in enumerate(order) if WAIT_CMD.search(c)), None)
+    first_describe = next((i for i, (_, c) in enumerate(order) if DESCRIBE_CMD.search(c)), None)
+    wait_named_listed = []
+    out = {"waits": len(waits),
+           "describe_before_wait": None if first_wait is None else (first_describe is not None and first_describe < first_wait)}
+    calls_done = 0
+    seen_ids = []
+    for e in events:
+        if e.get("type") == "tool.execution_start":
+            seen_ids.append(e.get("data", {}).get("toolCallId"))
+            command = (e.get("data", {}).get("arguments") or {}).get("command") or ""
+            match = WAIT_CMD.search(command)
+            if match:
+                wait_named_listed.append(match.group(1) in listed)
+        if e.get("type") != "tool.execution_complete":
+            continue
+        data = e.get("data", {})
+        result = data.get("result", "")
+        text = atif_text(result.get("content")) if isinstance(result, dict) else str(result)
+        command = starts.get(data.get("toolCallId"), "")
+        for match in TABLE_ROW.finditer(text):
+            listed.add(match.group(1))
+        for match in re.finditer(r'"displayName"\s*:\s*"([\w-]+)"', text):
+            listed.add(match.group(1))
+        for name in names:
+            if name in evidence:
+                continue
+            ok = any(m.group(1) == name for m in WAIT_OK.finditer(text))
+            # The raw start script checks both origins itself before it returns.
+            if kind == "raw" and re.search(RAW_START_OK[name], text):
+                ok = True
+            healthy, found_ports = describe_evidence(text, name)
+            ports[name].update(found_ports)
+            if healthy:
+                ok = True
+            if not ok and re.search(r"\b(?:curl|wget)\b", command):
+                # Pair each URL in the command with the status codes in the output, in order.
+                expanded = re.sub(r"\$\{?FRONTEND_PORT\}?", "15173", re.sub(r"\$\{?ADMIN_PORT\}?", "18080", command))
+                urls, codes = URL.findall(expanded), HTTP_STATUS.findall(text)
+                # `curl --fail` chained with && and no status printed: exit code 0 means every URL answered < 400.
+                if not codes and re.search(r"exit code 0\b", text) and re.search(r"(?:--fail\b|\s-[a-zA-Z]*f[a-zA-Z]*\b)", expanded):
+                    codes = ["200"] * len(urls)
+                ok = any(port in ports[name] and code[0] in "23"
+                         for port, code in list(zip(urls, codes)) + PORT_STATUS.findall(text))
+            if ok:
+                evidence[name] = e
+        if len(evidence) == len(names):
+            done = parse_time(e["timestamp"])
+            index = seen_ids.index(data.get("toolCallId")) + 1 if data.get("toolCallId") in seen_ids else len(seen_ids)
+            out["seconds_to_verified_up"] = round((done - start).total_seconds(), 1) if start else None
+            out["commands_to_verified_up"] = index
+            break
+    out["wait_named_listed"] = None if not wait_named_listed else all(wait_named_listed)
+    return out
 
 
 # ATIF (Harbor's Agent Trajectory Interchange Format) is what the VS Code agent writes
@@ -689,7 +802,8 @@ ARM_ORDER = ["raw", "aspire-cli", "aspire-skills", "aspire-mcp", "aspire-skills-
              "aspire-lean-mcp-compact", "aspire-lean-src", "aspire-lean-plain", "aspire-lean-mcp-all",
              # Listed so their order is fixed (it used to follow set iteration order).
              "raw-check", "aspire-lean-start", "aspire-skills-plugin", "aspire-skills-mon", "aspire-skills-norouter",
-             "aspire-lean-agents", "aspire-cli-agents", "aspire-skills-agents"]
+             "aspire-lean-agents", "aspire-cli-agents", "aspire-skills-agents", "aspire-lean-agents-v2",
+             "aspire-lean-noorch-agents"]
 
 
 def arm_order(cell_arm):
