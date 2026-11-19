@@ -109,9 +109,12 @@ def t48(rounds):
             outside += delta > 0.15
             print(f"    |ratio_vscode - ratio_copilot| = {delta:.2f} {'OUTSIDE' if delta > 0.15 else 'inside'} ±0.15")
             if scenario == "slow-redis" and model == "gpt-6-luna":
-                passes = (r[VSCODE][1]["pass"], r[COPILOT][1]["pass"])
-                pass_ok = abs(passes[0] - passes[1]) <= 1
-                print(f"    slow-redis luna aspire-skills-mcp passes VS Code {passes[0]} vs Copilot {passes[1]}: {'within one' if pass_ok else 'NOT within one'}")
+                pass_ok = True  # ruling: raw and aspire-skills-mcp, each against the same-round Copilot CLI cell
+                for i, name in ((0, "raw"), (1, "aspire-skills-mcp")):
+                    passes = (r[VSCODE][i]["pass"], r[COPILOT][i]["pass"])
+                    pass_ok &= abs(passes[0] - passes[1]) <= 1
+                    print(f"    slow-redis luna {name} passes VS Code {passes[0]} vs Copilot {passes[1]}: "
+                          f"{'within one' if abs(passes[0] - passes[1]) <= 1 else 'NOT within one'}")
     print(f"\nT4.8 (a) verdict: {'parity' if outside == 0 and pass_ok else 'harness-dependent'} ({outside} of 4 cells outside)")
 
     print("\n# T4.9 (VS Code, luna)")

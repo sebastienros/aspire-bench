@@ -4485,7 +4485,7 @@ the window is the cell's last five earlier runs, a run is the round name up to t
 - **Verdict** (T1.7's rule within one model). Per scenario: (1) each Aspire arm's ratio lies on the same side of
   1.00 under both harnesses, 0.90–1.10 counting as level and matching either side; (2) the two Aspire arms order
   the same way (which median is lower), a pair whose medians are within 0.90–1.10 of each other counting as level
-  and matching either order; (3) on `slow-redis`, the pass counts of `aspire-lean` and `raw` order the same way
+  and matching either order (convention confirmed by the coordinating session before any trial); (3) on `slow-redis`, the pass counts of `aspire-lean` and `raw` order the same way
   (>, =, <). **`ship`** (harness-neutral) if both scenarios meet all three; otherwise **`no verdict`**, and the
   trajectories name the mechanism per failing condition (skill selection, MCP use, context budget). Reported
   beside: pass counts, p (exact Mann-Whitney) against `raw`, skills loaded, MCP calls, tokens, cost.
@@ -4503,12 +4503,14 @@ the window is the cell's last five earlier runs, a run is the round name up to t
   trials). The VS Code luna `raw` cells serve both cards (12 trials, charged to T4.8).
 - **Measure** exactly as ruling 4: VS Code time `agent_loop_seconds − transport_wait_seconds`, Copilot CLI's
   `agent_loop_seconds`; ratio = arm median ÷ `raw` median, same harness, round, scenario and model, over all graded
-  trials. **`parity`** if in all four Aspire cells `|ratio_vscode − ratio_copilot| ≤ 0.15` and the `slow-redis` luna
-  pass counts of `aspire-skills-mcp` differ by at most one between harnesses; else **`harness-dependent`**, with the
-  count of cells outside and each attributed from its trajectory. (Reading of "the slow-redis luna pass counts":
-  the Aspire cell; put to the coordinating session before any trial.)
+  trials. **`parity`** if in all four Aspire cells `|ratio_vscode − ratio_copilot| ≤ 0.15` and on `slow-redis` luna
+  the pass counts of `raw` and of `aspire-skills-mcp` each differ from the same-round Copilot CLI cell by at most
+  one; else **`harness-dependent`**, with the count of cells outside and each attributed from its trajectory.
+  (Both arms, as T1.9's rule had it: coordinating session's ruling, 2026-11-19, before any trial.)
 - **(b) MCP listing, by inspection** (VS Code 1.146.0-insider, Copilot Chat 0.74.2026110205, inside
-  `vscode=0.20261117.7`): see the results block. No trial is spent unless a public setting lists MCP tools eagerly.
+  `vscode=0.20261117.7`): see the results block. No trial is spent unless a public setting lists MCP tools eagerly
+  (coordinating session, 2026-11-19: a custom agent whose `tools:` list leaves out tool search changes the whole
+  tool set and is a possible later card, not a setting; not run here).
 - Restated estimate $4.80, stop at $14.40.
 
 #### T4.9 rule, as computed (written 2026-11-19, before any `t48` trial)
