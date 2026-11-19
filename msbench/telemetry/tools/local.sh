@@ -7,6 +7,7 @@
 #                                                               verify(fail) -> solve -> verify(pass) sequence
 # AGENTS_MD=<file in common/agents-md, without .md> adds /app/AGENTS.md as the -agents arms do (T2.10).
 # APP_VARIANT=<folder in common/app-variants> builds that application variant (T2.5).
+# CLAUDE_CODE=<skills|skills-mcp> builds a -cc arm's image (T4.7: skills in /app/.claude/skills, MCP in ~/.claude.json).
 # LOCAL_SUFFIX=<word> is appended to the image tag and container name, so lanes working at the same
 # time on the same cell do not remove each other's containers.
 # Uses the working tree for every build context, so nothing needs to be pushed.
@@ -14,7 +15,7 @@ set -euo pipefail
 suite="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 msbench="$(cd "$suite/.." && pwd)"
 
-tag() { echo "telemetry-$1-$2-$3${AGENTS_MD:+-agents}${APP_VARIANT:+-$APP_VARIANT}${CLI_PATCH:+-$CLI_PATCH}${LOCAL_SUFFIX:+-$LOCAL_SUFFIX}:dev"; }
+tag() { echo "telemetry-$1-$2-$3${AGENTS_MD:+-agents}${APP_VARIANT:+-$APP_VARIANT}${CLI_PATCH:+-$CLI_PATCH}${CLAUDE_CODE:+-cc-$CLAUDE_CODE}${LOCAL_SUFFIX:+-$LOCAL_SUFFIX}:dev"; }
 
 build() {
     local kind="$1" skills="$2" fault="$3" empty
@@ -41,7 +42,7 @@ build() {
             --build-context "aspire-app=$msbench/bingo/common/aspire-app" \
             --build-context "raw-app=$msbench/bingo/common/raw-app" \
             --build-arg "APP_KIND=$kind" --build-arg "SKILLS=$skills" --build-arg "FAULT=$fault" ${CLI_PATCH:+--build-arg CLI_KIND=source --build-arg "CLI_PATCH=$CLI_PATCH"} ${AGENTS_MD:+--build-arg "AGENTS_MD=$AGENTS_MD"} \
-            ${APP_VARIANT:+--build-arg "APP_VARIANT=$APP_VARIANT"} \
+            ${APP_VARIANT:+--build-arg "APP_VARIANT=$APP_VARIANT"} ${CLAUDE_CODE:+--build-arg "CLAUDE_CODE=$CLAUDE_CODE"} \
             -t "$(tag "$kind" "$skills" "$fault")" "$empty" >/dev/null
     fi
     rmdir "$empty"

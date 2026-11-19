@@ -4451,6 +4451,78 @@ the window is the cell's last five earlier runs, a run is the round name up to t
 | Trials / cost | 72 graded trials ≈ $5 (the haiku probe under `claude-code` cost $0.067 on `slow-sql`, 2.1 M input tokens mostly cached; Copilot CLI haiku not yet measured) + 2–3 probes; gates model-free |
 | Results | proposed, not built |
 
+#### T4.7 rule, as computed (written 2026-11-19, before any probe, pilot, gate or cell trial of this card)
+
+- **Adapter.** New arms `aspire-skills-mcp-cc` and `aspire-lean-cc`, each its parent (`aspire-skills-mcp`,
+  `aspire-lean`) plus build argument `CLAUDE_CODE` (`skills-mcp` / `skills`): the parent's skill set composed a
+  third time into `/app/.claude/skills`, and with MCP `common/claude-code/claude.json` (the same `aspire agent mcp`
+  definition as `task.toml`, checked by `gen-tasks.mjs`) copied to `/root/.claude.json`. `task.toml` is the parent's
+  but for `variant`. `raw` needs no variant. `submit.sh` refuses a `-cc` arm under any other harness. Under
+  `claude-code` every arm gets `CLAUDE_CODE_VERSION=2.1.327` (the version `latest` resolved to on CES on 2026-11-18)
+  and `ALLOWED_TOOLS` = the runner's default list plus `mcp__aspire` (without it the runner's non-interactive
+  permission mode refuses every MCP call); the ledger records `agent_cli_version_requested`, `collect.py` the
+  version used per trial (`agent_version`), the servers and Aspire skills Claude Code listed at start
+  (`agent_mcp_servers`, `agent_skills_listed`) and refused MCP calls (`mcp_permission_denied`).
+- **Probe** (round `p4-probe-cc`, ledger `excluded`): one `claude-code` × `claude-haiku-5.5` × `slow-sql` trial per
+  `-cc` arm. Passes when `agent_mcp_servers` lists `aspire` and the init tool list carries its tools
+  (`aspire-skills-mcp-cc`), `agent_skills_listed` carries the arm's set, `aspire-diagnose` is in `skills_loaded`
+  on `aspire-lean-cc`, `mcp_calls` > 0 with `mcp_permission_denied` = 0 and at least one MCP result with content on
+  `aspire-skills-mcp-cc`, `agent_version` used = 2.1.327 with source `env`, and the verifier grades. A failed check
+  stops the card before pilots.
+- **Pilots** (round `p4-pilot-haiku`, ledger `excluded`, ruling 3): `aspire-skills-mcp-cc` under `claude-code`,
+  `aspire-skills-mcp` and `raw` under Copilot CLI, `claude-haiku-5.5`, one `slow-sql` and one `slow-redis` trial each
+  (6 trials). They price the round; nothing in them decides. If the 72-trial projection from the pilots' per-trial
+  cost exceeds $15 (3× the restated $5), stop and report before the round.
+- **Gates** (round `gate-p4h`): oracle reward 1 on the five new tasks (`slow-sql`, `slow-redis` × the two `-cc`
+  arms; `slow-redis/aspire-cli-agents` for T4.9), and the local fail→repair→pass gate on one `-cc` image.
+- **Round `t47`**, `claude-haiku-5.5`, `slow-sql`, `slow-redis` × 6: under `claude-code` `raw`, `aspire-skills-mcp-cc`,
+  `aspire-lean-cc`; under Copilot CLI `raw`, `aspire-skills-mcp`, `aspire-lean`; submitted cell by cell alternating
+  harness. Infrastructure failures (no grade) are topped up in `t47-topup` to 6 graded per cell.
+- **Time** = `agent_loop_seconds` under both harnesses (first model call to last step; Claude Code's CLI install
+  is in Harbor's setup, not the loop). Ratio = arm median ÷ `raw` median, same harness, round and scenario; medians
+  over all graded trials, failing ones included. `-cc` arm under `claude-code` is compared with its parent under
+  Copilot CLI.
+- **Verdict** (T1.7's rule within one model). Per scenario: (1) each Aspire arm's ratio lies on the same side of
+  1.00 under both harnesses, 0.90–1.10 counting as level and matching either side; (2) the two Aspire arms order
+  the same way (which median is lower), a pair whose medians are within 0.90–1.10 of each other counting as level
+  and matching either order; (3) on `slow-redis`, the pass counts of `aspire-lean` and `raw` order the same way
+  (>, =, <). **`ship`** (harness-neutral) if both scenarios meet all three; otherwise **`no verdict`**, and the
+  trajectories name the mechanism per failing condition (skill selection, MCP use, context budget). Reported
+  beside: pass counts, p (exact Mann-Whitney) against `raw`, skills loaded, MCP calls, tokens, cost.
+
+#### T4.8 rule, as computed (written 2026-11-19, before any `t48` trial)
+
+- **(a) Setting.** `agentSeconds` in both VS Code asset folders 720 → **1,087** (Copilot CLI's 900 plus the 186.5 s
+  transport fallback every VS Code trial loses, T0.4), so net working time is 900.5 s; Harbor's outer budget
+  ×1.5 (1,350 s) for every VS Code trial, which leaves the inner limit binding (launch ≈ 55 s + 1,087 s + export +
+  60 s grace). `submit.sh` now defaults to ×1.5 under `vscode`. The same assets for every arm and model; the ledger's
+  `agent_assets_sha256` separates these trials from `t19`'s (720 s), and every table of this card is computed with
+  `stats.py --rounds t48` (pooled cells would mix the two limits).
+- **Round `t48`** (shared with T4.9, arms interleaved, all under the setting above): VS Code `slow-sql`,
+  `slow-redis` × `raw`, `aspire-skills-mcp` × luna, terra × 6 and the same eight cells under Copilot CLI (96
+  trials). The VS Code luna `raw` cells serve both cards (12 trials, charged to T4.8).
+- **Measure** exactly as ruling 4: VS Code time `agent_loop_seconds − transport_wait_seconds`, Copilot CLI's
+  `agent_loop_seconds`; ratio = arm median ÷ `raw` median, same harness, round, scenario and model, over all graded
+  trials. **`parity`** if in all four Aspire cells `|ratio_vscode − ratio_copilot| ≤ 0.15` and the `slow-redis` luna
+  pass counts of `aspire-skills-mcp` differ by at most one between harnesses; else **`harness-dependent`**, with the
+  count of cells outside and each attributed from its trajectory. (Reading of "the slow-redis luna pass counts":
+  the Aspire cell; put to the coordinating session before any trial.)
+- **(b) MCP listing, by inspection** (VS Code 1.146.0-insider, Copilot Chat 0.74.2026110205, inside
+  `vscode=0.20261117.7`): see the results block. No trial is spent unless a public setting lists MCP tools eagerly.
+- Restated estimate $4.80, stop at $14.40.
+
+#### T4.9 rule, as computed (written 2026-11-19, before any `t48` trial)
+
+- **Cells** in round `t48` under VS Code, the T4.8 setting, luna, `slow-sql` and `slow-redis` × 6: `raw` (shared with
+  T4.8), `aspire-cli`, `aspire-cli-agents` (`common/agents-md/cli.md`; `slow-redis/aspire-cli-agents` is a new task
+  of this re-pin), `aspire-lean-agents` (`lean.md`), `aspire-lean` (60 trials).
+- **Rule, in order** (ruling 5): precondition `aspire-lean` passes ≥ `raw` + 2 on both faults, else **`no verdict`**.
+  Then, "within one" = within one pass of `aspire-lean` on both faults: `aspire-cli` within one → **`neither`**; else
+  `aspire-cli-agents` within one → **`commands`**; else `aspire-lean-agents` within one and `aspire-cli-agents` not →
+  **`skill`**; anything else → **`no verdict`**. Reported beside: shell commands per trial (`run_in_terminal`
+  calls, median) and time to pass (VS Code net time, passing trials, with n).
+- Restated estimate $3.00 (≈ $2.40 with the shared `raw` cells), stop at $9.00.
+
 ---
 
 ## 9. Sequencing, budget and reporting

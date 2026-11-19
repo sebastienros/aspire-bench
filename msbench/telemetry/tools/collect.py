@@ -34,8 +34,10 @@ PROTECTED = re.compile(r"/opt/benchmark[\w./-]*|/solution\b|/tests/test\.sh|/log
 # the image copies each set to /app/.github/skills and /opt/agent-skills. Copilot reads them with `view`,
 # VS Code with `read_file`, either may `cat` them. Search tools (grep, glob, rg over the folder) name no file
 # and are not counted; a search result that shows a reference's lines is not a read.
-SKILL_REFERENCE = re.compile(r"(?:\.github/skills|/opt/agent-skills)/([\w.-]+)/([\w./-]+\.[A-Za-z]+)")
-SEARCH_TOOLS = {"grep", "glob", "rg", "file_search", "grep_search", "semantic_search", "list_dir"}
+# The -cc arms (T4.7) also copy the set to /app/.claude/skills, Claude Code's project skill folder; Claude Code's
+# search tools are spelled Grep and Glob.
+SKILL_REFERENCE = re.compile(r"(?:\.github/skills|\.claude/skills|/opt/agent-skills)/([\w.-]+)/([\w./-]+\.[A-Za-z]+)")
+SEARCH_TOOLS = {"grep", "glob", "rg", "file_search", "grep_search", "semantic_search", "list_dir", "Grep", "Glob"}
 
 
 def references_read(calls):
@@ -556,8 +558,11 @@ def verified_up(events, scenario, kind="aspire"):
 # per step, not per tool: the moment the step's model call returned, which is when its tools start.
 # A step's model call began `metrics.extra.model_call_duration_ms` earlier when the harness reports
 # it, and a tool's result is back when the next step's model call begins.
-SKILL_FILE = re.compile(r"(?:^|/)\.github/skills/([^/]+)/SKILL\.md$")
+SKILL_FILE = re.compile(r"(?:^|/)\.(?:github|claude)/skills/([^/]+)/SKILL\.md$")
 VSCODE_MCP_TOOL = re.compile(r"^mcp_aspire_(.+)$")
+# Claude Code (T4.7) names an MCP tool mcp__<server>__<tool> and loads a skill with its `Skill` tool.
+CLAUDE_MCP_TOOL = re.compile(r"^mcp__aspire__(.+)$")
+CLAUDE_PERMISSION_DENIED = re.compile(r"requested permissions to use|haven't granted it yet")
 
 
 def atif_steps(trajectory):
@@ -576,19 +581,39 @@ def atif_text(content):
 
 def canonical_tool(name):
     """Tool names as the Copilot CLI rows spell them, so tool_counts and mcp_calls compare."""
-    match = VSCODE_MCP_TOOL.match(name or "")
+    match = VSCODE_MCP_TOOL.match(name or "") or CLAUDE_MCP_TOOL.match(name or "")
     return f"aspire-{match.group(1)}" if match else name
 
 
 def skill_of(call):
-    """A skill load: Copilot's `skill` tool, or VS Code reading a SKILL.md under .github/skills."""
+    """A skill load: Copilot's `skill` tool, Claude Code's `Skill` tool, or reading a SKILL.md under
+    .github/skills (VS Code) or .claude/skills."""
     if call["name"] == "skill":
         return call["arguments"].get("skill")
+    if call["name"] == "Skill":
+        return call["arguments"].get("skill") or call["arguments"].get("command")
     for value in call["arguments"].values():
         match = SKILL_FILE.search(str(value)) if isinstance(value, str) else None
         if match:
             return match.group(1)
     return None
+
+
+def claude_code_settings(trial_dir, entry, row):
+    """What the claude-code runner recorded about the CLI and its init event (agent_settings.json): the CLI
+    version requested and used (T4.7: recorded per trial even with a pin), the MCP servers and the
+    non-built-in skills Claude Code listed at start."""
+    path = next(iter(sorted(trial_dir.rglob("agent_settings.json"))), None)  # the trial's agent/ copy
+    row["agent_version"] = {"claude-code-agent": (entry.get("agent_package") or "").split("=")[-1] or None}
+    if path is None:
+        return
+    settings = json.loads(path.read_text())
+    value = lambda key: (settings.get(key) or {}).get("value")
+    row["agent_version"].update({"claude-code": value("agent_version_used"),
+                                 "requested": value("agent_version_requested"),
+                                 "requested_source": (settings.get("agent_version_requested") or {}).get("source")})
+    row["agent_mcp_servers"] = value("mcp_servers") or []
+    row["agent_skills_listed"] = sorted(s for s in value("skills") or [] if s.startswith("aspire"))
 
 
 def analyze_atif(trial_dir, entry, row):
@@ -626,6 +651,11 @@ def analyze_atif(trial_dir, entry, row):
     row["tool_counts"] = dict(counts)
     row["mcp_calls"] = {name: n for name, n in counts.items() if name and name.startswith("aspire-")}
     row["skills_loaded"] = [skill for skill in map(skill_of, calls) if skill]
+    if row["agent"] == "claude-code":
+        claude_code_settings(trial_dir, entry, row)
+        # A call the harness refused (tool not allowed) still counts in mcp_calls; this says how many.
+        row["mcp_permission_denied"] = sum(bool(c["name"].startswith("aspire-") and CLAUDE_PERMISSION_DENIED.search(c["result"]))
+                                           for c in calls if c["name"])
     aspire, protected, harness_paths = collections.Counter(), 0, set()
     for call in calls:
         text = json.dumps(call["arguments"])
@@ -821,6 +851,11 @@ def analyze_vscode(trial_dir, entry, row):
     row["tool_counts"] = dict(counts)
     row["mcp_calls"] = {name: n for name, n in counts.items() if name and name.startswith("aspire-")}
     row["skills_loaded"] = [skill for skill in map(skill_of, calls) if skill]
+    if row["agent"] == "claude-code":
+        claude_code_settings(trial_dir, entry, row)
+        # A call the harness refused (tool not allowed) still counts in mcp_calls; this says how many.
+        row["mcp_permission_denied"] = sum(bool(c["name"].startswith("aspire-") and CLAUDE_PERMISSION_DENIED.search(c["result"]))
+                                           for c in calls if c["name"])
     aspire, protected, harness_paths = collections.Counter(), 0, set()
     for call in calls:
         text = json.dumps(call["arguments"])

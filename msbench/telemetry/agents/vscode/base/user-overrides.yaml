@@ -4,7 +4,7 @@ dangerouslyAutoApproveAllToolCalls: true
 snapshotWorkspace: false
 enableEditorDisagnosticSquiggleCollection: false
 timeouts:
-  agentSeconds: 720
+  agentSeconds: 1087
   stallSeconds: 600
   runnerGraceSeconds: 60
 vscodeSettings:

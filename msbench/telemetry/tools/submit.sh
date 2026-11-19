@@ -5,7 +5,7 @@
 # BENCH_AGENT picks the harness, each pinned to one package version:
 #   github-copilot-cli (default)  Copilot CLI, the harness every result before T0.4 used
 #   vscode                        VS Code agent mode; assets from agents/vscode (gen-tasks.mjs agent-assets)
-#   claude-code                   Claude Code
+#   claude-code                   Claude Code (CLI pinned with CLAUDE_CODE_VERSION; the -cc arms are its variants)
 # BENCH_AGENT_TIMEOUT_MULTIPLIER (optional) scales task.toml's agent timeout through Harbor, so a
 # harness with fixed start-up overhead (VS Code: ~50 s launch + 186 s transport fallback, T0.4) gets
 # the same working budget; it is recorded in the ledger as agent_timeout_multiplier.
@@ -35,12 +35,26 @@ case "$agent" in
         agent_env=(--env USE_COPILOT_CLI_VERSION) ;;
     vscode)
         # @vscode/vscode-copilot-evaluation-agent, published 2026-11-17.
-        agent_package="vscode=0.20261117.7" ;;
+        agent_package="vscode=0.20261117.7"
+        # T4.8: the assets' agentSeconds (1,087 s) needs Harbor's outer budget raised with it.
+        BENCH_AGENT_TIMEOUT_MULTIPLIER="${BENCH_AGENT_TIMEOUT_MULTIPLIER:-1.5}" ;;
     claude-code)
-        agent_package="claude-code=v0.33.1794879102" ;;
+        agent_package="claude-code=v0.33.1794879102"
+        # T4.7: the package installs @anthropic-ai/claude-code@latest unless CLAUDE_CODE_VERSION is set; 2.1.327 is
+        # what `latest` resolved to on CES on 2026-11-18 (T1.7's probe). ALLOWED_TOOLS is the runner's default list
+        # plus the aspire MCP server's tools, which it would otherwise refuse in its non-interactive permission
+        # mode; the same list for every claude-code arm (raw has no such server).
+        export CLAUDE_CODE_VERSION=2.1.327
+        export ALLOWED_TOOLS="Bash,Edit,Glob,Grep,KillShell,LSP,MCPSearch,NotebookEdit,Read,Skill,Task,TaskCreate,TaskGet,TaskList,TaskOutput,TaskUpdate,ToolSearch,Write,mcp__aspire"
+        agent_env=(--env CLAUDE_CODE_VERSION ALLOWED_TOOLS) ;;
     *) echo "Unknown BENCH_AGENT '$agent' (github-copilot-cli, vscode, claude-code)" >&2; exit 1 ;;
 esac
 
+# T4.7: a -cc arm carries skills and MCP only where Claude Code reads them; under another harness it would be its
+# parent arm with extra files.
+if [[ "$arm" == *-cc && "$model" != oracle && "$agent" != claude-code ]]; then
+    echo "Arm $arm is for BENCH_AGENT=claude-code only" >&2; exit 1
+fi
 stamp="$(date -u +%Y%m%dT%H%M%SZ)"
 log="$data/logs/$round-$scenario-$arm-$model${BENCH_AGENT:+-$agent}-$stamp.log"
 common=(--dataset "$suite/dataset.jsonl" --benchmark "aspire-telemetry-$scenario" --variant "$arm"
@@ -93,7 +107,7 @@ while read -r run_id; do
         --arg submitted_at "$stamp" --arg dataset_sha256 "$dataset_sha" --arg log "$log" --arg task_sha "$task_sha" \
         --arg aspire_build "$aspire_build" --arg skills_sha "$skills_sha" --arg task "${BENCH_TASK:-}" \
         --arg agent "$agent" --arg timeout_mult "${BENCH_AGENT_TIMEOUT_MULTIPLIER:-}" --arg agent_package "$agent_package" --arg assets "${agent_assets#"$suite/"}" --arg assets_sha "$assets_sha" \
-        --arg agents_md "$agents_md" --arg agents_md_bytes "$agents_md_bytes" --arg resume "${BENCH_RESUME_TRAJECTORY:-}" --arg excluded "${BENCH_EXCLUDED:-}" \
+        --arg agents_md "$agents_md" --arg agents_md_bytes "$agents_md_bytes" --arg resume "${BENCH_RESUME_TRAJECTORY:-}" --arg excluded "${BENCH_EXCLUDED:-}" --arg cc_version "${CLAUDE_CODE_VERSION:-}" \
         '{run_id: $run_id, scenario: $scenario, arm: $arm, model: $model, round: $round, submitted_at: $submitted_at,
           dataset_sha256: $dataset_sha256, log: $log, task_repo_commit: $task_sha, aspire_build: $aspire_build,
           skills_sha: $skills_sha}
@@ -104,5 +118,6 @@ while read -r run_id; do
          + (if $agents_md == "" then {} else {agents_md: $agents_md, agents_md_bytes: ($agents_md_bytes|tonumber)} end)
          + (if $timeout_mult == "" or $agent == "" then {} else {agent_timeout_multiplier: ($timeout_mult|tonumber)} end)
          + (if $resume == "1" and $agent != "" then {resume_trajectory: true} else {} end)
-         + (if $excluded == "" then {} else {excluded: $excluded} end)' | tee -a "$ledger"
+         + (if $excluded == "" then {} else {excluded: $excluded} end)
+         + (if $agent != "claude-code" then {} else {agent_cli_version_requested: $cc_version} end)' | tee -a "$ledger"
 done

@@ -158,6 +158,18 @@ RUN --mount=type=bind,from=suite,source=skills,target=/mnt/skills \
 ARG AGENTS_MD=
 RUN --mount=type=bind,from=suite,source=agents-md,target=/mnt/agents-md \
     if [ -n "$AGENTS_MD" ]; then cp "/mnt/agents-md/$AGENTS_MD.md" /app/AGENTS.md && wc -c /app/AGENTS.md; fi
+# PLAN T4.7: the -cc arms, run only under the claude-code harness, which reads neither /app/.github/skills nor
+# task.toml's MCP server. CLAUDE_CODE=skills also composes the arm's set into /app/.claude/skills (Claude Code's
+# project skill folder); skills-mcp also registers the same `aspire agent mcp` server at user scope in the agent
+# user's ~/.claude.json, where Claude Code starts it without a prompt (as Harbor's claude_code agent writes it).
+# Empty (every other arm) adds nothing.
+ARG CLAUDE_CODE=
+RUN --mount=type=bind,from=suite,source=.,target=/mnt/suite \
+    if [ -n "$CLAUDE_CODE" ]; then \
+        sh /mnt/suite/skills/compose.sh "$SKILLS" /app/.claude/skills \
+        && if [ "$CLAUDE_CODE" = skills-mcp ]; then cp /mnt/suite/claude-code/claude.json /root/.claude.json; fi \
+        && ls /app/.claude/skills; \
+    fi
 ENV BENCH_FAULT=${FAULT} \
     BENCH_SKILLS=${SKILLS}
 ENTRYPOINT ["tini", "--", "bash", "/opt/benchmark/entrypoint.sh"]
