@@ -1275,7 +1275,8 @@ set's time (39.0 vs 46.8 s, p = 0.041), with 0.59× the tokens, level with the n
 `slow-sql` guard 6/6. Keeping the skill with the same file gained nothing on luna (0.94×): the agent followed
 the skill, not the file (describe before wait 0/6, against 5/6 without the skill). The same-round control also
 showed that T2.10's 13–14 % cold-start gain was round drift. The 11 s left against raw's start script is
-`aspire start` returning before health, plus the waits (T2.2), not the model
+not the model; T2.2 later showed it is the AppHost's own launch and resource start-up, not the start returning
+before health (a blocking start closed none of it)
 ([FINDINGS F36](../FINDINGS.md#f36-on-cold-start-an-instructions-file-that-orders-start-describe-wait-replaces-the-orchestration-skill-and-the-skill-overrides-the-file-when-both-are-present);
 issue draft `aspire-agents-md.md`). [PLAN.md, T2.11 results](PLAN.md#t211-results).
 
@@ -1351,6 +1352,21 @@ given; one mis-copied the 64-character container ID and one wrote its own `redis
 The field name is shared with T2.4's Redis-only hint
 ([FINDINGS F50](../FINDINGS.md#f50-a-connect-block-in-describe-lets-a-skill-drop-every-integration-specific-line-at-no-cost);
 issue draft `aspire-describe-connect.md`). [PLAN.md, T2.6 results](PLAN.md#t26-results).
+
+**Phase 2, T2.2 and T2.9: blocking start, and cold start through MCP.** `aspire start` patched to wait for every
+resource and print endpoints, by default under `--non-interactive`, against the unpatched source build in the
+same round (`t22`, 162 trials with T2.9, $7.52 against $4.80 on the two cards, all passed). A source-built CLI could
+not build the AppHost on cold start at all (no bundle); a shim pointing it at the daily's layout fixed that for
+control and patch alike. Verdict **drop**: the blocking start closed none of the gap to raw on any model (luna 41.2
+against 40.2 s, terra 43.1 against 38.6 s, p = 0.002 slower, sol 40.2 against 39.8 s; raw 29.0, 26.7, 31.3 s). From
+the start command, raw has the app serving in 22 s and every Aspire arm in 33–38 s, blocking or not: the AppHost
+launch takes 15–20 s and the resources 14–19 s more, and the `wait`/`describe` steps cost nothing because they run
+while the app starts. This corrects T2.11, which attributed the remaining gap to the start returning before health.
+The one-command start in the skill or in `AGENTS.md` v3 does no better, and T2.9's MCP arm (1.02–1.09×
+`aspire-lean-start`) never used `wait_for_resources`, so "the start itself is the gap" holds by a route the card did
+not intend ([FINDINGS F21](../FINDINGS.md#f21-cold-start-is-slower-with-aspire-whatever-the-skills-removing-the-router-needs-an-owner-for-each-former-job);
+issue draft `aspire-start-blocking.md` updated). [PLAN.md, T2.2 results](PLAN.md#t22-results),
+[T2.9 results](PLAN.md#t29-results).
 
 **Phase 1, T3.8: the router's guardrail job.** New scenario `stuck-db`: "the database container looks stuck,
 restart it", on an app whose squares table is `UNLOGGED` (an unclean shutdown empties it) and whose game state

@@ -983,14 +983,30 @@ T1.6's shipped-set cell (59.5 s) the same arm is 1.31×, but the shipped set its
 rounds, so whether removing the router still costs luna a cold start is not settled at n = 6
 ([PLAN.md, T1.3 results](telemetry/PLAN.md#t13-results)).
 
+**A blocking start, measured (Tasks T2.2 and T2.9, pin 2026-11-17, round `t22`, n = 6, 162 trials, all passed):**
+`aspire start` patched to wait for every resource and print endpoints (default under `--non-interactive`, so the
+README's own start line blocks), against the unpatched source build, same round. It closed none of the gap to raw:
+to verified-up, luna 41.2 against 40.2 s (raw 29.0), terra 43.1 against 38.6 s (p = 0.002, slower; raw 26.7), sol
+40.2 against 39.8 s (raw 31.3). From the moment the start command is invoked, raw's start script has the app
+serving in about 22 s and every Aspire arm in 33–38 s, blocking or not. Inside the blocking start, the AppHost
+launch took 15–20 s and the resources 14–19 s more; the `wait` and `describe` steps were never the cost, because
+they run while the app is still starting. The same holds when the start is one command in the skill
+(`aspire-lean-start-wait`, 0.93–1.03× the patched no-skill arm) or in `AGENTS.md` (v3, 1.10× v2 on the same build),
+and for the MCP server registered on cold start (T2.9: 1.02–1.09× `aspire-lean-start`; no trial used
+`wait_for_resources`). Terra still ran `aspire wait` after a blocking start had reported both resources healthy
+(6/6), because the README names the waits ([PLAN.md, T2.2 results](telemetry/PLAN.md#t22-results),
+[T2.9 results](telemetry/PLAN.md#t29-results)).
+
 **Improvement candidate:** ~~Ship `aspire-start` alongside the router's removal~~ (dropped by T1.6: v0.0.6
 orchestration owns "start the app" well enough; the design rule "every job a router fronted needs an owner
-skill" still holds, and here the owner is `aspire-orchestration`). For the product,
-a start command that blocks until resources are ready and prints their endpoints
-would remove the `wait` and `describe` steps that every Aspire trial ran.
+skill" still holds, and here the owner is `aspire-orchestration`). ~~For the product, a start command that blocks
+until resources are ready and prints their endpoints would remove the `wait` and `describe` steps that every
+Aspire trial ran.~~ (dropped by T2.2: those steps cost nothing measurable.) What is left against raw is the
+AppHost's own launch (build, DCP, dashboard: 15–20 s before any resource is waited on) and resource start-up; a
+cold-start gain has to come from there.
 
-**Limits / status:** 3 trials per cell (smallest attainable p = 0.10); one
-application; measured, not upstreamed. Draft issues: [aspire-start-blocking.md](upstream-issues/aspire-start-blocking.md), [skills-remove-router-add-aspire-start.md](upstream-issues/skills-remove-router-add-aspire-start.md).
+**Limits / status:** the 11-09 cells had 3 trials (smallest attainable p = 0.10), T1.6 and T2.2 six; one
+application; the 15–20 s launch is not broken down further. Measured, not upstreamed. Draft issues: [aspire-start-blocking.md](upstream-issues/aspire-start-blocking.md) (updated with T2.2: the blocking start is not the lever), [skills-remove-router-add-aspire-start.md](upstream-issues/skills-remove-router-add-aspire-start.md).
 
 ## F22: Aspire main's Redis container serves TLS on 6379, so the generic `redis-cli` recipe fails inside it
 
@@ -1477,7 +1493,8 @@ round drift (lean 53.0 s here against 61.2 s in `t16`).
 
 **Effect:** For the start job, a pushed file does what the 23 KB orchestration skill does, for half the
 tokens. When both are present the model follows the skill. The time left against a hand-written start script
-(39 vs 28 s) is `aspire start` returning before health, plus the waits.
+(39 vs 28 s) was read as `aspire start` returning before health, plus the waits; T2.2 refuted that (a blocking
+start closed none of it): it is the AppHost's launch and resource start-up ([F21](#f21-cold-start-is-slower-with-aspire-whatever-the-skills-removing-the-router-needs-an-owner-for-each-former-job)).
 
 **Improvement candidate:** [upstream-issues/aspire-agents-md.md](upstream-issues/aspire-agents-md.md) (`aspire new`
 / `aspire agent init` write the file); remove `aspire-orchestration` from the lean proposal for the start job,

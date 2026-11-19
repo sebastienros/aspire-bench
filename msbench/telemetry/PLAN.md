@@ -1,6 +1,6 @@
 # Plan: improving agentic performance with Aspire (CLI, MCP, skills)
 
-Status: proposal, 2026-11-17. T0.1 (re-pin and re-baseline), T0.2 (held-out application; ship gate open on the reserved third fault after one skill revision), T0.3 (series tooling) and T0.4 (harness adapters) done 2026-11-18. Phase 1 model lane closed 2026-11-18: T1.1 ship, T1.6 drop (`aspire-start`), T1.7 no verdict (Claude Code harness gaps; adapter proposed as T4.7), T1.8 revise (step-4 edit proposed). Product lane: T1.5 ship (CLI plain output), T1.4 drop (compact MCP telemetry; terra gain recorded), T1.9 harness-dependent (VS Code; T4.8, T4.9 proposed), T2.10 drop (`AGENTS.md`; it fixes command selection, not luna's time), T2.11 ship (file v2 replaces `aspire-orchestration` for the start job). Skills lane: T3.8 remove (the router's guardrail job; ceiling on every arm), T1.2 drop (narrowed trigger alone), T1.3 ship (router removal; its cost holds across rounds on `read-only`, not on `slow-sql`; cold start open), T3.9 selection benchmark usable on terra, not on luna (it over-predicts the router). No issue has been filed.
+Status: proposal, 2026-11-17. T0.1 (re-pin and re-baseline), T0.2 (held-out application; ship gate open on the reserved third fault after one skill revision), T0.3 (series tooling) and T0.4 (harness adapters) done 2026-11-18. Phase 1 model lane closed 2026-11-18: T1.1 ship, T1.6 drop (`aspire-start`), T1.7 no verdict (Claude Code harness gaps; adapter proposed as T4.7), T1.8 revise (step-4 edit proposed). Product lane: T1.5 ship (CLI plain output), T1.4 drop (compact MCP telemetry; terra gain recorded), T1.9 harness-dependent (VS Code; T4.8, T4.9 proposed), T2.10 drop (`AGENTS.md`; it fixes command selection, not luna's time), T2.11 ship (file v2 replaces `aspire-orchestration` for the start job). Skills lane: T3.8 remove (the router's guardrail job; ceiling on every arm), T1.2 drop (narrowed trigger alone), T1.3 ship (router removal; its cost holds across rounds on `read-only`, not on `slow-sql`; cold start open), T3.9 selection benchmark usable on terra, not on luna (it over-predicts the router). Phase 2 CLI lane: T2.2 drop (a blocking start closes none of the cold-start gap; the gap is the AppHost's launch and resource start-up), T2.9 the start itself is the gap (the MCP route was not taken). No issue has been filed.
 Each task below is a card with the same fields; a card's **Results** field is either a
 link to measured numbers or `pending`. Nothing in a Results field is predicted.
 
@@ -1771,7 +1771,7 @@ Byte counts on the started app: [`evidence/agent-surface/2026-11-18-mcp/`](evide
 | Decision rule | Ship if the no-skill arm closes at least half the gap to raw on all three models. Also report the warm start from T0.1 |
 | Trials / cost | 3 × 3 × 6 = 54 ≈ $3.60 |
 | Issue draft | [aspire-start-blocking.md](../upstream-issues/aspire-start-blocking.md) |
-| Results | pending |
+| Results | **drop** (2026-11-19, round `t22`, 162 trials with T2.9, $7.52): the blocking start closed none of the gap to raw on any model (luna 41.2 vs 40.2 s, terra 43.1 vs 38.6 s, sol 40.2 vs 39.8 s; raw 29.0 / 26.7 / 31.3 s). From the start command, every Aspire arm takes 33–38 s to a healthy app, blocking or not, against raw's 22 s: the gap is the AppHost launch (15–20 s) and resource start-up, not the start/wait/describe sequence. [Results](#t22-results) |
 
 #### T2.2 rule, as computed (written 2026-11-19, before any `t22` result was read)
 
@@ -1824,6 +1824,74 @@ Byte counts on the started app: [`evidence/agent-surface/2026-11-18-mcp/`](evide
   scenarios is counted.
 - A trial at the 900 s limit is a failure counted separately; a trial lost before the agent ran is re-run once.
   Expected spend for `t22` (T2.2 + T2.9, 162 trials): ≈ $8.7 (sol ≈ 48 × $0.15), against $4.80 on the two cards.
+
+#### T2.2 results
+
+**Verdict: `drop`**, by the rule as computed: the clause holds on no model. Same-round medians to verified-up:
+
+| Model | `raw` | `aspire-cli-src` | `aspire-cli-wait` | G | Closed | Needed (G / 2) | p (`-wait` vs `-src`) |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| luna | 29.0 s | 40.2 s | 41.2 s | 11.2 s | −1.0 s | 5.6 s | 0.49 |
+| terra | 26.7 s | 38.6 s | 43.1 s | 11.9 s | −4.5 s | 6.0 s | 0.002 (slower) |
+| sol | 31.3 s | 39.8 s | 40.2 s | 8.5 s | −0.4 s | 4.3 s | 0.55 |
+
+Every model had a gap in this round (G > 0), so the no-gap clause did not apply. Pass rates are 6/6 on every arm.
+`t16`'s figures, for reference only: raw 33.3 / 28.8 / 41.5 s and `aspire-cli` 41.3 / 39.8 / 40.4 s (luna / terra /
+sol); `t16` sol's missing gap was round drift. Warm start (T0.1, `t01b-warm`, luna, 3 trials): 34.5 s to
+verified-up against 49.0 s cold (`aspire-lean`, `t01b`).
+
+Round `t22` (Copilot CLI 1.0.99, suite `e165626`, tasks `672b69b`, dataset `40a1dac`), 162 trials: no timeouts, no
+model-service 5xx, no infrastructure losses, every trial passed. Gates: local cold-start fail → agent start →
+pass on the patched image (before Docker Desktop stopped on a full disk), then the control's start through the
+shim; `gate-t22` 6/6 and `gate-t23` 9/9 reward 1; probe `t22-probe` (2026111919040184 luna, 2026111919043896 sol,
+excluded) showed the start returning in one call on luna and unfinished at sol's 30 s shell wait, with the metric
+firing in both. Extracted runs were deleted and re-fetched after other lanes' collects had run; 0 of 282 rows changed.
+
+| Model | Arm (`cold-start`, `t22`) | Pass | Verified-up s | Commands to it | `agent_seconds` | Tokens (k) | Run IDs |
+|---|---|---|---:|---:|---:|---:|---|
+| luna | raw | 6/6 | 29.0 | 3 | 39.3 | 56 | 2026111919703508 – 19707340 |
+| luna | aspire-cli-src | 6/6 | 40.2 | 5.5 | 51.1 | 75 | 2026111919712150 – 19715724 |
+| luna | **aspire-cli-wait** | 6/6 | 41.2 | 5 | 51.4 | 72 | 2026111919720560 – 19724308 |
+| luna | aspire-lean-start-wait | 6/6 | 40.8 | 6 | 51.8 | 85 | 2026111919736568 – 19740042 |
+| luna | aspire-lean-noorch-agents (v2, official) | 6/6 | 38.9 | 6 | 50.0 | 90 | 2026111920002126 – 20005910 |
+| luna | aspire-lean-noorch-agents-src (v2) | 6/6 | 37.8 | 7 | 46.5 | 89 | 2026111920017262 – 20021162 |
+| luna | aspire-lean-noorch-agents-v3 | 6/6 | 41.8 | 3.5 | 51.8 | 58 | 2026111920031972 – 20035608 |
+| terra | raw | 6/6 | 26.7 | 3 | 34.9 | 51 | 2026111919790138 – 19794158 |
+| terra | aspire-cli-src | 6/6 | 38.6 | 5 | 50.9 | 72 | 2026111919805508 – 19809598 |
+| terra | **aspire-cli-wait** | 6/6 | 43.1 | 3 | 54.8 | 49 | 2026111919820842 – 19824654 |
+| terra | aspire-lean-start-wait | 6/6 | 39.9 | 4 | 49.6 | 70 | 2026111919829340 – 19832534 |
+| sol | raw | 6/6 | 31.3 | 8.5 | 39.7 | 102 | 2026111919883992 – 19887306 |
+| sol | aspire-cli-src | 6/6 | 39.8 | 5 | 51.2 | 83 | 2026111919891642 – 19895020 |
+| sol | **aspire-cli-wait** | 6/6 | 40.2 | 6 | 51.6 | 91 | 2026111919899698 – 19903656 |
+| sol | aspire-lean-start-wait | 6/6 | 41.5 | 4.5 | 50.5 | 91 | 2026111919915086 – 19919470 |
+
+**Mechanisms.**
+- **The gap is Aspire's own time to a healthy app, not the command sequence.** Per trial, from the moment the
+  start command is invoked to verified-up: raw 22.4 / 21.7 s (luna / terra; sol 22–25 s), every Aspire arm
+  33–38 s, blocking or not (luna `-src` 35.0 s with the start finished in the call, `-wait` 35.6 s; terra 34.2 and
+  38.0 s; sol `-src` 37.0 s finished / 33.9 s unfinished, `-wait` 36.9 s, every patched sol start coming back
+  unfinished at its 30 s shell wait). Inside the
+  patched start's own output, the AppHost launch until the backchannel answers took 15–20 s and the resources
+  14–19 s more (medians per cell); the 16–17 s the control's `aspire start` takes is the same launch. The launch
+  (AppHost build, DCP, dashboard) is not broken down further here. A blocking start folds the waits into one call,
+  but the waits had run while the app was starting anyway, so nothing is saved. **T2.11's attribution** ("`aspire
+  start` returning before health, plus the waits") is therefore wrong: what is left against raw is the time the
+  AppHost takes to launch and its resources to become healthy.
+- **The blocking start is 0.6–3.8 s slower** than start plus waits in every same-build pair (luna 35.6 vs 35.0 s,
+  terra 38.0 vs 34.2 s, luna v3 35.7 vs 33.3 s from invocation). The cause was not identified; candidates are
+  waiting on all seven resources rather than the two the agents waited on, and the second snapshot read.
+- **Agents re-check anyway.** Terra ran `aspire wait` after a blocking start that had already reported both
+  resources healthy in 6/6 trials (luna 2/6, sol 6/6 after its unfinished starts), because the README names the
+  waits. Commands to verified-up fell (terra 5 → 3) and tokens fell on terra (72k → 49k), but time did not.
+- **One command in the skill or the file does not help either.** `aspire-lean-start-wait` against `aspire-cli-wait`
+  (same build) is 0.99× / 0.93× / 1.03× (luna / terra / sol; p ≥ 0.14), and against official `aspire-lean-start`
+  1.04× / 1.04× / 1.05× (build differs). File v3 against v2 on the same build (luna): 1.10× slower (41.8 vs 37.8 s,
+  p = 0.045), with 0.65× the tokens and 3.5 commands against 7.
+- **No guard cells ran** (pre-registered: the change touches `aspire start` only, which no `slow-sql` or
+  `slow-redis` trial at the pin ran).
+
+**Cost** `t22` $7.52 for 162 trials (sol $0.127 per trial, 48 trials $6.08), probes $0.08, gates $0.00; the two cards
+estimated $4.80 (T2.2 $3.60 and T2.9 $1.20), the pre-round estimate was $8.70.
 
 ### T2.3 SQL text in the trace detail table
 
@@ -2333,7 +2401,7 @@ Time = agent seconds, median; p = exact Mann-Whitney against the control (`tools
 | Cells | `cold-start` × luna, terra, `gpt-6.2-sol` × 6 |
 | Decision rule | Informational for the blocking-start card: if the MCP route is within 10% of `aspire-lean-start`, the gap to raw is the start itself and T2.2 is the only lever; if it is faster, `aspire-start` should say so |
 | Trials / cost | 3 × 6 = 18 ≈ $1.20 |
-| Results | pending |
+| Results | **start itself is the gap** (2026-11-19, round `t22`): `aspire-lean-mcp` ÷ `aspire-lean-start` 1.02 / 1.09 / 1.04 (luna / terra / sol), but no trial used `wait_for_resources` or `list_resources`, so the MCP route was not taken. [Results](#t29-results) |
 
 #### T2.9 rule, as computed (written 2026-11-19, before any `t22` result was read)
 
@@ -2350,6 +2418,26 @@ Time = agent seconds, median; p = exact Mann-Whitney against the control (`tools
   R > 1.10: the MCP route is slower. The card's reading is the one that holds on at least two of the three models;
   otherwise it is "mixed". Informational, no ship verdict. MCP tool calls used (`wait_for_resources`,
   `list_resources`) and `agent_seconds` are reported.
+
+#### T2.9 results
+
+**Reading: the start itself is the gap** (R within 0.90–1.10 on all three models). Round `t22`, same round as T2.2,
+official daily. Medians to verified-up, `aspire-lean-mcp` ÷ `aspire-lean-start`: luna 40.2 / 39.3 s = 1.02 (p = 0.59),
+terra 41.8 / 38.5 s = 1.09 (p = 0.028), sol 41.0 / 39.4 s = 1.04 (p = 1.0). All 72 trials passed.
+
+| Model | `aspire-cli` | `aspire-lean` | `aspire-lean-start` | `aspire-lean-mcp` | Run IDs (`-mcp`) |
+|---|---:|---:|---:|---:|---|
+| luna | 40.1 s | 44.8 s | 39.3 s | 40.2 s | 2026111919744554 – 19748064 |
+| terra | 39.3 s | 38.5 s | 38.5 s | 41.8 s | 2026111919836934 – 19840570 |
+| sol | 35.5 s | 39.5 s | 39.4 s | 41.0 s | 2026111919946222 – 19949896 |
+
+**The MCP route was not taken.** No trial called `wait_for_resources` or `list_resources`; the only MCP calls were
+`list_apphosts` (luna 6/6, sol 4/6, terra none), and every trial loaded `aspire-orchestration` and waited with the
+CLI, as `aspire-lean` did. The arm therefore measured "the MCP server registered", which costs nothing on cold
+start, not the MCP route the card described (one `wait_for_resources` for both resources). The reading the card
+asked for holds and agrees with T2.2: what separates Aspire from raw on this scenario is the time to a healthy app,
+which neither a different route nor a blocking start shortens. Luna `aspire-lean-mcp` was 0.90× `aspire-lean`
+(p = 0.017) with the same skill load and the same commands; that difference is not explained.
 
 ### T2.10 Agent instructions file beside the AppHost (`AGENTS.md`)
 
@@ -2628,7 +2716,9 @@ earlier result had listed, on luna 5/5 and terra 5/6.
   noorch is faster than raw (5.5 vs 6.9 s). The gap is `aspire start` returning before the resources are
   healthy, plus the waits that follow: 34 s from start to verified-up, against raw's `scripts/start.sh`, which
   checks both origins itself and returns at 22 s. That is T2.2's product change (a blocking start that
-  reports readiness), not a skill or file change.
+  reports readiness), not a skill or file change. *Corrected by T2.2 (2026-11-19, [results](#t22-results)):* a
+  blocking start closed none of it; the 34 s is the AppHost launch (15–20 s) and resource start-up, which the
+  waits only overlap.
 - **A removed skill leaves a dangling name.** Two of six luna noorch trials called `skill aspire-orchestration`,
   and the call failed (the skill is absent). The name comes from `aspire-diagnose`'s description ("DO NOT USE
   FOR: starting or stopping the app (aspire-orchestration)"). `collect.py` lists a failed call in
