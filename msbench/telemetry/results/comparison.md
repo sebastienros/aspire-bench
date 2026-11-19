@@ -320,6 +320,24 @@ they are listed in trials.jsonl and excluded from every other column.
 | aspire-skill-monitoring | 12 | 12/12 | 12/12 | 54 | 211,016 | 0.051 | 14 | - | - |
 | aspire-skills-nomonitoring | 6 | 6/6 | 6/6 | 56 | 239,570 | 0.053 | 16 | - | - |
 
+## footer-version / gpt-6-luna
+
+| Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| raw | 6 | 6/6 | 6/6 | 93 (+0%) | 260,440 (+0%) | 0.010 (+0%) | 30 | 12 | - |
+| aspire-cli | 6 | 5/6 | 5/6 | 60 (-36%) | 198,182 (-24%) | 0.007 (-28%) | 22 | 11 | - |
+| aspire-skills-mcp | 6 | 6/6 | 6/6 | 130 (+40%) | 465,517 (+79%) | 0.013 (+33%) | 32 | 37 | - |
+| aspire-lean | 6 | 6/6 | 6/6 | 70 (-25%) | 235,724 (-9%) | 0.008 (-19%) | 23 | 17 | - |
+
+## footer-version / gpt-6.1-terra
+
+| Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| raw | 6 | 6/6 | 6/6 | 82 (+0%) | 214,343 (+0%) | 0.060 (+0%) | 24 | 9 | - |
+| aspire-cli | 6 | 6/6 | 6/6 | 87 (+5%) | 224,407 (+5%) | 0.070 (+16%) | 23 | 12 | - |
+| aspire-skills-mcp | 6 | 6/6 | 6/6 | 85 (+3%) | 384,400 (+79%) | 0.083 (+38%) | 31 | 15 | - |
+| aspire-lean | 6 | 4/6 | 4/6 | 79 (-5%) | 271,114 (+26%) | 0.068 (+14%) | 28 | 18 | - |
+
 ## greenfield / gpt-6-luna
 
 | Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
@@ -337,6 +355,24 @@ they are listed in trials.jsonl and excluded from every other column.
 | aspire-skills | 6 | 6/6 | 6/6 | 162 | 479,032 | 0.086 | 29 | - | - |
 | aspire-skill-init | 6 | 6/6 | 6/6 | 80 | 311,028 | 0.061 | 30 | - | - |
 | aspire-skills-noinit | 6 | 6/6 | 6/6 | 174 | 523,360 | 0.086 | 30 | - | - |
+
+## grown-catalog / gpt-6-luna
+
+| Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| raw | 6 | 4/6 | 4/6 | 228 (+0%) | 629,741 (+0%) | 0.020 (+0%) | 41 | 19 | - |
+| aspire-cli | 6 | 5/6 | 5/6 | 156 (-32%) | 559,322 (-11%) | 0.015 (-23%) | 35 | 18 | - |
+| aspire-skills-mcp | 6 | 5/6 | 5/6 | 225 (-1%) | 919,179 (+46%) | 0.023 (+17%) | 44 | 35 | - |
+| aspire-lean | 6 | 6/6 | 6/6 | 180 (-21%) | 606,832 (-4%) | 0.016 (-17%) | 39 | 34 | - |
+
+## grown-catalog / gpt-6.1-terra
+
+| Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| raw | 6 | 4/6 | 4/6 | 209 (+0%) | 659,809 (+0%) | 0.144 (+0%) | 44 | 20 | - |
+| aspire-cli | 6 | 6/6 | 6/6 | 136 (-35%) | 566,041 (-14%) | 0.111 (-23%) | 39 | 16 | - |
+| aspire-skills-mcp | 6 | 6/6 | 6/6 | 128 (-39%) | 702,857 (+7%) | 0.126 (-13%) | 41 | 30 | - |
+| aspire-lean | 6 | 6/6 | 6/6 | 142 (-32%) | 563,702 (-15%) | 0.116 (-20%) | 41 | 16 | - |
 
 ## heldout-cache / claude-opus-5.5
 
@@ -868,6 +904,8 @@ tool calls' arguments; search results are not reads). Later pins only; cells whe
 | greenfield | gpt-6.1-terra | aspire-skills | 6 | 6/6 | 2.5 | `aspire-init/references/templates.md` 6, `aspireify/references/csharp-authoring.md` 6, `aspireify/references/apphost-wiring.md` 1, `aspireify/references/service-defaults.md` 1, `aspireify/references/validation.md` 1 |
 | greenfield | gpt-6.1-terra | aspire-skill-init | 6 | 6/6 | 1 | `aspire-init/references/templates.md` 6 |
 | greenfield | gpt-6.1-terra | aspire-skills-noinit | 6 | 5/6 | 1 | `aspireify/references/csharp-authoring.md` 5, `aspireify/references/apphost-wiring.md` 1, `aspireify/references/service-defaults.md` 1 |
+| grown-catalog | gpt-6-luna | aspire-skills-mcp | 6 | 3/6 | 0.5 | `aspire-monitoring/references/monitoring.md` 3 |
+| grown-catalog | gpt-6.1-terra | aspire-lean | 6 | 1/6 | 0 | `aspire-orchestration/references/resource-management.md` 1 |
 | heldout-cache | gpt-6-luna | aspire-lean | 6 | 1/6 | 0 | `aspire-orchestration/references/agent-workflows.md` 1, `aspire-orchestration/references/resource-management.md` 1 |
 | heldout-cache | gpt-6-luna | aspire-lean-agents | 6 | 2/6 | 0 | `aspire-orchestration/references/resource-management.md` 2 |
 | heldout-cache | gpt-6.1-terra | aspire-lean | 6 | 1/6 | 0 | `aspire-orchestration/references/resource-management.md` 1 |

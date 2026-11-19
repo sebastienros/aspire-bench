@@ -1721,3 +1721,34 @@ used MCP in 10/12 shipped-set trials, Copilot CLI in 3/12 (F59). On `slow-redis`
 2.1.328 and 10/12 Aspire trials on 2.1.329; the card's fallback accepted that, and a same-version re-run was not run.
 $5.69 against $5.
 [PLAN.md, T4.7 results](PLAN.md#t47-results).
+
+**Phase 4, T4.2 and T4.3: span-table rows, both `row not confirmed`.** Each card puts one row of `aspire-diagnose`'s
+"What the spans show" table in front of the agent and asks, by ruling 1, whether on luna the lean set passes and reads
+that row's pattern before its first edit more often than the Aspire CLI alone. Marker, verdict order and denominators
+were fixed before any trial.
+
+- **T4.2, `footer-version`** (row *error on a client span but the request returned 200*). The player frontend's dev
+  server swallows a 404 from a misconfigured admin path and serves placeholder build information. Bingo's frontend
+  has no OpenTelemetry, so the Aspire arms ran an app variant with the Node SDK (F58: Aspire passes OTLP settings to
+  JavaScript resources that send nothing without one).
+  - Every arm found the wrong path in `vite.config.js` from the source. Luna `aspire-lean` passed 6/6, read the
+    pattern 0/6, and loaded `aspire-diagnose` once. The cosmetic symptom never sent it to the trace.
+  - Luna time ratios to `raw`: `aspire-lean` 0.75× (p 0.31), `aspire-cli` 0.64× (p 0.49), `aspire-skills-mcp` 1.40×
+    (p 0.026). Terra was level (0.95–1.05×), with `aspire-lean` at 4/6. $1.90.
+- **T4.3, `grown-catalog`** (row *many near-identical child spans*). An N+1 in the status endpoint, made slow by a
+  data growth step and silent in the raw log, puts about 2,000 identical SQL spans under each status trace.
+  - Luna `aspire-lean` passed 6/6 and loaded `aspire-diagnose` 6/6. It met the pre-registered marker (≥ 10 rows in one
+    result) in only 2. At least 2 more read the pattern as a grouped count over the spilled trace ("postgresql …
+    2244"). The descriptive hint is 6/6 against 0/6 for `aspire-cli`.
+  - The coordinating session ruled the word as computed, `row not confirmed`, with the counter-evidence in the
+    verdict line. Under an aggregate-counting marker, not pre-registered, the word would be `row confirmed`; that
+    field (`pattern_read_aggregate`) is now in the reader for the next card to pre-register.
+  - Luna `aspire-cli` (0.68×, p 0.002) and `aspire-lean` (0.79×, p 0.065) beat `raw` (4/6). On terra every Aspire arm
+    is 0.61–0.68× `raw` (p 0.002), and `raw` passed 4/6.
+  - The MCP server's `list_traces` dropped the oversized traces (0 returned in 13 of 24 calls), and the CLI's
+    500-character preview hid the rows (F60). $3.52 against $2.10.
+- The row *time not covered by any child span* stays unexercised.
+
+Open from this lane: pre-register the aggregate marker; a lock or CPU fault for the uncovered-time row; T4.2's row on
+a symptom whose cause is not one `rg` away; T4.4's runner; MCP traces too large to return.
+[PLAN.md, T4.2 results](PLAN.md#t42-results), [T4.3 results](PLAN.md#t43-results).

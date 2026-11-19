@@ -2059,6 +2059,34 @@ CLI versions (`raw` on 2.1.328, Aspire arms 10/12 on 2.1.329). Copilot CLI's rea
 position, tool description, model behaviour) was not isolated. Luna under Copilot CLI does call the `skill` tool on
 the same cells (T1.7's `t17-copilot`: `aspire-diagnose` 6/6 on each `aspire-lean` cell). Not filed.
 
+## F60: A 2,000-span trace reaches the agent as a spilled file; luna groups it with jq or node, and MCP returns nothing
+
+**Evidence:** Task T4.3 ([PLAN, T4.3 results](telemetry/PLAN.md#t43-results)), scenario `grown-catalog`, round `t43`,
+pin 2026-11-17. An N+1 in Bingo's status endpoint puts about 2,000 identical `postgresql` child spans under each
+status trace.
+
+- `aspire otel traces -t <id>` prints 280–500 KB as a tree and 1–1.2 MB as JSON. Copilot CLI saves it to a file and
+  shows a 500-character preview (F31), which holds the header (`Spans: 2045`) and about two rows.
+- Luna `aspire-lean`, guided by `aspire-diagnose`, saw an oversized status trace before its first edit in 6/6
+  trials. It met the pre-registered "≥ 10 rows in one result" marker in only 2. At least 2 others read the pattern
+  as a count: they grouped the saved JSON with `jq` or `node` and got "Client postgresql … 2244" or the statement
+  repeated 2,243 times.
+- Terra `aspire-lean` met the strict marker 6/6. Terra `aspire-cli` grouped the spans the same way in 2 of 6.
+- On the local fixture, the Aspire MCP server's `list_traces` returned **no trace at all** for these requests
+  ("Returned latest 0 traces. Earlier 123 traces not returned because of size limits"). In the round, the
+  `aspire-skills-mcp` arm called `list_traces` in 12 of 12 trials (24 calls). 13 calls returned 0 traces, and none
+  showed a status trace's child spans, so the arm's one read per model came through the CLI.
+
+**Improvement candidate:** Summarise repeated children instead of truncating, which would turn the N+1 row of the
+span table into one line. For example, `aspire otel traces -t` could collapse repeated child spans into
+"`postgresql` × 2,244, total 1,534 ms, statement …", and MCP `list_traces` could return a large trace in summarised
+form rather than dropping it. A skill line telling the agent to group a large trace by span name would cover the
+same ground until then. A reader for this suite should count grouped counts (`pattern_read_aggregate`, added after
+the round).
+
+**Limits / status:** One fault, one application, Copilot CLI only, n = 6 per cell. The aggregate reading was found
+after the data and did not change T4.3's word (`row not confirmed` as computed). Not filed; no draft yet.
+
 ## Recording future findings
 
 Give each finding a stable ID and include evidence links, exact observed

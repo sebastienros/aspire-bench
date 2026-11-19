@@ -40,6 +40,10 @@ infrastructure failures are left out.
 | github-copilot-cli | t34 | 20261119 | 2026-11-17 | t34, t34-rerun | 17.1.0-preview.1.26567.3+30326eb8 | v0.0.6 | T3.4 |
 | github-copilot-cli | t37 | 20261119 | 2026-11-17 | t37 | 17.1.0-preview.1.26567.3
 17.1.0-preview.1.26567.3+30326eb8 | v0.0.6 | T3.7 |
+| github-copilot-cli | t42 | 20261119 | 2026-11-17 | t42 | 17.1.0-preview.1.26567.3
+17.1.0-preview.1.26567.3+30326eb8 | v0.0.6 | T4.2 |
+| github-copilot-cli | t43 | 20261119 | 2026-11-17 | t43 | 17.1.0-preview.1.26567.3
+17.1.0-preview.1.26567.3+30326eb8 | v0.0.6 | T4.3 |
 | claude-code | t47 | 20261119 | 2026-11-17 | t47 | 17.1.0-preview.1.26567.3
 17.1.0-preview.1.26567.3+30326eb8, 17.1.0-preview.1.26567.3+30326eb8 | v0.0.6 | T4.7 |
 | github-copilot-cli | t47 | 20261119 | 2026-11-17 | t47 | 17.1.0-preview.1.26567.3+30326eb8 | v0.0.6 | T4.7 |
@@ -227,6 +231,24 @@ infrastructure failures are left out.
 | aspire-skill-monitoring | t35 | 12 | 12/12 | 54 (4) | 211,016 | – | – | – | – | 100% | 0 | 60,318 | no-raw |  |
 | aspire-skills-nomonitoring | t35 | 6 | 6/6 | 56 (4) | 239,570 | – | – | – | – | 100% | 0 | 45,329 | no-raw |  |
 
+## footer-version / gpt-6-luna
+
+| Arm | Run | n | Pass | Agent s (MAD) | Input tok | Time × raw | trail | Tokens × raw | trail | Skill sel. | MCP calls | Chars read | Flags | Time ratio |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---|
+| raw | t42 | 6 | 6/6 | 93 (10) | 260,440 | – | – | – | – | 0% | 0 | 66,520 |  |  |
+| aspire-cli | t42 | 6 | 5/6 | 60 (14) | 198,182 | 0.64× | – | 0.76× | – | 0% | 0 | 58,709 |  | ▄ |
+| aspire-skills-mcp | t42 | 6 | 6/6 | 130 (26) | 465,517 | 1.40× | – | 1.79× | – | 67% | 6 | 152,758 | selection-low | ▄ |
+| aspire-lean | t42 | 6 | 6/6 | 70 (6) | 235,724 | 0.75× | – | 0.91× | – | 17% | 0 | 58,345 | selection-low | ▄ |
+
+## footer-version / gpt-6.1-terra
+
+| Arm | Run | n | Pass | Agent s (MAD) | Input tok | Time × raw | trail | Tokens × raw | trail | Skill sel. | MCP calls | Chars read | Flags | Time ratio |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---|
+| raw | t42 | 6 | 6/6 | 82 (9) | 214,343 | – | – | – | – | 0% | 0 | 75,594 |  |  |
+| aspire-cli | t42 | 6 | 6/6 | 87 (18) | 224,407 | 1.05× | – | 1.05× | – | 0% | 0 | 86,317 |  | ▄ |
+| aspire-skills-mcp | t42 | 6 | 6/6 | 85 (3) | 384,400 | 1.03× | – | 1.79× | – | 100% | 3 | 119,470 |  | ▄ |
+| aspire-lean | t42 | 6 | 4/6 | 79 (11) | 271,114 | 0.95× | – | 1.26× | – | 100% | 0 | 108,746 |  | ▄ |
+
 ## greenfield / gpt-6-luna
 
 | Arm | Run | n | Pass | Agent s (MAD) | Input tok | Time × raw | trail | Tokens × raw | trail | Skill sel. | MCP calls | Chars read | Flags | Time ratio |
@@ -244,6 +266,24 @@ infrastructure failures are left out.
 | aspire-skills | t33 | 6 | 6/6 | 162 (15) | 479,032 | – | – | – | – | 100% | 0 | 93,728 | no-raw |  |
 | aspire-skill-init | t33 | 6 | 6/6 | 80 (9) | 311,028 | – | – | – | – | 100% | 0 | 86,002 | no-raw |  |
 | aspire-skills-noinit | t33 | 6 | 6/6 | 174 (12) | 523,360 | – | – | – | – | 100% | 0 | 111,053 | no-raw |  |
+
+## grown-catalog / gpt-6-luna
+
+| Arm | Run | n | Pass | Agent s (MAD) | Input tok | Time × raw | trail | Tokens × raw | trail | Skill sel. | MCP calls | Chars read | Flags | Time ratio |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---|
+| raw | t43 | 6 | 4/6 | 228 (17) | 629,741 | – | – | – | – | 0% | 0 | 187,948 |  |  |
+| aspire-cli | t43 | 6 | 5/6 | 156 (20) | 559,322 | 0.68× | – | 0.89× | – | 0% | 0 | 180,730 |  | ▄ |
+| aspire-skills-mcp | t43 | 6 | 5/6 | 225 (53) | 919,179 | 0.99× | – | 1.46× | – | 83% | 10 | 358,705 |  | ▄ |
+| aspire-lean | t43 | 6 | 6/6 | 180 (21) | 606,832 | 0.79× | – | 0.96× | – | 100% | 0 | 177,368 |  | ▄ |
+
+## grown-catalog / gpt-6.1-terra
+
+| Arm | Run | n | Pass | Agent s (MAD) | Input tok | Time × raw | trail | Tokens × raw | trail | Skill sel. | MCP calls | Chars read | Flags | Time ratio |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---|
+| raw | t43 | 6 | 4/6 | 209 (17) | 659,809 | – | – | – | – | 0% | 0 | 241,110 |  |  |
+| aspire-cli | t43 | 6 | 6/6 | 136 (13) | 566,041 | 0.65× | – | 0.86× | – | 0% | 0 | 229,798 |  | ▄ |
+| aspire-skills-mcp | t43 | 6 | 6/6 | 128 (7) | 702,857 | 0.61× | – | 1.06× | – | 100% | 8 | 331,258 |  | ▄ |
+| aspire-lean | t43 | 6 | 6/6 | 142 (8) | 563,702 | 0.68× | – | 0.85× | – | 100% | 0 | 228,312 |  | ▄ |
 
 ## heldout-cache / claude-opus-5.5
 

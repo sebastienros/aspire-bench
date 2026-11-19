@@ -102,6 +102,9 @@ PHASES = {
 #     `bingoboard` row `GET OK` with a child row `GET ERR` under it; or `otel spans` rows of one trace id with a
 #     `bingoboard: GET` span OK and one ERR (a 4xx is an error on a client span under the OpenTelemetry HTTP
 #     conventions, while the server span that returned 200 is OK).
+# pattern_read_aggregate (added after t43 by the coordinator's ruling, for the next card to pre-register): the marker,
+# or a short trace-output line with a count >= 10 next to the span name `postgresql` or the statement (a grouped count;
+# trace-list table rows and paths such as /var/lib/postgresql/18 are not counts of child spans).
 # First edit = the first apply_patch/edit/create/str_replace/write call, or shell command with `sed -i`,
 # `perl -i`, or a `>`/`>>`/`tee` into /app/src, on a path under /app. A raw arm has no trace output: 0 by construction.
 TRACE_CMD = re.compile(r"\baspire\s+otel\s+(?:traces|spans)\b")
@@ -140,6 +143,27 @@ def _pattern_shown(scenario, text):
     return False
 
 
+AGG_NUMBER = re.compile(r"(?<![\w.:/=#\[-])(\d{2,7})(?![\w.:\]-]|\s*\(http|\s*m?s\b)")
+
+
+def _pattern_aggregate(scenario, text):
+    """T4.3 follow-up (coordinator ruling after t43, not pre-registered for t43; shown beside the marker): a short line
+    of trace output reporting a count of 10 or more next to the span name `postgresql` or the per-square statement,
+    as a jq/node grouping over the saved trace prints it. footer-version's pattern is a pair of spans, which has no
+    aggregate form, so its aggregate field equals the marker."""
+    if scenario != "grown-catalog":
+        return _pattern_shown(scenario, text)
+    flat = re.sub(r'[\\"]', "", text)
+    for line in flat.splitlines():
+        # The span name, not a path (`/var/lib/postgresql/18`, the server's socket path in its own log).
+        # Trace-list rows (box table) carry the whole trace's span count, which is the hint's evidence, not a grouping.
+        if len(line) > 300 or "│" in line or not re.search(r"\bpostgresql\b(?!/)|IsActive FROM BingoSquares WHERE lower", line):
+            continue
+        if any(int(n) >= 10 for n in AGG_NUMBER.findall(line)):
+            return True
+    return _pattern_shown(scenario, text)
+
+
 def _pattern_hint(scenario, text):
     """A weaker sign of the row, reported beside the marker and never used by the verdict: grown-catalog, a status
     trace with 100 or more spans (trace list or tree header); footer-version, a frontend trace marked ERR or Error."""
@@ -156,10 +180,10 @@ def _pattern_hint(scenario, text):
 def span_pattern(events, scenario, started):
     """seconds_to_pattern_read, seconds_to_first_edit, pattern_read_before_edit (PLAN T4.2/T4.3)."""
     out = {"seconds_to_pattern_read": None, "seconds_to_first_edit": None, "pattern_read_before_edit": False,
-           "pattern_hint_before_edit": False, "trace_output_results": 0}
+           "pattern_hint_before_edit": False, "pattern_read_aggregate": False, "trace_output_results": 0}
     if scenario not in PATTERN_SCENARIOS or not started:
         return out
-    starts, trace_files, first_read, first_edit, first_hint = {}, set(), None, None, None
+    starts, trace_files, first_read, first_edit, first_hint, first_agg = {}, set(), None, None, None, None
     for e in events:
         data = e.get("data", {})
         when = parse_time(e["timestamp"]) if e.get("timestamp") else None
@@ -186,12 +210,15 @@ def span_pattern(events, scenario, started):
             first_read = when
         if first_hint is None and when and (_pattern_hint(scenario, text) or _pattern_shown(scenario, text)):
             first_hint = when
+        if first_agg is None and when and _pattern_aggregate(scenario, text):
+            first_agg = when
     if first_read:
         out["seconds_to_pattern_read"] = round((first_read - started).total_seconds(), 1)
     if first_edit:
         out["seconds_to_first_edit"] = round((first_edit - started).total_seconds(), 1)
     out["pattern_read_before_edit"] = bool(first_read and (first_edit is None or first_read < first_edit))
     out["pattern_hint_before_edit"] = bool(first_hint and (first_edit is None or first_hint < first_edit))
+    out["pattern_read_aggregate"] = bool(first_agg and (first_edit is None or first_agg < first_edit))
     return out
 
 
@@ -478,7 +505,14 @@ def analyze_trial(result_path, entry):
     if entry["scenario"] == "slow-redis" and started:
         row.update(redis_reply(events, started))
     if entry["scenario"] in PATTERN_SCENARIOS:
-        row.update(span_pattern(events, entry["scenario"], started))
+        # The harness's copy under harbor_logs/.../agent/ redacts hex strings (tool call ids, trace ids), which merges
+        # tool calls and trace ids; the marker reads the unredacted copy in the run's output folder when it exists
+        # (found after t43: 3 terra trials of 96 differed, no luna trial).
+        output_copy = trial_dir.parents[3] / "copilot-cli.jsonl" if len(trial_dir.parents) > 3 and trial_dir.parents[2].name == "harbor_logs" else None
+        marker_events = load_events(output_copy) if output_copy and output_copy.exists() else events
+        marker_started = next((stamp(e) for e in marker_events if stamp(e)), started)
+        row.update(span_pattern(marker_events, entry["scenario"], marker_started))
+        row["pattern_source"] = "output" if marker_events is not events else "harbor"
     # Bytes returned to the model by tools: the context the agent had to read.
     row["tool_result_chars"] = sum(len(json.dumps(e["data"].get("result", "")))
                                    for e in events if e.get("type") == "tool.execution_complete")

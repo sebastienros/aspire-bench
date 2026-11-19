@@ -4106,8 +4106,8 @@ $0.12; gates model-free.
 | Card | What | Why | Design | Trials / cost | Results |
 |---|---|---|---|---|---|
 | T4.1 | **Integration discoverability audit** (REPORT §12.1) | The Redis port finding is a sample of one; the skill's step 3 and T2.6 need the matrix | No model. One AppHost per hosting integration (PostgreSQL, Redis, SQL Server, MySQL, MongoDB, RabbitMQ, Kafka, NATS, Azure Storage emulator, Cosmos emulator, Elasticsearch, Qdrant, Keycloak, Valkey, Garnet, Seq); a script scores six questions per row (container or PID in `describe`; credentials without source; documented native tool works inside the container with the generic recipe; client span present; health text distinguishes down/slow/refusing; a safe restart command). Output: a matrix in `msbench/telemetry/audit/`, one issue draft per failing cell | 0 model trials; two to three days of fixture work | [done 2026-11-19](#t41-results): Q3 generic recipe 6/15 |
-| T4.2 | **Cross-service fault** | The span-pattern table's "error on a client span under a 200" row is untested | Bingo's frontend proxy to the admin returns errors the frontend swallows (a misconfigured upstream path); nothing in the admin log; the aspirified trace shows a client span with 5xx under a 200 | `raw`, `aspire-cli`, `aspire-skills-mcp`, `aspire-lean` × luna, terra × 6 = 48 ≈ $1.90 | pending |
-| T4.3 | **Application-code fault** | "Time not covered by any child span" row untested; raw app's log has nothing | An N+1 in the status endpoint (one query per square) after a data growth step; verifier: median status under a limit and query count per request under a limit | Same arms, 48 ≈ $1.90 | pending |
+| T4.2 | **Cross-service fault** | The span-pattern table's "error on a client span under a 200" row is untested | Bingo's frontend proxy to the admin returns errors the frontend swallows (a misconfigured upstream path); nothing in the admin log; the aspirified trace shows a client span with 5xx under a 200 | `raw`, `aspire-cli`, `aspire-skills-mcp`, `aspire-lean` × luna, terra × 6 = 48 ≈ $1.90 | [`row not confirmed`](#t42-results) (2026-11-19): lean read the pattern in 0/6 (agents went to the source); $1.90 |
+| T4.3 | **Application-code fault** | "Time not covered by any child span" row untested; raw app's log has nothing | An N+1 in the status endpoint (one query per square) after a data growth step; verifier: median status under a limit and query count per request under a limit | Same arms, 48 ≈ $1.90 | [`row not confirmed`](#t43-results) (2026-11-19): strict marker 2/6 lean reads; an aggregate-counting marker, not pre-registered, would give `row confirmed`; $3.52 |
 | T4.4 | **Multi-turn session** | All 461 trials are single turn; a real session reuses context | Two-step task: diagnose, then a follow-up change on the same running app; only if the runner demonstrably keeps the conversation (F05) | 24 ≈ $1.00 after the runner check | [`not runnable`](#t44-results) (2026-11-19): the runner refuses step 2 on its own `.runner-lock`; $0.0014 |
 | T4.5 | **Tracking schedule** (REPORT §11) | Every later product daily and skills release gets the core matrix | Workflow on this repo: re-pin, gate, submit core matrix, collect, series, open an issue on a flag | 120 trials ≈ $5 per run | [done 2026-11-19](#t45-results): `tools/track.sh`; smoke 24 trials $0.94, 0 drafts |
 | T4.6 | **Cheaper rounds** | The plan's cost is bounded by queue time more than money | Local gate before every cloud submission; one image per app kind with skill sets mounted at run time instead of baked | none | [**`adopt`**](#t46-results) by the rule as written (rewards equal, skill files identical on CES, one image serves two sets); `keep baked` under the coordinating session's post-data reading (CES builds per trial, so no saving without a registry-pulled image) |
@@ -4748,6 +4748,97 @@ to `raw` (median `agent_seconds`) with the exact Mann-Whitney p and the 90 % boo
 - **Local gate (2026-11-19, arm64 Mac)**: raw and aspire both fail (placeholders served) → repair → pass (the
   admin's `baacba3` served). Raw logs: 0 matches for `/api/version` in `admin.log`, `frontend.log` and
   `startup.log`.
+
+#### T4.2 results
+
+**`row not confirmed` (rule as computed, 2026-11-19).** On luna, `aspire-lean` passed 6/6 but read the row's pattern
+before its first edit in 0 of its passing trials (≤ 3). Round `t42`: 48 trials, n = 6 per cell, no infrastructure
+failure. Every arm found the misconfigured path in `vite.config.js` from the source, with a median of 9–37 s to the
+cause on screen. Luna `aspire-lean` loaded `aspire-diagnose` in 1 of 6 trials and produced trace output in 1 of 6.
+The symptom is cosmetic, and the agent searches the source for "version" first, so the row is never needed. That
+limits what the card measures, as the rule block said.
+
+| Model | Arm | Pass | Reads (passing / all) | Aggregate (all) | Hint (all) | Median agent s | Ratio to `raw` [90 %], p | Median s to cause seen |
+|---|---|---|---|---|---|---|---|---|
+| luna | `raw` | 6/6 | 0 / 0 | 0 | 0 | 92.7 | | 11.8 |
+| luna | `aspire-cli` | 5/6 | 0 / 0 | 0 | 0 | 59.5 | 0.64× [0.50–1.15], 0.485 | 10.9 |
+| luna | `aspire-skills-mcp` | 6/6 | 0 / 0 | 0 | 0 | 129.7 | 1.40× [1.10–2.18], 0.026 | 37.1 |
+| luna | `aspire-lean` | 6/6 | 0 / 0 | 0 | 0 | 69.6 | 0.75× [0.66–1.14], 0.310 | 16.9 |
+| terra | `raw` | 6/6 | 0 / 0 | 0 | 0 | 82.5 | | 9.3 |
+| terra | `aspire-cli` | 6/6 | 0 / 0 | 0 | 0 | 86.6 | 1.05× [0.26–5.76], 0.937 | 12.3 |
+| terra | `aspire-skills-mcp` | 6/6 | 0 / 0 | 0 | 1 | 85.1 | 1.03× [0.22–1.16], 1.000 | 15.0 |
+| terra | `aspire-lean` | 4/6 | 1 / 2 | 2 | 2 | 78.6 | 0.95× [0.21–1.12], 0.394 | 18.1 |
+
+- Terra `aspire-lean` loaded `aspire-diagnose` 6/6. Its two failures served the placeholders at the end. The
+  failing `aspire-cli` luna trial did too.
+- The column `pattern_read_aggregate` (added after `t43`, see T4.3 results) equals the marker on this scenario,
+  because a pair of spans has no aggregate form.
+- Reader note: the harness's copy of the trajectory under `harbor_logs/…/agent/` redacts hex strings (tool call ids,
+  trace ids). The marker now reads the unredacted copy in the run's output folder (`pattern_source`). That changed
+  1 terra `aspire-lean` trial here (all-trials reads 1 → 2) and no luna trial.
+- Cost: `t42` $1.87, pilots $0.03, gates model-free: **$1.90** against $2.10.
+
+#### T4.3 results
+
+**`row not confirmed` (rule as computed; coordinator ruling (a), 2026-11-19).** By the marker as pre-registered
+(≥ 10 rows or occurrences in one result), luna `aspire-lean` has 2 strict reads among its 6 passing trials. The
+marker does not count aggregated reads. At least 2 of the 4 unmarked lean trials read the pattern as a grouped count
+over the saved trace before their first edit: 2,244 `postgresql` client spans under one status trace, with the
+repeated statement named. The descriptive hint (a status trace with ≥ 100 spans read before the first edit) is
+6/6 for lean, against 0/6 for `aspire-cli` and 0 for `raw`. Under a marker that counts an aggregate of ≥ 10 spans
+of one name or statement, the word would be `row confirmed`. That marker was not pre-registered and is not
+applied to this round.
+
+Round `t43`: 48 trials, n = 6, no infrastructure failure. The row *time not covered by any child span* stays
+unexercised: an N+1 does not exercise it (a lock or CPU fault would).
+
+| Model | Arm | Pass | Reads (passing / all) | Aggregate (passing / all) | Hint (all) | Median agent s | Ratio to `raw` [90 %], p | Median s to cause seen |
+|---|---|---|---|---|---|---|---|---|
+| luna | `raw` | 4/6 | 0 / 0 | 0 / 0 | 0 | 228.3 | | 19.2 |
+| luna | `aspire-cli` | 5/6 | 0 / 0 | 0 / 0 | 0 | 156.1 | 0.68× [0.47–0.81], 0.002 | 18.0 |
+| luna | `aspire-skills-mcp` | 5/6 | 1 / 1 | 1 / 1 | 1 | 225.1 | 0.99× [0.71–2.38], 0.818 | 34.9 |
+| luna | `aspire-lean` | 6/6 | 2 / 2 | 4 / 4 | 6 | 180.0 | 0.79× [0.56–0.98], 0.065 | 33.8 |
+| terra | `raw` | 4/6 | 0 / 0 | 0 / 0 | 0 | 209.1 | | 20.4 |
+| terra | `aspire-cli` | 6/6 | 1 / 1 | 3 / 3 | 2 | 135.8 | 0.65× [0.55–0.75], 0.002 | 16.1 |
+| terra | `aspire-skills-mcp` | 6/6 | 1 / 1 | 1 / 1 | 1 | 128.4 | 0.61× [0.53–0.70], 0.002 | 29.8 |
+| terra | `aspire-lean` | 6/6 | 6 / 6 | 6 / 6 | 6 | 141.9 | 0.68× [0.59–0.77], 0.002 | 16.1 |
+
+- **How the pattern was read.** `aspire-lean` loaded `aspire-diagnose` in 12 of 12 trials. The inspected trials
+  followed its step 1: they listed slow traces (`--search "duration:>500"`), then fetched one status trace. The
+  tree or JSON is 1–1.2 MB, so Copilot CLI spills it and shows a 500-character preview (F31). In the two luna lean
+  trials counted only by the aggregate field, luna then grouped the saved JSON with `jq` or `node`, getting
+  "Client postgresql … 2244" and "2243 × `SELECT "IsActive" … lower("Id") = lower($1)`" in one trial, and
+  "boardadmin postgresql, 119" (truncated input) in the other, instead of reading tree rows. Terra lean met the
+  strict marker in 6/6. Terra `aspire-cli`'s two aggregate-only trials also grouped the spans ("postgresql,
+  count: 1844"; "postgresql [1444 …]"). Luna `aspire-cli` and both `raw` arms went to the source, where `rg` put `IsSquareActiveAsync` or
+  the endpoint on screen in a median of 16–20 s. FINDINGS F60.
+- **MCP.** `aspire-skills-mcp` called `list_traces` in 12 of 12 trials (24 calls). 13 calls returned 0 traces
+  ("Earlier N traces not returned because of size limits"), and none showed a status trace's child spans, so the
+  arm's one luna and one terra read came through the CLI.
+- **Failures.** The verifier measured a slow status request after the agent's change: luna `raw` 2 (about
+  1.75 s), luna `aspire-cli` 1 and luna `aspire-skills-mcp` 1 (about 1.7 s); terra `raw` 2 (810 ms against a
+  778 ms limit, and 2,847 statements per request).
+- **Reader.**
+  - `pattern_read_aggregate` was added after the round, by the coordinator's ruling, as a separate field for the
+    next card to pre-register: the marker, or a short trace-output line with a count ≥ 10 next to the span name
+    `postgresql` or the statement. Trace-list rows and paths such as `/var/lib/postgresql/18` are not counts. It
+    is shown for every arm above, computed on `t43` and the pilots, and not applied to this round's word.
+  - The unredacted-copy fix (see T4.2 results) changed 2 terra trials here (`aspire-cli` reads 0 → 1, `aspire-lean`
+    5 → 6) and no luna trial.
+- Cost: `t43` $3.45, pilots $0.07, gates model-free: **$3.52** against $2.10 (1.7×, inside the 3× stop).
+
+#### Phase 4 open items (scenarios lane)
+
+1. **Pre-register `pattern_read_aggregate`** on the next span-row card. A grouped count over the saved trace is how
+   luna read a 2,000-span trace (T4.3, F60); the strict marker does not count it.
+2. **The row *time not covered by any child span* is still untested.** It needs a lock or CPU fault in the caller's
+   own code (T4.3 exercised the N+1 row).
+3. **T4.2's row is untested on a material symptom.** Bingo has no HTTP read through the frontend besides the footer,
+   and every arm found the cause in the source. A fixture whose cause is not one `rg` away (configuration from
+   the environment, a second service) would test whether the skill reaches the client span.
+4. **T4.4 needs a runner that resumes its own session** (F05): no multi-turn card is runnable on this harness.
+5. **Aspire MCP `list_traces` returns no trace when traces are large** (2,000 spans), so an MCP-only agent cannot
+   see an N+1 (F60); `aspire-skills-mcp` reached it only through the CLI.
 
 ### T4.7 Claude Code adapter (proposed)
 

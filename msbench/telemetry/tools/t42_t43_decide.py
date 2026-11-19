@@ -19,11 +19,13 @@ ARMS = ["raw", "aspire-cli", "aspire-skills-mcp", "aspire-lean"]
 MODELS = ["gpt-6-luna", "gpt-6.1-terra"]
 
 
-def verdict(lean, cli):
+def verdict(lean, cli, field="pattern_read_before_edit"):
+    """The rule as pre-registered with `pattern_read_before_edit`; with `pattern_read_aggregate` it gives the word
+    the coordinator's ruling asks to state beside it (not applied to t42/t43)."""
     passed = [t for t in lean if t["reward"] == 1]
-    reads_pass = sum(t["pattern_read_before_edit"] for t in passed)
-    lean_all = sum(t["pattern_read_before_edit"] for t in lean)
-    cli_all = sum(t["pattern_read_before_edit"] for t in cli)
+    reads_pass = sum(t[field] for t in passed)
+    lean_all = sum(t[field] for t in lean)
+    cli_all = sum(t[field] for t in cli)
     if len(passed) <= 3 or reads_pass <= 3:
         return "row not confirmed"
     if len(passed) >= 5 and reads_pass >= 4 and lean_all - cli_all >= 2:
@@ -54,8 +56,8 @@ def main():
         cells[(r["scenario"], r["model_requested"], r["arm"])].append(r)
     for scenario in sorted({r["scenario"] for r in graded}):
         print(f"\n## {scenario}")
-        print("| model | arm | n | pass | reads (passing) | reads (all) | hint (all) | median agent s | median s to pattern |")
-        print("|---|---|---|---|---|---|---|---|---|")
+        print("| model | arm | n | pass | reads (passing) | reads (all) | aggregate (passing) | aggregate (all) | hint (all) | median agent s | median s to pattern |")
+        print("|---|---|---|---|---|---|---|---|---|---|---|")
         for model in MODELS:
             for arm in ARMS:
                 trials = cells.get((scenario, model, arm), [])
@@ -65,13 +67,16 @@ def main():
                 reads_pass = sum(t.get("pattern_read_before_edit", False) for t in passed)
                 reads_all = sum(t.get("pattern_read_before_edit", False) for t in trials)
                 hint_all = sum(t.get("pattern_hint_before_edit", False) for t in trials)
-                print(f"| {model} | {arm} | {len(trials)} | {len(passed)} | {reads_pass} | {reads_all} | {hint_all} "
+                agg_pass = sum(t.get("pattern_read_aggregate", False) for t in passed)
+                agg_all = sum(t.get("pattern_read_aggregate", False) for t in trials)
+                print(f"| {model} | {arm} | {len(trials)} | {len(passed)} | {reads_pass} | {reads_all} | {agg_pass} | {agg_all} | {hint_all} "
                       f"| {collect.median([t.get('agent_seconds') for t in trials])} "
                       f"| {collect.median([t.get('seconds_to_pattern_read') for t in trials if t.get('seconds_to_pattern_read')])} |")
         lean = cells.get((scenario, "gpt-6-luna", "aspire-lean"), [])
         cli = cells.get((scenario, "gpt-6-luna", "aspire-cli"), [])
         if len(lean) == 6 and len(cli) == 6:
             print(f"\n**Verdict ({scenario}, luna): `{verdict(lean, cli)}`**")
+            print(f"(with pattern_read_aggregate, not pre-registered: `{verdict(lean, cli, 'pattern_read_aggregate')}`)")
         else:
             print(f"\n(verdict not computed: luna aspire-lean n={len(lean)}, aspire-cli n={len(cli)}; the rule needs 6 graded each)")
 
