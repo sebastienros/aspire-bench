@@ -355,3 +355,41 @@ two revisions apart: an arm with two skill fingerprints in one pin (derived from
 Changing anything under `common/` needs three commits so remote builds can fetch
 exact contents: commit `common/`, run `gen-tasks.mjs tasks --suite-sha <that commit>`
 and commit, then `gen-tasks.mjs dataset --task-sha <that commit>` and commit.
+
+## Tracking a new daily or skills release (PLAN T4.5)
+
+`tools/track.sh` runs REPORT §11's core matrix (`slow-sql`, `slow-redis`, `cold-start` × `raw`, `aspire-cli`,
+`aspire-skills-mcp`, `aspire-lean` × `gpt-6-luna`, `gpt-6.1-terra` × 5 = 120 trials, ≈ $5) on a newer pin, by hand;
+nothing runs on a schedule and no issue is filed. The rule it applies is PLAN's "T4.5 tracking rule, as computed".
+
+```bash
+# See what a re-pin would change (three commits in a throwaway clone; this checkout is left as it is)
+tools/track.sh repin --aspire-version latest --dry-run
+# The whole chain: re-pin (pushed, so CES can fetch it), 12 oracle gates, 120 trials, wait, collect, series, drafts
+tools/track.sh run --aspire-version latest [--skills-tag v0.0.7] --push
+# Or step by step
+tools/track.sh repin --aspire-version 17.1.0-preview.1.26569.1 --push
+tools/track.sh gate --run trk20261119
+tools/track.sh matrix --run trk20261119 --dataset track/dataset.jsonl
+tools/track.sh finish --run trk20261119 --dataset track/dataset.jsonl
+```
+
+- **The re-pin moves nothing the program measures.** It writes `track/common/` (a copy of `common/` with the new
+  daily's version, commit and SHA-256s, and the new skills snapshot when `--skills-tag` moves; `PIN.json` records
+  them), then `track/tasks/<scenario>/<arm>` for the 12 core tasks, then `track/dataset.jsonl`, one commit each.
+  `dataset.jsonl`, `tasks/`, `tools/templates/` and `common/` stay byte-identical. `submit.sh` submits from
+  `track/dataset.jsonl` when `BENCH_DATASET` names it (the ledger line records `dataset` and `task_path`), and the
+  series keeps one cell per scenario, model and arm across both trees. A skills tag that changes
+  `aspire-monitoring/SKILL.md` stops the re-pin: the `lean` override replaces that file and is re-derived by hand.
+- **Promotion is a separate step.** A tracked pin that should become the suite's new baseline (the pin every card
+  measures) is promoted with the ordinary additive re-pin on `main` (README "Changing anything under `common/`",
+  as T0.1 did); the tracker never does that.
+- **Runs are named `trk<yyyymmdd>`** after the daily's build date (`-gate`, `-repeat` parts). A gate below reward 1
+  stops the run before any model trial. A luna time or token flag gets one repeat round before a draft; drafts go to
+  `msbench/upstream-issues/tracking/` with the two runs' MSBench run IDs and the diff of pins.
+- **Results.** `finish` commits the ledger lines first, then runs `collect.py --rounds <the run's rounds>` (the runs
+  already in `trials.jsonl` plus these, so another lane's rounds in flight are neither fetched nor published),
+  `series.py` and `tools/track_drafts.py`. `series.py --include-excluded <round> --out <dir>` reads a round whose
+  ledger lines are `excluded` (the `t45-smoke` smoke) without writing `results/series.*`.
+- **Where the time goes.** `tools/round_time.py --out <dir>` splits every extracted trial into queue, image build,
+  fault setup, agent and verifier time from Harbor's timing file (PLAN T4.6); nothing is fetched.
