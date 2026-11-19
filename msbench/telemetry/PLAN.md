@@ -4360,6 +4360,85 @@ the next (F05). The probe is one excluded luna trial of a two-step Harbor task.
 - `not runnable` closes the card with what the runner would need, and nothing more is submitted. `runnable` opens
   the 12-trial design of ruling 2, whose step-2 fixture and rule are written before any of those trials.
 
+### T4.5 Tracking schedule and T4.6 Cheaper rounds (infrastructure lane)
+
+#### T4.6 measurement of existing rounds, as computed (written 2026-11-19, before any timing was read)
+
+- **Source.** Every `results/ledger.jsonl` line on `main` at measurement time whose run folder is already in the
+  shared `extracted/` cache with `harbor_logs/harbor_timings.json` and a trial `result.json`. Nothing is fetched
+  for this measurement, so no round in flight is touched; a run without those files is counted as missing, by round.
+  Pin 2026-11-17 only (the first pin's runs predate Harbor's timing file). `tools/round_time.py` computes it and
+  writes nothing under `results/`; its output goes to `evidence/round-time/2026-11-19/`.
+- **Phases per trial** (Harbor's own phase boundaries; seconds):
+  `queue` = `workflow.total_to_results.started_at` − the ledger's `submitted_at` (the submission stamp, one per
+  `submit.sh` call, so all repeats of a `--parallel_repeats` cell share it); `pre` = `workflow.pre_harbor`
+  (runner start, task restore); `build` = `harbor.environment_setup` (image build and container start);
+  `ready` = `agent_setup.started_at` − `environment_setup.finished_at` (the healthcheck wait: the fault's own setup
+  inside the container: private dockerd, app start, traffic); `agent_setup` = `harbor.agent_setup`;
+  `agent` = `harbor.agent_execution`; `verify` = `harbor.verifier`; `post` = the rest of `total_to_results`.
+  `elapsed` = `queue` + `total_to_results`.
+- **Reported.** Medians and sums of each phase, by kind (model trial / oracle gate) and app kind (`raw` / Aspire),
+  and each phase's share of the summed `elapsed`; per round: wall time (last result − first submission), summed
+  agent time, and the largest number of that round's trials running at once (from the phase intervals). The card's
+  premise ("queue time bounds the plan more than money") is **supported** if, over model trials, `queue` +
+  `pre` + `build` + `ready` exceeds `agent` in the summed `elapsed`; **not supported** otherwise. Reported
+  either way, with the round-level wall times beside it.
+- **Image cache on CES.** For each task commit × task path, `build` of its first run in time (usually the oracle
+  gate) against the median of its later runs, and whether `harbor_image_pull_ms` is ever set. If later runs' median
+  `build` is within 20 % of the first run's, CES builds the image per trial (no cross-trial cache), and the
+  prototype's "per-arm image build disappears" can only save build time on CES if an image is pre-built and
+  pulled, which is out of this card (it needs a registry push, asked first).
+- **Where ruling 7's "per-arm build disappears" is evaluated.** On this Mac: the mounted arm and a second skill set
+  run from one image ID with no `docker build` of their own (shown by image ID and build log). In the task graph:
+  the mounted tasks of two arms declare byte-identical Dockerfile, build args and build contexts, so any image
+  cache keyed on them (local BuildKit, a CES cache if one existed) builds once. On CES: reported, not gating.
+
+#### T4.5 tracking rule, as computed (written 2026-11-19, before any `t45-smoke` trial)
+
+Ruling 6 asks the lane to complete §11's rule where `series.py` or §11 leave a part undefined. These are the
+parts `series.py` implemented before this card (unchanged): regress/improve on pass (drop ≥ 0.4 × n trials
+against the trailing pass rate **and** binomial p < 0.05; §11 gives no α, `series.py` uses 0.05), on time and
+tokens ratio to `raw` (+25 % against the trailing median ratio **and** Mann-Whitney p < 0.05 of the run's per-trial
+ratios against the pooled trailing ones), `selection-low` (< 4/5 trials loaded a skill, reported), `leak`, `no-raw`;
+the window is the cell's last five earlier runs, a run is the round name up to the first `-`. What this card adds:
+
+1. **Window and re-pins.** §11.3 item 4 says the window holds only "runs with the same suite SHA". Read literally,
+   every re-pin moves the suite commit, the window would reset at every daily, and no tracking run could ever flag.
+   As computed: a re-pin (new daily, new skills tag) **does not** reset the window; only a change to a scenario's
+   prompt, verifier or fixture does, through `series.py`'s `WINDOW_STARTS` (the reading `series.py` already had).
+   The window is any earlier run of the cell, card rounds included, excluded rounds out; a run without a `raw`
+   cell counts for pass rate and contributes no ratio (as implemented).
+2. **What makes a draft.** A `regress-pass`, `regress-time`, `regress-tokens` or `leak` flag on any cell of the
+   tracking run. `selection-low`, `no-raw` and every `improve-*` are listed in the run summary, no draft. `leak`
+   also marks the run **failed** in the summary (§11.2).
+3. **Luna repeat (§11.3 item 5).** A `regress-time` or `regress-tokens` flag on a `gpt-6-luna` cell first triggers
+   one repeat: that arm and `raw`, same scenario, 5 trials each, round `<run>-repeat` (so `series.py` pools it into
+   the same run). The draft is written only if the flag is still there after the repeat. Terra flags and every
+   pass-rate or leak flag write a draft directly.
+4. **The draft.** `msbench/upstream-issues/tracking/<run>-<scenario>-<model>-<arm>.md`: the flag and the row
+   (pass, medians, ratios, trailing values, p), the **two runs** compared (the flagged run and the most recent run
+   of its trailing window) with the MSBench run IDs of that cell's and its `raw` cell's trials in each, and the
+   **diff of pins** between them (Aspire build, skills tag and SHA, task commit, agent package). Never filed.
+5. **Round names.** A tracking run is `trk<yyyymmdd>` (the daily's build date; `trk<yyyymmdd>b` for a second run
+   on the same daily), rounds `trk<…>-gate`, `trk<…>`, `trk<…>-repeat`. The smoke is round `t45-smoke` (run `t45`),
+   its ledger lines carry `excluded` ("T4.5 smoke, ruling 6"), so every committed table leaves it out; `series.py`
+   reads it only through `--include-excluded t45-smoke --out <dir>` (default output unchanged).
+6. **Gates and stops.** One oracle per core task in round `trk<…>-gate`; every one must return reward 1 or no
+   model trial is submitted (the run stops with the failing task named). Cost stop: 3 × $5 per run.
+7. **The re-pin moves nothing existing.** The core matrix is emitted under `msbench/telemetry/track/`: commit 1
+   writes `track/common/` (a copy of `common/` with the new daily's version, commit and SHA-256s, and the skills
+   snapshot when the tag moved); commit 2 writes the 12 core task folders under `track/tasks/<scenario>/<arm>`
+   pinned to commit 1 (Dockerfile ARGs carry the new pins); commit 3 writes `track/dataset.jsonl` (same
+   benchmark and variant names as `dataset.jsonl`). `submit.sh` reads the task from the dataset named by
+   `BENCH_DATASET`; `dataset.jsonl`, `tasks/`, `tools/templates/` and `common/` stay byte-identical. A skills tag
+   that changes `aspire-monitoring` stops the re-pin (the `lean` override replaces that file and must be
+   re-derived by hand, as T0.1 did).
+8. **What the smoke proves and does not.** Re-pin as a dry run (prints the three commits' changes, writes
+   nothing; also run for real in a throwaway clone with no push), then `t45-smoke` (24 trials) through wait,
+   collect, series and the draft writer. Gates are not exercised (no task changed), and at n = 1 a flag is
+   unlikely, so the draft writer is also run on a row that already carries a `regress-*` flag in `series.jsonl`,
+   with its output kept as evidence, not under `upstream-issues/tracking/`.
+
 ### T4.7 Claude Code adapter (proposed)
 
 | | |
