@@ -1600,6 +1600,59 @@ Added 2026-11-18. Not a source build: the product change is a file that `aspire 
 | Trials / cost | 3 arms × 2 scenarios × 2 models × 6 = 72 + 6 held-out + 6 guard = 84 ≈ $3.50, plus controls not on the pin |
 | Results | pending |
 
+#### T2.10 rule, as computed (written 2026-11-18, before any `t210` result was read)
+
+- **The file.** One file per skill family in `common/agents-md/`, copied to `/app/AGENTS.md` (build argument
+  `AGENTS_MD`, both image templates). The first 577 bytes (AppHost, start and wait, `describe`, console logs,
+  `otel traces --search "duration:>500"` for slow) are byte-identical in all three. The skills section lists
+  exactly the skills present in that image, one job line each: `cli.md` 577 bytes / 143 tokens (no skills);
+  `lean.md` 1,129 / 280 (eight lean skills, no router); `skills.md` 1,114 / 279 (the shipped eight, router
+  included, since nothing else may differ from `aspire-skills`). Tokens are o200k counts; the ledger records
+  `agents_md` and `agents_md_bytes` per trial, and Copilot CLI's prompt-segment count is reported from the
+  trials. Bingo and Shop both keep the AppHost at `/app/apphost.cs`, so `heldout-cache` gets the same bytes.
+- **Leak review** (every literal against each fixture; control = the arm without the file):
+  - `slow-sql` (trigger that scans an unindexed JSON audit history; fix: an index), `slow-redis` (a host
+    script running `KEYS` in a loop; fix: stop it), `heldout-cache` (catalogue cache keyed per shopper; fix:
+    the key): the file names no database, cache, trigger, index, key, host process or script, and no
+    resource name (`aspire wait <resource>` stays generic).
+  - `cold-start` (nothing running; reference repair `aspire start --isolated`, `aspire wait` ×2): the start
+    and wait lines repeat the workspace README word for word, so they are not new to any arm.
+  - `duration:>500` and its flags are `aspire-diagnose`'s first command, so the lean arms' control already
+    had them; they are new to `aspire-cli-agents`, and to `aspire-skills-agents` in this place (the shipped set's only
+    `duration:>100` examples are in `aspire-monitoring/references/monitoring.md`, three hops down). 500 ms is the calibration floor of both slow fixtures (≥ 500 ms per write or page),
+    so the default threshold catches them by construction. That is the product claim under test, but it
+    means a lower default would not be neutral.
+  - Job lines paraphrase each skill's own description; "port conflicts, file-lock build errors" is the
+    orchestration skill's own scope, not a database lock (relevant to `stuck-db`, not in this card).
+  - No image had `AGENTS.md`, `CLAUDE.md`, `GEMINI.md` or `.github/copilot-instructions.md` in `/app` before.
+- **Delivery check first.** Round `t210-probe`: one luna `slow-sql/aspire-lean-agents` trial (ledger row
+  `excluded`). It counts only if `copilot-cli.log` lists a prompt segment that was absent from the control's
+  segment list and the process log carries a line of the file in the system prompt. A `cat AGENTS.md` by
+  the model is not push. If the file is not injected the card stops there.
+- **Controls** (pin 2026-11-17, Copilot CLI 1.0.99, same skill content as the `-agents` image: lean cells
+  only at `tasks 1479041e`, never `t01b`'s lean): luna `slow-sql` lean `t17-copilot`; `cold-start` lean and
+  skills `t16`; `aspire-cli` `t01b` (+ `t16` on cold start); `heldout-cache` lean `t02-heldout3`;
+  `slow-redis` luna lean `t14` + `t14-guard` + `t17-copilot` (18). Missing, re-run in `t210`: terra
+  `slow-sql` lean ×6, `slow-sql` skills luna ×6 (pooled with `t01b-plugin`'s 3) and terra ×6. Cells pool
+  every same-pin, same-content trial, as `stats.py` does.
+- **Time** = `agent_seconds`; ratio = median ÷ median; p = exact two-sided Mann-Whitney. **Tokens** = per
+  trial `input_tokens + output_tokens`, median ratio.
+- **`ship`** if all hold: (a) on luna, `aspire-lean-agents` ÷ `aspire-lean` ≤ 0.80 with p < 0.10 in
+  `slow-sql` or `cold-start`, passing no more than one trial fewer; (b) terra ≤ 1.10 in both scenarios;
+  (c) token ratio ≤ 1.10 in each of the four lean cells; (d) guard: `slow-redis` luna `aspire-lean-agents`
+  passes ≥ round(6 × the control's pass rate) − 1. **`drop`** if (a) fails in both luna cells. Otherwise
+  **`revise`**, naming the condition that failed.
+- **Secondary readings**, reported, not gating: *commands carry it* if `aspire-cli-agents` ÷ `aspire-lean`
+  is within 0.90–1.10 in all four cells; *cheaper than the rewrite* in a cell where `aspire-skills` ÷
+  `aspire-lean` > 1.10 and `aspire-skills-agents` ÷ `aspire-lean` ≤ 1.10. `heldout-cache` lean-agents ÷ lean
+  (luna) is the generalization reading.
+- **Mechanism measures** from the trajectories: first skill loaded; any command or MCP call with
+  `duration:>`; `tool_result_content_chars`; cold start: tool calls before the first result that shows the
+  front end serving (HTTP 200 or `Running`/`Healthy` for it).
+- A trial at the 900 s limit is graded as a failure and counted separately; a trial lost before the agent ran
+  is re-run once. Expected spend about $7 (103 trials), twice the card's $3.50, at the cost per trial
+  luna and terra have shown this pin.
+
 ---
 
 ## 7. Phase 3: bottom-up audit of the shipped skills

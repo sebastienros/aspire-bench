@@ -135,6 +135,11 @@ RUN --mount=type=bind,from=suite,source=skills,target=/mnt/skills \
         sh /mnt/skills/compose.sh "$SKILLS" /app/.github/skills \
         && sh /mnt/skills/compose.sh "$SKILLS" /opt/agent-skills; \
     fi
+# PLAN T2.10: an agent instructions file beside the AppHost (the `-agents` arms), as `aspire new` /
+# `aspire agent init` would write it. AGENTS_MD names a file in common/agents-md; empty adds none.
+ARG AGENTS_MD=
+RUN --mount=type=bind,from=suite,source=agents-md,target=/mnt/agents-md \
+    if [ -n "$AGENTS_MD" ]; then cp "/mnt/agents-md/$AGENTS_MD.md" /app/AGENTS.md && wc -c /app/AGENTS.md; fi
 ENV BENCH_FAULT=${FAULT} \
     BENCH_SKILLS=${SKILLS}
 ENTRYPOINT ["tini", "--", "bash", "/opt/benchmark/entrypoint.sh"]

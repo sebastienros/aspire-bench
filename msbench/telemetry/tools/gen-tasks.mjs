@@ -89,7 +89,9 @@ export const scenarios = {
             // Phase 1: T1.2 (shipped set without MCP, and its narrowed-monitoring variant), T1.3 guard.
             "aspire-skills", "aspire-skills-mon", "aspire-skills-norouter",
             // T1.4's guard on the source build: lean + MCP, unpatched control and compact telemetry.
-            "aspire-lean-mcp-src", "aspire-lean-mcp-compact"],
+            "aspire-lean-mcp-src", "aspire-lean-mcp-compact",
+            // T2.10's guard: the instructions file on the proposed set.
+            "aspire-lean-agents"],
         instruction: sluggish,
     },
     "read-only": {
@@ -108,7 +110,7 @@ describes this workspace. No report is required.
     "cold-start": {
         seed: 63,
         arms: ["raw", "aspire-cli", "aspire-skills", "aspire-skills-mcp", "aspire-lean", "aspire-lean-start",
-            "aspire-skills-norouter"],
+            "aspire-skills-norouter", "aspire-lean-agents", "aspire-cli-agents", "aspire-skills-agents"],
         instruction: coldStart,
     },
     // Same prompt as cold-start, but setup has already started and stopped the AppHost once with
@@ -124,7 +126,7 @@ describes this workspace. No report is required.
     "heldout-stuck-orders": { seed: 67, app: "heldout", arms: heldoutArms, instruction: heldoutStuck },
     // The reserved third fault (PLAN T0.2), run after the aspire-diagnose revision: a cache-side
     // regression in the catalogue, shipped as code in its own image (heldout/faults/).
-    "heldout-cache": { seed: 68, app: "heldout", arms: heldoutArms, instruction: heldoutCache },
+    "heldout-cache": { seed: 68, app: "heldout", arms: [...heldoutArms, "aspire-lean-agents"], instruction: heldoutCache },
     // Guardrail (PLAN T3.8): `bundle` = aspire-skills, `bundle-minus` = aspire-skills-norouter, `lean`.
     "stuck-db": { seed: 69, arms: ["aspire-skills", "aspire-skills-norouter", "aspire-lean"], instruction: stuckDb },
 };
@@ -203,10 +205,16 @@ export const arms = {
     // (router kept); T1.3 removes the router only (also T3.8's `bundle-minus`).
     "aspire-skills-mon": { kind: "aspire", skills: "mon", mcp: false },
     "aspire-skills-norouter": { kind: "aspire", skills: "norouter", mcp: false },
+    // T2.10: the control arm plus an instructions file at /app/AGENTS.md (common/agents-md/<agents>.md),
+    // as `aspire new` / `aspire agent init` would write it beside the AppHost. Nothing else differs.
+    "aspire-lean-agents": { kind: "aspire", skills: "lean", mcp: false, agents: "lean" },
+    "aspire-cli-agents": { kind: "aspire", skills: "none", mcp: false, agents: "cli" },
+    "aspire-skills-agents": { kind: "aspire", skills: "current", mcp: false, agents: "skills" },
 };
 const onlyIn = {
     "aspire-lean-start": ["cold-start"], "aspire-skills-plugin": ["slow-sql"],
     "aspire-skills-mon": ["slow-sql", "read-only"], "aspire-skills-norouter": ["slow-sql", "read-only"],
+    "aspire-lean-agents": ["slow-sql"], "aspire-cli-agents": ["slow-sql"], "aspire-skills-agents": ["slow-sql"],
 };
 
 // The Aspire MCP server as every harness registers it. Copilot CLI receives it from task.toml
@@ -282,7 +290,7 @@ args = [${aspireMcp.args.map(a => JSON.stringify(a)).join(", ")}]
 ` : ""}`;
 }
 
-function compose(fault, { kind, skills, cli }, suiteSha, app) {
+function compose(fault, { kind, skills, cli, agents }, suiteSha, app) {
     const git = (sha, path) => `${repo}.git#${sha}:${path}`;
     const contexts = Object.entries(apps[app].contexts(suiteSha))
         .map(([name, [variable, sha, path]]) => `\n        ${name}: \${${variable}:-${git(sha, path)}}`).join("");
@@ -295,7 +303,8 @@ function compose(fault, { kind, skills, cli }, suiteSha, app) {
         SKILLS: ${skills}
         FAULT: ${fault}${cli ? `
         CLI_KIND: source
-        CLI_PATCH: ${cli}` : ""}
+        CLI_PATCH: ${cli}` : ""}${agents ? `
+        AGENTS_MD: ${agents}` : ""}
       additional_contexts:
         suite: \${TELEMETRY_SUITE_CONTEXT:-${git(suiteSha, "msbench/telemetry/common")}}${contexts}
 `;

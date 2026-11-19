@@ -2,6 +2,7 @@
 # Local image build / container start for one cell, without Harbor or a model.
 #   tools/local.sh up <raw|aspire> <skills-set|none> <fault>   build, start, wait until ready
 #   tools/local.sh oracle <name>                                verify(broken) -> solve -> verify
+# AGENTS_MD=<file in common/agents-md, without .md> adds /app/AGENTS.md as the -agents arms do (T2.10).
 # Uses the working tree for every build context, so nothing needs to be pushed.
 set -euo pipefail
 suite="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -16,15 +17,15 @@ build() {
         docker build -q -f "$suite/tools/templates/Dockerfile.heldout" ${LOCAL_PLATFORM:+--platform "$LOCAL_PLATFORM"} \
             --build-context "suite=$suite/common" \
             --build-context "heldout-app=$msbench/heldout/app" \
-            --build-arg "APP_KIND=$kind" --build-arg "SKILLS=$skills" --build-arg "FAULT=$fault" \
-            -t "telemetry-$kind-$skills-$fault:dev" "$empty" >/dev/null
+            --build-arg "APP_KIND=$kind" --build-arg "SKILLS=$skills" --build-arg "FAULT=$fault" ${AGENTS_MD:+--build-arg "AGENTS_MD=$AGENTS_MD"} \
+            -t "telemetry-$kind-$skills-$fault${AGENTS_MD:+-agents}:dev" "$empty" >/dev/null
     else
         docker build -q -f "$suite/tools/templates/Dockerfile" \
             --build-context "suite=$suite/common" \
             --build-context "aspire-app=$msbench/bingo/common/aspire-app" \
             --build-context "raw-app=$msbench/bingo/common/raw-app" \
-            --build-arg "APP_KIND=$kind" --build-arg "SKILLS=$skills" --build-arg "FAULT=$fault" ${CLI_PATCH:+--build-arg CLI_KIND=source --build-arg "CLI_PATCH=$CLI_PATCH"} \
-            -t "telemetry-$kind-$skills-$fault:dev" "$empty" >/dev/null
+            --build-arg "APP_KIND=$kind" --build-arg "SKILLS=$skills" --build-arg "FAULT=$fault" ${CLI_PATCH:+--build-arg CLI_KIND=source --build-arg "CLI_PATCH=$CLI_PATCH"} ${AGENTS_MD:+--build-arg "AGENTS_MD=$AGENTS_MD"} \
+            -t "telemetry-$kind-$skills-$fault${AGENTS_MD:+-agents}:dev" "$empty" >/dev/null
     fi
     rmdir "$empty"
 }
@@ -34,7 +35,7 @@ case "${1:-}" in
         kind="$2"; skills="$3"; fault="$4"; name="tele-$kind-$fault"
         build "$kind" "$skills" "$fault"
         docker rm -f "$name" >/dev/null 2>&1 || true
-        docker run -d --name "$name" --privileged ${LOCAL_PLATFORM:+--platform "$LOCAL_PLATFORM"} "telemetry-$kind-$skills-$fault:dev" >/dev/null
+        docker run -d --name "$name" --privileged ${LOCAL_PLATFORM:+--platform "$LOCAL_PLATFORM"} "telemetry-$kind-$skills-$fault${AGENTS_MD:+-agents}:dev" >/dev/null
         for _ in $(seq 1 480); do
             if docker exec "$name" test -f /opt/benchmark/ready 2>/dev/null; then echo "READY $name"; exit 0; fi
             if [[ "$(docker inspect -f '{{.State.Running}}' "$name")" != true ]]; then

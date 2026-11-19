@@ -62,6 +62,10 @@ dockerfile="$(git -C "$repo" show "$task_sha:$task_dir/environment/Dockerfile")"
 suite_sha="$(git -C "$repo" show "$task_sha:$task_dir/environment/docker-compose.yaml" | grep -oE 'aspire-bench\.git#[0-9a-f]{40}:msbench/telemetry/common' | head -1 | cut -d'#' -f2 | cut -d: -f1)"
 aspire_build="$(sed -nE 's/^ARG ASPIRE_VERSION=(.*)/\1/p' <<<"$dockerfile")+$(sed -nE 's/^ARG ASPIRE_COMMIT=(.*)/\1/p' <<<"$dockerfile")"
 skills_sha="$(git -C "$repo" show "$suite_sha:msbench/telemetry/common/skills/PROVENANCE.md" | grep -m1 -oE '^\| `current` \| `microsoft/aspire-skills` @ `[0-9a-f]{40}` \(v[0-9.]+' | sed -E 's/.*@ `([0-9a-f]{40})` \((v[0-9.]+)/\2 \1/')"
+# T2.10: the -agents arms copy common/agents-md/<AGENTS_MD>.md to /app/AGENTS.md; record its size.
+agents_md="$(git -C "$repo" show "$task_sha:$task_dir/environment/docker-compose.yaml" | sed -nE 's/^ +AGENTS_MD: ([a-z0-9-]+)$/\1/p')"
+agents_md_bytes="$([[ -n "$agents_md" ]] && git -C "$repo" show "$suite_sha:msbench/telemetry/common/agents-md/$agents_md.md" | wc -c | tr -d ' ' || true)"
+[[ -z "$agents_md" || "$agents_md_bytes" =~ ^[0-9]+$ ]] || { echo "Cannot read AGENTS.md for $task_dir at $suite_sha" >&2; exit 1; }
 # VS Code does not read task.toml's MCP servers; it gets the same server from the assets folder that
 # matches the task (see vscodeOverrides in gen-tasks.mjs).
 if [[ "$agent" == vscode && "$model" != oracle ]]; then
@@ -85,6 +89,7 @@ while read -r run_id; do
         --arg submitted_at "$stamp" --arg dataset_sha256 "$dataset_sha" --arg log "$log" --arg task_sha "$task_sha" \
         --arg aspire_build "$aspire_build" --arg skills_sha "$skills_sha" --arg task "${BENCH_TASK:-}" \
         --arg agent "$agent" --arg timeout_mult "${BENCH_AGENT_TIMEOUT_MULTIPLIER:-}" --arg agent_package "$agent_package" --arg assets "${agent_assets#"$suite/"}" --arg assets_sha "$assets_sha" \
+        --arg agents_md "$agents_md" --arg agents_md_bytes "$agents_md_bytes" \
         '{run_id: $run_id, scenario: $scenario, arm: $arm, model: $model, round: $round, submitted_at: $submitted_at,
           dataset_sha256: $dataset_sha256, log: $log, task_repo_commit: $task_sha, aspire_build: $aspire_build,
           skills_sha: $skills_sha}
@@ -92,5 +97,6 @@ while read -r run_id; do
          + (if $agent_package == "" then {} else {agent_package: $agent_package} end)
          + (if $assets == "" then {} else {agent_assets: $assets, agent_assets_sha256: $assets_sha} end)
          + (if $task == "" then {} else {task: $task} end)
+         + (if $agents_md == "" then {} else {agents_md: $agents_md, agents_md_bytes: ($agents_md_bytes|tonumber)} end)
          + (if $timeout_mult == "" or $agent == "" then {} else {agent_timeout_multiplier: ($timeout_mult|tonumber)} end)' | tee -a "$ledger"
 done

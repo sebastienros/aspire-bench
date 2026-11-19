@@ -34,6 +34,7 @@ The two Aspire product patches are in [upstream/](upstream/).
 | `aspire-mcp-compact`, `aspire-lean-mcp-compact` | Same, plus the MCP compact-telemetry patch | none / `lean` | yes |
 | `aspire-lean-plain` | Same, plus the CLI plain-output patch | `lean` | no |
 | `aspire-lean-mcp-all` | Same, plus both patches | `lean` | yes |
+| `aspire-lean-agents`, `aspire-cli-agents`, `aspire-skills-agents` | Aspirified app plus `/app/AGENTS.md` beside the AppHost ([`common/agents-md`](common/agents-md), one file per skill family; PLAN T2.10) | `lean` / none / `current` | no |
 
 `raw` versus any Aspire arm is the product comparison. The Aspire arms share one
 application, one AppHost and one toolchain, so differences between them isolate
