@@ -507,8 +507,8 @@ for (const short of auditedSkills) {
 }
 const onlyIn = {
     "aspire-lean-start": ["cold-start"], "aspire-skills-plugin": ["slow-sql"],
-    // T4.6 prototype pair (slow-sql only, emitted by the infrastructure lane's own re-pin; [] until then).
-    "aspire-lean-mounted": [], "aspire-lean-baked": [],
+    // T4.6 prototype pair (slow-sql only, ruling (a), 2026-11-19).
+    "aspire-lean-mounted": ["slow-sql"], "aspire-lean-baked": ["slow-sql"],
     "aspire-skills-mon": ["slow-sql", "read-only"], "aspire-skills-norouter": ["slow-sql", "read-only"],
     "aspire-lean-agents": ["slow-sql"], "aspire-cli-agents": ["slow-sql"], "aspire-skills-agents": ["slow-sql"],
     "aspire-lean-agents-v2": ["cold-start"], "aspire-lean-noorch-agents": ["slow-sql"],

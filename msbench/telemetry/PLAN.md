@@ -4393,6 +4393,25 @@ the next (F05). The probe is one excluded luna trial of a two-step Harbor task.
   the mounted tasks of two arms declare byte-identical Dockerfile, build args and build contexts, so any image
   cache keyed on them (local BuildKit, a CES cache if one existed) builds once. On CES: reported, not gating.
 
+#### T4.6 prototype pair, as computed (coordinating session ruling (a), 2026-11-19, before either task was emitted)
+
+- **The pair is two new `slow-sql` tasks; the existing `aspire-lean` task is untouched.** `aspire-lean-baked` is a
+  **twin** of `aspire-lean`, not the task itself: the same recipe (Dockerfile, `SKILLS: lean`, build contexts) at a
+  newer suite SHA, its `skills_content` fingerprint checked equal to `aspire-lean`'s. The twin exists because
+  ruling 7's checksum at run time cannot be emitted from the pinned task without changing it.
+  `aspire-lean-mounted` is the skill-less image (the `aspire-cli` recipe, `SKILLS: none`) with the lean set,
+  composed by `compose.sh` from the same suite commit into the task folder, bind-mounted read-only onto
+  `/app/.github/skills` and `/opt/agent-skills` by the task's `docker-compose.yaml`; `skills_dir` as on every
+  skill arm. Both tasks' `tests/test.sh` (task-level, so neither image changes) writes the SHA-256 of every file
+  under both folders to `/logs/verifier/skills.sha256` before verifying.
+- **Round.** One oracle each in round `gate-t46`, same submission window, ledger `task: T4.6`.
+- **`adopt`** if both oracles return reward 1, the two `skills.sha256` files are identical (same paths, same
+  digests, both folders), and the per-arm image build is gone in the sense of the measurement block above (the
+  mounted task's Dockerfile, build args and contexts are byte-identical to `aspire-cli`'s at the same suite commit,
+  and locally one image ID served two skill sets). **`keep baked`** otherwise (including a mounted gate whose
+  environment fails to start: CES may not honour a relative bind mount). The verdict is about the delivery
+  mechanism; it is not a change to any existing task, and adopting it for later arms is a separate decision.
+
 #### T4.5 tracking rule, as computed (written 2026-11-19, before any `t45-smoke` trial)
 
 Ruling 6 asks the lane to complete §11's rule where `series.py` or §11 leave a part undefined. These are the
