@@ -540,6 +540,14 @@ they are listed in trials.jsonl and excluded from every other column.
 | aspire-skill-orchestration | 6 | 6/6 | 6/6 | 56 (-64%) | 232,980 (-29%) | 0.051 (-39%) | 20 | - | - |
 | aspire-skills-noorchestration | 6 | 6/6 | 6/6 | 60 (-61%) | 228,736 (-30%) | 0.053 (-38%) | 20 | - | - |
 
+## slow-redis / claude-haiku-5.5
+
+| Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| raw | 6 | 4/6 | 4/6 | 325 (+0%) | 1,313,468 (+0%) | 0.026 (+0%) | 31 | 158 | - |
+| aspire-skills-mcp | 6 | 5/6 | 5/6 | 338 (+4%) | 1,974,899 (+50%) | 0.037 (+42%) | 36 | 160 | - |
+| aspire-lean | 6 | 6/6 | 6/6 | 228 (-30%) | 1,627,658 (+24%) | 0.032 (+21%) | 31 | 148 | - |
+
 ## slow-redis / claude-opus-5.5
 
 | Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
@@ -619,6 +627,14 @@ they are listed in trials.jsonl and excluded from every other column.
 | raw | 6 | 6/6 | 6/6 | 147 (+0%) | 402,944 (+0%) | 0.349 (+0%) | 32 | 12 | - |
 | aspire-skills-mcp | 6 | 6/6 | 6/6 | 128 (-13%) | 574,486 (+43%) | 0.459 (+31%) | 36 | 28 | - |
 | aspire-lean | 6 | 6/6 | 6/6 | 83 (-43%) | 390,125 (-3%) | 0.375 (+7%) | 30 | 17 | - |
+
+## slow-sql / claude-haiku-5.5
+
+| Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| raw | 6 | 6/6 | 6/6 | 62 (+0%) | 708,534 (+0%) | 0.016 (+0%) | 18 | 17 | - |
+| aspire-skills-mcp | 6 | 6/6 | 6/6 | 66 (+7%) | 1,025,593 (+45%) | 0.021 (+31%) | 21 | 25 | - |
+| aspire-lean | 6 | 6/6 | 6/6 | 71 (+14%) | 1,121,296 (+58%) | 0.022 (+38%) | 23 | 28 | - |
 
 ## slow-sql / claude-opus-5.5
 
@@ -760,6 +776,14 @@ they are listed in trials.jsonl and excluded from every other column.
 | aspire-skills-mcp | 6 | 6/6 | 6/6 | 275 (-0%) | 96,248 (+42%) | 0.038 (+27%) | 7 | - | - |
 | aspire-lean | 6 | 6/6 | 6/6 | 293 (+6%) | 121,002 (+79%) | 0.041 (+37%) | 8 | - | - |
 
+## slow-redis / claude-haiku-5.5 / claude-code
+
+| Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| raw | 6 | 5/6 | 5/6 | 416 (+0%) | 1,997,621 (+0%) | 0.067 (+0%) | 28 | 230 | - |
+| aspire-lean-cc | 6 | 6/6 | 6/6 | 202 (-51%) | 1,965,544 (-2%) | 0.074 (+10%) | 26 | 97 | - |
+| aspire-skills-mcp-cc | 6 | 5/6 | 5/6 | 402 (-3%) | 3,253,488 (+63%) | 0.213 (+218%) | 36 | 224 | - |
+
 ## slow-redis / gpt-6-luna / vscode
 
 | Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
@@ -775,6 +799,14 @@ they are listed in trials.jsonl and excluded from every other column.
 | raw | 5 | 5/5 | 5/5 | 426 (+0%) | 611,992 (+0%) | 0.113 (+0%) | 53 | 265 | 1 |
 | aspire-skills-mcp | 5 | 4/5 | 4/5 | 501 (+18%) | 1,271,329 (+108%) | 0.190 (+69%) | 60 | 289 | 1 |
 | aspire-lean | 6 | 6/6 | 6/6 | 409 (-4%) | 516,234 (-16%) | 0.100 (-11%) | 34 | 232 | - |
+
+## slow-sql / claude-haiku-5.5 / claude-code
+
+| Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| raw | 6 | 6/6 | 6/6 | 75 (+0%) | 993,100 (+0%) | 0.020 (+0%) | 16 | 20 | - |
+| aspire-lean-cc | 6 | 6/6 | 6/6 | 77 (+3%) | 1,963,859 (+98%) | 0.105 (+440%) | 22 | 29 | - |
+| aspire-skills-mcp-cc | 6 | 6/6 | 6/6 | 86 (+16%) | 1,814,600 (+83%) | 0.108 (+456%) | 22 | 29 | - |
 
 ## slow-sql / gpt-6-luna / vscode
 

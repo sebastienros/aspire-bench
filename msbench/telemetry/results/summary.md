@@ -538,6 +538,14 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 | aspire-skills-noorchestration | 6/6 | 60 | - | - | 228,736 | 1,662 | 0.053 | 20 | aspirex6 | 0 | 82,102 |
 | raw | 6/6 | 155 | - | - | 326,487 | 6,561 | 0.084 | 28 | - | 0 | 92,176 |
 
+## slow-redis / claude-haiku-5.5
+
+| Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
+| aspire-lean | 6/6 | 228 | 148 | 190 | 1,627,658 | 15,930 | 0.032 | 31 | - | 0 | 224,236 |
+| aspire-skills-mcp | 5/6 | 338 | 160 | 201 | 1,974,899 | 17,450 | 0.037 | 36 | - | 0 | 261,676 |
+| raw | 4/6 | 325 | 158 | 231 | 1,313,468 | 12,422 | 0.026 | 31 | - | 0 | 189,194 |
+
 ## slow-redis / claude-opus-5.5
 
 | Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
@@ -617,6 +625,14 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 | aspire-lean | 6/6 | 83 | 17 | 32 | 390,125 | 3,252 | 0.375 | 30 | aspire-diagnosex6 | 0 | 122,358 |
 | aspire-skills-mcp | 6/6 | 128 | 28 | 73 | 574,486 | 5,424 | 0.459 | 36 | aspire-monitoringx6 | 0 | 150,146 |
 | raw | 6/6 | 147 | 12 | 44 | 402,944 | 5,576 | 0.349 | 32 | - | 0 | 85,501 |
+
+## slow-sql / claude-haiku-5.5
+
+| Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
+| aspire-lean | 6/6 | 71 | 28 | 44 | 1,121,296 | 9,084 | 0.022 | 23 | - | 0 | 203,056 |
+| aspire-skills-mcp | 6/6 | 66 | 25 | 39 | 1,025,593 | 8,122 | 0.021 | 21 | - | 0 | 235,502 |
+| raw | 6/6 | 62 | 17 | 31 | 708,534 | 7,669 | 0.016 | 18 | - | 0 | 147,720 |
 
 ## slow-sql / claude-opus-5.5
 
@@ -758,6 +774,14 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 | aspire-skills-mcp | 6/6 | 275 | - | - | 96,248 | 608 | 0.038 | 7 | aspire-orchestrationx6 | 0 | 23,707 |
 | raw | 6/6 | 276 | - | - | 67,698 | 521 | 0.030 | 6 | - | 0 | 18,828 |
 
+## slow-redis / claude-haiku-5.5 / claude-code
+
+| Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
+| aspire-lean-cc | 6/6 | 202 | 97 | 169 | 1,965,544 | 11,299 | 0.074 | 26 | aspire-diagnosex4 | 0 | 150,053 |
+| aspire-skills-mcp-cc | 5/6 | 402 | 224 | 344 | 3,253,488 | 22,380 | 0.213 | 36 | - | 2 | 182,670 |
+| raw | 5/6 | 416 | 230 | 293 | 1,997,621 | 19,864 | 0.067 | 28 | - | 0 | 128,666 |
+
 ## slow-redis / gpt-6-luna / vscode
 
 | Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
@@ -773,6 +797,14 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 | aspire-lean | 6/6 | 409 | 232 | 307 | 516,234 | 5,060 | 0.100 | 34 | aspire-diagnosex6 | 0 | 93,560 |
 | aspire-skills-mcp | 4/5 | 501 | 289 | 370 | 1,271,329 | 9,143 | 0.190 | 60 | aspirex2, aspire-monitoringx5, aspire-orchestrationx2 | 0 | 219,195 |
 | raw | 5/5 | 426 | 265 | 336 | 611,992 | 6,168 | 0.113 | 53 | - | 0 | 83,450 |
+
+## slow-sql / claude-haiku-5.5 / claude-code
+
+| Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
+| aspire-lean-cc | 6/6 | 77 | 29 | 41 | 1,963,859 | 9,930 | 0.105 | 22 | aspire-diagnosex4 | 0 | 177,152 |
+| aspire-skills-mcp-cc | 6/6 | 86 | 29 | 50 | 1,814,600 | 11,830 | 0.108 | 22 | - | 1 | 160,420 |
+| raw | 6/6 | 75 | 20 | 41 | 993,100 | 8,338 | 0.020 | 16 | - | 0 | 72,411 |
 
 ## slow-sql / gpt-6-luna / vscode
 

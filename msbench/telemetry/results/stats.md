@@ -264,6 +264,9 @@ Each pin (toolchain) has its own table; trials of different pins are never compa
 | restart-change | gpt-6.1-terra | aspire-cli vs raw | 6 vs 6 | -67% (p=0.002) | 0.33x [0.25-0.43] | -45% (p=0.002) | -49% (p=0.002) |
 | restart-change | gpt-6.1-terra | aspire-skill-orchestration vs aspire-cli | 6 vs 6 | +8% (p=0.485) | 1.08x [0.92-1.26] | +29% (p=0.065) | +19% (p=0.065) |
 | restart-change | gpt-6.1-terra | aspire-skills-noorchestration vs aspire-skills | 6 vs 6 | -0% (p=0.818) | 1.00x [0.80-1.18] | -10% (p=0.699) | -5% (p=0.699) |
+| slow-redis | claude-haiku-5.5 | aspire-lean vs raw | 6 vs 6 | -30% (p=0.240) | 0.70x [0.37-1.18] | +24% (p=0.180) | +21% (p=0.180) |
+| slow-redis | claude-haiku-5.5 | aspire-skills-mcp vs raw | 6 vs 6 | +4% (p=1.000) | 1.04x [0.50-2.56] | +50% (p=0.030) | +42% (p=0.052) |
+| slow-redis | claude-haiku-5.5 | aspire-lean vs aspire-skills-mcp | 6 vs 6 | -32% (p=0.180) | 0.68x [0.28-1.30] | -18% (p=0.247) | -14% (p=0.247) |
 | slow-redis | claude-opus-5.5 | aspire-lean vs raw | 6 vs 6 | -58% (p=0.065) | 0.42x [0.25-0.82] | -24% (p=0.093) | -21% (p=0.009) |
 | slow-redis | claude-opus-5.5 | aspire-skills-mcp vs raw | 6 vs 6 | +2% (p=0.818) | 1.02x [0.55-2.12] | +135% (p=0.002) | +85% (p=0.002) |
 | slow-redis | claude-opus-5.5 | aspire-lean vs aspire-skills-mcp | 6 vs 6 | -58% (p=0.015) | 0.42x [0.24-0.76] | -68% (p=0.002) | -57% (p=0.002) |
@@ -331,6 +334,9 @@ Each pin (toolchain) has its own table; trials of different pins are never compa
 | slow-redis | gpt-6.2-sol | aspire-lean vs raw | 6 vs 6 | -43% (p=0.004) | 0.57x [0.36-0.81] | -3% (p=0.937) | +7% (p=0.485) |
 | slow-redis | gpt-6.2-sol | aspire-skills-mcp vs raw | 6 vs 6 | -13% (p=0.485) | 0.87x [0.68-1.09] | +43% (p=0.015) | +31% (p=0.015) |
 | slow-redis | gpt-6.2-sol | aspire-lean vs aspire-skills-mcp | 6 vs 6 | -35% (p=0.041) | 0.65x [0.42-0.94] | -32% (p=0.026) | -18% (p=0.132) |
+| slow-sql | claude-haiku-5.5 | aspire-lean vs raw | 6 vs 6 | +14% (p=0.093) | 1.14x [1.00-1.60] | +58% (p=0.004) | +38% (p=0.002) |
+| slow-sql | claude-haiku-5.5 | aspire-skills-mcp vs raw | 6 vs 6 | +7% (p=0.240) | 1.07x [0.96-1.25] | +45% (p=0.004) | +31% (p=0.002) |
+| slow-sql | claude-haiku-5.5 | aspire-lean vs aspire-skills-mcp | 6 vs 6 | +7% (p=0.258) | 1.07x [0.93-1.48] | +9% (p=0.699) | +5% (p=0.589) |
 | slow-sql | claude-opus-5.5 | aspire-lean vs raw | 6 vs 6 | +45% (p=0.026) | 1.45x [1.14-1.80] | -7% (p=1.000) | -11% (p=0.699) |
 | slow-sql | claude-opus-5.5 | aspire-skills-mcp vs raw | 6 vs 6 | +30% (p=0.065) | 1.30x [1.05-1.45] | +61% (p=0.002) | +36% (p=0.015) |
 | slow-sql | claude-opus-5.5 | aspire-lean vs aspire-skills-mcp | 6 vs 6 | +11% (p=0.132) | 1.11x [1.00-1.42] | -42% (p=0.002) | -35% (p=0.004) |
@@ -409,6 +415,17 @@ Each pin (toolchain) has its own table; trials of different pins are never compa
 | two-app | gpt-6.1-terra | aspire-cli vs raw | 6 vs 6 | +12% (p=0.485) | 1.12x [0.85-1.53] | +76% (p=0.009) | +25% (p=0.093) |
 | two-app | gpt-6.1-terra | aspire-skill-orchestration vs aspire-cli | 6 vs 6 | +0% (p=1.000) | 1.00x [0.69-1.66] | -2% (p=0.937) | +2% (p=0.818) |
 | two-app | gpt-6.1-terra | aspire-skills-noorchestration vs aspire-skills | 6 vs 6 | -3% (p=0.485) | 0.97x [0.77-1.08] | +1% (p=0.937) | +0% (p=0.937) |
+
+## Pin 2026-11-17, harness claude-code
+
+| Scenario | Model | A vs B | n | Agent seconds | Time ratio, 90 % bootstrap | Input tokens | Cost |
+|---|---|---|---|---|---|---|---|
+| slow-redis | claude-haiku-5.5 | aspire-skills-mcp-cc vs raw | 6 vs 6 | -3% (p=0.699) | 0.97x [0.59-1.76] | +63% (p=0.015) | +218% (p=0.002) |
+| slow-redis | claude-haiku-5.5 | aspire-lean-cc vs raw | 6 vs 6 | -51% (p=0.026) | 0.49x [0.31-0.92] | -2% (p=0.937) | +10% (p=0.818) |
+| slow-redis | claude-haiku-5.5 | aspire-lean-cc vs aspire-skills-mcp-cc | 6 vs 6 | -50% (p=0.015) | 0.50x [0.37-0.80] | -40% (p=0.015) | -65% (p=0.009) |
+| slow-sql | claude-haiku-5.5 | aspire-skills-mcp-cc vs raw | 6 vs 6 | +16% (p=0.240) | 1.16x [0.93-1.42] | +83% (p=0.026) | +456% (p=0.009) |
+| slow-sql | claude-haiku-5.5 | aspire-lean-cc vs raw | 6 vs 6 | +3% (p=1.000) | 1.03x [0.80-1.24] | +98% (p=0.015) | +440% (p=0.009) |
+| slow-sql | claude-haiku-5.5 | aspire-lean-cc vs aspire-skills-mcp-cc | 6 vs 6 | -11% (p=0.028) | 0.89x [0.78-0.97] | +8% (p=1.000) | -3% (p=0.818) |
 
 ## Pin 2026-11-17, harness vscode
 

@@ -1706,3 +1706,18 @@ dry run on `17.1.0-preview.1.26569.1` touched nothing outside a throwaway clone.
 flag. The draft writer was also shown on `t01b`'s flags. Gates on re-pinned tasks and a pushed re-pin are exercised
 only by the first full run, which happens when the user asks.
 [PLAN.md, T4.5 results](PLAN.md#t45-results).
+
+**Phase 4, T4.7: Claude Code adapter, `ship` (harness-neutral in direction, not in mechanism).** New `-cc` arms put
+the same skill set in `/app/.claude/skills` and the same `aspire agent mcp` server in the agent user's
+`~/.claude.json`. `submit.sh` allows the server's tools in the runner's permission list. Every existing task stays
+byte-identical. Claude Code's `init` then lists the server, its 15 tools and the set. The CLI cannot be pinned from a
+submission: the pin reaches the runner but not Harbor's setup on CES. Versions were recorded per trial instead
+(2.1.328 and 2.1.329 within the round). With `claude-haiku-5.5` on both harnesses in one round (72 trials, all graded),
+the rule's three conditions hold in both scenarios. On `slow-redis`, `aspire-lean` is 0.48× `raw` under Claude Code
+(p 0.026) and 0.70× under Copilot CLI, 6/6 against `raw`'s 5/6 and 4/6. On `slow-sql` every Aspire arm is level to 1.2×
+under both harnesses. The mechanism differs. Copilot CLI listed `aspire-diagnose` and offered its `skill` tool, but
+haiku made no skill call in 24 Aspire trials; Claude Code loaded `aspire-diagnose` in 8/12 lean trials. Claude Code
+used MCP in 10/12 shipped-set trials, Copilot CLI in 3/12 (F59). On `slow-redis` the Claude Code `raw` cell ran on
+2.1.328 and 10/12 Aspire trials on 2.1.329; the card's fallback accepted that, and a same-version re-run was not run.
+$5.69 against $5.
+[PLAN.md, T4.7 results](PLAN.md#t47-results).

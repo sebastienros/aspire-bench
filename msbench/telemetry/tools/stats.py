@@ -32,6 +32,8 @@ PAIRS = [("raw", "raw-check"), ("aspire-lean", "raw"), ("aspire-skills-mcp", "ra
 # Pairs added with the 2026-11-17 re-pin; they are computed for later pins only, so the first
 # pin's table stays exactly as REPORT.md quoted it.
 LATER_PIN_PAIRS = [("aspire-cli", "raw"), ("aspire-skills-plugin", "aspire-skills"),
+                   # T4.7: the claude-code variants against raw and each other (only claude-code cells have them).
+                   ("aspire-skills-mcp-cc", "raw"), ("aspire-lean-cc", "raw"), ("aspire-lean-cc", "aspire-skills-mcp-cc"),
                    # Phase 1 skills lane: one change each against the shipped set (T1.2, T1.3, T3.8).
                    ("aspire-skills-mon", "aspire-skills"), ("aspire-skills-norouter", "aspire-skills"),
                    ("aspire-lean", "aspire-skills"),

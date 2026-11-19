@@ -1362,6 +1362,15 @@ Code, so where the skills are copied decides whether an agent can use them at al
 would double-register skills if the copy went into the shared images) is unverified. T1.7 closed as
 "no verdict"; nothing filed upstream.
 
+**Update 2026-11-19 (T4.7, [PLAN.md, T4.7 results](telemetry/PLAN.md#t47-results)).** The benchmark-side adapter is
+built: `-cc` variants copy the set into `/app/.claude/skills` and register `aspire agent mcp` in `/root/.claude.json`,
+and `submit.sh` adds `mcp__aspire` to the runner's `ALLOWED_TOOLS`. Without that, its non-interactive permission
+mode would refuse every MCP call. With it, `init` lists the server, its 15 tools and the set, and MCP calls return
+content. The CLI still cannot be pinned from a submission. The package's `CLAUDE_CODE_VERSION` reaches the runner
+but not Harbor's agent setup on CES, which installs `latest`, so the runner refuses the mismatch; versions are
+recorded per trial instead (2.1.328 and 2.1.329 within one round). Once the skills reach it, Claude Code with haiku
+loads `aspire-diagnose` from the lean set where Copilot CLI with haiku loads no skill at all: [F59](#f59-haiku-under-copilot-cli-never-calls-the-skill-tool-under-claude-code-it-loads-aspire-diagnose-from-the-lean-set).
+
 ## F30: A strong model waits for new telemetry before confirming a fix, and "confirm on fresh traffic" adds to the wait
 
 **Evidence:** Task T1.8 ([PLAN.md, T1.8 results](telemetry/PLAN.md#t18-results)), round `t18`, pin
@@ -2021,6 +2030,34 @@ app. Draft: [`aspire-js-otlp-without-sdk.md`](upstream-issues/aspire-js-otlp-wit
 **Limits / status:** One application (a Vite dev server), Copilot CLI trajectories only (the count covers the trials
 whose runs are in this machine's cache). The variant is the
 suite's change, not shipped Bingo. Independent of T4.2's verdict. Not filed.
+
+## F59: Haiku under Copilot CLI never calls the skill tool; under Claude Code it loads `aspire-diagnose` from the lean set
+
+**Evidence:** Task T4.7 ([PLAN.md, T4.7 results](telemetry/PLAN.md#t47-results)), round `t47`, `claude-haiku-5.5`,
+`slow-sql` and `slow-redis` × `raw`, the shipped set with MCP, `aspire-lean` × 6 under each harness (72 graded).
+- **Copilot CLI 1.0.99**: the system prompt lists the arm's skills (`<available_skills>`, `aspire-diagnose` included
+  on `aspire-lean`) and the session offers the `skill` tool. Haiku made **0 skill calls in 24 Aspire trials**, and no
+  trial read a `SKILL.md`. MCP calls were made in 3/12 shipped-set trials.
+- **Claude Code 2.1.328/2.1.329** (the `-cc` variants: the same files in `/app/.claude/skills`): `aspire-diagnose`
+  loaded in **4/6 `aspire-lean-cc` trials per scenario (8/12)**. No skill loaded in 12 shipped-set trials (router
+  `aspire` and `aspire-monitoring` present). MCP calls were made in 10/12 shipped-set trials; the 15 tools are listed
+  eagerly there.
+- The time effect has the same direction under both harnesses: `aspire-lean` on `slow-redis` 0.48× `raw` (p 0.026,
+  Claude Code) and 0.70× (p 0.24, Copilot CLI), 6/6 against `raw`'s 5/6 and 4/6; `slow-sql` level to 1.2× under both.
+  Under Copilot CLI that gain came without the skill: `aspire describe` in 5/6 and `aspire otel traces` in 1/6 of those
+  trials. Under Claude Code, `aspire otel traces` ran in 4/6.
+
+**Improvement candidate:** For the skills: a skill whose value depends on being chosen cannot count on haiku choosing
+it under Copilot CLI. The same description is picked under Claude Code, so the harness's presentation decides, not
+the text alone. A selection probe of the lean set under Copilot CLI with haiku should come before any
+skill-description change is credited on that model. For the
+benchmark: report skill selection per harness beside any skill verdict; time ratios alone read as "harness-neutral"
+here.
+
+**Limits / status:** One model, n = 6 per cell, two faults on one app; the Claude Code `slow-redis` cells span two
+CLI versions (`raw` on 2.1.328, Aspire arms 10/12 on 2.1.329). Copilot CLI's reason for not calling the tool (prompt
+position, tool description, model behaviour) was not isolated. Luna under Copilot CLI does call the `skill` tool on
+the same cells (T1.7's `t17-copilot`: `aspire-diagnose` 6/6 on each `aspire-lean` cell). Not filed.
 
 ## Recording future findings
 

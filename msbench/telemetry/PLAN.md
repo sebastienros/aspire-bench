@@ -4111,7 +4111,7 @@ $0.12; gates model-free.
 | T4.4 | **Multi-turn session** | All 461 trials are single turn; a real session reuses context | Two-step task: diagnose, then a follow-up change on the same running app; only if the runner demonstrably keeps the conversation (F05) | 24 ≈ $1.00 after the runner check | [`not runnable`](#t44-results) (2026-11-19): the runner refuses step 2 on its own `.runner-lock`; $0.0014 |
 | T4.5 | **Tracking schedule** (REPORT §11) | Every later product daily and skills release gets the core matrix | Workflow on this repo: re-pin, gate, submit core matrix, collect, series, open an issue on a flag | 120 trials ≈ $5 per run | [done 2026-11-19](#t45-results): `tools/track.sh`; smoke 24 trials $0.94, 0 drafts |
 | T4.6 | **Cheaper rounds** | The plan's cost is bounded by queue time more than money | Local gate before every cloud submission; one image per app kind with skill sets mounted at run time instead of baked | none | [**`adopt`**](#t46-results) by the rule as written (rewards equal, skill files identical on CES, one image serves two sets); `keep baked` under the coordinating session's post-data reading (CES builds per trial, so no saving without a registry-pulled image) |
-| T4.7 | **Claude Code adapter** (proposed 2026-11-18, not built) | T1.7 found that no skill and no MCP server reach the `claude-code` harness, and that only Claude models run under it | Skills copied to `/app/.claude/skills`, the MCP server registered the way Harbor's `claude_code` agent does it, a real CLI version pin; `claude-haiku-5.5` on both harnesses: [card below](#t47-claude-code-adapter-proposed) | 72 ≈ $5 plus a re-pin and gates | proposed |
+| T4.7 | **Claude Code adapter** (proposed 2026-11-18, built 2026-11-19) | T1.7 found that no skill and no MCP server reach the `claude-code` harness, and that only Claude models run under it | Skills copied to `/app/.claude/skills`, the MCP server registered the way Harbor's `claude_code` agent does it, a real CLI version pin; `claude-haiku-5.5` on both harnesses: [card below](#t47-claude-code-adapter-proposed) | 72 ≈ $5 plus a re-pin and gates | [**ship** (harness-neutral in direction, not in mechanism)](#t47-results), $5.69 |
 | T4.8 | **VS Code parity settings** (proposed 2026-11-18, from [T1.9](#t19-results)) | Under VS Code the MCP tools sit behind `tool_search` (15 of 18 terra `aspire-skills-mcp` trials never searched for them) and the inner limit (`agentSeconds: 720`) leaves about 534 s of work against Copilot CLI's 900 s; four `aspire-skills-mcp` trials hit it | Raise `agentSeconds` (and Harbor's multiplier with it) so net working time matches 900 s; find whether VS Code can list MCP tools eagerly, and if it can, run that as a separate assets folder. If it cannot, deferred MCP is the product condition under VS Code and is reported as such. Re-run `slow-sql`, `slow-redis` × `aspire-skills-mcp` × luna, terra | 24 ≈ $2.40 | proposed |
 | T4.9 | **What makes luna investigate under VS Code** (proposed 2026-11-18, from [T1.9](#t19-results)) | Under VS Code, raw luna runs 2.5–5 shell commands and patches code (1/6 and 0/6 pass); with `aspire-lean` it runs 14–19.5 and passes 5/6 and 4/6. The time ratio inverts that effect | Under VS Code, `slow-sql`, `slow-redis` × luna × `aspire-cli` (commands, no skill) and `aspire-lean-agents` / `aspire-cli-agents` (T2.10's file, which VS Code also reads) × 6; decide on pass rate and time-to-pass, not the raw ratio | 36 ≈ $2.50 | proposed |
 
@@ -4759,7 +4759,7 @@ to `raw` (median `agent_seconds`) with the exact Mann-Whitney p and the 90 % boo
 | Cells | `slow-sql`, `slow-redis` × `claude-haiku-5.5` × `raw`, `aspire-skills-mcp`, `aspire-lean` × 6 under `claude-code` (with the `-cc` variants), **and the same 36 cells under Copilot CLI with `claude-haiku-5.5`**, in one round. Model and harness are then not confounded. Haiku is priced like luna (10 / 50 per 1M tokens) and, like luna, is the model where guidance should decide the outcome |
 | Decision rule | T1.7's rule, within one model. Harness-neutral (`ship`) if, per scenario, each Aspire arm's time ratio to `raw` under `claude-code` lies on the same side of 1.00 as under Copilot CLI (0.90–1.10 counts as level), the two Aspire arms order the same way, and the `slow-redis` pass counts of `aspire-lean` and `raw` order the same way. Otherwise `no verdict`, and the trajectories name the mechanism (skill selection, MCP use, context budget) |
 | Trials / cost | 72 graded trials ≈ $5 (the haiku probe under `claude-code` cost $0.067 on `slow-sql`, 2.1 M input tokens mostly cached; Copilot CLI haiku not yet measured) + 2–3 probes; gates model-free |
-| Results | proposed, not built |
+| Results | **ship** (harness-neutral in direction, not in mechanism), 2026-11-19: [T4.7 results](#t47-results). Copilot CLI haiku made no skill call in 24 Aspire trials; Claude Code loaded `aspire-diagnose` in 8/12 lean trials. The CLI pin could not reach Harbor's setup on CES; versions recorded per trial (2.1.328, 2.1.329). $5.69 |
 
 #### T4.7 rule, as computed (written 2026-11-19, before any probe, pilot, gate or cell trial of this card)
 
@@ -4818,6 +4818,69 @@ to `raw` (median `agent_seconds`) with the exact Mann-Whitney p and the 90 % boo
   (>, =, <). **`ship`** (harness-neutral) if both scenarios meet all three; otherwise **`no verdict`**, and the
   trajectories name the mechanism per failing condition (skill selection, MCP use, context budget). Reported
   beside: pass counts, p (exact Mann-Whitney) against `raw`, skills loaded, MCP calls, tokens, cost.
+
+#### T4.7 results
+
+**Verdict: `ship` (harness-neutral) by the rule as computed, 2026-11-19 — harness-neutral in direction, not in
+mechanism.** Haiku under Copilot CLI made 0 skill calls in 24 Aspire trials (the `skill` tool offered,
+`aspire-diagnose` in its `available_skills` list), and the lean gain on `slow-redis` came without the skill; under
+Claude Code `aspire-diagnose` loaded in 8/12 `aspire-lean-cc` trials, no skill loaded in 12 shipped-set trials, and
+MCP calls were made in 10/12 trials against 3/12. `slow-redis` under `claude-code` compares `raw` on CLI 2.1.328
+with Aspire arms mostly on 2.1.329 (10/12); the pre-registered fallback accepted drift within a day with per-trial
+recording, so the word stands; a same-version re-run would remove the confound and was not run. (Verdict line as
+ruled by the coordinating session after the round; the rule's three conditions were computed by
+`tools/p4h_decide.py t47` and are all met.) [FINDINGS F59](../FINDINGS.md#f59-haiku-under-copilot-cli-never-calls-the-skill-tool-under-claude-code-it-loads-aspire-diagnose-from-the-lean-set).
+
+**Adapter and gates.** Re-pin suite `a101c53` → tasks `4aff5c8` → dataset `4e4ba83`, five new tasks, every existing
+task's tree hash unchanged; `common/` between the controls' suite `305a8ed` and `a101c53` leaves the slow-sql and
+slow-redis inject and verify code byte-identical (only fault-gated additions elsewhere). Local: the `-cc` image's
+`/app/.claude/skills` is byte-identical to `/app/.github/skills`; `claude mcp list` (2.1.327 installed in the container)
+shows `aspire` connected at user scope; fail → repair → pass. `gate-p4h`: 5/5 oracle reward 1. Probes: see the rule
+block (`p4-probe-cc` stopped at the version pin, $0; `p4-probe-cc2` both reward 1). Pilots `p4-pilot-haiku` (6,
+excluded, all reward 1) projected the round at ≈ $8.70.
+
+**Round `t47`**, 72 of 72 graded, no infrastructure failure, no MCP call refused (`mcp_permission_denied` 0). Time =
+`agent_loop_seconds`, median; ÷ raw = same harness and round; p = exact Mann-Whitney against `raw`; skill = trials
+with a skill load (`Skill` under Claude Code, `skill` under Copilot CLI); MCP = trials with an MCP call (median
+calls); tokens and cost medians per trial as each harness reports them (Copilot CLI's cost is its billing units,
+not comparable across harnesses: compare tokens).
+
+| Scenario | Harness | Arm | Pass | Time | ÷ raw | Skill | MCP | Input tokens | Cost | CLI | Run IDs |
+|---|---|---|---|---:|---|---|---|---:|---:|---|---|
+| slow-sql | Claude Code | `raw` | 6/6 | 66 s | — | 0/6 | 0/6 (0) | 0.99 M | $0.020 | 2.1.328 ×6 | `2026111979648260`…`651656` |
+| slow-sql | Claude Code | `aspire-skills-mcp-cc` | 6/6 | 78 s | 1.20× (p=0.240) | 0/6 | 5/6 (1) | 1.81 M | $0.108 | 2.1.328 ×6 | `2026111979663076`…`666508` |
+| slow-sql | Claude Code | `aspire-lean-cc` | 6/6 | 68 s | 1.04× (p=1.000) | 4/6 | 0/6 (0) | 1.96 M | $0.105 | 2.1.328 ×5, 2.1.329 ×1 | `2026111979677956`…`681548` |
+| slow-sql | Copilot CLI | `raw` | 6/6 | 57 s | — | 0/6 | 0/6 (0) | 0.71 M | $0.016 | 1.0.99 | `2026111979655704`…`658868` |
+| slow-sql | Copilot CLI | `aspire-skills-mcp` | 6/6 | 61 s | 1.07× (p=0.240) | 0/6 | 2/6 (0) | 1.03 M | $0.021 | 1.0.99 | `2026111979670480`…`673708` |
+| slow-sql | Copilot CLI | `aspire-lean` | 6/6 | 67 s | 1.17× (p=0.065) | 0/6 | 0/6 (0) | 1.12 M | $0.022 | 1.0.99 | `2026111979685568`…`688848` |
+| slow-redis | Claude Code | `raw` | 5/6 | 406 s | — | 0/6 | 0/6 (0) | 2.00 M | $0.067 | 2.1.328 ×6 | `2026111979693100`…`696572` |
+| slow-redis | Claude Code | `aspire-skills-mcp-cc` | 5/6 | 392 s | 0.97× (p=0.699) | 0/6 | 5/6 (2) | 3.25 M | $0.213 | 2.1.328 ×1, 2.1.329 ×5 | `2026111979708152`…`711640` |
+| slow-redis | Claude Code | `aspire-lean-cc` | 6/6 | 195 s | **0.48×** (p=0.026) | 4/6 | 0/6 (0) | 1.97 M | $0.074 | 2.1.328 ×1, 2.1.329 ×5 | `2026111979722960`…`726468` |
+| slow-redis | Copilot CLI | `raw` | 4/6 | 321 s | — | 0/6 | 0/6 (0) | 1.31 M | $0.026 | 1.0.99 | `2026111979700596`…`703968` |
+| slow-redis | Copilot CLI | `aspire-skills-mcp` | 5/6 | 333 s | 1.04× (p=1.000) | 0/6 | 1/6 (0) | 1.89 M | $0.036 | 1.0.99 | `2026111979715564`…`718784` |
+| slow-redis | Copilot CLI | `aspire-lean` | 6/6 | 224 s | 0.70× (p=0.240) | 0/6 | 0/6 (0) | 1.63 M | $0.032 | 1.0.99 | `2026111979730460`…`733812` |
+
+**The rule's three conditions** (`tools/p4h_decide.py t47 --rounds t47`). `slow-sql`: (1) ratio sides
+1.20 / 1.04 (Claude Code) against 1.07 / 1.17 (Copilot CLI): 1.04 and 1.07 are level and match either side, 1.20 and
+1.17 are both above, met; (2) `aspire-lean` ÷ `aspire-skills-mcp` 0.87 (Claude Code) against 1.09 (Copilot CLI, level),
+met by the level convention. `slow-redis`: (1) 0.97 / 0.48 against 1.04 / 0.70, both pairs level then below, met;
+(2) 0.50 against 0.67, same order, met; (3) `aspire-lean` vs `raw` passes 6 > 5 and 6 > 4, met. `stats.md` (agent
+seconds) gives the same directions: `aspire-lean-cc` ÷ `raw` 0.49× [0.31–0.92] on `slow-redis`.
+
+**Mechanism, from the trajectories.** (a) **Skill selection depends on the harness.** Copilot CLI listed the arm's set
+in its system prompt (`<available_skills>`, `aspire-diagnose` included) and offered its `skill` tool; haiku made no
+skill call in 24 Aspire trials and read no `SKILL.md`. On `aspire-lean` `slow-redis` it ran `aspire describe` in 5/6
+trials and `aspire otel traces` in 1/6, and passed 6/6. Under Claude Code, `aspire-lean-cc` loaded `aspire-diagnose` in
+4/6 per scenario and ran `aspire otel traces` in 4/6 on `slow-redis`; with the shipped set (`aspire-skills-mcp-cc`)
+no skill loaded in 12 trials. (b) **MCP use depends on the harness.** Claude Code listed the 15 `mcp__aspire__*` tools
+eagerly (tool search is off on CES) and called them in 10/12 shipped-set trials (median 1 and 2 calls); Copilot CLI
+haiku in 3/12. The MCP route did not shorten either harness's time (0.97×–1.20×). (c) `listing_excludes_skill_dirs`
+(shell listing filtering `.claude/` or `.github/`): 1/36 `t47` Claude Code trials (`aspire-lean-cc` `slow-sql`
+`2026111979678768`, one of the 4/12 lean trials without a load), so it accounts for one of them at most. (d) Token cost of the arms is larger under Claude Code
+(`aspire-skills-mcp-cc` 1.6–1.8× `raw` input tokens) than under Copilot CLI (1.4–1.5×).
+
+**Cost.** $5.69 against $5 (≈ 1.1×): probes $0.23, pilots $0.53, round $4.92 (Claude Code $3.92, Copilot CLI $1.01), at
+each harness's reported cost; gates model-free.
 
 #### T4.8 rule, as computed (written 2026-11-19, before any `t48` trial)
 
