@@ -2,6 +2,9 @@
 # Local image build / container start for one cell, without Harbor or a model.
 #   tools/local.sh up <raw|aspire> <skills-set|none> <fault>   build, start, wait until ready
 #   tools/local.sh oracle <name>                                verify(broken) -> solve -> verify
+#   tools/local.sh gate <name> <task-dir> [SOLUTION_SHAPE]       authoring scenarios (T3.2/T3.3): copies the
+#                                                               task's tests/ and solution/ in, then the same
+#                                                               verify(fail) -> solve -> verify(pass) sequence
 # AGENTS_MD=<file in common/agents-md, without .md> adds /app/AGENTS.md as the -agents arms do (T2.10).
 # APP_VARIANT=<folder in common/app-variants> builds that application variant (T2.5).
 # LOCAL_SUFFIX=<word> is appended to the image tag and container name, so lanes working at the same
@@ -16,7 +19,15 @@ tag() { echo "telemetry-$1-$2-$3${AGENTS_MD:+-agents}${APP_VARIANT:+-$APP_VARIAN
 build() {
     local kind="$1" skills="$2" fault="$3" empty
     empty="$(mktemp -d)"
-    if [[ "$fault" == heldout-* ]]; then
+    if [[ "$fault" == adoption || "$fault" == add-dependency || "$fault" == greenfield ]]; then
+        # Authoring scenarios (PLAN §7 T3.2/T3.3): their own template, stage chosen by FAULT.
+        docker build -q -f "$suite/tools/templates/Dockerfile.authoring" \
+            --build-context "suite=$suite/common" \
+            --build-context "aspire-app=$msbench/bingo/common/aspire-app" \
+            --build-context "raw-app=$msbench/bingo/common/raw-app" \
+            --build-arg "APP_KIND=$kind" --build-arg "SKILLS=$skills" --build-arg "FAULT=$fault" \
+            -t "$(tag "$kind" "$skills" "$fault")" "$empty" >/dev/null
+    elif [[ "$fault" == heldout-* ]]; then
         # Held-out Shop application (T0.2). SQL Server has no arm64 image, so on an arm64 host
         # set LOCAL_PLATFORM=linux/amd64 (the whole cell then runs emulated).
         docker build -q -f "$suite/tools/templates/Dockerfile.heldout" ${LOCAL_PLATFORM:+--platform "$LOCAL_PLATFORM"} \
@@ -60,5 +71,18 @@ case "${1:-}" in
         docker exec "$name" node /opt/benchmark/bench.mjs solve
         echo "== verify after repair (must pass)"
         docker exec "$name" node /opt/benchmark/bench.mjs verify ;;
-    *) echo "Usage: local.sh up <kind> <skills> <fault> | oracle <container>" >&2; exit 2 ;;
+    gate)
+        name="$2"; task="$3"; shape="${4:-}"
+        docker exec "$name" rm -rf /tests /solution
+        docker cp "$task/tests" "$name:/tests"
+        docker cp "$task/solution" "$name:/solution"
+        echo "== verify before repair (must fail)"
+        if docker exec "$name" bash /tests/test.sh && [[ "$(docker exec "$name" cat /logs/verifier/reward.txt)" == 1 ]]; then echo "UNEXPECTED PASS"; exit 1; fi
+        echo "== reference solution ${shape:-default}"
+        docker exec -e "SOLUTION_SHAPE=$shape" "$name" bash /solution/solve.sh
+        echo "== verify after repair (must pass)"
+        docker exec "$name" bash /tests/test.sh
+        docker exec "$name" cat /logs/verifier/details.json
+        [[ "$(docker exec "$name" cat /logs/verifier/reward.txt)" == 1 ]] ;;
+    *) echo "Usage: local.sh up <kind> <skills> <fault> | oracle <container> | gate <container> <task-dir> [shape]" >&2; exit 2 ;;
 esac

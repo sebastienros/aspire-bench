@@ -168,6 +168,54 @@ for (const [id, source] of Object.entries(suitePromptIds)) {
     scenarios[`sel-${id}`] = { seed: 70, kind: "selection", fault: "selection", arms: selectionSuiteArms, instruction: scenarios[source].instruction };
 }
 
+// Authoring scenarios (PLAN §7 T3.2 `aspireify`, T3.3 `aspire-init`): the agent writes or extends an AppHost and
+// starts the app. Own image template (Dockerfile.authoring: the pinned daily's Aspire packages vendored, stage by
+// FAULT), verifier and reference solution in the task's tests/ and solution/ (tools/authoring), never in the image.
+// No raw equivalent exists (`no-raw`). The approval the skills ask for is pre-granted in the prompt, as for T3.7.
+const authoringArms = short => ["aspire-cli", `aspire-skill-${short}`, "aspire-skills", `aspire-skills-no${short}`];
+const approval = "You have approval to make these changes; do not stop to ask for confirmation.";
+scenarios["adoption"] = {
+    seed: 71, app: "authoring", kind: "authoring", arms: authoringArms("aspireify"),
+    instruction: `The Bingo application in /app runs today with its own launcher (README.md describes it)
+and has no Aspire AppHost.
+
+Add Aspire to it: create an AppHost that runs the whole application under Aspire
+(PostgreSQL, Redis, the migration worker, the admin backend and the player frontend),
+start the application under Aspire, and leave it running. The application must run
+under Aspire only. Name the admin backend's resource \`boardadmin\` and the player
+frontend's resource \`bingoboard\`.
+
+Keep the existing code: you may add files and add lines (for example Aspire service
+defaults), but do not change or remove existing lines.
+${approval} No report is required.
+`,
+};
+scenarios["add-dependency"] = {
+    seed: 72, app: "authoring", kind: "authoring", arms: authoringArms("aspireify"),
+    instruction: `The Bingo application in /app is running under Aspire (README.md describes this
+workspace). Its admin backend keeps its distributed cache (player state, approvals,
+called squares) in process memory.
+
+Add Redis to the application's AppHost and make the admin backend (resource
+\`boardadmin\`) keep its distributed cache in that Redis instead. Keep all existing
+data and all existing functionality, and leave the application running.
+${approval} No report is required.
+`,
+};
+scenarios["greenfield"] = {
+    seed: 73, app: "authoring", kind: "authoring", arms: authoringArms("init"),
+    instruction: `The folder /app holds no application yet.
+
+Create a new Aspire application in it: an ASP.NET Core HTTP API (resource name \`api\`)
+that uses a PostgreSQL database (resource name \`db\`). Start the application and leave
+it running; the API must answer HTTP requests on its endpoint.
+${approval} No report is required.
+`,
+};
+// T3.2's bundle-minus guard (§7, ruling 5): the bundle without aspireify on luna slow-sql and slow-redis, beside
+// the existing aspire-skills cells of the same round.
+scenarios["slow-redis"].arms.push("aspire-skills-noaspireify");
+
 // Applications: the image template and the build contexts each one needs.
 const apps = {
     bingo: {
@@ -178,6 +226,14 @@ const apps = {
         }),
     },
     // The Shop business code is pinned at the suite commit, which must include msbench/heldout.
+    // Authoring scenarios (T3.2/T3.3): the Bingo business code, raw or aspirified, on the authoring template.
+    authoring: {
+        dockerfile: "Dockerfile.authoring",
+        contexts: () => ({
+            "raw-app": ["TELEMETRY_RAW_APP_CONTEXT", appSha, "msbench/bingo/common/raw-app"],
+            "aspire-app": ["TELEMETRY_ASPIRE_APP_CONTEXT", appSha, "msbench/bingo/common/aspire-app"],
+        }),
+    },
     heldout: {
         dockerfile: "Dockerfile.heldout",
         contexts: suiteSha => ({ "heldout-app": ["TELEMETRY_HELDOUT_APP_CONTEXT", suiteSha, "msbench/heldout/app"] }),
@@ -317,6 +373,7 @@ const onlyIn = {
     "aspire-skills-mcp-all-step": ["slow-sql"],
 };
 for (const short of auditedSkills) onlyIn[`aspire-skill-${short}`] = onlyIn[`aspire-skills-no${short}`] = [];
+onlyIn["aspire-skills-noaspireify"] = ["slow-sql"]; // T3.2 guard (slow-redis lists it in its arms)
 
 // The Aspire MCP server as every harness registers it. Copilot CLI receives it from task.toml
 // through Harbor (MSBENCH_MCP_CONFIG, written to the user-level MCP config); Claude Code should get
@@ -441,6 +498,12 @@ cp /var/log/selection-hook.jsonl /logs/verifier/selection-hook.jsonl 2>/dev/null
 printf '1\\n' >/logs/verifier/reward.txt
 `);
                 writeFileSync(join(dir, "solution/solve.sh"), "#!/usr/bin/env bash\ntrue\n");
+                continue;
+            }
+            if (definition.kind === "authoring") {
+                // Verifier and reference solution travel with the task, not the image (F26).
+                cpSync(join(root, "tools/authoring/tests"), join(dir, "tests"), { recursive: true });
+                cpSync(join(root, "tools/authoring/solution", scenario), join(dir, "solution"), { recursive: true });
                 continue;
             }
             writeFileSync(join(dir, "tests/test.sh"), `#!/usr/bin/env bash

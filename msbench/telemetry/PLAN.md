@@ -3110,6 +3110,134 @@ other skills' prompts 0/106, distractors 0; luna, descriptive only, own prompts 
 other prompts 0/108. Nothing in the selection data argues for `split` or `merge`; the body's size (10 KB, 4
 references) is not weighed without an outcome cell. $0.
 
+#### T3.2 and T3.3 fixtures and rules, as computed (written 2026-11-19, before any T3.2 or T3.3 trial)
+
+**Shared fixture (authoring lane).** Template `tools/templates/Dockerfile.authoring` (same toolchain pins as the
+Bingo template; stage chosen by `FAULT`), scripts `common/authoring/`, verifier and reference solution in each task's
+`tests/` and `solution/` (`tools/authoring/`), never in the image (F26).
+- **Restore (ruling 7).** The daily feed floats: on 2026-11-19 `aspire new` on the pinned CLI resolved templates
+  `17.1.0-preview.1.26568.1`, a newer daily than the pin. The image therefore vendors every `Aspire*` package
+  published at `17.1.0-preview.1.26567.3` (141 ids, `common/authoring/aspire-packages.txt`: all but the CLI binaries
+  and non-Linux DCP/dashboard packages) into `/usr/local/aspire/packages` and points the CLI at it with its install
+  sidecar (`.aspire-install.json`, `packages`). `aspire new`, `aspire init`, `aspire add` and restore then resolve
+  `Aspire*` from disk at the pin. The NuGet global packages folder is warmed at build (starter template, file-based
+  AppHost with Postgres/Redis/JavaScript, Postgres/Redis client integrations; agent init suppressed, nothing left
+  behind). nuget.org stays reachable for everything else, as in every trial so far.
+  - **Local proof:** with `pkgs.dev.azure.com` blackholed, all six local gates (three scenarios × two solution shapes)
+    pass, each pinned.
+  - **CES proof:** the oracle gate of each scenario (`gate-p3a`), whose solution creates, restores and starts the
+    AppHost inside a CES trial.
+  - **Cost of the sidecar:** the CLI prints "Aspire CLI is emulating identity 'daily' version …" on stderr before
+    every human-readable command. Same text in every arm; trajectories are read for reactions to it.
+- **Product behaviour kept as is:** `aspire new` / `aspire init` run agent init. They write
+  `.github/copilot/settings.json` enabling the `aspire@aspire-skills` plugin in the generated project, and
+  user-level hooks `~/.copilot/hooks/aspire-telemetry.json`. Every `aspire-cli` trial that loads any skill is
+  counted and reported; if two or more trials of an `aspire-cli` cell do, that cell is flagged in the verdict.
+- **Recorded per trial, not graded:**
+  - `details.json`: each check, the AppHost path, the AppHost's `sdkVersion` from `aspire ps` and `pinned`;
+    adoption also gets the files that only gained lines and the files changed.
+  - A trial whose AppHost runs another Aspire version (the agent pinned one itself) counts as it is and is listed.
+- **Pass = reward 1** (the conjunction below). **Time** = agent seconds over every trial that is not an
+  infrastructure failure, passed or not (as `stats.py` computes it). Timeouts count as failures at their duration.
+- **Approval** the skills ask for ("propose, confirm with user", "ask before modifying service code") is pre-granted in
+  every prompt, as for T3.7.
+- **Pilots (ruling 7):** two `aspire-cli` trials per scenario on luna and on terra, rounds `p3-pilot-adoption`,
+  `p3-pilot-add-dependency`, `p3-pilot-greenfield`, ledger `excluded`. They set the price per trial, the duration
+  against the 900 s limit, and whether a scenario sits at a floor or a ceiling. Any agent-timeout multiplier is
+  written here after the pilots and before the round, and is the same for every arm and both models of a scenario.
+
+**Scenarios.**
+- **`adoption`** (T3.2; port of A01): the raw Bingo app with its own launcher, no AppHost, nothing running. The
+  overlay has no check script (F24).
+  - Prompt: add an AppHost that runs the whole app under Aspire, start it, leave it running. Resources `boardadmin`
+    and `bingoboard`. Existing lines must not change (adding files and lines, e.g. service defaults, is fine).
+  - Reward checks:
+    - `aspire`: a running AppHost (`aspire ps`) whose `boardadmin` and `bingoboard` are Running, not Unhealthy,
+      with HTTP endpoints.
+    - `dependencies`: exactly one Postgres and one Redis container, both AppHost resources.
+    - `oneBackend`: exactly one admin backend process, holding `ConnectionStrings__db` and `__cache`.
+    - `seeded`: the admin user and squares are in its database.
+    - `functional`: login page, player page, the player's API and SignalR proxies, a fresh square import reaching
+      Postgres, call/clear/status. Redirects to the HTTPS endpoint are followed.
+    - `sourcePreserved`: every file of the handed-over tree keeps every original line in order. `NuGet.config` and
+      `package-lock.json` are exempt.
+  - Local proof: the source rule fails an edited line and passes an added one.
+  - Measured locally: `aspire init --language csharp` writes a plain-SDK AppHost project with versioned
+    `PackageReference`s, which this repo's central package management rejects (NU1008). `aspire add postgres` has no
+    exact match in non-interactive mode. Both are part of the job and the same in every arm.
+- **`add-dependency`** (T3.2): the aspirified Bingo app without Redis. Variant `common/authoring/add-dependency`:
+  the admin backend uses `AddDistributedMemoryCache`, no SignalR backplane. The app is running under Aspire at start.
+  - Prompt: add Redis to the AppHost and make `boardadmin` keep its distributed cache in it; keep data and
+    functionality; leave it running.
+  - Reward checks:
+    - `aspire`: `boardadmin` and `bingoboard` live.
+    - `redisResource`: exactly one Redis container, an AppHost resource, Running and Healthy.
+    - `referenced`: `boardadmin` references it and receives `ConnectionStrings__<its name>`.
+    - `usesRedis`: calling a fresh square writes the admin's `global_square_<id>` cache entry into that Redis.
+    - `functional`: as adoption.
+    - `dataPreserved`: every square present at setup is still in Postgres.
+  - Measured locally: the Aspire client integration route needs the repo's
+    `Microsoft.Extensions.Caching.StackExchangeRedis` raised from 10.0.12 to 10.0.15 (NU1605). The plain
+    StackExchange route does not.
+- **`greenfield`** (T3.3): `/app` holds only an empty `.github` folder in every arm. The skill arms' skills live in
+  it, and `aspire new --output /app` refuses a non-empty folder, so every arm meets the same folder; measured locally,
+  it would otherwise fail only in the skill arms.
+  - Prompt: create an Aspire app with an ASP.NET Core API (resource `api`) using a PostgreSQL database (resource
+    `db`), start it, leave it running, the API must answer on its endpoint.
+  - Reward checks:
+    - `aspire`: a running AppHost with a resource `api`.
+    - `api`: Running, not Unhealthy, with an HTTP(S) endpoint.
+    - `postgres`: exactly one Postgres container; `db` Running and Healthy; a healthy Postgres container resource.
+    - `referenced`: `api` receives `ConnectionStrings__db`.
+    - `answers`: any HTTP status below 500 from the API's endpoint.
+
+**Arms and cells** (ruling 1, `no-raw`):
+- T3.2: `aspire-cli`, `aspire-skill-aspireify`, `aspire-skills`, `aspire-skills-noaspireify` on `adoption` and
+  `add-dependency` × luna, terra × 6 (96). In the same round, the guard (ruling 5): `aspire-skills` and
+  `aspire-skills-noaspireify` on luna `slow-sql` and `slow-redis` × 6 (24).
+- T3.3: `aspire-cli`, `aspire-skill-init`, `aspire-skills`, `aspire-skills-noinit` on `greenfield` × luna, terra × 6
+  (48).
+- Rounds `t32` and `t33`, with oracle gates first. Before each round the pilot price × trial count is compared with
+  the 3× stop: T3.2 $12.90, T3.3 $5.70.
+
+**Rule, applied per card in this order** (§7 table, rulings 2, 3, 5, 6, 9). "Cell" = scenario × model; `skill-only`
+is `aspire-skill-aspireify` (T3.2) or `aspire-skill-init` (T3.3).
+1. **Floor.** A cell where `skill-only` and `aspire-cli` both pass ≤ 1/6 is a floor. It is reported, not tested,
+   and counts against neither direction. If every luna cell of a card is a floor, the card is `no verdict`
+   ("the scenario does not let the CLI alone finish").
+2. **`keep`** (ruling 2), luna only:
+   - At least one scenario where `skill-only` ÷ `aspire-cli` median time ≤ 0.90 with exact Mann-Whitney p < 0.05,
+     or where Fisher's exact test on pass counts gives p < 0.05 (on the cell, or on the card's scenarios pooled).
+   - The same direction (ratio < 1.00, no fewer passes) on the card's other luna scenario.
+   - No luna scenario where `skill-only` is slower by more than 10 % (p < 0.10) or passes two fewer.
+   - Selection (ruling 3): terra from T3.9 as measured (`aspireify` 12/12 own, 0/106 other; `aspire-init` 12/12,
+     0/106, both inside the rule). Luna: the first skill loaded in the luna `aspire-skills` trials is the audited
+     skill in ≥ 5/6 per scenario. If it is not, the card cannot be `keep`: it goes to row 5 and the write-up says
+     so. Luna false selection is not evaluable.
+   - **`shrink`** instead of `keep` if `skill-only`'s median `references_read` per trial on the cells that meet the
+     clause is ≥ 2.
+3. **Worse.** If a luna scenario has `skill-only` worse by > 10 % time (p < 0.10) or by two passes, the card is
+   `shrink` when the trajectories show the cost comes from the body or references read on the main path, and
+   `no verdict` otherwise.
+4. **`remove`**, all of these:
+   - On every cell (both models), `skill-only` ÷ `aspire-cli` median within 0.90–1.10, its bootstrap 90 % interval
+     inside 0.75–1.25, and pass counts within one of each other.
+   - `aspire-skills-no<short>` ÷ `aspire-skills` on every cell of the card: not slower by more than 10 % and not
+     more than one pass fewer.
+   - For T3.2, the guard: luna `slow-sql` not slower by > 10 % (p < 0.10) and passes ≥ bundle − 1; luna
+     `slow-redis` time only (ruling 5).
+   - If the guard or a bundle-minus cell fails, the skill is not removable: the card is `no verdict` with the
+     failing cell named.
+5. **`no verdict`** otherwise. At most one top-up of six trials per arm (`skill-only` and `aspire-cli`) in one new
+   round, pooled only if the two rounds' `aspire-cli` medians are within 15 % (ruling 6), and only inside the 3×
+   stop.
+6. **Rows the scenarios do not exercise** (ruling 9), recorded as `no verdict`:
+   - T3.2: TypeScript AppHost toolchain repair, Go, Rabbit/Mongo. The same harness with a TS AppHost fixture whose
+     package-manager toolchain is broken would exercise the first.
+   - T3.3: the `aspire init` hand-off is covered by `adoption` only through `aspireify`'s cells; template choice
+     beyond the starter is not graded.
+   - `split` / `merge` rest on terra's T3.9 matrix, which shows neither for these two skills.
+
 #### T3.9 design and calibration rule, as computed (written 2026-11-18, before any selection run)
 
 - **Runs.** One scenario per prompt (`sel-<id>`, prompts in [`tools/selection-prompts.mjs`](tools/selection-prompts.mjs)), all on one image (`FAULT=selection`): the aspirified Bingo workspace as a trial sees it, nothing started, Docker up. A Copilot CLI policy hook (`/etc/github-copilot/policy.d/selection.json`, outside the workspace → [`common/bench/selection/pretool.sh`](common/bench/selection/pretool.sh)) lets file reads (`view`, `glob`, `grep`, `report_intent`, at most 12), the first `skill` call and up to three other calls run, then denies every call with "this session has ended", which ends the agent. Agent limit 300 s. The verifier only writes reward 1 and keeps the hook's log; there is no outcome.
