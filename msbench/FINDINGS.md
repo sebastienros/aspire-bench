@@ -1944,10 +1944,13 @@ naming the port and the holder), logged above INFO, and never advertise an endpo
 `bingo-postgres`). `aspire stop` returns while the stopped instance's teardown is still running: the containers are
 still up. An `aspire start --isolated` issued within seconds adopts the running `bingo-redis`; about 60 s later the
 old teardown removes it, `describe` shows `cache` Exited, and every call that touches the cache returns HTTP 500. All
-three failures of luna `aspire-skill-orchestration` (3/6) are this sequence, following the skill's "Port already in
-use → stop, then restart" row (0–6 s between stop and start); the same failure hit 1/6 of luna `aspire-skills` and
-1/6 of terra `aspire-skills-noorchestration`, 0/12 `aspire-cli`. Trials that issued the start a little later, or
-started again after noticing, passed. `cold-start-warm`'s setup had already met the collision on the fixed names
+three failures of luna `aspire-skill-orchestration` (3/6) followed this sequence, as the skill's "Port already in use →
+stop, then restart" row says (0–6 s between stop and start; two starts with `--isolated`, one plain); the same failure
+hit 1/6 of luna `aspire-skills` and 1/6 of terra `aspire-skills-noorchestration`, 0/12 `aspire-cli`. The route is not
+the skill's alone: luna `aspire-cli` ran the same stop-then-start in 5/6 trials at 0–3 s gaps without failing, and
+passes occur at 0–4 s gaps in every arm, so whether a trial fails depends on whether the removal lands before the
+verifier's calls. The trials' cause is inferred from the local reproduction (the verifier does not record the
+cache's state). `cold-start-warm`'s setup had already met the collision on the fixed names
 (`bingo-redis` exits 137) and waits for the containers to be gone.
 
 **Bearing on start guidance (T2.11's `AGENTS.md` v2, the orchestration skill):** a restart after `aspire stop` must
@@ -1956,8 +1959,9 @@ not start before the old instance's teardown has finished (its containers gone),
 **Improvement candidate:** `aspire stop` returns only when the instance's resources are removed (or offers a
 `--wait`), and a start refuses to adopt a container that an instance still being torn down owns.
 
-**Limits / status:** containers with fixed names only (the default, unnamed containers do not collide); one
-application; the delay is timing-dependent (the local reproduction failed at 60 s, not at once). Not upstreamed
+**Limits / status:** seen with fixed container names only; whether unnamed containers (unique names per instance)
+avoid it was not tested. One application; the delay is timing-dependent (the local reproduction failed at 60 s, not
+at once). Not upstreamed
 (draft [`aspire-stop-teardown-race.md`](upstream-issues/aspire-stop-teardown-race.md)).
 
 ## Recording future findings

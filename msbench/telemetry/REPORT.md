@@ -1589,7 +1589,7 @@ plus `cold-start` (reported) and the luna `slow-sql`/`slow-redis` guard.
   (port-conflict); on terra 1.00–1.08×, every cell 6/6. Restart-change's cost is the body's verification after the
   restart (`aspire wait` 10 times and the status command 7 times after the fix across six luna trials, against none
   for the CLI arm); port-conflict's three failures follow its "port in use → stop, then restart" row into a product
-  race ([FINDINGS F56](../FINDINGS.md#f56-a-start-right-after-aspire-stop-adopts-containers-the-old-instance-is-still-removing));
+  race that luna's CLI arm also ran into without failing (same route in 5/6, timing-dependent) ([FINDINGS F56](../FINDINGS.md#f56-a-start-right-after-aspire-stop-adopts-containers-the-old-instance-is-still-removing));
   two-app is not charged to the body (4 of 6 trials never loaded it). The `no verdict` reading (main path = the way
   to the fix) is recorded beside it.
 - **Selection:** the `split` row fires on v0.0.6 (orchestration takes the router's run/restart prompts on terra) and

@@ -3366,13 +3366,22 @@ skills, descriptive) and is **discharged by the router's removal (T1.3), confirm
     `neighborKept` (no command reached `/neighbor-app`'s processes or containers).
   - **port-conflict:** the skill's rows for this symptom are "Port already in use | Previous instance running | Stop,
     then restart" and, in `agent-workflows.md`, `--isolated` "to avoid port conflicts" in worktrees. All three luna
-    `skill-only` failures ran `aspire stop`, then `aspire start --isolated` 0–6 s later, and failed on a square call
-    (HTTP 500). Reproduced locally: `aspire stop` returns while the old instance's teardown is still running; the new
+    `skill-only` failures ran `aspire stop`, then `aspire start` 0–6 s later (two with `--isolated`, one plain), and
+    failed on a square call (HTTP 500). Mechanism, reproduced locally and inferred for the trials (the verifier does
+    not record the cache's state): `aspire stop` returns while the old instance's teardown is still running; the new
     start adopts the shared-name `bingo-redis` container, which the teardown removes about 60 s later, leaving `cache`
     Exited ([FINDINGS F56](../FINDINGS.md#f56-a-start-right-after-aspire-stop-adopts-containers-the-old-instance-is-still-removing)).
-    The same failure: luna bundle 1/6, terra `bundle-minus` 1/6, `aspire-cli` 0/12. No trial of any arm signalled
-    the preview process; luna `aspire-cli` ran `aspire stop` before a new start in 5/6 and `--isolated` in 2/6,
-    `skill-only` 4/6 and 2/6.
+    The same failure: luna bundle 1/6, terra `bundle-minus` 1/6, `aspire-cli` 0/12. **The route is not specific to the
+    body:** luna `aspire-cli` ran the same stop-then-start in 5/6 trials at 0–3 s gaps and none failed this way;
+    `skill-only` ran it in 6/6. Passes also occur at 0–4 s gaps, so a failure depends on whether the removal lands
+    before the agent's last check and the verifier's calls; the 3/6 against 5/6 (Fisher p 0.55) partly reflects
+    that timing. Per trial (luna): `--isolated` after the stop `aspire-cli` 2/6, `skill-only` 2/6; a launch-profile
+    edit (any tool) 3/6 and 1/6. No trial of any arm signalled the preview process.
+- **File-lock guidance** (the card's other claimed job, not exercisable here): the body says that on MSB3491/CS2012
+  "Aspire is running and holds locks", so stop the AppHost first, then rebuild or restart. On this Linux harness a
+  running assembly is not locked (`dotnet build` of the running admin succeeds), no trial met a lock error, and 0 of
+  48 Aspire restart-change trials ran `aspire stop`: the guidance was neither triggered nor followed. `no verdict`;
+  a Windows harness would exercise it.
 - **Cold start (reported, ruling 4; the same-round tie to T2.11):** luna `skill-only` 1.37× `aspire-cli` (p 0.093,
   2 references read per trial), the bundle without orchestration 0.84× the bundle (p 0.039); terra 1.02× and 0.90×.
   Every Aspire cold start used `--isolated`. Consistent with T2.11 (the start job without the skill).
