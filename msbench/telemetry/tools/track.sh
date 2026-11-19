@@ -42,7 +42,9 @@ while [[ $# -gt 0 ]]; do
 done
 say() { printf '== %s\n' "$*" >&2; }
 get_or() { local v; v="$(get "$1")"; printf '%s' "${v:-$2}"; }
-need() { local v; v="$(get "$1")"; [[ -n "$v" ]] || { echo "missing $2" >&2; exit 2; }; printf '%s' "$v"; }
+need() { local v; v="$(get "$1")"; [[ -n "$v" ]] || echo "missing $2" >&2; printf '%s' "$v"; }
+# A $(need ...) inside `local` cannot stop the script, so every caller checks: required <value>...
+required() { local v; for v in "$@"; do [[ -n "$v" ]] || { echo "a required option is missing" >&2; exit 2; }; done; }
 
 # ---- re-pin --------------------------------------------------------------------------------------
 latest_daily() {
@@ -98,15 +100,21 @@ write_track_common() {
     rm -rf "$tmp"
 }
 
+# Real re-pins push each commit before the next one names its SHA (a rejected final push followed by a
+# rebase would otherwise rewrite commits whose SHAs track/tasks and track/dataset.jsonl already carry).
+push_step() { [[ "$1" == "$repo" && -n "$(get push)" ]] && git -C "$repo" push -q origin HEAD:main || true; }
+
 repin_in() {
     local dir="$1" version="$2" skills_tag="$3" tel="$1/msbench/telemetry" suite_sha task_sha
     write_track_common "$dir" "$version" "$skills_tag"
     git -C "$dir" add msbench/telemetry/track/common
     git -C "$dir" commit -q -m "telemetry: track re-pin to Aspire $version: track/common (T4.5, commit 1 of 3)"
+    push_step "$dir"
     suite_sha="$(git -C "$dir" rev-parse HEAD)"
     (cd "$tel" && node tools/gen-tasks.mjs track-tasks --suite-sha "$suite_sha" >&2)
     git -C "$dir" add -A msbench/telemetry/track/tasks
     git -C "$dir" commit -q -m "telemetry: track tasks pinned to suite ${suite_sha:0:7} (T4.5, commit 2 of 3)"
+    push_step "$dir"
     task_sha="$(git -C "$dir" rev-parse HEAD)"
     (cd "$tel" && node tools/gen-tasks.mjs track-dataset --task-sha "$task_sha" >&2)
     git -C "$dir" add msbench/telemetry/track/dataset.jsonl
@@ -115,6 +123,7 @@ repin_in() {
 
 repin() {
     local version="$(need aspire-version "--aspire-version <v|latest>")" skills_tag="$(get_or skills-tag "")"
+    required "$version"
     [[ "$version" == latest ]] && version="$(latest_daily)"
     say "re-pin to Aspire $version${skills_tag:+, skills $skills_tag}"
     if [[ -n "$(get_or dry-run "")" ]]; then
@@ -148,6 +157,7 @@ repin() {
     repin_in "$repo" "$version" "$skills_tag"
     if [[ -n "$(get_or push "")" ]]; then git -C "$repo" push -q origin HEAD:main; say "pushed"; else
         say "three commits made locally; push them (git push origin HEAD:main) before gate/matrix"; fi
+    check_pushed
 }
 
 # ---- submissions ---------------------------------------------------------------------------------
@@ -155,7 +165,7 @@ submit_cells() {
     local round="$1" model_list="$2" repeat="$3"
     for cell in "${cells[@]}"; do
         for model in $model_list; do
-            BENCH_TASK=T4.5 "$suite/tools/submit.sh" "${cell%/*}" "${cell#*/}" "$model" "$repeat" "$round" >/dev/null
+            BENCH_TASK=T4.5 "$suite/tools/submit.sh" "${cell%/*}" "${cell#*/}" "$model" "$repeat" "$round" </dev/null >/dev/null
         done
     done
 }
@@ -165,8 +175,21 @@ commit_ledger() {
     git -C "$repo" diff --cached --quiet || git -C "$repo" commit -q -m "telemetry: ledger lines for $1 (T4.5)"
 }
 
+check_pushed() {
+    [[ -f "$suite/track/dataset.jsonl" ]] || return 0
+    git -C "$repo" fetch -q origin main
+    local sha
+    for sha in $(jq -r .task_repo_commit "$suite/track/dataset.jsonl" | sort -u) \
+               $(grep -ohE '#[0-9a-f]{40}:msbench/telemetry/track/common' "$suite"/track/tasks/*/*/environment/docker-compose.yaml | cut -c2-41 | sort -u); do
+        git -C "$repo" merge-base --is-ancestor "$sha" origin/main ||
+            { echo "track/ names $sha, which is not on origin/main: push the re-pin (or redo it) before gates" >&2; return 1; }
+    done
+}
+
 gate() {
     local run="$(need run "--run")"
+    required "$run"
+    check_pushed
     BENCH_DATASET="$(get_or dataset "track/dataset.jsonl")" submit_cells "$run-gate" oracle 1
     commit_ledger "$run-gate"
     WAIT_SECONDS=14000 python3 "$suite/tools/wait.py" --round "$run-gate" --quiet
@@ -180,6 +203,8 @@ gate() {
 
 matrix() {
     local run="$(need run "--run")" round="$(get_or round "$(get run)")" repeat="$(get_or repeat "5")"
+    required "$run" "$round" "$repeat"
+    [[ "$(get_or dataset "")" != track/dataset.jsonl ]] || check_pushed
     [[ "$round" == "$run" || "$round" == "$run-"* ]] || { echo "round $round must be $run or $run-<part> (series.py runs)" >&2; exit 2; }
     say "submitting ${#cells[@]} cells x ${#models[@]} models x $repeat in round $round"
     BENCH_DATASET="$(get_or dataset "")" BENCH_EXCLUDED="$(get_or excluded "")" submit_cells "$round" "${models[*]}" "$repeat"
@@ -189,6 +214,7 @@ matrix() {
 finish() {
     local run="$(need run "--run")" rounds="$(get_or rounds "$(get run)")" out="$(get_or series-out "")" include="$(get_or include-excluded "")"
     local drafts="$(get_or drafts-out "$repo/msbench/upstream-issues/tracking")"
+    required "$run" "$rounds"
     for round in ${rounds//,/ }; do WAIT_SECONDS=14000 python3 "$suite/tools/wait.py" --round "$round" --quiet; done
     commit_ledger "$rounds"
     (cd "$suite" && python3 tools/collect.py --rounds "$rounds" | tail -1)
@@ -200,7 +226,7 @@ finish() {
         say "luna time/token flag: one repeat (rule 3)"
         python3 "$suite/tools/track_drafts.py" --series "$series" --run "$run" --repeat-cells | while read -r scenario arm; do
             for a in "$arm" raw; do BENCH_DATASET="$(get_or dataset "")" BENCH_EXCLUDED="$(get_or excluded "")" BENCH_TASK=T4.5 \
-                "$suite/tools/submit.sh" "$scenario" "$a" gpt-6-luna 5 "$run-repeat" >/dev/null; done
+                "$suite/tools/submit.sh" "$scenario" "$a" gpt-6-luna 5 "$run-repeat" </dev/null >/dev/null; done
         done
         commit_ledger "$run-repeat"
         set_opt rounds "$rounds,$run-repeat"; finish

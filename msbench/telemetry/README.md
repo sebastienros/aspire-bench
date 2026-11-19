@@ -386,8 +386,9 @@ tools/track.sh finish --run trk20261119 --dataset track/dataset.jsonl
 
 - **The re-pin moves nothing the program measures.** It writes `track/common/` (a copy of `common/` with the new
   daily's version, commit and SHA-256s, and the new skills snapshot when `--skills-tag` moves; `PIN.json` records
-  them), then `track/tasks/<scenario>/<arm>` for the 12 core tasks, then `track/dataset.jsonl`, one commit each.
-  `dataset.jsonl`, `tasks/`, `tools/templates/` and `common/` stay byte-identical. `submit.sh` submits from
+  them), then `track/tasks/<scenario>/<arm>` for the 12 core tasks, then `track/dataset.jsonl`, one commit each,
+  each pushed before the next names its SHA when `--push` is given; `gate` refuses a `track/` tree whose SHAs are
+  not on `origin/main`. `dataset.jsonl`, `tasks/`, `tools/templates/` and `common/` stay byte-identical. `submit.sh` submits from
   `track/dataset.jsonl` when `BENCH_DATASET` names it (the ledger line records `dataset` and `task_path`), and the
   series keeps one cell per scenario, model and arm across both trees. A skills tag that changes
   `aspire-monitoring/SKILL.md` stops the re-pin: the `lean` override replaces that file and is re-derived by hand.

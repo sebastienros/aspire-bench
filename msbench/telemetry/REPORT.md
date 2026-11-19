@@ -1691,7 +1691,8 @@ every trial's image from scratch: later builds of a task take 0.97 × its first,
 prototype delivered the skill set by a read-only bind mount from the task folder onto a skill-less image. It gave the
 same oracle reward as its baked twin and byte-identical skill files on CES (88 digests, `gate-t46b`; the first pair,
 `gate-t46`, had its digests redacted by MSBench's secret scan). Locally one image served two skill sets. It still
-builds the same image on every CES trial, so the per-arm build does not disappear there. It would pay off only with a
+builds the same image on every CES trial, so the per-arm build does not disappear there; that reading of the clause
+was ruled after the timing data, and under the wording written before it the pair would be `adopt`. It would pay off only with a
 per-kind image built once and pulled (Harbor's `docker_image`), which needs a registry push: proposed, not done. $0.
 [PLAN.md, T4.6 results](PLAN.md#t46-results).
 
