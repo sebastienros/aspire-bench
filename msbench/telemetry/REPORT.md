@@ -1340,6 +1340,18 @@ that case is with the coordinating session together with running the variants on
 ([FINDINGS F49](../FINDINGS.md#f49-at-the-11-17-pin-lean--mcp-agents-leave-mcp-for-the-dependency-and-a-connection-tool-replaces-their-describe-step)).
 [PLAN.md, T2.8 results](PLAN.md#t28-results).
 
+**Phase 2, T2.6: a "reach this resource" surface.** Chosen from T4.1's matrix by its rule (client in the image for
+10 of 15 integrations, short of the 11 an `exec` needed): a CLI patch that adds a `connect` object to
+`aspire describe --format Json`, a command line with the container, credentials (by variable name) and plain port
+already resolved, and a lean skill whose dependency step names no server, tool or port. Round `t26`, luna, 24
+trials, $0.32. Verdict **ship**: against the hand-written step on the unpatched source build, 6/6 vs 6/6 on both
+faults at 0.90× (`slow-sql`) and 0.89× (`slow-redis`) the time, within round drift, so "no loss without the
+integration lines" rather than a gain. Every `slow-sql` and 4 of 6 `slow-redis` trials ran the block's command as
+given; one mis-copied the 64-character container ID and one wrote its own `redis-cli` and hit the TLS port first.
+The field name is shared with T2.4's Redis-only hint
+([FINDINGS F50](../FINDINGS.md#f50-a-connect-block-in-describe-lets-a-skill-drop-every-integration-specific-line-at-no-cost);
+issue draft `aspire-describe-connect.md`). [PLAN.md, T2.6 results](PLAN.md#t26-results).
+
 **Phase 1, T3.8: the router's guardrail job.** New scenario `stuck-db`: "the database container looks stuck,
 restart it", on an app whose squares table is `UNLOGGED` (an unclean shutdown empties it) and whose game state
 lives in a cache with no volume, while a host job holds an exclusive lock in an idle transaction. Arms: the

@@ -1703,6 +1703,27 @@ exporter (every failing lean `slow-redis` trial in `t21` and `t28` but one).
 **Limits / status:** Luna only, n = 6, one round. Verdict "no verdict, premise not reproduced"; A meets the card's own ship
 clause; the ruling is with the coordinating session. Not reported upstream.
 
+## F50: A `connect` block in `describe` lets a skill drop every integration-specific line at no cost
+
+**Evidence:** Task T2.6 ([PLAN.md, T2.6 results](telemetry/PLAN.md#t26-results)), round `t26`, 24 luna trials, pin
+2026-11-17. A CLI-only patch (`describe-connect`, on the pin commit) adds to `aspire describe --format Json` a
+`connect` object per container resource: a command line that ends where the client's arguments go, with the
+credentials read from the container's own environment and the port that speaks the plain protocol (from the
+T4.1 matrix, [F38](#f38-the-generic-client-recipe-works-inside-6-of-15-aspire-hosting-integrations-containers)).
+The lean skill's step 3 was rewritten to name no server, tool, port or command ("run `connect.command` with the
+tool's arguments"). Against the hand-written step on the unpatched source build, same round: `slow-sql` 6/6 vs 6/6,
+0.90× the time; `slow-redis` 6/6 vs 6/6, 0.89×. 4/6 `slow-redis` and 6/6 `slow-sql` trials ran the block's command
+as given; one trial mangled the 64-character container ID, and two wrote their own `docker exec`, one of which hit
+the TLS-on-6379 error first.
+
+**Improvement candidate:** Ship the `connect` entry in `describe` (and the MCP resource description), declared by
+each hosting integration rather than keyed on image names in the CLI, with a short container reference (name or
+12-character ID). T2.4's Redis-only `connect` string is this object's `note` + `command` for one image.
+
+**Limits / status:** n = 6, luna only, two of the 13 images the block covers; the time ratios are within round
+drift (p ≥ 0.39), so the result is "no loss without the skill's integration lines", not a speed-up. Verdict `ship`.
+Not upstreamed (draft [`aspire-describe-connect.md`](upstream-issues/aspire-describe-connect.md)).
+
 ## Recording future findings
 
 Give each finding a stable ID and include evidence links, exact observed

@@ -2061,7 +2061,7 @@ A secondary measurement under T2.5, approved by the coordinating session; it doe
 | Cells | `slow-sql`, `slow-redis` × luna × 6 with a skill whose step 3 says only "use `aspire resource <name> exec`"; against the current lean skill |
 | Decision rule | Ship if the generic step matches the hand-written step within 10% on time and pass rate on both faults, which is the point: no integration knowledge in the skill |
 | Trials / cost | 2 × 2 × 6 = 24 ≈ $0.40 plus the product work |
-| Results | pending |
+| Results | [**ship**](#t26-results): `connect` block in `describe` (from T4.1); generic step 3 6/6 and 6/6, 0.90× and 0.89× the hand-written step; $0.32 |
 
 #### T2.6 rule, as computed (written 2026-11-19, before any `t26` trial)
 
@@ -2105,6 +2105,39 @@ A secondary measurement under T2.5, approved by the coordinating session; it doe
   `docker exec`; `redis_cli_first_failed`; trials that patched code instead of stopping the client.
 - **Guard:** none beyond the two cells: both faults are the guard scenarios. A trial at the 900 s limit is a
   failure; a trial lost before the agent ran is re-run once. Expected ≈ $0.40 (24 luna at ≈ $0.015).
+
+#### T2.6 results
+
+Round `t26`, 24 luna trials (no infrastructure failure, no timeout), Copilot CLI 1.0.99, pin 2026-11-17, tasks
+`0642699` (treatment; controls build from suites `305a8ed` and `e165626`), **$0.32** against the card's $0.40. Gates:
+local fail → repair → pass on both faults with the patched CLI; `gate-t26` 2/2 reward 1. Eight runs were first
+extracted before ingestion finished (partial folders) and were re-fetched; no trial was re-run.
+
+| Fault | `aspire-lean-connect` pass | `aspire-lean-src` pass | `agent_seconds` median (ratio, p) | Reported: time to the dependency |
+|---|---|---|---|---|
+| `slow-sql` | 6/6 | 6/6 | 79.1 vs 87.4 (**0.90×**, p = 0.39) | root cause seen 21.9 vs 25.5 s |
+| `slow-redis` | 6/6 | 6/6 | 99.6 vs 112.3 (**0.89×**, p = 1.0) | Redis reply 39.9 vs 34.6 s (1.15×) |
+
+**Verdict: `ship`**, by the rule as computed: on both faults the time ratio is ≤ 1.10 and the generic step passes as
+many trials as the hand-written one. The skill's step 3 now carries no server, tool, port or command; the product's
+`connect` block carries them.
+
+**How the agents used it.** All 12 treatment trials ran `aspire describe <resource> --format Json`. On `slow-sql`
+6/6 ran `connect.command` with `-d db -c "…"` appended; none wrote its own `docker exec`. On `slow-redis` 4/6 ran
+`connect.command` as given; 2/6 wrote their own `docker exec <id> redis-cli …`, and one of those hit the TLS I/O
+error on 6379 first (the trap the block removes when it is used). One trial that did use the block mangled the
+64-character container ID in three parallel calls before getting it right (the `redis_cli_first_failed` flag in
+2/6). That is why reaching Redis took 5 s longer on the median while the whole task was 11 % faster. Controls: 12/12
+wrote their own `docker exec` from the skill's lines. No trial in either arm patched code on `slow-redis`; on
+`slow-sql` 2/6 treatment and 1/6 control trials also edited `/app/src` and still passed.
+
+**Limits.** n = 6, one round, luna only, two integrations (PostgreSQL and Redis) of the 13 images the block covers;
+the time differences are within same-round drift (p ≥ 0.39), so `ship` means "no loss", which is the claim, not "a
+gain". The patch is CLI-side and keyed on image names; a hosting-side version (each integration declaring its own
+client command) is the upstream shape. A shorter container reference in `connect.command` (the 12-character ID or
+the container name) would remove the copy errors. Issue draft
+[`aspire-describe-connect.md`](../upstream-issues/aspire-describe-connect.md);
+[FINDINGS F50](../FINDINGS.md#f50-a-connect-block-in-describe-lets-a-skill-drop-every-integration-specific-line-at-no-cost).
 
 ### T2.7 MCP tool count and schema size
 

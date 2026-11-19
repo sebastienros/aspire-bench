@@ -396,11 +396,13 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 | Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
 | aspire-cli | 1/12 | 134 | 9 | 40 | 544,304 | 9,000 | 0.016 | 40 | - | 0 | 258,076 |
+| aspire-cli-redishint | 0/6 | 132 | 7 | - | 759,700 | 8,540 | 0.019 | 44 | - | 0 | 293,116 |
+| aspire-cli-src | 0/6 | 179 | 8 | - | 831,472 | 11,478 | 0.020 | 47 | - | 0 | 256,852 |
 | aspire-cli-traced | 2/6 | 135 | 6 | 47 | 842,834 | 7,397 | 0.019 | 43 | - | 0 | 234,798 |
 | aspire-lean (tasks 1479041e) | 19/24 | 136 | 40 | 72 | 511,455 | 7,075 | 0.014 | 36 | aspire-diagnosex24, aspire-orchestrationx2 | 0 | 183,042 |
 | aspire-lean (tasks 916a57ce) | 4/6 | 150 | 37 | 66 | 555,040 | 8,366 | 0.015 | 40 | aspire-diagnosex6 | 0 | 193,064 |
 | aspire-lean-agents | 2/6 | 194 | 30 | 64 | 865,599 | 14,711 | 0.022 | 48 | aspire-diagnosex6, aspire-orchestrationx2 | 0 | 210,112 |
-| aspire-lean-connect | 1/1 | 98 | 33 | 75 | 402,547 | 6,442 | 0.013 | 38 | aspire-diagnosex1 | 0 | 245,893 |
+| aspire-lean-connect | 6/6 | 100 | 41 | 72 | 497,937 | 6,940 | 0.014 | 38 | aspire-diagnosex6 | 0 | 233,321 |
 | aspire-lean-mcp-all | 17/18 | 124 | 40 | 65 | 669,193 | 8,918 | 0.017 | 42 | aspire-diagnosex18 | 8 | 249,417 |
 | aspire-lean-mcp-all-conn | 6/6 | 90 | 29 | 52 | 652,972 | 6,739 | 0.016 | 39 | aspire-diagnosex6 | 11 | 288,984 |
 | aspire-lean-mcp-all-hint | 4/6 | 147 | 38 | 65 | 759,810 | 10,388 | 0.020 | 44 | aspire-diagnosex6 | 10 | 285,825 |
@@ -410,13 +412,16 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 | aspire-lean-mcp-compact2 | 2/6 | 189 | 44 | 74 | 893,484 | 13,112 | 0.022 | 47 | aspire-diagnosex6 | 10 | 250,282 |
 | aspire-lean-mcp-src | 8/12 | 191 | 43 | 74 | 701,304 | 9,536 | 0.018 | 42 | aspire-diagnosex12 | 4 | 296,036 |
 | aspire-lean-mcp-tools8 | 3/6 | 221 | 40 | 65 | 932,100 | 15,678 | 0.025 | 48 | aspire-diagnosex6 | 2 | 252,758 |
-| aspire-lean-src | 1/1 | 77 | 26 | 57 | 356,463 | 4,820 | 0.010 | 32 | aspire-diagnosex1 | 0 | 164,132 |
+| aspire-lean-src | 12/12 | 110 | 31 | 57 | 497,670 | 7,436 | 0.015 | 38 | aspire-diagnosex12 | 0 | 211,764 |
 | aspire-lean-traced | 6/6 | 85 | 22 | 47 | 409,217 | 5,234 | 0.012 | 32 | aspire-diagnosex6 | 0 | 203,758 |
+| aspire-lean-tracetable | 4/6 | 119 | 35 | 59 | 692,303 | 8,284 | 0.018 | 44 | aspire-diagnosex6 | 0 | 211,418 |
 | aspire-skills | 0/12 | 222 | 60 | - | 784,350 | 11,218 | 0.022 | 46 | aspire-monitoringx6, aspire-orchestrationx3 | 0 | 266,807 |
 | aspire-skills-mcp | 0/12 | 163 | 4 | - | 1,013,608 | 9,532 | 0.023 | 49 | aspirex6, aspire-monitoringx6, aspire-orchestrationx1 | 10 | 430,422 |
 | aspire-skills-mon | 0/6 | 205 | 59 | - | 590,980 | 8,078 | 0.016 | 40 | aspirex2, aspire-monitoringx2, aspire-orchestrationx2 | 0 | 226,285 |
 | aspire-skills-norouter | 0/6 | 202 | 9 | - | 966,487 | 11,128 | 0.023 | 48 | aspire-monitoringx3, aspire-orchestrationx4 | 0 | 302,931 |
-| raw | 7/42 | 262 | 32 | 169 | 668,692 | 14,870 | 0.020 | 42 | - | 0 | 202,547 |
+| aspire-skills-redishint | 0/6 | 148 | 24 | - | 749,502 | 9,146 | 0.019 | 48 | aspire-orchestrationx1 | 0 | 266,268 |
+| aspire-skills-src | 0/6 | 134 | 11 | 162 | 768,760 | 9,070 | 0.019 | 44 | aspire-monitoringx1, aspire-orchestrationx1 | 0 | 256,964 |
+| raw | 7/48 | 257 | 28 | 169 | 648,816 | 14,064 | 0.020 | 42 | - | 0 | 210,092 |
 | raw-otel | 0/6 | 127 | - | 191 | 401,687 | 7,761 | 0.014 | 30 | - | 0 | 160,528 |
 
 ## slow-redis / gpt-6.1-terra
@@ -424,6 +429,8 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 | Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
 | aspire-cli | 12/12 | 165 | 4 | 90 | 530,017 | 6,366 | 0.109 | 32 | - | 0 | 186,640 |
+| aspire-cli-redishint | 6/6 | 137 | 3 | 87 | 413,888 | 4,721 | 0.095 | 30 | - | 0 | 176,261 |
+| aspire-cli-src | 6/6 | 168 | 3 | 107 | 578,373 | 6,078 | 0.112 | 33 | - | 0 | 169,090 |
 | aspire-cli-traced | 6/6 | 131 | 3 | 99 | 485,836 | 6,096 | 0.116 | 29 | - | 0 | 204,598 |
 | aspire-lean (tasks 1479041e) | 6/6 | 67 | 15 | 44 | 307,060 | 2,958 | 0.069 | 22 | aspire-diagnosex6 | 0 | 138,718 |
 | aspire-lean (tasks 916a57ce) | 6/6 | 56 | 19 | 41 | 207,126 | 1,788 | 0.054 | 20 | aspire-diagnosex6 | 0 | 119,254 |
@@ -433,7 +440,9 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 | aspire-skills | 6/6 | 235 | 48 | 159 | 767,409 | 6,989 | 0.140 | 41 | aspire-monitoringx6 | 0 | 191,596 |
 | aspire-skills-mcp | 6/6 | 164 | 4 | 113 | 669,446 | 6,023 | 0.128 | 35 | aspire-monitoringx6 | 6 | 328,189 |
 | aspire-skills-mon | 6/6 | 190 | 20 | 122 | 710,991 | 5,405 | 0.130 | 40 | aspirex2, aspire-monitoringx6 | 0 | 195,064 |
-| raw | 12/12 | 169 | 4 | 98 | 440,713 | 6,292 | 0.098 | 29 | - | 0 | 114,066 |
+| aspire-skills-redishint | 6/6 | 132 | 16 | 82 | 622,943 | 5,908 | 0.124 | 39 | aspire-monitoringx6 | 0 | 174,338 |
+| aspire-skills-src | 6/6 | 162 | 3 | 101 | 701,537 | 6,778 | 0.139 | 38 | aspire-monitoringx6 | 0 | 199,618 |
+| raw | 18/18 | 169 | 3 | 98 | 466,217 | 6,835 | 0.104 | 28 | - | 0 | 114,066 |
 | raw-otel | 6/6 | 165 | 3 | 71 | 460,280 | 7,933 | 0.113 | 30 | - | 0 | 110,410 |
 
 ## slow-redis / gpt-6.2-sol
@@ -458,10 +467,12 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
 | aspire-cli | 6/6 | 159 | 70 | 117 | 871,645 | 10,686 | 0.021 | 52 | - | 0 | 324,530 |
 | aspire-cli-agents | 6/6 | 151 | 50 | 73 | 680,115 | 11,274 | 0.018 | 46 | - | 0 | 230,654 |
+| aspire-cli-redishint | 4/6 | 118 | 55 | 88 | 644,350 | 7,520 | 0.017 | 50 | - | 0 | 253,891 |
+| aspire-cli-src | 6/6 | 136 | 62 | 87 | 772,410 | 8,480 | 0.019 | 46 | - | 0 | 252,044 |
 | aspire-lean (tasks 1479041e) | 12/12 | 97 | 21 | 57 | 391,404 | 6,730 | 0.013 | 33 | aspire-diagnosex12 | 0 | 147,628 |
 | aspire-lean (tasks 916a57ce) | 6/6 | 112 | 26 | 59 | 383,232 | 7,168 | 0.012 | 30 | aspire-diagnosex6 | 0 | 164,680 |
 | aspire-lean-agents | 6/6 | 117 | 18 | 64 | 433,843 | 7,924 | 0.013 | 34 | aspire-diagnosex6 | 0 | 146,593 |
-| aspire-lean-connect | 3/3 | 69 | 21 | 14 | 224,299 | 3,615 | 0.008 | 22 | aspire-diagnosex3 | 0 | 111,161 |
+| aspire-lean-connect | 6/6 | 79 | 22 | 32 | 271,195 | 4,512 | 0.009 | 26 | aspire-diagnosex6 | 0 | 129,794 |
 | aspire-lean-mcp-all | 6/6 | 99 | 22 | 51 | 429,944 | 7,297 | 0.013 | 32 | aspire-diagnosex6 | 8 | 223,614 |
 | aspire-lean-mcp-all-conn | 6/6 | 72 | 19 | 38 | 343,385 | 4,392 | 0.011 | 25 | aspire-diagnosex6 | 8 | 187,176 |
 | aspire-lean-mcp-all-hint | 6/6 | 97 | 20 | 51 | 392,665 | 6,170 | 0.012 | 32 | aspire-diagnosex6 | 7 | 202,537 |
@@ -469,7 +480,9 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 | aspire-lean-mcp-compact | 6/6 | 122 | 26 | 56 | 474,092 | 8,324 | 0.015 | 34 | aspire-diagnosex6 | 8 | 257,455 |
 | aspire-lean-mcp-src | 6/6 | 94 | 34 | 52 | 382,320 | 5,091 | 0.012 | 30 | aspire-diagnosex6 | 4 | 245,135 |
 | aspire-lean-noorch-agents | 6/6 | 104 | 20 | 53 | 345,366 | 7,218 | 0.011 | 33 | aspire-diagnosex6 | 0 | 156,628 |
+| aspire-lean-src | 12/12 | 98 | 21 | 47 | 335,904 | 5,982 | 0.011 | 29 | aspire-diagnosex12 | 0 | 140,260 |
 | aspire-lean-traced | 6/6 | 92 | 19 | 43 | 374,967 | 6,512 | 0.012 | 32 | aspire-diagnosex6 | 0 | 157,742 |
+| aspire-lean-tracetable | 6/6 | 111 | 24 | 48 | 413,602 | 7,217 | 0.012 | 30 | aspire-diagnosex6 | 0 | 148,764 |
 | aspire-mcp-compact | 12/12 | 132 | 42 | 79 | 617,858 | 9,518 | 0.017 | 42 | - | 10 | 315,722 |
 | aspire-mcp-compact2 | 6/6 | 166 | 37 | 78 | 968,271 | 11,259 | 0.023 | 52 | - | 14 | 346,574 |
 | aspire-mcp-src | 9/12 | 155 | 49 | 66 | 769,480 | 11,788 | 0.021 | 49 | - | 8 | 436,909 |
@@ -480,7 +493,7 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 | aspire-skills-mon | 6/6 | 295 | 112 | 157 | 982,398 | 12,704 | 0.022 | 48 | aspirex1, aspire-monitoringx2 | 0 | 221,254 |
 | aspire-skills-norouter | 6/6 | 136 | 53 | 75 | 565,650 | 7,923 | 0.016 | 38 | aspire-monitoringx3, aspire-orchestrationx1 | 0 | 218,230 |
 | aspire-skills-plugin | 3/3 | 146 | 49 | 77 | 688,677 | 10,198 | 0.019 | 48 | - | 0 | 260,578 |
-| raw | 29/30 | 114 | 24 | 48 | 447,432 | 8,048 | 0.014 | 34 | - | 0 | 187,010 |
+| raw | 35/36 | 114 | 24 | 47 | 438,509 | 7,734 | 0.014 | 34 | - | 0 | 183,516 |
 
 ## slow-sql / gpt-6.1-sol
 
@@ -500,6 +513,8 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 | aspire-lean-agents | 6/6 | 59 | 20 | 33 | 219,862 | 2,202 | 0.057 | 22 | aspire-diagnosex6 | 0 | 136,758 |
 | aspire-lean-mcp-compact | 6/6 | 67 | 27 | 40 | 259,740 | 1,958 | 0.065 | 22 | aspire-diagnosex6 | 6 | 196,094 |
 | aspire-lean-mcp-src | 6/6 | 69 | 26 | 33 | 240,363 | 2,078 | 0.062 | 20 | aspire-diagnosex6 | 3 | 198,504 |
+| aspire-lean-src | 6/6 | 57 | 20 | 32 | 190,402 | 1,894 | 0.052 | 18 | aspire-diagnosex6 | 0 | 113,947 |
+| aspire-lean-tracetable | 6/6 | 62 | 23 | 35 | 205,842 | 1,969 | 0.053 | 20 | aspire-diagnosex6 | 0 | 123,168 |
 | aspire-mcp-compact | 12/12 | 61 | 19 | 35 | 264,566 | 2,052 | 0.077 | 25 | - | 6 | 255,432 |
 | aspire-mcp-compact2 | 6/6 | 58 | 22 | 36 | 268,108 | 2,199 | 0.070 | 27 | - | 6 | 185,850 |
 | aspire-mcp-src | 6/6 | 94 | 40 | 58 | 414,001 | 3,178 | 0.087 | 36 | - | 8 | 341,868 |
@@ -508,7 +523,7 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 | aspire-skills-mcp | 6/6 | 87 | 31 | 46 | 473,744 | 2,679 | 0.095 | 32 | aspire-monitoringx6 | 7 | 376,008 |
 | aspire-skills-mon | 6/6 | 99 | 45 | 66 | 464,779 | 2,756 | 0.091 | 31 | aspirex4, aspire-monitoringx6 | 0 | 150,756 |
 | aspire-skills-norouter | 6/6 | 97 | 41 | 59 | 374,909 | 2,804 | 0.085 | 32 | aspire-monitoringx5 | 0 | 143,629 |
-| raw | 18/18 | 57 | 13 | 27 | 193,544 | 2,008 | 0.057 | 20 | - | 0 | 111,284 |
+| raw | 24/24 | 56 | 13 | 26 | 189,786 | 1,941 | 0.057 | 20 | - | 0 | 111,284 |
 
 ## slow-sql / gpt-6.2-sol
 
