@@ -2486,7 +2486,7 @@ both) holds. In substance the change sits at the drop bar: the schema is not whe
 | Cells | `slow-redis` × luna × 6, `aspire-lean-mcp-all` with each variant vs the current one; guard `slow-sql` luna × 6 on every variant (a hint that sends agents to the dependency too early would show there) |
 | Decision rule | Ship the variant that brings luna to ≥ 5/6 on `slow-redis` without a time regression above 15% on `slow-sql`; if none does, the recommendation stands as "CLI-only lean for cheap models on silent faults" |
 | Trials / cost | 3 variants × 6 = 18 + 24 guard = 42 ≈ $0.70 |
-| Results | **2026-11-19, lean: no verdict, premise not reproduced at this pin**; the variants move to the shipped set + MCP (coordinating session, option 1; rule below, round `t28-skills`). By the rule as computed: the same-round control `aspire-lean-mcp-all` passed `slow-redis` luna 5/6, and every control trial ran `redis-cli` and read `SLOWLOG` or `CLIENT LIST`. Lean + MCP agents leave MCP at this pin. Variant A (`get_resource_connection`) passed 6/6 and was called in every trial before the first `redis-cli`; `slow-sql` 0.73× the control's time (p = 0.065). B (list_resources hint) 4/6, C (skill text) 5/6. A met the card's own ship clause on lean, which the premise clause overrides. [T2.8 results](#t28-results) below |
+| Results | **2026-11-19: no variant ships; "CLI-only lean for cheap models on silent faults" stands, and lean + MCP already passes.** On the shipped set + MCP (round `t28-skills`, the coordinating session's option 1) both controls passed `slow-redis` 0/6 and the variants 1/6, 0/6, 0/6: they sent luna to the cache (`redis-cli` + `SLOWLOG` 4/6 each, 0/12 in the controls) but every trial still patched the application. [Shipped-set results](#t28-results-on-the-shipped-set--mcp) below. **Lean: no verdict, premise not reproduced at this pin.** By the rule as computed: the same-round control `aspire-lean-mcp-all` passed `slow-redis` luna 5/6, and every control trial ran `redis-cli` and read `SLOWLOG` or `CLIENT LIST`. Lean + MCP agents leave MCP at this pin. Variant A (`get_resource_connection`) passed 6/6 and was called in every trial before the first `redis-cli`; `slow-sql` 0.73× the control's time (p = 0.065). B (list_resources hint) 4/6, C (skill text) 5/6. A met the card's own ship clause on lean, which the premise clause overrides. [T2.8 results](#t28-results) below |
 
 #### T2.8 decision rule, as computed (written 2026-11-19, before any `t28` result was read)
 
@@ -2610,6 +2610,49 @@ Time = agent seconds, median; p = exact Mann-Whitney against the control (`tools
   $0.025) ≈ $1.35, 1.9× the card's $0.70 for this round alone; with `t28` ($0.91) T2.8 comes to about $2.30, 3.2× the card.
   The round itself is under the 3× stop rule, and the second round is the coordinating session's request.
 - Infrastructure failures as in T2.1.
+
+#### T2.8 results on the shipped set + MCP
+
+**Verdict: no variant ships; the recommendation stands as the card's fallback, "CLI-only lean for cheap models on silent
+faults", with the added fact that lean + MCP already passes** (`aspire-lean-mcp-all` 6/6 in `t14`, 5/6 in `t28`). The
+premise holds on the shipped set: both controls passed `slow-redis` 0/6, so neither premise check fired, and no variant
+came near the 5/6 bar (A 1/6, B 0/6, C 0/6).
+
+**Round `t28-skills`** (run `t28`, its `raw` cells; 54 trials submitted 2026-11-19) and `t28-skills-topup` (7 re-runs).
+Tasks `3d5b202` (suite `d5eff29`). Gates: `gate-t28s` 2 of 8 reward 1, the other 6 timed out building the image (environment
+start over 1,800 s; CES builds took 1,740 to 1,800 s at that hour against 180 to 250 s earlier) and passed on re-submission
+(`gate-t28s-2`, 6/6 reward 1, builds 310 to 513 s). Six model trials failed the same way before any agent ran (`apt-get` exit
+100 in the image build) and one C `slow-redis` trial reached the 900 s limit (`2026111929409126`, graded 1, no 5xx); all
+seven carry an `excluded` reason in the ledger and were re-run once, as the rule says (the C re-run `2026111932963078`
+failed). 54 graded; no model-service 5xx.
+
+| Arm | slow-redis pass | skills loaded (none / router / monitoring) | ran `redis-cli` | read `SLOWLOG` | ran `CLIENT LIST` | s to first Redis reply | slow-redis time | variant used | slow-sql pass | slow-sql time | ÷ control | p |
+|---|---|---|---:|---:|---:|---:|---:|---|---|---:|---:|---:|
+| `aspire-skills-mcp` (official daily) | 0/6 | 1 / 4 / 5 | 0 | 0 | 0 | | 164 | monitoring 5/6 | | | | |
+| `aspire-skills-mcp-all` (control) | 0/6 | 3 / 2 / 3 | 2 | 0 | 0 | 61.7 | 163 | monitoring 3/6 | 6/6 | 186 | 1.00 | |
+| A `-conn` | 1/6 | 0 / 6 / 6 | 4 | 4 | 1 | 47.2 | 216 | `get_resource_connection` 4/6 | 6/6 | 174 | 0.94 | 0.82 |
+| B `-hint` | 0/6 | 1 / 5 / 4 | 4 | 4 | 1 | 56.3 | 164 | `list_resources` 6/6 | 6/6 | 154 | 0.83 | 0.18 |
+| C `-step` | 0/6 | 2 / 4 / 4 | 4 | 4 | 0 | 53.4 | 173 | monitoring 4/6 | 6/6 | 119 | **0.64** | **0.041** |
+
+Run IDs: official `2026111929377044`…`380236`; control `…384316`…`387468` (slow-redis), `…414450`…`31389452` (slow-sql); A
+`…391476`…`394958`, `…421718`…`31393192`; B `…399722`…`31385972`, `…428250`…`431618`; C `…406512`…`32963078`,
+`…435758`…`31396242` (`tools/p2mcp_decide.py t28s`).
+
+- **The variants send luna to the cache; they do not get it to the cause.** Each variant had 4 of 6 trials run `redis-cli`
+  in the container and read `SLOWLOG` (0 of 12 in the two controls; two control trials ran `redis-cli` without reading it).
+  Two graded trials ran `CLIENT LIST`, the command that names the exporter's connection: A's, the round's only graded pass,
+  and one in B, which failed. The excluded C trial at the time limit had also run it, and graded 1. Every one of the 30 `slow-redis` trials, controls and
+  variants, patched `BingoService.cs`. The shipped set has nothing like `aspire-diagnose`'s "one expensive command repeated
+  by one client is the cause; stop that client", and none of the three variants carried that sentence.
+- **Reach.** A was called in 4 of 6 trials (two never used it), B's text was in front of every trial (6/6 called
+  `list_resources`), C's step 6 was in a loaded skill in 4 of 6 (two trials loaded no skill). C's router sentence did not
+  change how often the monitoring skill loaded (4/6 against the control's 3/6).
+- **`slow-sql` guard** holds for every variant (0.64× to 0.94×, all 6/6). C's `slow-sql` cell was faster than the control
+  (0.64×, p = 0.041); not decisive, n = 6.
+- **Patches 0001 + 0002 alone** did not move the shipped set (`aspire-skills-mcp-all` 0/6, like the official daily 0/6).
+
+**Cost.** $1.34 for the 54 graded trials (plus the excluded timeout trial), against $1.35 estimated; T2.8 in total about
+$2.25 with `t28`, 3.2× the card's $0.70, as stated before the round.
 
 ### T2.9 Cold start through MCP
 

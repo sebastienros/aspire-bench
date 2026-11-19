@@ -1337,8 +1337,12 @@ sentences in `aspire-diagnose` step 3. Verdict **no verdict, premise not reprodu
 `slow-redis` 5/6 and every control trial ran `redis-cli` in the cache's container, so lean MCP agents already leave MCP at
 this pin (the stuck-in-MCP failure is on the shipped set, `aspire-skills-mcp` 0/6 twice). A was called in all six trials in
 place of `aspire describe`, passed 6/6 and took `slow-sql` to 0.73× (p = 0.065); it meets the card's own ship clause, and
-that case is with the coordinating session together with running the variants on the shipped set + MCP
-([FINDINGS F49](../FINDINGS.md#f49-at-the-11-17-pin-lean--mcp-agents-leave-mcp-for-the-dependency-and-a-connection-tool-replaces-their-describe-step)).
+the premise clause overrides it. On the coordinating session's instruction the variants then ran on the shipped set + MCP
+(round `t28-skills`, 54 graded trials, $1.34), where the failure is: both controls (official daily and the patched source
+build) passed `slow-redis` 0/6, and the variants 1/6, 0/6, 0/6. They sent luna to the cache (`redis-cli` and `SLOWLOG` in
+4 of 6 trials each, 0 of 12 in the controls), but every trial still patched the application: the shipped set lacks the
+"one expensive command repeated by one client, stop that client" line of `aspire-diagnose`. The card's fallback stands,
+"CLI-only lean for cheap models on silent faults", now with lean + MCP passing as well ([FINDINGS F49](../FINDINGS.md#f49-at-the-11-17-pin-lean--mcp-agents-leave-mcp-for-the-dependency-and-a-connection-tool-replaces-their-describe-step)).
 [PLAN.md, T2.8 results](PLAN.md#t28-results).
 
 **Phase 2, T2.6: a "reach this resource" surface.** Chosen from T4.1's matrix by its rule (client in the image for

@@ -1755,10 +1755,15 @@ the remaining trials is the step after: agents that reach the cache still patch 
 exporter (every failing lean `slow-redis` trial in `t21` and `t28` but one).
 
 **Improvement candidate:** If the MCP server gains a dependency surface, a resource-connection tool is the shape agents use
-(the MCP twin of T2.6's CLI `connect` block). The open question is the shipped set + MCP, where agents still stay in MCP.
+(the MCP twin of T2.6's CLI `connect` block). On the shipped set + MCP (round `t28-skills`, both controls 0/6) the same three
+variants sent luna to the cache (`redis-cli` + `SLOWLOG` 4/6 each against 0/12) but passed 1/6, 0/6, 0/6: every trial still
+patched `BingoService.cs`. Reaching the dependency is not enough without the interpretation `aspire-diagnose` carries ("one
+expensive command repeated by one client is the cause; stop that client"); a dependency surface for the shipped set needs
+that sentence too.
 
-**Limits / status:** Luna only, n = 6, one round. Verdict "no verdict, premise not reproduced"; A meets the card's own ship
-clause; the ruling is with the coordinating session. Not reported upstream.
+**Limits / status:** Luna only, n = 6. Lean: "no verdict, premise not reproduced at this pin". Shipped set: no variant ships;
+the recommendation stands as "CLI-only lean for cheap models on silent faults", with lean + MCP also passing. Not reported
+upstream.
 
 ## F50: A `connect` block in `describe` lets a skill drop every integration-specific line at no cost
 

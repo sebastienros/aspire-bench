@@ -420,7 +420,11 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 | aspire-lean-traced | 11/12 | 94 | 22 | 44 | 418,824 | 5,405 | 0.013 | 30 | aspire-diagnosex12 | 0 | 189,321 |
 | aspire-lean-tracetable | 4/6 | 119 | 35 | 59 | 692,303 | 8,284 | 0.018 | 44 | aspire-diagnosex6 | 0 | 211,418 |
 | aspire-skills | 0/12 | 222 | 60 | - | 784,350 | 11,218 | 0.022 | 46 | aspire-monitoringx6, aspire-orchestrationx3 | 0 | 266,807 |
-| aspire-skills-mcp | 0/12 | 163 | 4 | - | 1,013,608 | 9,532 | 0.023 | 49 | aspirex6, aspire-monitoringx6, aspire-orchestrationx1 | 10 | 430,422 |
+| aspire-skills-mcp | 0/18 | 163 | 4 | - | 1,013,608 | 9,587 | 0.023 | 48 | aspirex10, aspire-monitoringx11, aspire-orchestrationx2 | 11 | 434,759 |
+| aspire-skills-mcp-all | 0/6 | 163 | - | - | 812,372 | 9,598 | 0.020 | 42 | aspirex2, aspire-monitoringx3, aspire-orchestrationx1 | 13 | 326,670 |
+| aspire-skills-mcp-all-conn | 1/6 | 216 | 50 | 472 | 1,198,576 | 11,935 | 0.027 | 50 | aspirex6, aspire-monitoringx6, aspire-orchestrationx2 | 15 | 394,900 |
+| aspire-skills-mcp-all-hint | 0/6 | 164 | 56 | - | 913,775 | 9,570 | 0.022 | 46 | aspirex5, aspire-monitoringx4, aspire-orchestrationx5 | 12 | 321,885 |
+| aspire-skills-mcp-all-step | 0/6 | 173 | 54 | - | 976,304 | 10,454 | 0.025 | 48 | aspirex4, aspire-monitoringx4, aspire-orchestrationx4 | 10 | 326,164 |
 | aspire-skills-mon | 0/6 | 205 | 59 | - | 590,980 | 8,078 | 0.016 | 40 | aspirex2, aspire-monitoringx2, aspire-orchestrationx2 | 0 | 226,285 |
 | aspire-skills-norouter | 0/6 | 202 | 9 | - | 966,487 | 11,128 | 0.023 | 48 | aspire-monitoringx3, aspire-orchestrationx4 | 0 | 302,931 |
 | aspire-skills-redishint | 0/6 | 148 | 24 | - | 749,502 | 9,146 | 0.019 | 48 | aspire-orchestrationx1 | 0 | 266,268 |
@@ -495,6 +499,10 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 | aspire-skills | 20/21 | 184 | 69 | 126 | 803,909 | 10,862 | 0.021 | 48 | aspire-monitoringx8, aspire-orchestrationx1 | 0 | 260,974 |
 | aspire-skills-agents | 6/6 | 235 | 77 | 135 | 1,202,770 | 17,634 | 0.031 | 53 | aspirex6, aspire-monitoringx6 | 0 | 194,531 |
 | aspire-skills-mcp | 11/12 | 198 | 77 | 112 | 1,252,184 | 14,204 | 0.029 | 54 | aspirex8, aspire-monitoringx11, aspire-orchestrationx1 | 10 | 524,502 |
+| aspire-skills-mcp-all | 6/6 | 186 | 62 | 119 | 806,122 | 11,484 | 0.021 | 41 | aspirex3, aspire-monitoringx4, aspire-orchestrationx2 | 10 | 323,280 |
+| aspire-skills-mcp-all-conn | 6/6 | 174 | 31 | 58 | 671,415 | 11,838 | 0.021 | 40 | aspirex3, aspire-monitoringx4 | 11 | 317,090 |
+| aspire-skills-mcp-all-hint | 6/6 | 154 | 46 | 91 | 658,180 | 8,845 | 0.018 | 38 | aspirex3, aspire-monitoringx4 | 9 | 294,784 |
+| aspire-skills-mcp-all-step | 6/6 | 119 | 41 | 86 | 649,795 | 6,933 | 0.018 | 35 | aspirex4, aspire-monitoringx4 | 8 | 271,058 |
 | aspire-skills-mon | 6/6 | 295 | 112 | 157 | 982,398 | 12,704 | 0.022 | 48 | aspirex1, aspire-monitoringx2 | 0 | 221,254 |
 | aspire-skills-norouter | 6/6 | 136 | 53 | 75 | 565,650 | 7,923 | 0.016 | 38 | aspire-monitoringx3, aspire-orchestrationx1 | 0 | 218,230 |
 | aspire-skills-plugin | 3/3 | 146 | 49 | 77 | 688,677 | 10,198 | 0.019 | 48 | - | 0 | 260,578 |

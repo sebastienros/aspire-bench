@@ -30,7 +30,7 @@ infrastructure failures are left out.
 | github-copilot-cli | t25 | 20261119 | 2026-11-17 | t25, t25-span | 17.1.0-preview.1.26567.3+30326eb8 | v0.0.6 | T2.5 |
 | github-copilot-cli | t21 | 20261119 | 2026-11-17 | t21, t21-t27 | 17.1.0-preview.1.26567.3+30326eb8 | v0.0.6 | T2.1, T2.7 |
 | github-copilot-cli | t22 | 20261119 | 2026-11-17 | t22 | 17.1.0-preview.1.26567.3+30326eb8 | v0.0.6 | T2.2, T2.9 |
-| github-copilot-cli | t28 | 20261119 | 2026-11-17 | t28 | 17.1.0-preview.1.26567.3+30326eb8 | v0.0.6 | T2.8 |
+| github-copilot-cli | t28 | 20261119 | 2026-11-17 | t28, t28-skills, t28-skills-topup | 17.1.0-preview.1.26567.3+30326eb8 | v0.0.6 | T2.8 |
 | github-copilot-cli | t23 | 20261119 | 2026-11-17 | t23 | 17.1.0-preview.1.26567.3+30326eb8 | v0.0.6 | T2.3, T2.4 |
 | github-copilot-cli | t26 | 20261119 | 2026-11-17 | t26 | 17.1.0-preview.1.26567.3+30326eb8 | v0.0.6 | T2.6 |
 
@@ -359,6 +359,7 @@ infrastructure failures are left out.
 | aspire-skills-mcp | 2026-11-09 | 6 | 0/6 | 161 (6) | 1,085,766 | 0.78× | – | 1.57× | – | 83% | 13 | 502,166 |  | ▄ |
 | aspire-skills-mcp | t01b | 6 | 0/6 | 143 (23) | 655,522 | 0.39× | 0.78× | 0.63× | 1.57× | 33% | 12 | 433,614 | selection-low, improve-time, improve-tokens | █▁ |
 | aspire-skills-mcp | t17 | 6 | 0/6 | 170 (23) | 1,177,976 | 0.77× | 0.58× | 1.66× | 1.10× | 67% | 10 | 420,986 | selection-low | █▁█ |
+| aspire-skills-mcp | t28 | 6 | 0/6 | 164 (15) | 1,028,929 | 0.90× | 0.77× | 2.11× | 1.57× | 83% | 13 | 457,822 | regress-tokens | ▆▁▆█ |
 | aspire-lean | 2026-11-09 | 6 | 5/6 | 123 (15) | 517,112 | 0.59× | – | 0.75× | – | 100% | 0 | 189,284 |  | ▄ |
 | aspire-lean | t01b (tasks 916a57ce) | 6 | 4/6 | 150 (26) | 555,040 | 0.41× | 0.59× | 0.53× | 0.75× | 100% | 0 | 193,064 | improve-tokens | █▁ |
 | aspire-lean | t17 (tasks 1479041e) | 6 | 5/6 | 103 (26) | 383,841 | 0.47× | 0.50× | 0.54× | 0.64× | 100% | 0 | 189,993 |  | █▁▃ |
@@ -390,6 +391,10 @@ infrastructure failures are left out.
 | aspire-lean-mcp-all-conn | t28 | 6 | 6/6 | 90 (12) | 652,972 | 0.49× | – | 1.34× | – | 100% | 11 | 288,984 |  | ▄ |
 | aspire-lean-mcp-all-hint | t28 | 6 | 4/6 | 147 (44) | 759,810 | 0.80× | – | 1.56× | – | 100% | 10 | 285,825 |  | ▄ |
 | aspire-lean-mcp-all-step | t28 | 6 | 5/6 | 111 (15) | 565,804 | 0.61× | – | 1.16× | – | 100% | 9 | 262,733 | leak | ▄ |
+| aspire-skills-mcp-all | t28 | 6 | 0/6 | 163 (36) | 812,372 | 0.89× | – | 1.67× | – | 50% | 13 | 326,670 | selection-low | ▄ |
+| aspire-skills-mcp-all-conn | t28 | 6 | 1/6 | 216 (84) | 1,198,576 | 1.18× | – | 2.46× | – | 100% | 15 | 394,900 |  | ▄ |
+| aspire-skills-mcp-all-hint | t28 | 6 | 0/6 | 164 (31) | 913,775 | 0.89× | – | 1.88× | – | 83% | 12 | 321,885 |  | ▄ |
+| aspire-skills-mcp-all-step | t28 | 6 | 0/6 | 173 (14) | 976,304 | 0.94× | – | 2.01× | – | 67% | 10 | 326,164 | selection-low | ▄ |
 | aspire-cli-src | t23 | 6 | 0/6 | 179 (28) | 831,472 | 0.80× | – | 1.28× | – | 0% | 0 | 256,852 |  | ▄ |
 | aspire-cli-redishint | t23 | 6 | 0/6 | 132 (22) | 759,700 | 0.59× | – | 1.17× | – | 0% | 0 | 293,116 |  | ▄ |
 | aspire-skills-src | t23 | 6 | 0/6 | 134 (34) | 768,760 | 0.60× | – | 1.19× | – | 33% | 0 | 256,964 | leak, selection-low | ▄ |
@@ -511,6 +516,10 @@ infrastructure failures are left out.
 | aspire-lean-mcp-all-conn | t28 | 6 | 6/6 | 72 (7) | 343,385 | 0.56× | – | 0.71× | – | 100% | 8 | 187,176 |  | ▄ |
 | aspire-lean-mcp-all-hint | t28 | 6 | 6/6 | 97 (20) | 392,665 | 0.75× | – | 0.82× | – | 100% | 7 | 202,537 |  | ▄ |
 | aspire-lean-mcp-all-step | t28 | 6 | 6/6 | 78 (8) | 312,522 | 0.60× | – | 0.65× | – | 100% | 7 | 182,024 |  | ▄ |
+| aspire-skills-mcp-all | t28 | 6 | 6/6 | 186 (55) | 806,122 | 1.44× | – | 1.68× | – | 67% | 10 | 323,280 | selection-low | ▄ |
+| aspire-skills-mcp-all-conn | t28 | 6 | 6/6 | 174 (47) | 671,415 | 1.35× | – | 1.40× | – | 67% | 11 | 317,090 | selection-low | ▄ |
+| aspire-skills-mcp-all-hint | t28 | 6 | 6/6 | 154 (27) | 658,180 | 1.19× | – | 1.37× | – | 67% | 9 | 294,784 | selection-low | ▄ |
+| aspire-skills-mcp-all-step | t28 | 6 | 6/6 | 119 (13) | 649,795 | 0.92× | – | 1.35× | – | 67% | 8 | 271,058 | selection-low | ▄ |
 | aspire-lean-tracetable | t23 | 6 | 6/6 | 111 (30) | 413,602 | 1.06× | – | 1.00× | – | 100% | 0 | 148,764 |  | ▄ |
 | aspire-cli-src | t23 | 6 | 6/6 | 136 (27) | 772,410 | 1.30× | – | 1.86× | – | 0% | 0 | 252,044 |  | ▄ |
 | aspire-cli-redishint | t23 | 6 | 4/6 | 118 (24) | 644,350 | 1.13× | – | 1.55× | – | 0% | 0 | 253,891 |  | ▄ |
