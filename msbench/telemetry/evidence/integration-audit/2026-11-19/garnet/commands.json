@@ -1,0 +1,100 @@
+[
+  {
+    "cmd": "/usr/local/aspire/aspire start --isolated --apphost /work/apphosts/garnet/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 4.586,
+    "stdout": "Starting Aspire AppHost in the background...\n\n     AppHost:  ../work/apphosts/garnet/apphost.cs                                                            \n                                                                                                             \n   Dashboard:  https://localhost:38501/login?t=07f7edcfb979c13ac649530515b24aeb                              \n                                                                                                             \n        Logs:  /root/.aspire/logs/cli_20261119T053113359_detach-child_966b7b5a08ea4bf78ecf709bf2c06729.log   \n                                                                                                             \n         PID:  35566                                                                                         \n\n✅ AppHost started successfully.\n",
+    "stderr": "\nA new version of Aspire is available: 17.1.0-preview.1.26568.1\nTo update, run: aspire update\nFor more information, see: https://aka.ms/aspire/update\n"
+  },
+  {
+    "cmd": "docker ps -q --no-trunc --filter id=78826a873d50df8bdf2b41cd6a506355d5cd9ecf41f352753f761a4540d290d5",
+    "code": 0,
+    "seconds": 0.005,
+    "stdout": "78826a873d50df8bdf2b41cd6a506355d5cd9ecf41f352753f761a4540d290d5\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker exec 78826a873d50df8bdf2b41cd6a506355d5cd9ecf41f352753f761a4540d290d5 sh -c true",
+    "code": 0,
+    "seconds": 0.021,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker exec 78826a873d50df8bdf2b41cd6a506355d5cd9ecf41f352753f761a4540d290d5 sh -c command -v redis-cli || test -x redis-cli",
+    "code": 1,
+    "seconds": 0.023,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker exec 78826a873d50df8bdf2b41cd6a506355d5cd9ecf41f352753f761a4540d290d5 sh -c REDISCLI_AUTH=\"$GARNET_PASSWORD\" redis-cli PING",
+    "code": 127,
+    "seconds": 0.024,
+    "stdout": "",
+    "stderr": "sh: 1: redis-cli: not found\n"
+  },
+  {
+    "cmd": "bash -c REDISCLI_AUTH='<secret>' redis-cli -p 32817 PING",
+    "code": 0,
+    "seconds": 0.004,
+    "stdout": "PONG\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker pause 78826a873d50df8bdf2b41cd6a506355d5cd9ecf41f352753f761a4540d290d5",
+    "code": 0,
+    "seconds": 0.011,
+    "stdout": "78826a873d50df8bdf2b41cd6a506355d5cd9ecf41f352753f761a4540d290d5\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker unpause 78826a873d50df8bdf2b41cd6a506355d5cd9ecf41f352753f761a4540d290d5",
+    "code": 0,
+    "seconds": 0.012,
+    "stdout": "78826a873d50df8bdf2b41cd6a506355d5cd9ecf41f352753f761a4540d290d5\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker kill 78826a873d50df8bdf2b41cd6a506355d5cd9ecf41f352753f761a4540d290d5",
+    "code": 0,
+    "seconds": 0.103,
+    "stdout": "78826a873d50df8bdf2b41cd6a506355d5cd9ecf41f352753f761a4540d290d5\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "/usr/local/aspire/aspire resource garnet start --apphost /work/apphosts/garnet/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 0.402,
+    "stdout": "",
+    "stderr": "Starting resource 'garnet'...\n✅ Resource 'garnet' started successfully.\n"
+  },
+  {
+    "cmd": "bash -c REDISCLI_AUTH='<secret>' redis-cli -p 32818 SET audit:marker kept",
+    "code": 0,
+    "seconds": 0.003,
+    "stdout": "OK\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "/usr/local/aspire/aspire resource garnet restart --apphost /work/apphosts/garnet/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 12.128,
+    "stdout": "",
+    "stderr": "Restarting resource 'garnet'...\n✅ Resource 'garnet' restarted successfully.\n"
+  },
+  {
+    "cmd": "bash -c REDISCLI_AUTH='<secret>' redis-cli -p 32819 GET audit:marker",
+    "code": 0,
+    "seconds": 0.004,
+    "stdout": "\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "/usr/local/aspire/aspire stop --apphost /work/apphosts/garnet/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 0.298,
+    "stdout": "Scanning for running AppHosts...\n📦 Found running AppHost: /work/apphosts/garnet/apphost.cs\n🛑 Sending stop signal to /work/apphosts/garnet/apphost.cs...\nStopping /work/apphosts/garnet/apphost.cs...\n\n✅ /work/apphosts/garnet/apphost.cs stopped successfully.\n",
+    "stderr": ""
+  }
+]

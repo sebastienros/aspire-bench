@@ -1,0 +1,64 @@
+{
+  "name": "kafka-haeawgka",
+  "displayName": "kafka",
+  "resourceType": "Container",
+  "resourceTypeDisplayName": "Kafka",
+  "state": "Running",
+  "creationTimestamp": "2026-11-19T05:16:13+00:00",
+  "startTimestamp": "2026-11-19T05:16:13.92377+00:00",
+  "source": "docker.io/confluentinc/confluent-local:8.2.0",
+  "healthStatus": "Healthy",
+  "dashboardUrl": "https://localhost:46265/?resource=kafka-haeawgka",
+  "relationships": [],
+  "urls": [
+    {
+      "name": "internal",
+      "url": "tcp://localhost:39771"
+    },
+    {
+      "name": "tcp",
+      "url": "tcp://localhost:39561"
+    }
+  ],
+  "volumes": [],
+  "properties": {
+    "container.args": null,
+    "container.command": null,
+    "container.id": "9fae82283ccb580ac06f3f6162bd0af842891e32ba5143a8f8571284f368c042",
+    "container.image": "docker.io/confluentinc/confluent-local:8.2.0",
+    "container.lifetime": "Session",
+    "container.ports": [
+      9093,
+      9092
+    ],
+    "resource.appArgs": [],
+    "resource.appArgsSensitivity": [],
+    "resource.connectionProperties": null,
+    "resource.connectionString": null
+  },
+  "environment": {
+    "KAFKA_ADVERTISED_LISTENERS": "PLAINTEXT://localhost:29092,PLAINTEXT_HOST://localhost:39561,PLAINTEXT_INTERNAL://kafka:9093",
+    "KAFKA_LISTENER_SECURITY_PROTOCOL_MAP": "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT",
+    "KAFKA_LISTENERS": "PLAINTEXT://localhost:29092,CONTROLLER://localhost:29093,PLAINTEXT_HOST://0.0.0.0:9092,PLAINTEXT_INTERNAL://0.0.0.0:9093",
+    "SSL_CERT_DIR": "/usr/lib/ssl/aspire/certs:/etc/ssl/certs:/usr/local/share/ca-certificates:/etc/pki/tls/certs"
+  },
+  "healthReports": {
+    "kafka_check": {
+      "status": "Healthy"
+    }
+  },
+  "commands": {
+    "restart": {
+      "displayName": "Restart",
+      "description": "Restart resource",
+      "state": "Enabled",
+      "sortOrder": 2
+    },
+    "stop": {
+      "displayName": "Stop",
+      "description": "Stop resource",
+      "state": "Enabled",
+      "sortOrder": 1
+    }
+  }
+}

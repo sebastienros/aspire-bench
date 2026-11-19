@@ -1,0 +1,75 @@
+{
+  "name": "mongo-fqckbszr",
+  "displayName": "mongo",
+  "resourceType": "Container",
+  "resourceTypeDisplayName": "MongoDB Server",
+  "state": "Running",
+  "creationTimestamp": "2026-11-19T05:11:04+00:00",
+  "startTimestamp": "2026-11-19T05:11:04.752542+00:00",
+  "source": "docker.io/library/mongo:9.0",
+  "healthStatus": "Healthy",
+  "dashboardUrl": "https://localhost:36463/?resource=mongo-fqckbszr",
+  "relationships": [],
+  "urls": [
+    {
+      "name": "tcp",
+      "url": "tcp://localhost:34649"
+    }
+  ],
+  "volumes": [],
+  "properties": {
+    "container.args": null,
+    "container.command": null,
+    "container.id": "c47665d78e28c8aee0b937c60cfcc108e4e9bcf28546f525cc819b9a31d2fee5",
+    "container.image": "docker.io/library/mongo:9.0",
+    "container.lifetime": "Session",
+    "container.ports": [
+      27017
+    ],
+    "resource.appArgs": [
+      "docker-entrypoint.sh",
+      "--tlsMode",
+      "requireTLS",
+      "--tlsAllowConnectionsWithoutCertificates",
+      "--tlsCAFile",
+      "/usr/lib/ssl/aspire/cert.pem",
+      "--tlsCertificateKeyFile"
+    ],
+    "resource.appArgsSensitivity": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "resource.connectionProperties": null,
+    "resource.connectionString": null
+  },
+  "environment": {
+    "ASPIRE_MONGODB_REPL_CA_FILE": "/usr/lib/ssl/aspire/cert.pem",
+    "MONGO_INITDB_ROOT_PASSWORD": null,
+    "MONGO_INITDB_ROOT_USERNAME": "admin",
+    "SSL_CERT_DIR": "/usr/lib/ssl/aspire/certs:/etc/ssl/certs:/usr/local/share/ca-certificates:/etc/pki/tls/certs"
+  },
+  "healthReports": {
+    "mongo_check": {
+      "status": "Healthy"
+    }
+  },
+  "commands": {
+    "restart": {
+      "displayName": "Restart",
+      "description": "Restart resource",
+      "state": "Enabled",
+      "sortOrder": 2
+    },
+    "stop": {
+      "displayName": "Stop",
+      "description": "Stop resource",
+      "state": "Enabled",
+      "sortOrder": 1
+    }
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "row": "sqlserver",
+  "hosting": "Aspire.Hosting.SqlServer",
+  "resource": "sqlserver",
+  "notes": [],
+  "startSeconds": 4.065,
+  "q1": {
+    "pass": true,
+    "containerId": "9b4b7f7295aa",
+    "image": "mcr.microsoft.com/mssql/server:2022-latest"
+  },
+  "q2": {
+    "containerEnv": [
+      "MSSQL_SA_PASSWORD"
+    ],
+    "credentialArgs": false,
+    "describeEnvNames": [
+      "MSSQL_SA_PASSWORD"
+    ],
+    "describeValues": [],
+    "describeConnectionString": false,
+    "noAuth": false,
+    "pass": true
+  },
+  "q3": {
+    "pass": false,
+    "shell": true,
+    "toolInImage": true,
+    "generic": {
+      "command": "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$MSSQL_SA_PASSWORD\" -h -1 -Q 'set nocount on; select 1'",
+      "where": "container",
+      "ok": false,
+      "code": 1,
+      "output": "Sqlcmd: Error: Microsoft ODBC Driver 18 for SQL Server : SSL Provider: [error:16000069:STORE routines::unregistered scheme:scheme=file][error:80000002:system library::No such file or directory:calling stat(/usr/lib/ssl/aspire/certs:/etc/ssl/certs:/usr/local/share/ca-certificates:/etc/pki/tls/certs)]"
+    },
+    "alternatives": [
+      {
+        "command": "/opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P \"$MSSQL_SA_PASSWORD\" -h -1 -Q 'set nocount on; select 1'",
+        "where": "container",
+        "ok": true,
+        "code": 0,
+        "output": "1"
+      }
+    ],
+    "works": "/opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P \"$MSSQL_SA_PASSWORD\" -h -1 -Q 'set nocount on; select 1'",
+    "endpoints": [
+      "tcp=tcp://localhost:36641"
+    ],
+    "tlsPrimary": false
+  },
+  "q4": {
+    "pass": true,
+    "spanNoStatement": false,
+    "totalSpans": 32,
+    "dependencySpans": 16,
+    "sample": {
+      "name": "SELECT sys.databases",
+      "kind": "Client",
+      "attributes": {
+        "db.system.name": "microsoft.sql_server",
+        "db.namespace": "master",
+        "server.address": "127.0.0.1",
+        "server.port": "36641",
+        "db.query.text": "SELECT count(*) FROM sys.databases",
+        "db.query.summary": "SELECT sys.databases"
+      }
+    },
+    "names": [
+      "audit.op",
+      "SELECT sys.databases"
+    ]
+  },
+  "q5": {
+    "refusing": "not induced",
+    "healthy": "state=Running health=Healthy sqlserver_check=Healthy",
+    "hasReport": true,
+    "hung": "state=Running health=Healthy sqlserver_check=Healthy",
+    "hungLeftHealthy": false,
+    "recoveredAfterHung": true,
+    "down": "state=Exited health=none sqlserver_check=Healthy",
+    "recoveredAfterDown": true,
+    "startReplacedContainer": true,
+    "pass": false
+  },
+  "q6": {
+    "commands": [
+      "restart",
+      "stop"
+    ],
+    "restartEnabled": true,
+    "extraCommands": [],
+    "restartExit": 0,
+    "backHealthy": true,
+    "containerReplaced": true,
+    "pass": true
+  },
+  "marker": {
+    "written": true,
+    "kept": false
+  }
+}

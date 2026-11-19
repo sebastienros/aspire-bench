@@ -1,0 +1,63 @@
+{
+  "name": "valkey-eqhfdudg",
+  "displayName": "valkey",
+  "resourceType": "Container",
+  "resourceTypeDisplayName": "Valkey",
+  "state": "Running",
+  "creationTimestamp": "2026-11-19T05:29:20+00:00",
+  "startTimestamp": "2026-11-19T05:29:26.982174+00:00",
+  "source": "docker.io/valkey/valkey:9.1",
+  "healthStatus": "Healthy",
+  "dashboardUrl": "https://localhost:38237/?resource=valkey-eqhfdudg",
+  "relationships": [],
+  "urls": [
+    {
+      "name": "tcp",
+      "url": "tcp://localhost:38213"
+    }
+  ],
+  "volumes": [],
+  "properties": {
+    "container.args": null,
+    "container.command": "/bin/sh",
+    "container.id": "a6a242981577a092ed13c80118365f8cf05b7939f9f1074c15ecd17d2c3ea5a0",
+    "container.image": "docker.io/valkey/valkey:9.1",
+    "container.lifetime": "Session",
+    "container.ports": [
+      6379
+    ],
+    "resource.appArgs": [
+      "/bin/sh",
+      "-c"
+    ],
+    "resource.appArgsSensitivity": [
+      0,
+      0
+    ],
+    "resource.connectionProperties": null,
+    "resource.connectionString": null
+  },
+  "environment": {
+    "SSL_CERT_DIR": "/usr/lib/ssl/aspire/certs:/etc/ssl/certs:/usr/local/share/ca-certificates:/etc/pki/tls/certs",
+    "VALKEY_PASSWORD": null
+  },
+  "healthReports": {
+    "valkey_check": {
+      "status": "Healthy"
+    }
+  },
+  "commands": {
+    "restart": {
+      "displayName": "Restart",
+      "description": "Restart resource",
+      "state": "Enabled",
+      "sortOrder": 2
+    },
+    "stop": {
+      "displayName": "Stop",
+      "description": "Stop resource",
+      "state": "Enabled",
+      "sortOrder": 1
+    }
+  }
+}

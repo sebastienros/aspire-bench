@@ -1,0 +1,79 @@
+[
+  {
+    "cmd": "/usr/local/aspire/aspire start --isolated --apphost /work/apphosts/keycloak/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 2.857,
+    "stdout": "Starting Aspire AppHost in the background...\n\n     AppHost:  ../work/apphosts/keycloak/apphost.cs                                                          \n                                                                                                             \n   Dashboard:  https://localhost:42781/login?t=725353b4584cc813a2f313e9819a6769                              \n                                                                                                             \n        Logs:  /root/.aspire/logs/cli_20261119T053925163_detach-child_e9c949da904744d49128ce596cee7e41.log   \n                                                                                                             \n         PID:  46973                                                                                         \n\n✅ AppHost started successfully.\n",
+    "stderr": "\nA new version of Aspire is available: 17.1.0-preview.1.26568.1\nTo update, run: aspire update\nFor more information, see: https://aka.ms/aspire/update\n"
+  },
+  {
+    "cmd": "docker ps -q --no-trunc --filter id=59042ddec4dd50936fefb11c7e052ad3cc95a01e0f8d717891cb7a986dfc2888",
+    "code": 0,
+    "seconds": 0.006,
+    "stdout": "59042ddec4dd50936fefb11c7e052ad3cc95a01e0f8d717891cb7a986dfc2888\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker exec 59042ddec4dd50936fefb11c7e052ad3cc95a01e0f8d717891cb7a986dfc2888 sh -c true",
+    "code": 0,
+    "seconds": 0.025,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker exec 59042ddec4dd50936fefb11c7e052ad3cc95a01e0f8d717891cb7a986dfc2888 sh -c command -v /opt/keycloak/bin/kcadm.sh || test -x /opt/keycloak/bin/kcadm.sh",
+    "code": 0,
+    "seconds": 0.028,
+    "stdout": "/opt/keycloak/bin/kcadm.sh\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker exec 59042ddec4dd50936fefb11c7e052ad3cc95a01e0f8d717891cb7a986dfc2888 sh -c /opt/keycloak/bin/kcadm.sh config credentials --config /tmp/kcadm.config --server http://localhost:8080 --realm master --user \"$KC_BOOTSTRAP_ADMIN_USERNAME\" --password \"$KC_BOOTSTRAP_ADMIN_PASSWORD\" && /opt/keycloak/bin/kcadm.sh get realms --config /tmp/kcadm.config --fields realm",
+    "code": 0,
+    "seconds": 1.297,
+    "stdout": "[ {\n  \"realm\" : \"master\"\n} ]",
+    "stderr": "Logging into http://localhost:8080 as user admin of realm master\n\n"
+  },
+  {
+    "cmd": "docker pause 59042ddec4dd50936fefb11c7e052ad3cc95a01e0f8d717891cb7a986dfc2888",
+    "code": 0,
+    "seconds": 0.011,
+    "stdout": "59042ddec4dd50936fefb11c7e052ad3cc95a01e0f8d717891cb7a986dfc2888\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker unpause 59042ddec4dd50936fefb11c7e052ad3cc95a01e0f8d717891cb7a986dfc2888",
+    "code": 0,
+    "seconds": 0.016,
+    "stdout": "59042ddec4dd50936fefb11c7e052ad3cc95a01e0f8d717891cb7a986dfc2888\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker kill 59042ddec4dd50936fefb11c7e052ad3cc95a01e0f8d717891cb7a986dfc2888",
+    "code": 0,
+    "seconds": 0.189,
+    "stdout": "59042ddec4dd50936fefb11c7e052ad3cc95a01e0f8d717891cb7a986dfc2888\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "/usr/local/aspire/aspire resource keycloak start --apphost /work/apphosts/keycloak/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 0.553,
+    "stdout": "",
+    "stderr": "Starting resource 'keycloak'...\n✅ Resource 'keycloak' started successfully.\n"
+  },
+  {
+    "cmd": "/usr/local/aspire/aspire resource keycloak restart --apphost /work/apphosts/keycloak/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 2.553,
+    "stdout": "",
+    "stderr": "Restarting resource 'keycloak'...\n✅ Resource 'keycloak' restarted successfully.\n"
+  },
+  {
+    "cmd": "/usr/local/aspire/aspire stop --apphost /work/apphosts/keycloak/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 0.302,
+    "stdout": "Scanning for running AppHosts...\n📦 Found running AppHost: /work/apphosts/keycloak/apphost.cs\n🛑 Sending stop signal to /work/apphosts/keycloak/apphost.cs...\nStopping /work/apphosts/keycloak/apphost.cs...\n\n✅ /work/apphosts/keycloak/apphost.cs stopped successfully.\n",
+    "stderr": ""
+  }
+]

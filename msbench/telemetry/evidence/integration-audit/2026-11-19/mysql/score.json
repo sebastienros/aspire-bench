@@ -1,0 +1,97 @@
+{
+  "row": "mysql",
+  "hosting": "Aspire.Hosting.MySql",
+  "resource": "mysql",
+  "notes": [],
+  "startSeconds": 7.278,
+  "q1": {
+    "pass": true,
+    "containerId": "fdc083a375e6",
+    "image": "docker.io/library/mysql:9.7"
+  },
+  "q2": {
+    "containerEnv": [
+      "MYSQL_ROOT_PASSWORD"
+    ],
+    "credentialArgs": false,
+    "describeEnvNames": [
+      "MYSQL_ROOT_PASSWORD"
+    ],
+    "describeValues": [],
+    "describeConnectionString": false,
+    "noAuth": false,
+    "pass": true
+  },
+  "q3": {
+    "pass": true,
+    "shell": true,
+    "toolInImage": true,
+    "generic": {
+      "command": "mysql -uroot -p\"$MYSQL_ROOT_PASSWORD\" -N -e 'select 1'",
+      "where": "container",
+      "ok": true,
+      "code": 0,
+      "output": "1\nmysql: [Warning] Using a password on the command line interface can be insecure."
+    },
+    "alternatives": [],
+    "works": "mysql -uroot -p\"$MYSQL_ROOT_PASSWORD\" -N -e 'select 1'",
+    "endpoints": [
+      "tcp=tcp://localhost:40147"
+    ],
+    "tlsPrimary": false
+  },
+  "q4": {
+    "pass": true,
+    "spanNoStatement": false,
+    "totalSpans": 48,
+    "dependencySpans": 32,
+    "sample": {
+      "name": "Execute",
+      "kind": "Client",
+      "attributes": {
+        "db.system": "mysql",
+        "db.connection_string": "Server=localhost;Port=40147;User ID=root",
+        "db.user": "root",
+        "net.transport": "ip_tcp",
+        "net.peer.port": "40147",
+        "net.peer.ip": "127.0.0.1",
+        "net.peer.name": "localhost",
+        "db.connection_id": "10",
+        "db.statement": "SELECT count(*) FROM information_schema.schemata"
+      }
+    },
+    "names": [
+      "audit.op",
+      "Open",
+      "Execute"
+    ]
+  },
+  "q5": {
+    "refusing": "not induced",
+    "healthy": "state=Running health=Healthy mysql_check=Healthy",
+    "hasReport": true,
+    "hung": "state=Running health=Unhealthy mysql_check=Unhealthy",
+    "hungLeftHealthy": true,
+    "recoveredAfterHung": true,
+    "down": "state=Exited health=none mysql_check=Healthy",
+    "recoveredAfterDown": true,
+    "startReplacedContainer": true,
+    "pass": true
+  },
+  "q6": {
+    "commands": [
+      "restart",
+      "stop"
+    ],
+    "restartEnabled": true,
+    "extraCommands": [],
+    "restartExit": 0,
+    "backHealthy": true,
+    "containerReplaced": true,
+    "pass": true
+  },
+  "marker": {
+    "written": true,
+    "kept": false
+  }
+}

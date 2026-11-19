@@ -1,0 +1,57 @@
+{
+  "name": "mysql-tyhasbcs",
+  "displayName": "mysql",
+  "resourceType": "Container",
+  "resourceTypeDisplayName": "MySQL Server",
+  "state": "Running",
+  "creationTimestamp": "2026-11-19T04:54:05+00:00",
+  "startTimestamp": "2026-11-19T04:54:06.784623+00:00",
+  "source": "docker.io/library/mysql:9.7",
+  "healthStatus": "Healthy",
+  "dashboardUrl": "https://localhost:37565/?resource=mysql-tyhasbcs",
+  "relationships": [],
+  "urls": [
+    {
+      "name": "tcp",
+      "url": "tcp://localhost:40147"
+    }
+  ],
+  "volumes": [],
+  "properties": {
+    "container.args": null,
+    "container.command": null,
+    "container.id": "e5144c7337ca3da102a8609f8aa0fee76b07b4e7565a268546872c8c97325c35",
+    "container.image": "docker.io/library/mysql:9.7",
+    "container.lifetime": "Session",
+    "container.ports": [
+      3306
+    ],
+    "resource.appArgs": [],
+    "resource.appArgsSensitivity": [],
+    "resource.connectionProperties": null,
+    "resource.connectionString": null
+  },
+  "environment": {
+    "MYSQL_ROOT_PASSWORD": null,
+    "SSL_CERT_DIR": "/usr/lib/ssl/aspire/certs:/etc/ssl/certs:/usr/local/share/ca-certificates:/etc/pki/tls/certs"
+  },
+  "healthReports": {
+    "mysql_check": {
+      "status": "Healthy"
+    }
+  },
+  "commands": {
+    "restart": {
+      "displayName": "Restart",
+      "description": "Restart resource",
+      "state": "Enabled",
+      "sortOrder": 2
+    },
+    "stop": {
+      "displayName": "Stop",
+      "description": "Stop resource",
+      "state": "Enabled",
+      "sortOrder": 1
+    }
+  }
+}

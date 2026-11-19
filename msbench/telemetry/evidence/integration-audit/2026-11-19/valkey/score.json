@@ -1,0 +1,94 @@
+{
+  "row": "valkey",
+  "hosting": "Aspire.Hosting.Valkey",
+  "resource": "valkey",
+  "notes": [],
+  "startSeconds": 3.998,
+  "q1": {
+    "pass": true,
+    "containerId": "a6a242981577",
+    "image": "docker.io/valkey/valkey:9.1"
+  },
+  "q2": {
+    "containerEnv": [
+      "VALKEY_PASSWORD",
+      "VALKEY_VERSION"
+    ],
+    "credentialArgs": false,
+    "describeEnvNames": [
+      "VALKEY_PASSWORD"
+    ],
+    "describeValues": [],
+    "describeConnectionString": false,
+    "noAuth": false,
+    "pass": true
+  },
+  "q3": {
+    "pass": true,
+    "shell": true,
+    "toolInImage": true,
+    "generic": {
+      "command": "REDISCLI_AUTH=\"$VALKEY_PASSWORD\" valkey-cli PING",
+      "where": "container",
+      "ok": true,
+      "code": 0,
+      "output": "PONG"
+    },
+    "alternatives": [],
+    "works": "REDISCLI_AUTH=\"$VALKEY_PASSWORD\" valkey-cli PING",
+    "endpoints": [
+      "tcp=tcp://localhost:38213"
+    ],
+    "tlsPrimary": false
+  },
+  "q4": {
+    "pass": true,
+    "spanNoStatement": false,
+    "totalSpans": 47,
+    "dependencySpans": 30,
+    "sample": {
+      "name": "SET",
+      "kind": "Client",
+      "attributes": {
+        "db.system": "redis",
+        "db.redis.database_index": "0",
+        "db.statement": "SET",
+        "server.address": "localhost",
+        "server.port": "38213"
+      }
+    },
+    "names": [
+      "audit.op",
+      "SET",
+      "GET"
+    ]
+  },
+  "q5": {
+    "refusing": "not induced",
+    "healthy": "state=Running health=Healthy valkey_check=Healthy",
+    "hasReport": true,
+    "hung": "state=Running health=Unhealthy valkey_check=Unhealthy",
+    "hungLeftHealthy": true,
+    "recoveredAfterHung": true,
+    "down": "state=Exited health=none valkey_check=Healthy",
+    "recoveredAfterDown": true,
+    "startReplacedContainer": true,
+    "pass": true
+  },
+  "q6": {
+    "commands": [
+      "restart",
+      "stop"
+    ],
+    "restartEnabled": true,
+    "extraCommands": [],
+    "restartExit": 0,
+    "backHealthy": true,
+    "containerReplaced": true,
+    "pass": true
+  },
+  "marker": {
+    "written": true,
+    "kept": false
+  }
+}

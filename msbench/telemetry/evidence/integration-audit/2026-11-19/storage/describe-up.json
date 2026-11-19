@@ -1,0 +1,88 @@
+{
+  "name": "storage-kjfzrdta",
+  "displayName": "storage",
+  "resourceType": "AzureStorageResource",
+  "resourceTypeDisplayName": "Azure Storage",
+  "state": "Running",
+  "creationTimestamp": "2026-11-19T05:18:46+00:00",
+  "startTimestamp": "2026-11-19T05:19:10.14679+00:00",
+  "source": "mcr.microsoft.com/azure-storage/azurite:3.35.0",
+  "healthStatus": "Healthy",
+  "dashboardUrl": "https://localhost:43383/?resource=storage-kjfzrdta",
+  "relationships": [],
+  "urls": [
+    {
+      "name": "table",
+      "url": "http://localhost:46687"
+    },
+    {
+      "name": "queue",
+      "url": "http://localhost:38367"
+    },
+    {
+      "name": "blob",
+      "url": "http://localhost:33343"
+    }
+  ],
+  "volumes": [],
+  "properties": {
+    "container.args": null,
+    "container.command": null,
+    "container.id": "06633688c1e1facdc48a24e094986291d117cadbd3007d0b869f1379ffc775f1",
+    "container.image": "mcr.microsoft.com/azure-storage/azurite:3.35.0",
+    "container.lifetime": "Session",
+    "container.ports": [
+      10002,
+      10001,
+      10000
+    ],
+    "resource.appArgs": [
+      "docker-entrypoint.sh",
+      "azurite",
+      "-l",
+      "/data",
+      "--blobHost",
+      "0.0.0.0",
+      "--queueHost",
+      "0.0.0.0",
+      "--tableHost",
+      "0.0.0.0",
+      "--disableProductStyleUrl"
+    ],
+    "resource.appArgsSensitivity": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  "environment": {
+    "SSL_CERT_DIR": "/usr/lib/ssl/aspire/certs:/etc/ssl/certs:/usr/local/share/ca-certificates:/etc/pki/tls/certs"
+  },
+  "healthReports": {
+    "storage_check": {
+      "status": "Healthy"
+    }
+  },
+  "commands": {
+    "restart": {
+      "displayName": "Restart",
+      "description": "Restart resource",
+      "state": "Enabled",
+      "sortOrder": 2
+    },
+    "stop": {
+      "displayName": "Stop",
+      "description": "Stop resource",
+      "state": "Enabled",
+      "sortOrder": 1
+    }
+  }
+}

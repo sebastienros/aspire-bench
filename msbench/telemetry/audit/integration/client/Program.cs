@@ -95,11 +95,18 @@ Func<IServiceProvider, Task> op = kind switch
     {
         await sp.GetRequiredService<QdrantClient>().ListCollectionsAsync();
     }),
-    "keycloak" => Register(() => builder.Services.AddHttpClient("keycloak"), async sp =>
+    "keycloak" => Register(() => builder.Services.AddHttpClient("keycloak").ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+    {
+        // Aspire's development certificate is not trusted by this process inside the audit image.
+        ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator,
+    }), async sp =>
     {
         // No Aspire client package talks to Keycloak directly (Aspire.Keycloak.Authentication
         // configures token validation); the realm discovery document is the call an app makes.
-        var url = builder.Configuration[$"services:{name}:http:0"] ?? throw new InvalidOperationException("no keycloak endpoint");
+        // Any endpoint Aspire passes for it (at the pin the endpoint named "http" serves https).
+        var url = builder.Configuration.GetSection($"services:{name}").GetChildren()
+            .SelectMany(endpoint => endpoint.GetChildren()).Select(entry => entry.Value)
+            .FirstOrDefault(value => value is not null) ?? throw new InvalidOperationException("no keycloak endpoint");
         var http = sp.GetRequiredService<IHttpClientFactory>().CreateClient("keycloak");
         (await http.GetAsync($"{url}/realms/master/.well-known/openid-configuration")).EnsureSuccessStatusCode();
     }),

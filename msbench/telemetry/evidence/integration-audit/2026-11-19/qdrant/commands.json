@@ -1,0 +1,86 @@
+[
+  {
+    "cmd": "/usr/local/aspire/aspire start --isolated --apphost /work/apphosts/qdrant/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 4.069,
+    "stdout": "Starting Aspire AppHost in the background...\n\n     AppHost:  ../work/apphosts/qdrant/apphost.cs                                                            \n                                                                                                             \n   Dashboard:  https://localhost:42521/login?t=e456f927daf8aa3d9cb49341b1e59ff4                              \n                                                                                                             \n        Logs:  /root/.aspire/logs/cli_20261119T052429581_detach-child_8fb37eca278a496fbd4105999e620241.log   \n                                                                                                             \n         PID:  24577                                                                                         \n\n✅ AppHost started successfully.\n",
+    "stderr": "\nA new version of Aspire is available: 17.1.0-preview.1.26568.1\nTo update, run: aspire update\nFor more information, see: https://aka.ms/aspire/update\n"
+  },
+  {
+    "cmd": "docker ps -q --no-trunc --filter id=baf50d88497b7e909ea01324ddf5a22c076a3e782955f55845bf37252d751c2a",
+    "code": 0,
+    "seconds": 0.008,
+    "stdout": "baf50d88497b7e909ea01324ddf5a22c076a3e782955f55845bf37252d751c2a\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker exec baf50d88497b7e909ea01324ddf5a22c076a3e782955f55845bf37252d751c2a sh -c true",
+    "code": 0,
+    "seconds": 0.03,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker exec baf50d88497b7e909ea01324ddf5a22c076a3e782955f55845bf37252d751c2a sh -c command -v curl || test -x curl",
+    "code": 1,
+    "seconds": 0.029,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker exec baf50d88497b7e909ea01324ddf5a22c076a3e782955f55845bf37252d751c2a sh -c curl -fsS -H \"api-key: $QDRANT__SERVICE__API_KEY\" http://localhost:6333/collections",
+    "code": 127,
+    "seconds": 0.031,
+    "stdout": "",
+    "stderr": "sh: 1: curl: not found\n"
+  },
+  {
+    "cmd": "bash -c curl -fsS -H 'api-key: <secret>' http://127.0.0.1:32800/collections",
+    "code": 0,
+    "seconds": 0.018,
+    "stdout": "{\"result\":{\"collections\":[]},\"status\":\"ok\",\"time\":5.333e-6}",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker pause baf50d88497b7e909ea01324ddf5a22c076a3e782955f55845bf37252d751c2a",
+    "code": 0,
+    "seconds": 0.01,
+    "stdout": "baf50d88497b7e909ea01324ddf5a22c076a3e782955f55845bf37252d751c2a\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker unpause baf50d88497b7e909ea01324ddf5a22c076a3e782955f55845bf37252d751c2a",
+    "code": 0,
+    "seconds": 0.019,
+    "stdout": "baf50d88497b7e909ea01324ddf5a22c076a3e782955f55845bf37252d751c2a\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker kill baf50d88497b7e909ea01324ddf5a22c076a3e782955f55845bf37252d751c2a",
+    "code": 0,
+    "seconds": 0.119,
+    "stdout": "baf50d88497b7e909ea01324ddf5a22c076a3e782955f55845bf37252d751c2a\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "/usr/local/aspire/aspire resource qdrant start --apphost /work/apphosts/qdrant/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 0.457,
+    "stdout": "",
+    "stderr": "Starting resource 'qdrant'...\n✅ Resource 'qdrant' started successfully.\n"
+  },
+  {
+    "cmd": "/usr/local/aspire/aspire resource qdrant restart --apphost /work/apphosts/qdrant/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 1.322,
+    "stdout": "",
+    "stderr": "Restarting resource 'qdrant'...\n✅ Resource 'qdrant' restarted successfully.\n"
+  },
+  {
+    "cmd": "/usr/local/aspire/aspire stop --apphost /work/apphosts/qdrant/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 0.301,
+    "stdout": "Scanning for running AppHosts...\n📦 Found running AppHost: /work/apphosts/qdrant/apphost.cs\n🛑 Sending stop signal to /work/apphosts/qdrant/apphost.cs...\nStopping /work/apphosts/qdrant/apphost.cs...\n\n✅ /work/apphosts/qdrant/apphost.cs stopped successfully.\n",
+    "stderr": ""
+  }
+]

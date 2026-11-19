@@ -2491,7 +2491,7 @@ Where the router is absent or rarely wins, the runs match: `aspire-lean` 42/42 a
 
 | Card | What | Why | Design | Trials / cost | Results |
 |---|---|---|---|---|---|
-| T4.1 | **Integration discoverability audit** (REPORT §12.1) | The Redis port finding is a sample of one; the skill's step 3 and T2.6 need the matrix | No model. One AppHost per hosting integration (PostgreSQL, Redis, SQL Server, MySQL, MongoDB, RabbitMQ, Kafka, NATS, Azure Storage emulator, Cosmos emulator, Elasticsearch, Qdrant, Keycloak, Valkey, Garnet, Seq); a script scores six questions per row (container or PID in `describe`; credentials without source; documented native tool works inside the container with the generic recipe; client span present; health text distinguishes down/slow/refusing; a safe restart command). Output: a matrix in `msbench/telemetry/audit/`, one issue draft per failing cell | 0 model trials; two to three days of fixture work | pending |
+| T4.1 | **Integration discoverability audit** (REPORT §12.1) | The Redis port finding is a sample of one; the skill's step 3 and T2.6 need the matrix | No model. One AppHost per hosting integration (PostgreSQL, Redis, SQL Server, MySQL, MongoDB, RabbitMQ, Kafka, NATS, Azure Storage emulator, Cosmos emulator, Elasticsearch, Qdrant, Keycloak, Valkey, Garnet, Seq); a script scores six questions per row (container or PID in `describe`; credentials without source; documented native tool works inside the container with the generic recipe; client span present; health text distinguishes down/slow/refusing; a safe restart command). Output: a matrix in `msbench/telemetry/audit/`, one issue draft per failing cell | 0 model trials; two to three days of fixture work | [done 2026-11-19](#t41-results): Q3 generic recipe 6/15 |
 | T4.2 | **Cross-service fault** | The span-pattern table's "error on a client span under a 200" row is untested | Bingo's frontend proxy to the admin returns errors the frontend swallows (a misconfigured upstream path); nothing in the admin log; the aspirified trace shows a client span with 5xx under a 200 | `raw`, `aspire-cli`, `aspire-skills-mcp`, `aspire-lean` × luna, terra × 6 = 48 ≈ $1.90 | pending |
 | T4.3 | **Application-code fault** | "Time not covered by any child span" row untested; raw app's log has nothing | An N+1 in the status endpoint (one query per square) after a data growth step; verifier: median status under a limit and query count per request under a limit | Same arms, 48 ≈ $1.90 | pending |
 | T4.4 | **Multi-turn session** | All 461 trials are single turn; a real session reuses context | Two-step task: diagnose, then a follow-up change on the same running app; only if the runner demonstrably keeps the conversation (F05) | 24 ≈ $1.00 after the runner check | pending |
@@ -2566,7 +2566,65 @@ Where the router is absent or rarely wins, the runs match: `aspire-lean` 42/42 a
 
 #### T4.1 results
 
-pending
+Run 2026-11-19 on this Mac (arm64, Docker Desktop 4.98) inside the `app-aspire` stage of the suite image,
+pin 2026-11-17 (`17.1.0-preview.1.26567.3+30326eb8`, Linux arm64, private `dockerd` on overlay2). SQL Server
+ran under `linux/amd64` emulation inside that daemon. Every row started; none had to be skipped. Elasticsearch:
+**no package at pin**. Evidence per row (raw `describe`, spans, every command with exit code and masked
+output, `score.json`): [`evidence/integration-audit/2026-11-19/`](evidence/integration-audit/2026-11-19/)
+([matrix.md](evidence/integration-audit/2026-11-19/matrix.md)). No model, no queue, $0.
+
+| Row | Q1 container | Q2 credentials | Q3 generic recipe | Tool in image | Works instead (step 3 line) | Q4 client span | Q5 health text | Q6 restart |
+|---|---|---|---|---|---|---|---|---|
+| PostgreSQL | pass | pass (env) | pass | yes | – | pass (`db.query.text`) | FAIL | pass |
+| Redis | pass | pass (env) | **FAIL** (`I/O error`, TLS on 6379) | yes | `redis-cli -p 6380` | pass (`SET`) | pass | pass |
+| SQL Server | pass | pass (env) | **FAIL** (ODBC: `unregistered scheme` on Aspire's `SSL_CERT_DIR` list) | yes | `sqlcmd -C …` | pass (`SELECT …`) | FAIL | pass |
+| MySQL | pass | pass (env) | pass | yes | – | pass | pass | pass |
+| MongoDB | pass | pass (env) | **FAIL** (`--tlsMode requireTLS`) | yes | `mongosh --tls --tlsCAFile /usr/lib/ssl/aspire/cert.pem …` (post-hoc probe) | pass | FAIL | pass |
+| RabbitMQ | pass | pass (env) | pass | yes | – | **FAIL**: `connect` spans only, publish has no span | pass | pass |
+| Kafka | pass | n/a (no auth) | **FAIL** (`kafka-topics.sh` not found; `localhost:9092` advertises the host port) | no (as `kafka-topics`) | `kafka-topics --bootstrap-server localhost:29092 …` | pass (`audit publish`) | FAIL | pass |
+| NATS | pass | **FAIL** (credentials only in container args) | **FAIL** (no shell, no `nats` CLI) | no | host: `nats-box` on the container's network, `--user/--pass` from `docker inspect` args | pass | FAIL | pass |
+| Azure Storage (Azurite) | pass | n/a (well-known key) | **FAIL** (`az` not in image) | no | host: `az storage … --connection-string` with the published blob port | pass (`PUT`) | FAIL | pass |
+| Cosmos DB emulator (vnext) | pass | pass (env) | **FAIL** (`http://localhost:8081` empty reply) | yes (`curl`) | `curl -k https://localhost:8081/` | pass (`GET`) | pass | pass |
+| Qdrant | pass | pass (env) | **FAIL** (`curl` not in image) | no | host: `curl -H 'api-key: …' http://127.0.0.1:<port>/collections` | pass | FAIL | pass |
+| Keycloak | pass | pass (env) | pass (`kcadm.sh`) | yes | – | pass (HTTP `GET`) | pass | pass |
+| Valkey | pass | pass (env) | pass | yes | – | pass | pass | pass |
+| Garnet | pass | pass (env) | **FAIL** (no client in image) | no | host: `redis-cli -p <port>` with `GARNET_PASSWORD` | pass | pass | pass |
+| Seq | pass | pass (scored; no auth in fact) | pass (`seqcli`) | yes | – | n/a (sink) | pass | pass |
+
+Readings:
+
+- **Q1, Q6: 15/15.** `describe` carries `container.id` for every row and `restart` is listed and enabled for every
+  row. Every restart **replaced the container**, and with the defaults (no volume) every marker written before it
+  was gone after it (8 rows with a marker; F34 now covers 15 rows). "Restart" is safe for availability and
+  destructive for data unless a volume was added. No row offers a "describe my state" command (`commands` holds
+  `restart` and `stop` only).
+- **Q2: 14/15** (13 pass, 2 n/a). The scorer passed Seq on `SEQ_FIRSTRUN_NOAUTHENTICATION`, which is not a
+  credential; Seq has no authentication by default, so that cell is really n/a. Values never appear in `describe` (`null`), names do. NATS is the exception:
+  its user and password are container *arguments*, not environment variables, so the only source outside the
+  AppHost code is `docker inspect`.
+- **Q3: 6/15 pass.** Nine generic recipes fail, for five different reasons: TLS on the default port (Redis,
+  MongoDB), a TLS/certificate store setting that breaks the client (SQL Server, via Aspire's colon-separated
+  `SSL_CERT_DIR`), no client or no shell in the image (NATS, Azurite, Qdrant, Garnet), a renamed client and a
+  listener that is not reachable inside the container (Kafka), and HTTPS on the documented HTTP port (Cosmos
+  vnext). The "works instead" column is the line each would need in a skill's step 3.
+- **Q4: 13/14** scored rows have a client span with the statement, command or target using Aspire's client
+  integration. RabbitMQ (`Aspire.RabbitMQ.Client`) is the gap: the publish adds `messaging.*` attributes to the
+  caller's span and emits only `rabbitmq connect` spans, so no span names the routing key.
+- **Q5: 8/15.** Under `docker pause` for 60 s, PostgreSQL, SQL Server, MongoDB, Kafka, NATS, Azurite and Qdrant
+  stayed `Healthy`; the other eight checks turned `Unhealthy` (three, all HTTP checks, name the timeout). After
+  `docker kill` the state is `Exited` but the last report stays as it was (`Healthy` in 12 rows): the health text
+  goes stale when the resource stops. *Refusing writes* was not induced (no generic way across 15 servers).
+- **Scorer notes.** The data marker was first written before the Q5 kill/start; it was moved to just before the
+  restart and PostgreSQL and Redis were re-run (both results above are from the re-run). The audit client's
+  Keycloak call first read only the endpoint named `http`, which serves HTTPS at the pin; fixed and the row
+  re-run. Q2's name filter also lists unrelated image variables (Cosmos `OTEL_POSTGRES_*`, Seq
+  `SEQ_FIRSTRUN_NOAUTHENTICATION`); they change no pass or fail.
+
+**T2.6 choice, by the rule as computed:** the tool is in the image in **10 of 15** rows (PostgreSQL, Redis, SQL
+Server, MySQL, MongoDB, RabbitMQ, Cosmos via `curl`, Keycloak, Valkey, Seq), under the 11 the rule needs for
+`exec`, so T2.6 builds the **`connect` block in `describe --format Json`**, which can also give a host-side
+command. The count sits on the boundary: Kafka's image has the client under the Confluent name
+(`kafka-topics`), which would make it 11 under a looser reading, and Cosmos counts only through `curl`.
 
 ### T4.7 Claude Code adapter (proposed)
 

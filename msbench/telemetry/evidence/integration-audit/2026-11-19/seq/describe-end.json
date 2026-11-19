@@ -1,0 +1,58 @@
+{
+  "name": "seq-jtdszzeg",
+  "displayName": "seq",
+  "resourceType": "Container",
+  "resourceTypeDisplayName": "Seq",
+  "state": "Running",
+  "creationTimestamp": "2026-11-19T05:35:19+00:00",
+  "startTimestamp": "2026-11-19T05:35:20.301193+00:00",
+  "source": "docker.io/datalust/seq:2025.2",
+  "healthStatus": "Healthy",
+  "dashboardUrl": "https://localhost:43257/?resource=seq-jtdszzeg",
+  "relationships": [],
+  "urls": [
+    {
+      "name": "http",
+      "url": "http://localhost:37563"
+    }
+  ],
+  "volumes": [],
+  "properties": {
+    "container.args": null,
+    "container.command": null,
+    "container.id": "66be0a13c02fc4a03301e23fab15be548873c6e1816f61dfe704e7e193c9a0df",
+    "container.image": "docker.io/datalust/seq:2025.2",
+    "container.lifetime": "Session",
+    "container.ports": [
+      80
+    ],
+    "resource.appArgs": [],
+    "resource.appArgsSensitivity": [],
+    "resource.connectionProperties": null,
+    "resource.connectionString": null
+  },
+  "environment": {
+    "ACCEPT_EULA": "Y",
+    "SEQ_FIRSTRUN_NOAUTHENTICATION": "True",
+    "SSL_CERT_DIR": "/usr/lib/ssl/aspire/certs:/etc/ssl/certs:/usr/local/share/ca-certificates:/etc/pki/tls/certs"
+  },
+  "healthReports": {
+    "seq_http_/health_200_check": {
+      "status": "Healthy"
+    }
+  },
+  "commands": {
+    "restart": {
+      "displayName": "Restart",
+      "description": "Restart resource",
+      "state": "Enabled",
+      "sortOrder": 2
+    },
+    "stop": {
+      "displayName": "Stop",
+      "description": "Stop resource",
+      "state": "Enabled",
+      "sortOrder": 1
+    }
+  }
+}

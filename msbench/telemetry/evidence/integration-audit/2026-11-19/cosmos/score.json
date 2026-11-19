@@ -1,0 +1,100 @@
+{
+  "row": "cosmos",
+  "hosting": "Aspire.Hosting.Azure.CosmosDB",
+  "resource": "cosmos",
+  "notes": [],
+  "startSeconds": 7.873,
+  "q1": {
+    "pass": true,
+    "containerId": "934715921e56",
+    "image": "mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:vnext-latest"
+  },
+  "q2": {
+    "containerEnv": [
+      "CERT_SECRET",
+      "OTEL_POSTGRES_USER",
+      "OTEL_POSTGRES_PASSWORD",
+      "ORIGINAL_USER"
+    ],
+    "credentialArgs": false,
+    "describeEnvNames": [
+      "CERT_SECRET"
+    ],
+    "describeValues": [],
+    "describeConnectionString": false,
+    "noAuth": false,
+    "pass": true
+  },
+  "q3": {
+    "pass": false,
+    "shell": true,
+    "toolInImage": true,
+    "generic": {
+      "command": "curl -fsS http://localhost:8081/ -o /dev/null -w '%{http_code}'",
+      "where": "container",
+      "ok": false,
+      "code": 52,
+      "output": "000curl: (52) Empty reply from server"
+    },
+    "alternatives": [
+      {
+        "command": "curl -ksS https://localhost:8081/ -o /dev/null -w '%{http_code}'",
+        "where": "container",
+        "ok": true,
+        "code": 0,
+        "output": "200"
+      }
+    ],
+    "works": "curl -ksS https://localhost:8081/ -o /dev/null -w '%{http_code}'",
+    "endpoints": [
+      "emulatorhealth=http://localhost:39147",
+      "emulator=https://localhost:36355"
+    ],
+    "tlsPrimary": false
+  },
+  "q4": {
+    "pass": true,
+    "spanNoStatement": false,
+    "totalSpans": 69,
+    "dependencySpans": 53,
+    "sample": {
+      "name": "GET",
+      "kind": "Client",
+      "attributes": {
+        "http.request.method": "GET",
+        "server.address": "169.254.169.254",
+        "server.port": "80",
+        "url.full": "http://169.254.169.254/metadata/instance?*"
+      }
+    },
+    "names": [
+      "audit.op",
+      "GET",
+      "POST"
+    ]
+  },
+  "q5": {
+    "refusing": "not induced",
+    "healthy": "state=Running health=Healthy cosmos_emulatorhealth_/ready_200_check=Healthy",
+    "hasReport": true,
+    "hung": "state=Running health=Unhealthy cosmos_emulatorhealth_/ready_200_check=Unhealthy (Request to http://localhost:39147/ready timed out)",
+    "hungLeftHealthy": true,
+    "recoveredAfterHung": true,
+    "down": "state=Exited health=none cosmos_emulatorhealth_/ready_200_check=Healthy",
+    "recoveredAfterDown": true,
+    "startReplacedContainer": true,
+    "pass": true
+  },
+  "q6": {
+    "commands": [
+      "restart",
+      "stop"
+    ],
+    "restartEnabled": true,
+    "extraCommands": [],
+    "restartExit": 0,
+    "backHealthy": true,
+    "containerReplaced": true,
+    "pass": true
+  }
+}

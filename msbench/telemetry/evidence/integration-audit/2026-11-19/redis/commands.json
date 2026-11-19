@@ -1,0 +1,100 @@
+[
+  {
+    "cmd": "/usr/local/aspire/aspire start --isolated --apphost /work/apphosts/redis/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 10.266,
+    "stdout": "Starting Aspire AppHost in the background...\n\n     AppHost:  ../work/apphosts/redis/apphost.cs                                                             \n                                                                                                             \n   Dashboard:  https://localhost:39213/login?t=22c21665d05cd6fb041b093f5f52aae3                              \n                                                                                                             \n        Logs:  /root/.aspire/logs/cli_20261119T044908423_detach-child_ce99bdc364ee4a9ab49e6c7c2afc0662.log   \n                                                                                                             \n         PID:  14026                                                                                         \n\n✅ AppHost started successfully.\n",
+    "stderr": "\nA new version of Aspire is available: 17.1.0-preview.1.26568.1\nTo update, run: aspire update\nFor more information, see: https://aka.ms/aspire/update\n"
+  },
+  {
+    "cmd": "docker ps -q --no-trunc --filter id=8540b00ae514edd252f2e13910f012210de0785ab2750f7b183190cb417fadb9",
+    "code": 0,
+    "seconds": 0.039,
+    "stdout": "8540b00ae514edd252f2e13910f012210de0785ab2750f7b183190cb417fadb9\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker exec 8540b00ae514edd252f2e13910f012210de0785ab2750f7b183190cb417fadb9 sh -c true",
+    "code": 0,
+    "seconds": 0.227,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker exec 8540b00ae514edd252f2e13910f012210de0785ab2750f7b183190cb417fadb9 sh -c command -v redis-cli || test -x redis-cli",
+    "code": 0,
+    "seconds": 0.168,
+    "stdout": "/usr/local/bin/redis-cli\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker exec 8540b00ae514edd252f2e13910f012210de0785ab2750f7b183190cb417fadb9 sh -c REDISCLI_AUTH=\"$REDIS_PASSWORD\" redis-cli PING",
+    "code": 1,
+    "seconds": 0.286,
+    "stdout": "",
+    "stderr": "\nI/O error\n\nI/O error\nError: Connection reset by peer\n"
+  },
+  {
+    "cmd": "docker exec 8540b00ae514edd252f2e13910f012210de0785ab2750f7b183190cb417fadb9 sh -c REDISCLI_AUTH=\"$REDIS_PASSWORD\" redis-cli -p 6380 PING",
+    "code": 0,
+    "seconds": 0.08,
+    "stdout": "PONG\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker pause 8540b00ae514edd252f2e13910f012210de0785ab2750f7b183190cb417fadb9",
+    "code": 0,
+    "seconds": 0.019,
+    "stdout": "8540b00ae514edd252f2e13910f012210de0785ab2750f7b183190cb417fadb9\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker unpause 8540b00ae514edd252f2e13910f012210de0785ab2750f7b183190cb417fadb9",
+    "code": 0,
+    "seconds": 0.077,
+    "stdout": "8540b00ae514edd252f2e13910f012210de0785ab2750f7b183190cb417fadb9\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker kill 8540b00ae514edd252f2e13910f012210de0785ab2750f7b183190cb417fadb9",
+    "code": 0,
+    "seconds": 2.031,
+    "stdout": "8540b00ae514edd252f2e13910f012210de0785ab2750f7b183190cb417fadb9\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "/usr/local/aspire/aspire resource redis start --apphost /work/apphosts/redis/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 0.808,
+    "stdout": "",
+    "stderr": "Starting resource 'redis'...\n✅ Resource 'redis' started successfully.\n"
+  },
+  {
+    "cmd": "docker exec 2597f97ce6ed51194bee8b5879d41f962c39c7cc2cd13b460e991d27f5989c4f sh -c REDISCLI_AUTH=\"$REDIS_PASSWORD\" redis-cli -p 6380 SET audit:marker kept",
+    "code": 0,
+    "seconds": 0.078,
+    "stdout": "OK\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "/usr/local/aspire/aspire resource redis restart --apphost /work/apphosts/redis/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 12.53,
+    "stdout": "",
+    "stderr": "Restarting resource 'redis'...\n✅ Resource 'redis' restarted successfully.\n"
+  },
+  {
+    "cmd": "docker exec a94dc9263910c36347db467f0b29d9c305046ae08302d32af4c3b135faf15bb5 sh -c REDISCLI_AUTH=\"$REDIS_PASSWORD\" redis-cli -p 6380 GET audit:marker",
+    "code": 0,
+    "seconds": 0.036,
+    "stdout": "\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "/usr/local/aspire/aspire stop --apphost /work/apphosts/redis/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 0.363,
+    "stdout": "Scanning for running AppHosts...\n📦 Found running AppHost: /work/apphosts/redis/apphost.cs\n🛑 Sending stop signal to /work/apphosts/redis/apphost.cs...\nStopping /work/apphosts/redis/apphost.cs...\n\n✅ /work/apphosts/redis/apphost.cs stopped successfully.\n",
+    "stderr": ""
+  }
+]

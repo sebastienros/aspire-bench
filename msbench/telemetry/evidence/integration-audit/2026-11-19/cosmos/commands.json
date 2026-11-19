@@ -1,0 +1,86 @@
+[
+  {
+    "cmd": "/usr/local/aspire/aspire start --isolated --apphost /work/apphosts/cosmos/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 7.873,
+    "stdout": "Starting Aspire AppHost in the background...\n\n     AppHost:  ../work/apphosts/cosmos/apphost.cs                                                            \n                                                                                                             \n   Dashboard:  https://localhost:36441/login?t=c37853eb78f288c171d19cef152eb773                              \n                                                                                                             \n        Logs:  /root/.aspire/logs/cli_20261119T052112561_detach-child_5e343b43ccea4086b85140d71a89ed38.log   \n                                                                                                             \n         PID:  19546                                                                                         \n\n✅ AppHost started successfully.\n",
+    "stderr": "\nA new version of Aspire is available: 17.1.0-preview.1.26568.1\nTo update, run: aspire update\nFor more information, see: https://aka.ms/aspire/update\n"
+  },
+  {
+    "cmd": "docker ps -q --no-trunc --filter id=934715921e568123a9b82824b907b178639f3169b332ae79cfdee7dab16d5571",
+    "code": 0,
+    "seconds": 0.006,
+    "stdout": "934715921e568123a9b82824b907b178639f3169b332ae79cfdee7dab16d5571\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker exec 934715921e568123a9b82824b907b178639f3169b332ae79cfdee7dab16d5571 sh -c true",
+    "code": 0,
+    "seconds": 0.035,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker exec 934715921e568123a9b82824b907b178639f3169b332ae79cfdee7dab16d5571 sh -c command -v curl || test -x curl",
+    "code": 0,
+    "seconds": 0.035,
+    "stdout": "/usr/bin/curl\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker exec 934715921e568123a9b82824b907b178639f3169b332ae79cfdee7dab16d5571 sh -c curl -fsS http://localhost:8081/ -o /dev/null -w '%{http_code}'",
+    "code": 52,
+    "seconds": 0.05,
+    "stdout": "000",
+    "stderr": "curl: (52) Empty reply from server\n"
+  },
+  {
+    "cmd": "docker exec 934715921e568123a9b82824b907b178639f3169b332ae79cfdee7dab16d5571 sh -c curl -ksS https://localhost:8081/ -o /dev/null -w '%{http_code}'",
+    "code": 0,
+    "seconds": 0.066,
+    "stdout": "200",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker pause 934715921e568123a9b82824b907b178639f3169b332ae79cfdee7dab16d5571",
+    "code": 0,
+    "seconds": 0.025,
+    "stdout": "934715921e568123a9b82824b907b178639f3169b332ae79cfdee7dab16d5571\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker unpause 934715921e568123a9b82824b907b178639f3169b332ae79cfdee7dab16d5571",
+    "code": 0,
+    "seconds": 0.028,
+    "stdout": "934715921e568123a9b82824b907b178639f3169b332ae79cfdee7dab16d5571\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker kill 934715921e568123a9b82824b907b178639f3169b332ae79cfdee7dab16d5571",
+    "code": 0,
+    "seconds": 0.221,
+    "stdout": "934715921e568123a9b82824b907b178639f3169b332ae79cfdee7dab16d5571\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "/usr/local/aspire/aspire resource cosmos start --apphost /work/apphosts/cosmos/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 0.653,
+    "stdout": "",
+    "stderr": "Starting resource 'cosmos'...\n✅ Resource 'cosmos' started successfully.\n"
+  },
+  {
+    "cmd": "/usr/local/aspire/aspire resource cosmos restart --apphost /work/apphosts/cosmos/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 1.701,
+    "stdout": "",
+    "stderr": "Restarting resource 'cosmos'...\n✅ Resource 'cosmos' restarted successfully.\n"
+  },
+  {
+    "cmd": "/usr/local/aspire/aspire stop --apphost /work/apphosts/cosmos/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 0.309,
+    "stdout": "Scanning for running AppHosts...\n📦 Found running AppHost: /work/apphosts/cosmos/apphost.cs\n🛑 Sending stop signal to /work/apphosts/cosmos/apphost.cs...\nStopping /work/apphosts/cosmos/apphost.cs...\n\n✅ /work/apphosts/cosmos/apphost.cs stopped successfully.\n",
+    "stderr": ""
+  }
+]

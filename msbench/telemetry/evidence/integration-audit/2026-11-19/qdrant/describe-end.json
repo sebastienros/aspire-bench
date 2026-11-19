@@ -1,0 +1,70 @@
+{
+  "name": "qdrant-hxcnzdkf",
+  "displayName": "qdrant",
+  "resourceType": "Container",
+  "resourceTypeDisplayName": "Qdrant",
+  "state": "Running",
+  "creationTimestamp": "2026-11-19T05:26:34+00:00",
+  "startTimestamp": "2026-11-19T05:26:35.058056+00:00",
+  "source": "docker.io/qdrant/qdrant:v1.18.0",
+  "healthStatus": "Healthy",
+  "dashboardUrl": "https://localhost:42521/?resource=qdrant-hxcnzdkf",
+  "relationships": [],
+  "urls": [
+    {
+      "name": "http",
+      "displayName": "Qdrant (HTTP)",
+      "url": "http://localhost:34281"
+    },
+    {
+      "name": "http",
+      "displayName": "Manage",
+      "url": "http://localhost:34281/dashboard"
+    },
+    {
+      "name": "grpc",
+      "displayName": "Qdrant (GRPC)",
+      "url": "http://localhost:45403",
+      "isInternal": true
+    }
+  ],
+  "volumes": [],
+  "properties": {
+    "container.args": null,
+    "container.command": null,
+    "container.id": "90a4af529db558106c304d2cbe24e93fadafcdf15e1e108841c5901b831927bf",
+    "container.image": "docker.io/qdrant/qdrant:v1.18.0",
+    "container.lifetime": "Session",
+    "container.ports": [
+      6333,
+      6334
+    ],
+    "resource.appArgs": [],
+    "resource.appArgsSensitivity": [],
+    "resource.connectionProperties": null,
+    "resource.connectionString": null
+  },
+  "environment": {
+    "QDRANT__SERVICE__API_KEY": null,
+    "SSL_CERT_DIR": "/usr/lib/ssl/aspire/certs:/etc/ssl/certs:/usr/local/share/ca-certificates:/etc/pki/tls/certs"
+  },
+  "healthReports": {
+    "qdrant_check": {
+      "status": "Healthy"
+    }
+  },
+  "commands": {
+    "restart": {
+      "displayName": "Restart",
+      "description": "Restart resource",
+      "state": "Enabled",
+      "sortOrder": 2
+    },
+    "stop": {
+      "displayName": "Stop",
+      "description": "Stop resource",
+      "state": "Enabled",
+      "sortOrder": 1
+    }
+  }
+}

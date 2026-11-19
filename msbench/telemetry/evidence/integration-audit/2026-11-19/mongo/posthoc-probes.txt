@@ -1,0 +1,5 @@
+# post-hoc probes, not scored (T4.1 mongo row), 2026-11-19T05:43:15Z
+$ mongosh --quiet --tls --tlsCAFile /usr/lib/ssl/aspire/cert.pem -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD" --eval "db.runCommand({ping:1}).ok"
+exit 0 -> 1
+$ mongosh --quiet --tls --tlsAllowInvalidCertificates -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD" --eval "db.runCommand({ping:1}).ok"
+exit 0 -> 1

@@ -1,0 +1,58 @@
+{
+  "name": "sqlserver-dvnfrenn",
+  "displayName": "sqlserver",
+  "resourceType": "Container",
+  "resourceTypeDisplayName": "SQL Server",
+  "state": "Running",
+  "creationTimestamp": "2026-11-19T05:35:32+00:00",
+  "startTimestamp": "2026-11-19T05:36:39.692618+00:00",
+  "source": "mcr.microsoft.com/mssql/server:2022-latest",
+  "healthStatus": "Healthy",
+  "dashboardUrl": "https://localhost:43551/?resource=sqlserver-dvnfrenn",
+  "relationships": [],
+  "urls": [
+    {
+      "name": "tcp",
+      "url": "tcp://localhost:36641"
+    }
+  ],
+  "volumes": [],
+  "properties": {
+    "container.args": null,
+    "container.command": null,
+    "container.id": "9b4b7f7295aa91cc6ea664390e6968324eef749eaadd6ae81f8b31a7c274d831",
+    "container.image": "mcr.microsoft.com/mssql/server:2022-latest",
+    "container.lifetime": "Session",
+    "container.ports": [
+      1433
+    ],
+    "resource.appArgs": [],
+    "resource.appArgsSensitivity": [],
+    "resource.connectionProperties": null,
+    "resource.connectionString": null
+  },
+  "environment": {
+    "ACCEPT_EULA": "Y",
+    "MSSQL_SA_PASSWORD": null,
+    "SSL_CERT_DIR": "/usr/lib/ssl/aspire/certs:/etc/ssl/certs:/usr/local/share/ca-certificates:/etc/pki/tls/certs"
+  },
+  "healthReports": {
+    "sqlserver_check": {
+      "status": "Healthy"
+    }
+  },
+  "commands": {
+    "restart": {
+      "displayName": "Restart",
+      "description": "Restart resource",
+      "state": "Enabled",
+      "sortOrder": 2
+    },
+    "stop": {
+      "displayName": "Stop",
+      "description": "Stop resource",
+      "state": "Enabled",
+      "sortOrder": 1
+    }
+  }
+}

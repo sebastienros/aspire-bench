@@ -1,0 +1,80 @@
+{
+  "name": "cosmos-gbzqtcsu",
+  "displayName": "cosmos",
+  "resourceType": "AzureCosmosDBResource",
+  "resourceTypeDisplayName": "Azure Cosmos DB",
+  "state": "Running",
+  "creationTimestamp": "2026-11-19T05:24:17+00:00",
+  "startTimestamp": "2026-11-19T05:24:18.194237+00:00",
+  "source": "mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:vnext-latest",
+  "healthStatus": "Healthy",
+  "dashboardUrl": "https://localhost:36441/?resource=cosmos-gbzqtcsu",
+  "relationships": [],
+  "urls": [
+    {
+      "name": "emulatorhealth",
+      "url": "http://localhost:39147",
+      "isInternal": true
+    },
+    {
+      "name": "emulator",
+      "url": "https://localhost:36355"
+    }
+  ],
+  "volumes": [],
+  "properties": {
+    "container.args": null,
+    "container.command": null,
+    "container.id": "cf8a69c21e2394bd7d3d981deec4d9448d2340aa40e526b18cdb1458b79191c0",
+    "container.image": "mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:vnext-latest",
+    "container.lifetime": "Session",
+    "container.ports": [
+      8080,
+      8081
+    ],
+    "resource.appArgs": [],
+    "resource.appArgsSensitivity": [],
+    "resource.connectionProperties": null,
+    "resource.connectionString": null
+  },
+  "environment": {
+    "CERT_PATH": "/usr/lib/ssl/aspire/private/5B9B146474BE533B8E27A339DEACE94553988760.pfx",
+    "CERT_SECRET": null,
+    "ENABLE_EXPLORER": "false",
+    "ENABLE_OTLP_EXPORTER": "true",
+    "EXPLORER_PROTOCOL": "https",
+    "NODE_EXTRA_CA_CERTS": "/usr/lib/ssl/aspire/cert.pem",
+    "OTEL_BLRP_SCHEDULE_DELAY": "1000",
+    "OTEL_BSP_SCHEDULE_DELAY": "1000",
+    "OTEL_EXPORTER_OTLP_ENDPOINT": "https://aspire.dev.internal:40327",
+    "OTEL_EXPORTER_OTLP_HEADERS": "x-otlp-api-key=f6789a3b79b6fe79cbc01a21710bbb5b",
+    "OTEL_EXPORTER_OTLP_PROTOCOL": "grpc",
+    "OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT": "true",
+    "OTEL_METRIC_EXPORT_INTERVAL": "1000",
+    "OTEL_METRICS_EXEMPLAR_FILTER": "trace_based",
+    "OTEL_RESOURCE_ATTRIBUTES": "service.instance.id=gbzqtcsu",
+    "OTEL_SERVICE_NAME": "cosmos",
+    "OTEL_TRACES_SAMPLER": "always_on",
+    "PROTOCOL": "https",
+    "SSL_CERT_DIR": "/usr/lib/ssl/aspire/certs:/etc/ssl/certs:/usr/local/share/ca-certificates:/etc/pki/tls/certs"
+  },
+  "healthReports": {
+    "cosmos_emulatorhealth_/ready_200_check": {
+      "status": "Healthy"
+    }
+  },
+  "commands": {
+    "restart": {
+      "displayName": "Restart",
+      "description": "Restart resource",
+      "state": "Enabled",
+      "sortOrder": 2
+    },
+    "stop": {
+      "displayName": "Stop",
+      "description": "Stop resource",
+      "state": "Enabled",
+      "sortOrder": 1
+    }
+  }
+}

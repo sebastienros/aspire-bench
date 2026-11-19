@@ -1,0 +1,89 @@
+{
+  "row": "nats",
+  "hosting": "Aspire.Hosting.Nats",
+  "resource": "nats",
+  "notes": [],
+  "startSeconds": 5.268,
+  "q1": {
+    "pass": true,
+    "containerId": "7379a413658a",
+    "image": "docker.io/library/nats:2.14"
+  },
+  "q2": {
+    "containerEnv": [],
+    "credentialArgs": true,
+    "describeEnvNames": [],
+    "describeValues": [],
+    "describeConnectionString": false,
+    "noAuth": false,
+    "pass": false
+  },
+  "q3": {
+    "pass": false,
+    "shell": false,
+    "toolInImage": false,
+    "generic": {
+      "command": "nats server check connection",
+      "ok": false,
+      "code": "no shell",
+      "output": ""
+    },
+    "alternatives": [
+      {
+        "command": "host: docker run --rm --network container:{id} docker.io/natsio/nats-box:latest nats --server nats://{arg:--user}:{arg:--pass}@localhost:4222 server check connection",
+        "where": "host",
+        "ok": true,
+        "code": 0,
+        "output": "OK Connection OK:connected to nats://nats:<secret>@localhost:4222 in 533.042µs OK:rtt time 44.083µs OK:round trip took 0.000061s | connect_time=0.0005s;0.5000;1.0000 rtt=0.0000s;0.5000;1.0000 request_time=0.0001s;0.5000;1.0000\nUnable to find image 'natsio/nats-box:latest' locally\nlatest: Pulling fro"
+      }
+    ],
+    "works": "host: docker run --rm --network container:{id} docker.io/natsio/nats-box:latest nats --server nats://{arg:--user}:{arg:--pass}@localhost:4222 server check connection",
+    "endpoints": [
+      "tcp=tcp://localhost:44593"
+    ],
+    "tlsPrimary": false
+  },
+  "q4": {
+    "pass": true,
+    "spanNoStatement": false,
+    "totalSpans": 32,
+    "dependencySpans": 16,
+    "sample": {
+      "name": "audit.events publish",
+      "kind": "Producer",
+      "attributes": {
+        "messaging.system": "nats",
+        "messaging.operation": "publish",
+        "messaging.destination.name": "audit.events"
+      }
+    },
+    "names": [
+      "audit.op",
+      "audit.events publish"
+    ]
+  },
+  "q5": {
+    "refusing": "not induced",
+    "healthy": "state=Running health=Healthy nats_check=Healthy",
+    "hasReport": true,
+    "hung": "state=Running health=Healthy nats_check=Healthy",
+    "hungLeftHealthy": false,
+    "recoveredAfterHung": true,
+    "down": "state=Exited health=none nats_check=Degraded (Connecting to NATS server...)",
+    "recoveredAfterDown": true,
+    "startReplacedContainer": true,
+    "pass": false
+  },
+  "q6": {
+    "commands": [
+      "restart",
+      "stop"
+    ],
+    "restartEnabled": true,
+    "extraCommands": [],
+    "restartExit": 0,
+    "backHealthy": true,
+    "containerReplaced": true,
+    "pass": true
+  }
+}

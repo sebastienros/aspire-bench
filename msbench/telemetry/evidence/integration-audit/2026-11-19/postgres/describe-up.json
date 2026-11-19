@@ -1,0 +1,60 @@
+{
+  "name": "postgres-hybuakhf",
+  "displayName": "postgres",
+  "resourceType": "Container",
+  "resourceTypeDisplayName": "PostgreSQL Server",
+  "state": "Running",
+  "creationTimestamp": "2026-11-19T04:46:56+00:00",
+  "startTimestamp": "2026-11-19T04:46:58.708945+00:00",
+  "source": "docker.io/library/postgres:18.3",
+  "healthStatus": "Healthy",
+  "dashboardUrl": "https://localhost:42105/?resource=postgres-hybuakhf",
+  "relationships": [],
+  "urls": [
+    {
+      "name": "tcp",
+      "url": "tcp://localhost:42565"
+    }
+  ],
+  "volumes": [],
+  "properties": {
+    "container.args": null,
+    "container.command": null,
+    "container.id": "2c67eb5172a05d06d9a4df6eedbba92915918098d378ef32f65327a717caaa22",
+    "container.image": "docker.io/library/postgres:18.3",
+    "container.lifetime": "Session",
+    "container.ports": [
+      5432
+    ],
+    "resource.appArgs": [],
+    "resource.appArgsSensitivity": [],
+    "resource.connectionProperties": null,
+    "resource.connectionString": null
+  },
+  "environment": {
+    "POSTGRES_HOST_AUTH_METHOD": "scram-sha-256",
+    "POSTGRES_INITDB_ARGS": "--auth-host=scram-sha-256 --auth-local=scram-sha-256",
+    "POSTGRES_PASSWORD": null,
+    "POSTGRES_USER": "postgres",
+    "SSL_CERT_DIR": "/usr/lib/ssl/aspire/certs:/etc/ssl/certs:/usr/local/share/ca-certificates:/etc/pki/tls/certs"
+  },
+  "healthReports": {
+    "postgres_check": {
+      "status": "Healthy"
+    }
+  },
+  "commands": {
+    "restart": {
+      "displayName": "Restart",
+      "description": "Restart resource",
+      "state": "Enabled",
+      "sortOrder": 2
+    },
+    "stop": {
+      "displayName": "Stop",
+      "description": "Stop resource",
+      "state": "Enabled",
+      "sortOrder": 1
+    }
+  }
+}

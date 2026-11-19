@@ -1,0 +1,56 @@
+{
+  "name": "nats-fvyfjxxw",
+  "displayName": "nats",
+  "resourceType": "Container",
+  "resourceTypeDisplayName": "NATS",
+  "state": "Running",
+  "creationTimestamp": "2026-11-19T05:16:31+00:00",
+  "startTimestamp": "2026-11-19T05:16:36.130669+00:00",
+  "source": "docker.io/library/nats:2.14",
+  "healthStatus": "Healthy",
+  "dashboardUrl": "https://localhost:46241/?resource=nats-fvyfjxxw",
+  "relationships": [],
+  "urls": [
+    {
+      "name": "tcp",
+      "url": "tcp://localhost:44593"
+    }
+  ],
+  "volumes": [],
+  "properties": {
+    "container.args": null,
+    "container.command": null,
+    "container.id": "7379a413658ad1317d2a8032928d953a6db39fc50e388e8a2c9eac09fa82fb8d",
+    "container.image": "docker.io/library/nats:2.14",
+    "container.lifetime": "Session",
+    "container.ports": [
+      4222
+    ],
+    "resource.appArgs": null,
+    "resource.appArgsSensitivity": null,
+    "resource.connectionProperties": null,
+    "resource.connectionString": null
+  },
+  "environment": {
+    "SSL_CERT_DIR": "/usr/lib/ssl/aspire/certs:/etc/ssl/certs:/usr/local/share/ca-certificates:/etc/pki/tls/certs"
+  },
+  "healthReports": {
+    "nats_check": {
+      "status": "Healthy"
+    }
+  },
+  "commands": {
+    "restart": {
+      "displayName": "Restart",
+      "description": "Restart resource",
+      "state": "Enabled",
+      "sortOrder": 2
+    },
+    "stop": {
+      "displayName": "Stop",
+      "description": "Stop resource",
+      "state": "Enabled",
+      "sortOrder": 1
+    }
+  }
+}

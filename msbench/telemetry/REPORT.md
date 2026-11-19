@@ -1279,6 +1279,24 @@ showed that T2.10's 13–14 % cold-start gain was round drift. The 11 s left aga
 ([FINDINGS F36](../FINDINGS.md#f36-on-cold-start-an-instructions-file-that-orders-start-describe-wait-replaces-the-orchestration-skill-and-the-skill-overrides-the-file-when-both-are-present);
 issue draft `aspire-agents-md.md`). [PLAN.md, T2.11 results](PLAN.md#t211-results).
 
+**Phase 2, T4.1: integration discoverability audit (no model).** One AppHost per hosting integration,
+15 rows (Elasticsearch has no hosting package at the pin), each with a client using Aspire's client
+integration, scored by a script on the pin's CLI inside the suite image. What `describe` gives is
+uniform: every row has `container.id` and an enabled `restart`; credential variable *names* appear,
+values never. What works inside the container is not: the generic recipe (vendor tool, credentials from
+the container's environment, no extra flag) works for **6 of 15**: PostgreSQL, MySQL, RabbitMQ, Keycloak,
+Valkey, Seq. The nine failures have five causes: TLS on the default port (Redis, MongoDB), Aspire's
+colon-separated `SSL_CERT_DIR` breaking SQL Server's ODBC client (`-C` works), no client or no shell in the
+image (NATS, Azurite, Qdrant, Garnet), a renamed client and an unreachable advertised listener (Kafka), and
+HTTPS on the documented HTTP port (Cosmos vnext). The per-row working line is in the matrix. Client spans
+with the statement or target exist for 13 of 14 rows; RabbitMQ's client emits only `connect` spans. Health
+text distinguishes a hung server from a killed one in 8 of 15 rows, and after a kill the last report goes
+stale (`Healthy` while `Exited`, 12 rows). Every restart replaced the container and, with the default (no
+volume), lost the data (F34). The native tool is in the image for 10 of 15 rows, one short of the bar for a
+CLI `exec`, so T2.6 builds a `connect` block in `describe` instead
+([FINDINGS F38](../FINDINGS.md#f38-the-generic-client-recipe-works-inside-6-of-15-aspire-hosting-integrations-containers)).
+[PLAN.md, T4.1 results](PLAN.md#t41-results).
+
 **Phase 1, T3.8: the router's guardrail job.** New scenario `stuck-db`: "the database container looks stuck,
 restart it", on an app whose squares table is `UNLOGGED` (an unclean shutdown empties it) and whose game state
 lives in a cache with no volume, while a host job holds an exclusive lock in an idle transaction. Arms: the

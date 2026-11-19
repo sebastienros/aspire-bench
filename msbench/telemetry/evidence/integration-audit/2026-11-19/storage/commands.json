@@ -1,0 +1,86 @@
+[
+  {
+    "cmd": "/usr/local/aspire/aspire start --isolated --apphost /work/apphosts/storage/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 6.982,
+    "stdout": "Starting Aspire AppHost in the background...\n\n     AppHost:  ../work/apphosts/storage/apphost.cs                                                           \n                                                                                                             \n   Dashboard:  https://localhost:43383/login?t=44c6a6d1110f29e9ccb6d0fcd8ef5ed7                              \n                                                                                                             \n        Logs:  /root/.aspire/logs/cli_20261119T051839335_detach-child_bb0ccaf3ff164228a7a67555b5641141.log   \n                                                                                                             \n         PID:  16049                                                                                         \n\n✅ AppHost started successfully.\n",
+    "stderr": "\nA new version of Aspire is available: 17.1.0-preview.1.26568.1\nTo update, run: aspire update\nFor more information, see: https://aka.ms/aspire/update\n"
+  },
+  {
+    "cmd": "docker ps -q --no-trunc --filter id=06633688c1e1facdc48a24e094986291d117cadbd3007d0b869f1379ffc775f1",
+    "code": 0,
+    "seconds": 0.007,
+    "stdout": "06633688c1e1facdc48a24e094986291d117cadbd3007d0b869f1379ffc775f1\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker exec 06633688c1e1facdc48a24e094986291d117cadbd3007d0b869f1379ffc775f1 sh -c true",
+    "code": 0,
+    "seconds": 0.028,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker exec 06633688c1e1facdc48a24e094986291d117cadbd3007d0b869f1379ffc775f1 sh -c command -v az || test -x az",
+    "code": 1,
+    "seconds": 0.025,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker exec 06633688c1e1facdc48a24e094986291d117cadbd3007d0b869f1379ffc775f1 sh -c az storage container list --connection-string 'UseDevelopmentStorage=true' -o tsv",
+    "code": 127,
+    "seconds": 0.029,
+    "stdout": "",
+    "stderr": "sh: az: not found\n"
+  },
+  {
+    "cmd": "bash -c az storage container list --connection-string 'DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:32783/devstoreaccount1;' -o tsv",
+    "code": 0,
+    "seconds": 1.978,
+    "stdout": "None\tNone\tNone\tNone\taudit\t\tNone\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker pause 06633688c1e1facdc48a24e094986291d117cadbd3007d0b869f1379ffc775f1",
+    "code": 0,
+    "seconds": 0.023,
+    "stdout": "06633688c1e1facdc48a24e094986291d117cadbd3007d0b869f1379ffc775f1\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker unpause 06633688c1e1facdc48a24e094986291d117cadbd3007d0b869f1379ffc775f1",
+    "code": 0,
+    "seconds": 0.014,
+    "stdout": "06633688c1e1facdc48a24e094986291d117cadbd3007d0b869f1379ffc775f1\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker kill 06633688c1e1facdc48a24e094986291d117cadbd3007d0b869f1379ffc775f1",
+    "code": 0,
+    "seconds": 0.28,
+    "stdout": "06633688c1e1facdc48a24e094986291d117cadbd3007d0b869f1379ffc775f1\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "/usr/local/aspire/aspire resource storage start --apphost /work/apphosts/storage/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 0.659,
+    "stdout": "",
+    "stderr": "Starting resource 'storage'...\n✅ Resource 'storage' started successfully.\n"
+  },
+  {
+    "cmd": "/usr/local/aspire/aspire resource storage restart --apphost /work/apphosts/storage/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 2.241,
+    "stdout": "",
+    "stderr": "Restarting resource 'storage'...\n✅ Resource 'storage' restarted successfully.\n"
+  },
+  {
+    "cmd": "/usr/local/aspire/aspire stop --apphost /work/apphosts/storage/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 0.299,
+    "stdout": "Scanning for running AppHosts...\n📦 Found running AppHost: /work/apphosts/storage/apphost.cs\n🛑 Sending stop signal to /work/apphosts/storage/apphost.cs...\nStopping /work/apphosts/storage/apphost.cs...\n\n✅ /work/apphosts/storage/apphost.cs stopped successfully.\n",
+    "stderr": ""
+  }
+]

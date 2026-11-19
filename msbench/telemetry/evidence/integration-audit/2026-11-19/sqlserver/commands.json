@@ -1,0 +1,100 @@
+[
+  {
+    "cmd": "/usr/local/aspire/aspire start --isolated --apphost /work/apphosts/sqlserver/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 4.065,
+    "stdout": "Starting Aspire AppHost in the background...\n\n     AppHost:  ../work/apphosts/sqlserver/apphost.cs                                                         \n                                                                                                             \n   Dashboard:  https://localhost:43551/login?t=83455a066e4b2021215bce239f3c8af1                              \n                                                                                                             \n        Logs:  /root/.aspire/logs/cli_20261119T053528529_detach-child_996ee23053db4f229efb49b79ccc818c.log   \n                                                                                                             \n         PID:  42139                                                                                         \n\n✅ AppHost started successfully.\n",
+    "stderr": "\nA new version of Aspire is available: 17.1.0-preview.1.26568.1\nTo update, run: aspire update\nFor more information, see: https://aka.ms/aspire/update\n"
+  },
+  {
+    "cmd": "docker ps -q --no-trunc --filter id=9b4b7f7295aa91cc6ea664390e6968324eef749eaadd6ae81f8b31a7c274d831",
+    "code": 0,
+    "seconds": 0.006,
+    "stdout": "9b4b7f7295aa91cc6ea664390e6968324eef749eaadd6ae81f8b31a7c274d831\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker exec 9b4b7f7295aa91cc6ea664390e6968324eef749eaadd6ae81f8b31a7c274d831 sh -c true",
+    "code": 0,
+    "seconds": 0.033,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker exec 9b4b7f7295aa91cc6ea664390e6968324eef749eaadd6ae81f8b31a7c274d831 sh -c command -v /opt/mssql-tools18/bin/sqlcmd || test -x /opt/mssql-tools18/bin/sqlcmd",
+    "code": 0,
+    "seconds": 0.034,
+    "stdout": "/opt/mssql-tools18/bin/sqlcmd\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker exec 9b4b7f7295aa91cc6ea664390e6968324eef749eaadd6ae81f8b31a7c274d831 sh -c /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$MSSQL_SA_PASSWORD\" -h -1 -Q 'set nocount on; select 1'",
+    "code": 1,
+    "seconds": 0.12,
+    "stdout": "",
+    "stderr": "Sqlcmd: Error: Microsoft ODBC Driver 18 for SQL Server : SSL Provider: [error:16000069:STORE routines::unregistered scheme:scheme=file][error:80000002:system library::No such file or directory:calling stat(/usr/lib/ssl/aspire/certs:/etc/ssl/certs:/usr/local/share/ca-certificates:/etc/pki/tls/certs)].\nSqlcmd: Error: Microsoft ODBC Driver 18 for SQL Server : Client unable to establish connection. For solutions related to encryption errors, see https://go.microsoft.com/fwlink/?linkid=2226722.\n"
+  },
+  {
+    "cmd": "docker exec 9b4b7f7295aa91cc6ea664390e6968324eef749eaadd6ae81f8b31a7c274d831 sh -c /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P \"$MSSQL_SA_PASSWORD\" -h -1 -Q 'set nocount on; select 1'",
+    "code": 0,
+    "seconds": 0.136,
+    "stdout": "          1\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker pause 9b4b7f7295aa91cc6ea664390e6968324eef749eaadd6ae81f8b31a7c274d831",
+    "code": 0,
+    "seconds": 0.014,
+    "stdout": "9b4b7f7295aa91cc6ea664390e6968324eef749eaadd6ae81f8b31a7c274d831\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker unpause 9b4b7f7295aa91cc6ea664390e6968324eef749eaadd6ae81f8b31a7c274d831",
+    "code": 0,
+    "seconds": 0.016,
+    "stdout": "9b4b7f7295aa91cc6ea664390e6968324eef749eaadd6ae81f8b31a7c274d831\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker kill 9b4b7f7295aa91cc6ea664390e6968324eef749eaadd6ae81f8b31a7c274d831",
+    "code": 0,
+    "seconds": 0.173,
+    "stdout": "9b4b7f7295aa91cc6ea664390e6968324eef749eaadd6ae81f8b31a7c274d831\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "/usr/local/aspire/aspire resource sqlserver start --apphost /work/apphosts/sqlserver/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 0.307,
+    "stdout": "",
+    "stderr": "Starting resource 'sqlserver'...\n✅ Resource 'sqlserver' started successfully.\n"
+  },
+  {
+    "cmd": "docker exec 247d5ecc81ab9f5bd5b1de0989b4cd6e5c7b122957c3e521a3514fdecbb0c9ac sh -c /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P \"$MSSQL_SA_PASSWORD\" -Q \"create table dbo.audit_marker(v nvarchar(10)); insert dbo.audit_marker values ('kept')\"",
+    "code": 0,
+    "seconds": 0.154,
+    "stdout": "\n(1 rows affected)\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "/usr/local/aspire/aspire resource sqlserver restart --apphost /work/apphosts/sqlserver/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 13.795,
+    "stdout": "",
+    "stderr": "Restarting resource 'sqlserver'...\n✅ Resource 'sqlserver' restarted successfully.\n"
+  },
+  {
+    "cmd": "docker exec c58e5d6c2d1c1a2858f68b0fcb9b0b5e75d3c54fd1709194b8f1f68d64ee65e6 sh -c /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P \"$MSSQL_SA_PASSWORD\" -h -1 -Q 'set nocount on; select v from dbo.audit_marker'",
+    "code": 0,
+    "seconds": 0.163,
+    "stdout": "Msg 208, Level 16, State 1, Server c58e5d6c2d1c, Line 1\nInvalid object name 'dbo.audit_marker'.\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "/usr/local/aspire/aspire stop --apphost /work/apphosts/sqlserver/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 0.309,
+    "stdout": "Scanning for running AppHosts...\n📦 Found running AppHost: /work/apphosts/sqlserver/apphost.cs\n🛑 Sending stop signal to /work/apphosts/sqlserver/apphost.cs...\nStopping /work/apphosts/sqlserver/apphost.cs...\n\n✅ /work/apphosts/sqlserver/apphost.cs stopped successfully.\n",
+    "stderr": ""
+  }
+]

@@ -1,0 +1,94 @@
+{
+  "name": "redis-pswzjmwc",
+  "displayName": "redis",
+  "resourceType": "Container",
+  "resourceTypeDisplayName": "Redis",
+  "state": "Running",
+  "creationTimestamp": "2026-11-19T04:51:06+00:00",
+  "startTimestamp": "2026-11-19T04:51:07.031964+00:00",
+  "source": "docker.io/library/redis:8.6",
+  "healthStatus": "Healthy",
+  "dashboardUrl": "https://localhost:39213/?resource=redis-pswzjmwc",
+  "relationships": [],
+  "urls": [
+    {
+      "name": "secondary",
+      "url": "tcp://localhost:39351"
+    },
+    {
+      "name": "tcp",
+      "url": "rediss://localhost:42923"
+    }
+  ],
+  "volumes": [],
+  "properties": {
+    "container.args": null,
+    "container.command": "/bin/sh",
+    "container.id": "a94dc9263910c36347db467f0b29d9c305046ae08302d32af4c3b135faf15bb5",
+    "container.image": "docker.io/library/redis:8.6",
+    "container.lifetime": "Session",
+    "container.ports": [
+      6380,
+      6379
+    ],
+    "resource.appArgs": [
+      "redis-server",
+      "--requirepass",
+      "$REDIS_PASSWORD",
+      "--tls-port",
+      "6379",
+      "--port",
+      "6380",
+      "--tls-ca-cert-file",
+      "/usr/lib/ssl/aspire/cert.pem",
+      "--tls-cert-file",
+      "/usr/lib/ssl/aspire/private/F5D15611BCF02AE4A53A8168DE7A5615FC84C762.crt",
+      "--tls-key-file",
+      "/usr/lib/ssl/aspire/private/F5D15611BCF02AE4A53A8168DE7A5615FC84C762.key",
+      "--tls-auth-clients",
+      "no"
+    ],
+    "resource.appArgsSensitivity": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "resource.connectionProperties": null,
+    "resource.connectionString": null
+  },
+  "environment": {
+    "REDIS_PASSWORD": null,
+    "SSL_CERT_DIR": "/usr/lib/ssl/aspire/certs:/etc/ssl/certs:/usr/local/share/ca-certificates:/etc/pki/tls/certs"
+  },
+  "healthReports": {
+    "redis_check": {
+      "status": "Healthy"
+    }
+  },
+  "commands": {
+    "restart": {
+      "displayName": "Restart",
+      "description": "Restart resource",
+      "state": "Enabled",
+      "sortOrder": 2
+    },
+    "stop": {
+      "displayName": "Stop",
+      "description": "Stop resource",
+      "state": "Enabled",
+      "sortOrder": 1
+    }
+  }
+}

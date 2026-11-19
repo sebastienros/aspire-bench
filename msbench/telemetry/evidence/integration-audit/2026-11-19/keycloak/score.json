@@ -1,0 +1,97 @@
+{
+  "row": "keycloak",
+  "hosting": "Aspire.Hosting.Keycloak",
+  "resource": "keycloak",
+  "notes": [],
+  "startSeconds": 2.857,
+  "q1": {
+    "pass": true,
+    "containerId": "59042ddec4dd",
+    "image": "quay.io/keycloak/keycloak:26.6"
+  },
+  "q2": {
+    "containerEnv": [
+      "KC_BOOTSTRAP_ADMIN_USERNAME",
+      "KC_BOOTSTRAP_ADMIN_PASSWORD",
+      "KC_HTTPS_CERTIFICATE_KEY_FILE"
+    ],
+    "credentialArgs": false,
+    "describeEnvNames": [
+      "KC_BOOTSTRAP_ADMIN_PASSWORD",
+      "KC_BOOTSTRAP_ADMIN_USERNAME",
+      "KC_HTTPS_CERTIFICATE_KEY_FILE"
+    ],
+    "describeValues": [
+      "KC_BOOTSTRAP_ADMIN_USERNAME",
+      "KC_HTTPS_CERTIFICATE_KEY_FILE"
+    ],
+    "describeConnectionString": false,
+    "noAuth": false,
+    "pass": true
+  },
+  "q3": {
+    "pass": true,
+    "shell": true,
+    "toolInImage": true,
+    "generic": {
+      "command": "/opt/keycloak/bin/kcadm.sh config credentials --config /tmp/kcadm.config --server http://localhost:8080 --realm master --user \"$KC_BOOTSTRAP_ADMIN_USERNAME\" --password \"$KC_BOOTSTRAP_ADMIN_PASSWORD\" && /opt/keycloak/bin/kcadm.sh get realms --config /tmp/kcadm.config --fields realm",
+      "where": "container",
+      "ok": true,
+      "code": 0,
+      "output": "[ {\n  \"realm\" : \"master\"\n} ]Logging into http://localhost:8080 as user admin of realm master"
+    },
+    "alternatives": [],
+    "works": "/opt/keycloak/bin/kcadm.sh config credentials --config /tmp/kcadm.config --server http://localhost:8080 --realm master --user \"$KC_BOOTSTRAP_ADMIN_USERNAME\" --password \"$KC_BOOTSTRAP_ADMIN_PASSWORD\" && /opt/keycloak/bin/kcadm.sh get realms --config /tmp/kcadm.config --fields realm",
+    "endpoints": [
+      "management=https://localhost:43977",
+      "http=https://localhost:43745"
+    ],
+    "tlsPrimary": true
+  },
+  "q4": {
+    "pass": true,
+    "spanNoStatement": false,
+    "totalSpans": 32,
+    "dependencySpans": 16,
+    "sample": {
+      "name": "GET",
+      "kind": "Client",
+      "attributes": {
+        "http.request.method": "GET",
+        "server.address": "localhost",
+        "server.port": "43745",
+        "url.full": "https://localhost:43745/realms/master/.well-known/openid-configuration",
+        "http.response.status_code": "200 OK",
+        "network.protocol.version": "1.1"
+      }
+    },
+    "names": [
+      "audit.op",
+      "GET"
+    ]
+  },
+  "q5": {
+    "refusing": "not induced",
+    "healthy": "state=Running health=Healthy keycloak_management_/health/ready_200_check=Healthy",
+    "hasReport": true,
+    "hung": "state=Running health=Unhealthy keycloak_management_/health/ready_200_check=Unhealthy (Request to https://localhost:43977/health/ready timed out)",
+    "hungLeftHealthy": true,
+    "recoveredAfterHung": true,
+    "down": "state=Exited health=none keycloak_management_/health/ready_200_check=Healthy",
+    "recoveredAfterDown": true,
+    "startReplacedContainer": true,
+    "pass": true
+  },
+  "q6": {
+    "commands": [
+      "restart",
+      "stop"
+    ],
+    "restartEnabled": true,
+    "extraCommands": [],
+    "restartExit": 0,
+    "backHealthy": true,
+    "containerReplaced": true,
+    "pass": true
+  }
+}

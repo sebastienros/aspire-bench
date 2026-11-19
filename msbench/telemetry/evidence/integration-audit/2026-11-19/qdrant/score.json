@@ -1,0 +1,99 @@
+{
+  "row": "qdrant",
+  "hosting": "Aspire.Hosting.Qdrant",
+  "resource": "qdrant",
+  "notes": [],
+  "startSeconds": 4.069,
+  "q1": {
+    "pass": true,
+    "containerId": "baf50d88497b",
+    "image": "docker.io/qdrant/qdrant:v1.18.0"
+  },
+  "q2": {
+    "containerEnv": [
+      "QDRANT__SERVICE__API_KEY"
+    ],
+    "credentialArgs": false,
+    "describeEnvNames": [
+      "QDRANT__SERVICE__API_KEY"
+    ],
+    "describeValues": [],
+    "describeConnectionString": false,
+    "noAuth": false,
+    "pass": true
+  },
+  "q3": {
+    "pass": false,
+    "shell": true,
+    "toolInImage": false,
+    "generic": {
+      "command": "curl -fsS -H \"api-key: $QDRANT__SERVICE__API_KEY\" http://localhost:6333/collections",
+      "where": "container",
+      "ok": false,
+      "code": 127,
+      "output": "sh: 1: curl: not found"
+    },
+    "alternatives": [
+      {
+        "command": "host: curl -fsS -H 'api-key: {env:QDRANT__SERVICE__API_KEY}' http://127.0.0.1:{port:6333}/collections",
+        "where": "host",
+        "ok": true,
+        "code": 0,
+        "output": "{\"result\":{\"collections\":[]},\"status\":\"ok\",\"time\":5.333e-6}"
+      }
+    ],
+    "works": "host: curl -fsS -H 'api-key: {env:QDRANT__SERVICE__API_KEY}' http://127.0.0.1:{port:6333}/collections",
+    "endpoints": [
+      "http=http://localhost:34281",
+      "http=http://localhost:34281/dashboard",
+      "grpc=http://localhost:45403"
+    ],
+    "tlsPrimary": false
+  },
+  "q4": {
+    "pass": true,
+    "spanNoStatement": false,
+    "totalSpans": 30,
+    "dependencySpans": 15,
+    "sample": {
+      "name": "POST",
+      "kind": "Client",
+      "attributes": {
+        "http.request.method": "POST",
+        "server.address": "localhost",
+        "server.port": "45403",
+        "url.full": "http://localhost:45403/qdrant.Collections/List",
+        "http.response.status_code": "200 OK",
+        "network.protocol.version": "2"
+      }
+    },
+    "names": [
+      "audit.op",
+      "POST"
+    ]
+  },
+  "q5": {
+    "refusing": "not induced",
+    "healthy": "state=Running health=Healthy qdrant_check=Healthy",
+    "hasReport": true,
+    "hung": "state=Running health=Healthy qdrant_check=Healthy",
+    "hungLeftHealthy": false,
+    "recoveredAfterHung": true,
+    "down": "state=Exited health=none qdrant_check=Healthy",
+    "recoveredAfterDown": true,
+    "startReplacedContainer": true,
+    "pass": false
+  },
+  "q6": {
+    "commands": [
+      "restart",
+      "stop"
+    ],
+    "restartEnabled": true,
+    "extraCommands": [],
+    "restartExit": 0,
+    "backHealthy": true,
+    "containerReplaced": true,
+    "pass": true
+  }
+}

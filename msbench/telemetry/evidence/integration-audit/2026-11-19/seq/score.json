@@ -1,0 +1,73 @@
+{
+  "row": "seq",
+  "hosting": "Aspire.Hosting.Seq",
+  "resource": "seq",
+  "notes": [],
+  "startSeconds": 4.182,
+  "q1": {
+    "pass": true,
+    "containerId": "978fb5d96e2f",
+    "image": "docker.io/datalust/seq:2025.2"
+  },
+  "q2": {
+    "containerEnv": [
+      "SEQ_FIRSTRUN_NOAUTHENTICATION"
+    ],
+    "credentialArgs": false,
+    "describeEnvNames": [
+      "SEQ_FIRSTRUN_NOAUTHENTICATION"
+    ],
+    "describeValues": [
+      "SEQ_FIRSTRUN_NOAUTHENTICATION"
+    ],
+    "describeConnectionString": false,
+    "noAuth": false,
+    "pass": true
+  },
+  "q3": {
+    "pass": true,
+    "shell": true,
+    "toolInImage": true,
+    "generic": {
+      "command": "seqcli search -c 1",
+      "where": "container",
+      "ok": true,
+      "code": 0,
+      "output": ""
+    },
+    "alternatives": [],
+    "works": "seqcli search -c 1",
+    "endpoints": [
+      "http=http://localhost:37563"
+    ],
+    "tlsPrimary": false
+  },
+  "q4": {
+    "pass": null,
+    "na": "telemetry sink, no client call to trace"
+  },
+  "q5": {
+    "refusing": "not induced",
+    "healthy": "state=Running health=Healthy seq_http_/health_200_check=Healthy",
+    "hasReport": true,
+    "hung": "state=Running health=Unhealthy seq_http_/health_200_check=Unhealthy (Request to http://localhost:37563/health timed out)",
+    "hungLeftHealthy": true,
+    "recoveredAfterHung": true,
+    "down": "state=Exited health=none seq_http_/health_200_check=Healthy",
+    "recoveredAfterDown": true,
+    "startReplacedContainer": true,
+    "pass": true
+  },
+  "q6": {
+    "commands": [
+      "restart",
+      "stop"
+    ],
+    "restartEnabled": true,
+    "extraCommands": [],
+    "restartExit": 0,
+    "backHealthy": true,
+    "containerReplaced": true,
+    "pass": true
+  }
+}

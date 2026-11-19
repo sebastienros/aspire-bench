@@ -1,0 +1,58 @@
+{
+  "name": "rabbitmq-anbdskgr",
+  "displayName": "rabbitmq",
+  "resourceType": "Container",
+  "resourceTypeDisplayName": "RabbitMQ",
+  "state": "Running",
+  "creationTimestamp": "2026-11-19T05:11:22+00:00",
+  "startTimestamp": "2026-11-19T05:11:30.96678+00:00",
+  "source": "docker.io/library/rabbitmq:4.3",
+  "healthStatus": "Healthy",
+  "dashboardUrl": "https://localhost:38981/?resource=rabbitmq-anbdskgr",
+  "relationships": [],
+  "urls": [
+    {
+      "name": "tcp",
+      "url": "tcp://localhost:42907"
+    }
+  ],
+  "volumes": [],
+  "properties": {
+    "container.args": null,
+    "container.command": null,
+    "container.id": "938cfddd806c08ff1c56795711939664a98c2e4a0b073f4be12225157a2a8972",
+    "container.image": "docker.io/library/rabbitmq:4.3",
+    "container.lifetime": "Session",
+    "container.ports": [
+      5672
+    ],
+    "resource.appArgs": [],
+    "resource.appArgsSensitivity": [],
+    "resource.connectionProperties": null,
+    "resource.connectionString": null
+  },
+  "environment": {
+    "RABBITMQ_DEFAULT_PASS": null,
+    "RABBITMQ_DEFAULT_USER": "guest",
+    "SSL_CERT_DIR": "/usr/lib/ssl/aspire/certs:/etc/ssl/certs:/usr/local/share/ca-certificates:/etc/pki/tls/certs"
+  },
+  "healthReports": {
+    "rabbitmq_check": {
+      "status": "Healthy"
+    }
+  },
+  "commands": {
+    "restart": {
+      "displayName": "Restart",
+      "description": "Restart resource",
+      "state": "Enabled",
+      "sortOrder": 2
+    },
+    "stop": {
+      "displayName": "Stop",
+      "description": "Stop resource",
+      "state": "Enabled",
+      "sortOrder": 1
+    }
+  }
+}

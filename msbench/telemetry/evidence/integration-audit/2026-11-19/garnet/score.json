@@ -1,0 +1,101 @@
+{
+  "row": "garnet",
+  "hosting": "Aspire.Hosting.Garnet",
+  "resource": "garnet",
+  "notes": [],
+  "startSeconds": 4.586,
+  "q1": {
+    "pass": true,
+    "containerId": "78826a873d50",
+    "image": "ghcr.io/microsoft/garnet:1.0"
+  },
+  "q2": {
+    "containerEnv": [
+      "GARNET_PASSWORD"
+    ],
+    "credentialArgs": false,
+    "describeEnvNames": [
+      "GARNET_PASSWORD"
+    ],
+    "describeValues": [],
+    "describeConnectionString": false,
+    "noAuth": false,
+    "pass": true
+  },
+  "q3": {
+    "pass": false,
+    "shell": true,
+    "toolInImage": false,
+    "generic": {
+      "command": "REDISCLI_AUTH=\"$GARNET_PASSWORD\" redis-cli PING",
+      "where": "container",
+      "ok": false,
+      "code": 127,
+      "output": "sh: 1: redis-cli: not found"
+    },
+    "alternatives": [
+      {
+        "command": "host: REDISCLI_AUTH='{env:GARNET_PASSWORD}' redis-cli -p {port:6379} PING",
+        "where": "host",
+        "ok": true,
+        "code": 0,
+        "output": "PONG"
+      }
+    ],
+    "works": "host: REDISCLI_AUTH='{env:GARNET_PASSWORD}' redis-cli -p {port:6379} PING",
+    "endpoints": [
+      "tcp=tcp://localhost:34539"
+    ],
+    "tlsPrimary": false
+  },
+  "q4": {
+    "pass": true,
+    "spanNoStatement": false,
+    "totalSpans": 46,
+    "dependencySpans": 30,
+    "sample": {
+      "name": "SET",
+      "kind": "Client",
+      "attributes": {
+        "db.system": "redis",
+        "db.redis.database_index": "0",
+        "db.statement": "SET",
+        "server.address": "localhost",
+        "server.port": "34539"
+      }
+    },
+    "names": [
+      "audit.op",
+      "SET",
+      "GET"
+    ]
+  },
+  "q5": {
+    "refusing": "not induced",
+    "healthy": "state=Running health=Healthy garnet_check=Healthy",
+    "hasReport": true,
+    "hung": "state=Running health=Unhealthy garnet_check=Unhealthy",
+    "hungLeftHealthy": true,
+    "recoveredAfterHung": true,
+    "down": "state=Exited health=none garnet_check=Healthy",
+    "recoveredAfterDown": true,
+    "startReplacedContainer": true,
+    "pass": true
+  },
+  "q6": {
+    "commands": [
+      "restart",
+      "stop"
+    ],
+    "restartEnabled": true,
+    "extraCommands": [],
+    "restartExit": 0,
+    "backHealthy": true,
+    "containerReplaced": true,
+    "pass": true
+  },
+  "marker": {
+    "written": true,
+    "kept": false
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "row": "storage",
+  "hosting": "Aspire.Hosting.Azure.Storage",
+  "resource": "storage",
+  "notes": [],
+  "startSeconds": 6.982,
+  "q1": {
+    "pass": true,
+    "containerId": "06633688c1e1",
+    "image": "mcr.microsoft.com/azure-storage/azurite:3.35.0"
+  },
+  "q2": {
+    "containerEnv": [],
+    "credentialArgs": false,
+    "describeEnvNames": [],
+    "describeValues": [],
+    "describeConnectionString": false,
+    "noAuth": true,
+    "pass": true
+  },
+  "q3": {
+    "pass": false,
+    "shell": true,
+    "toolInImage": false,
+    "generic": {
+      "command": "az storage container list --connection-string 'UseDevelopmentStorage=true' -o tsv",
+      "where": "container",
+      "ok": false,
+      "code": 127,
+      "output": "sh: az: not found"
+    },
+    "alternatives": [
+      {
+        "command": "host: az storage container list --connection-string 'DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:{port:10000}/devstoreaccount1;' -o tsv",
+        "where": "host",
+        "ok": true,
+        "code": 0,
+        "output": "None\tNone\tNone\tNone\taudit\t\tNone"
+      }
+    ],
+    "works": "host: az storage container list --connection-string 'DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:{port:10000}/devstoreaccount1;' -o tsv",
+    "endpoints": [
+      "table=http://localhost:46687",
+      "queue=http://localhost:38367",
+      "blob=http://localhost:33343"
+    ],
+    "tlsPrimary": false
+  },
+  "q4": {
+    "pass": true,
+    "spanNoStatement": false,
+    "totalSpans": 75,
+    "dependencySpans": 30,
+    "sample": {
+      "name": "PUT",
+      "kind": "Client",
+      "attributes": {
+        "http.request.method": "PUT",
+        "server.address": "127.0.0.1",
+        "server.port": "33343",
+        "url.full": "http://127.0.0.1:33343/devstoreaccount1/audit?*",
+        "http.response.status_code": "201 Created",
+        "network.protocol.version": "1.1"
+      }
+    },
+    "names": [
+      "audit.op",
+      "BlobContainerClient.CreateIfNotExists",
+      "PUT",
+      "BlobClient.Upload"
+    ]
+  },
+  "q5": {
+    "refusing": "not induced",
+    "healthy": "state=Running health=Healthy storage_check=Healthy",
+    "hasReport": true,
+    "hung": "state=Running health=Healthy storage_check=Healthy",
+    "hungLeftHealthy": false,
+    "recoveredAfterHung": true,
+    "down": "state=Exited health=none storage_check=Healthy",
+    "recoveredAfterDown": true,
+    "startReplacedContainer": true,
+    "pass": false
+  },
+  "q6": {
+    "commands": [
+      "restart",
+      "stop"
+    ],
+    "restartEnabled": true,
+    "extraCommands": [],
+    "restartExit": 0,
+    "backHealthy": true,
+    "containerReplaced": true,
+    "pass": true
+  }
+}

@@ -1,0 +1,107 @@
+[
+  {
+    "cmd": "/usr/local/aspire/aspire start --isolated --apphost /work/apphosts/kafka/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 5.117,
+    "stdout": "Starting Aspire AppHost in the background...\n\n     AppHost:  ../work/apphosts/kafka/apphost.cs                                                             \n                                                                                                             \n   Dashboard:  https://localhost:46265/login?t=3e5457710c43e075e8bd911746d5e457                              \n                                                                                                             \n        Logs:  /root/.aspire/logs/cli_20261119T051344412_detach-child_1863d800a7a54f2499203ab68d6038b6.log   \n                                                                                                             \n         PID:  8114                                                                                          \n\n✅ AppHost started successfully.\n",
+    "stderr": "\nA new version of Aspire is available: 17.1.0-preview.1.26568.1\nTo update, run: aspire update\nFor more information, see: https://aka.ms/aspire/update\n"
+  },
+  {
+    "cmd": "docker ps -q --no-trunc --filter id=4d607bcb51b2cac8873a7cfbc7047a7a02f9ee6ed4919bf39094eefa4e723cf5",
+    "code": 0,
+    "seconds": 0.009,
+    "stdout": "4d607bcb51b2cac8873a7cfbc7047a7a02f9ee6ed4919bf39094eefa4e723cf5\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker exec 4d607bcb51b2cac8873a7cfbc7047a7a02f9ee6ed4919bf39094eefa4e723cf5 sh -c true",
+    "code": 0,
+    "seconds": 0.043,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker exec 4d607bcb51b2cac8873a7cfbc7047a7a02f9ee6ed4919bf39094eefa4e723cf5 sh -c command -v kafka-topics.sh || test -x kafka-topics.sh",
+    "code": 1,
+    "seconds": 0.039,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker exec 4d607bcb51b2cac8873a7cfbc7047a7a02f9ee6ed4919bf39094eefa4e723cf5 sh -c kafka-topics.sh --bootstrap-server localhost:9092 --list",
+    "code": 127,
+    "seconds": 0.039,
+    "stdout": "",
+    "stderr": "sh: line 1: kafka-topics.sh: command not found\n"
+  },
+  {
+    "cmd": "docker exec 4d607bcb51b2cac8873a7cfbc7047a7a02f9ee6ed4919bf39094eefa4e723cf5 sh -c kafka-topics --bootstrap-server localhost:9092 --list",
+    "code": "timeout",
+    "seconds": 20.005,
+    "stdout": "",
+    "stderr": "[2026-11-19 05:14:12,123] WARN [AdminClient clientId=adminclient-1] Connection to node 1 (localhost/127.0.0.1:39561) could not be established. Node may not be available. (org.apache.kafka.clients.NetworkClient)\n[2026-11-19 05:14:12,240] WARN [AdminClient clientId=adminclient-1] Connection to node 1 (localhost/127.0.0.1:39561) could not be established. Node may not be available. (org.apache.kafka.clients.NetworkClient)\n[2026-11-19 05:14:12,342] WARN [AdminClient clientId=adminclient-1] Connection to node 1 (localhost/127.0.0.1:39561) could not be established. Node may not be available. (org.apache.kafka.clients.NetworkClient)\n[2026-11-19 05:14:12,547] WARN [AdminClient clientId=adminclient-1] Connection to node 1 (localhost/127.0.0.1:39561) could not be established. Node may not be available. (org.apache.kafka.clients.NetworkClient)\n[2026-11-19 05:14:12,960] WARN [AdminClient clientId=adminclient-1] Connection to node 1 (localhost/127.0.0.1:39561) could not be established. Node may not be available. (org.apache.kafka.clients.NetworkClient)\n[2026-11-19 05:14:13,678] WARN [AdminClient clientId=adminclient-1] Connection to node 1 (localhost/127.0.0.1:39561) could not be established. Node may not be available. (org.apache.kafka.clients.NetworkClient)\n[2026-11-19 05:14:14,697] WARN [AdminClient clientId=adminclient-1] Connection to node 1 (localhost/127.0.0.1:39561) could not be established. Node may not be available. (org.apache.kafka.clients.NetworkClient)\n[2026-11-19 05:14:15,718] WARN [AdminClient clientId=adminclient-1] Connection to node 1 (localhost/127.0.0.1:39561) could not be established. Node may not be available. (org.apache.kafka.clients.NetworkClient)\n[2026-11-19 05:14:16,633] WARN [AdminClient clientId=adminclient-1] Connection to node 1 (localhost/127.0.0.1:39561) could not be established. Node may not be available. (org.apache.kafka.clients.NetworkClient)\n[2026-11-19 05:14:17,649] WARN [AdminClient clientId=adminclient-1] Connection to node 1 (localhost/1"
+  },
+  {
+    "cmd": "docker exec 4d607bcb51b2cac8873a7cfbc7047a7a02f9ee6ed4919bf39094eefa4e723cf5 sh -c kafka-topics --bootstrap-server localhost:29092 --list",
+    "code": 0,
+    "seconds": 1.143,
+    "stdout": "audit\nhealthchecks-topic\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker pause 4d607bcb51b2cac8873a7cfbc7047a7a02f9ee6ed4919bf39094eefa4e723cf5",
+    "code": 0,
+    "seconds": 0.027,
+    "stdout": "4d607bcb51b2cac8873a7cfbc7047a7a02f9ee6ed4919bf39094eefa4e723cf5\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker unpause 4d607bcb51b2cac8873a7cfbc7047a7a02f9ee6ed4919bf39094eefa4e723cf5",
+    "code": 0,
+    "seconds": 0.034,
+    "stdout": "4d607bcb51b2cac8873a7cfbc7047a7a02f9ee6ed4919bf39094eefa4e723cf5\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker kill 4d607bcb51b2cac8873a7cfbc7047a7a02f9ee6ed4919bf39094eefa4e723cf5",
+    "code": 0,
+    "seconds": 0.176,
+    "stdout": "4d607bcb51b2cac8873a7cfbc7047a7a02f9ee6ed4919bf39094eefa4e723cf5\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "/usr/local/aspire/aspire resource kafka start --apphost /work/apphosts/kafka/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 0.491,
+    "stdout": "",
+    "stderr": "Starting resource 'kafka'...\n✅ Resource 'kafka' started successfully.\n"
+  },
+  {
+    "cmd": "docker exec 56cb1a9828f8292708ad8e07bed698f1538b8aa3ac32c17868806cbf6391e537 sh -c kafka-topics --bootstrap-server localhost:29092 --create --if-not-exists --topic audit-marker",
+    "code": 0,
+    "seconds": 0.993,
+    "stdout": "Created topic audit-marker.\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "/usr/local/aspire/aspire resource kafka restart --apphost /work/apphosts/kafka/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 4.075,
+    "stdout": "",
+    "stderr": "Restarting resource 'kafka'...\n✅ Resource 'kafka' restarted successfully.\n"
+  },
+  {
+    "cmd": "docker exec 9fae82283ccb580ac06f3f6162bd0af842891e32ba5143a8f8571284f368c042 sh -c kafka-topics --bootstrap-server localhost:29092 --list | grep -x audit-marker && echo kept",
+    "code": 1,
+    "seconds": 0.962,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "cmd": "/usr/local/aspire/aspire stop --apphost /work/apphosts/kafka/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 0.315,
+    "stdout": "Scanning for running AppHosts...\n📦 Found running AppHost: /work/apphosts/kafka/apphost.cs\n🛑 Sending stop signal to /work/apphosts/kafka/apphost.cs...\nStopping /work/apphosts/kafka/apphost.cs...\n\n✅ /work/apphosts/kafka/apphost.cs stopped successfully.\n",
+    "stderr": ""
+  }
+]

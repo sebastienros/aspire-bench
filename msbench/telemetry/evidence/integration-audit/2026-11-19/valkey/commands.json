@@ -1,0 +1,93 @@
+[
+  {
+    "cmd": "/usr/local/aspire/aspire start --isolated --apphost /work/apphosts/valkey/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 3.998,
+    "stdout": "Starting Aspire AppHost in the background...\n\n     AppHost:  ../work/apphosts/valkey/apphost.cs                                                            \n                                                                                                             \n   Dashboard:  https://localhost:38237/login?t=a41dc95c5ad9ef9819460e17d1201503                              \n                                                                                                             \n        Logs:  /root/.aspire/logs/cli_20261119T052916783_detach-child_b90724646a924d5f824dc8deb7c47f95.log   \n                                                                                                             \n         PID:  32497                                                                                         \n\n✅ AppHost started successfully.\n",
+    "stderr": "\nA new version of Aspire is available: 17.1.0-preview.1.26568.1\nTo update, run: aspire update\nFor more information, see: https://aka.ms/aspire/update\n"
+  },
+  {
+    "cmd": "docker ps -q --no-trunc --filter id=a6a242981577a092ed13c80118365f8cf05b7939f9f1074c15ecd17d2c3ea5a0",
+    "code": 0,
+    "seconds": 0.006,
+    "stdout": "a6a242981577a092ed13c80118365f8cf05b7939f9f1074c15ecd17d2c3ea5a0\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker exec a6a242981577a092ed13c80118365f8cf05b7939f9f1074c15ecd17d2c3ea5a0 sh -c true",
+    "code": 0,
+    "seconds": 0.028,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker exec a6a242981577a092ed13c80118365f8cf05b7939f9f1074c15ecd17d2c3ea5a0 sh -c command -v valkey-cli || test -x valkey-cli",
+    "code": 0,
+    "seconds": 0.023,
+    "stdout": "/usr/local/bin/valkey-cli\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker exec a6a242981577a092ed13c80118365f8cf05b7939f9f1074c15ecd17d2c3ea5a0 sh -c REDISCLI_AUTH=\"$VALKEY_PASSWORD\" valkey-cli PING",
+    "code": 0,
+    "seconds": 0.025,
+    "stdout": "PONG\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker pause a6a242981577a092ed13c80118365f8cf05b7939f9f1074c15ecd17d2c3ea5a0",
+    "code": 0,
+    "seconds": 0.032,
+    "stdout": "a6a242981577a092ed13c80118365f8cf05b7939f9f1074c15ecd17d2c3ea5a0\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker unpause a6a242981577a092ed13c80118365f8cf05b7939f9f1074c15ecd17d2c3ea5a0",
+    "code": 0,
+    "seconds": 0.013,
+    "stdout": "a6a242981577a092ed13c80118365f8cf05b7939f9f1074c15ecd17d2c3ea5a0\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker kill a6a242981577a092ed13c80118365f8cf05b7939f9f1074c15ecd17d2c3ea5a0",
+    "code": 0,
+    "seconds": 0.106,
+    "stdout": "a6a242981577a092ed13c80118365f8cf05b7939f9f1074c15ecd17d2c3ea5a0\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "/usr/local/aspire/aspire resource valkey start --apphost /work/apphosts/valkey/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 0.453,
+    "stdout": "",
+    "stderr": "Starting resource 'valkey'...\n✅ Resource 'valkey' started successfully.\n"
+  },
+  {
+    "cmd": "docker exec 3fdf57640fbad0e937771f9e07d9c58fad4337f44aec299a9bc528bc5938defc sh -c REDISCLI_AUTH=\"$VALKEY_PASSWORD\" valkey-cli SET audit:marker kept",
+    "code": 0,
+    "seconds": 0.028,
+    "stdout": "OK\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "/usr/local/aspire/aspire resource valkey restart --apphost /work/apphosts/valkey/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 11.585,
+    "stdout": "",
+    "stderr": "Restarting resource 'valkey'...\n✅ Resource 'valkey' restarted successfully.\n"
+  },
+  {
+    "cmd": "docker exec 6dc037d7531690d1749095aa02e3b6a8722f104cc30e9e1edcc1578ca777142f sh -c REDISCLI_AUTH=\"$VALKEY_PASSWORD\" valkey-cli GET audit:marker",
+    "code": 0,
+    "seconds": 0.025,
+    "stdout": "\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "/usr/local/aspire/aspire stop --apphost /work/apphosts/valkey/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 0.302,
+    "stdout": "Scanning for running AppHosts...\n📦 Found running AppHost: /work/apphosts/valkey/apphost.cs\n🛑 Sending stop signal to /work/apphosts/valkey/apphost.cs...\nStopping /work/apphosts/valkey/apphost.cs...\n\n✅ /work/apphosts/valkey/apphost.cs stopped successfully.\n",
+    "stderr": ""
+  }
+]

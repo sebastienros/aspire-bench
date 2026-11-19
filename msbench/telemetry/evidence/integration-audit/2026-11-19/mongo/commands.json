@@ -1,0 +1,93 @@
+[
+  {
+    "cmd": "/usr/local/aspire/aspire start --isolated --apphost /work/apphosts/mongo/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 12.756,
+    "stdout": "Starting Aspire AppHost in the background...\n\n     AppHost:  ../work/apphosts/mongo/apphost.cs                                                             \n                                                                                                             \n   Dashboard:  https://localhost:36463/login?t=9e2c9a511c424146149572f9e699e880                              \n                                                                                                             \n        Logs:  /root/.aspire/logs/cli_20261119T050847751_detach-child_ade25a10d4484ff5941a5bb4badfd7ef.log   \n                                                                                                             \n         PID:  482                                                                                           \n\n✅ AppHost started successfully.\n",
+    "stderr": "\nA new version of Aspire is available: 17.1.0-preview.1.26568.1\nTo update, run: aspire update\nFor more information, see: https://aka.ms/aspire/update\n"
+  },
+  {
+    "cmd": "docker ps -q --no-trunc --filter id=a72d72935faae0b34713dbecbb52dda4f1ae995d7716b7759576d22bb57594ee",
+    "code": 0,
+    "seconds": 0.007,
+    "stdout": "a72d72935faae0b34713dbecbb52dda4f1ae995d7716b7759576d22bb57594ee\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker exec a72d72935faae0b34713dbecbb52dda4f1ae995d7716b7759576d22bb57594ee sh -c true",
+    "code": 0,
+    "seconds": 0.037,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker exec a72d72935faae0b34713dbecbb52dda4f1ae995d7716b7759576d22bb57594ee sh -c command -v mongosh || test -x mongosh",
+    "code": 0,
+    "seconds": 0.034,
+    "stdout": "/usr/bin/mongosh\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker exec a72d72935faae0b34713dbecbb52dda4f1ae995d7716b7759576d22bb57594ee sh -c mongosh --quiet -u \"$MONGO_INITDB_ROOT_USERNAME\" -p \"$MONGO_INITDB_ROOT_PASSWORD\" --eval 'db.runCommand({ping:1}).ok'",
+    "code": 1,
+    "seconds": 2.289,
+    "stdout": "",
+    "stderr": "MongoServerSelectionError: connection <monitor> to 127.0.0.1:27017 closed\n"
+  },
+  {
+    "cmd": "docker exec a72d72935faae0b34713dbecbb52dda4f1ae995d7716b7759576d22bb57594ee sh -c mongosh --quiet -u \"$MONGO_INITDB_ROOT_USERNAME\" -p \"$MONGO_INITDB_ROOT_PASSWORD\" --authenticationDatabase admin --eval 'db.runCommand({ping:1}).ok'",
+    "code": 1,
+    "seconds": 2.182,
+    "stdout": "",
+    "stderr": "MongoServerSelectionError: connection <monitor> to 127.0.0.1:27017 closed\n"
+  },
+  {
+    "cmd": "docker pause a72d72935faae0b34713dbecbb52dda4f1ae995d7716b7759576d22bb57594ee",
+    "code": 0,
+    "seconds": 0.028,
+    "stdout": "a72d72935faae0b34713dbecbb52dda4f1ae995d7716b7759576d22bb57594ee\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker unpause a72d72935faae0b34713dbecbb52dda4f1ae995d7716b7759576d22bb57594ee",
+    "code": 0,
+    "seconds": 0.037,
+    "stdout": "a72d72935faae0b34713dbecbb52dda4f1ae995d7716b7759576d22bb57594ee\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker kill a72d72935faae0b34713dbecbb52dda4f1ae995d7716b7759576d22bb57594ee",
+    "code": 0,
+    "seconds": 0.151,
+    "stdout": "a72d72935faae0b34713dbecbb52dda4f1ae995d7716b7759576d22bb57594ee\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "/usr/local/aspire/aspire resource mongo start --apphost /work/apphosts/mongo/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 0.564,
+    "stdout": "",
+    "stderr": "Starting resource 'mongo'...\n✅ Resource 'mongo' started successfully.\n"
+  },
+  {
+    "cmd": "docker exec abc6f1bad8cb9755c82aa612343dd22ceb09f0e8e09b51ac0a9eabce92b7f9f7 sh -c mongosh --quiet -u \"$MONGO_INITDB_ROOT_USERNAME\" -p \"$MONGO_INITDB_ROOT_PASSWORD\" --eval 'db.getSiblingDB(\"audit\").m.insertOne({v:\"kept\"})'",
+    "code": 1,
+    "seconds": 2.221,
+    "stdout": "",
+    "stderr": "MongoServerSelectionError: connection <monitor> to 127.0.0.1:27017 closed\n"
+  },
+  {
+    "cmd": "/usr/local/aspire/aspire resource mongo restart --apphost /work/apphosts/mongo/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 1.025,
+    "stdout": "",
+    "stderr": "Restarting resource 'mongo'...\n✅ Resource 'mongo' restarted successfully.\n"
+  },
+  {
+    "cmd": "/usr/local/aspire/aspire stop --apphost /work/apphosts/mongo/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 0.326,
+    "stdout": "Scanning for running AppHosts...\n📦 Found running AppHost: /work/apphosts/mongo/apphost.cs\n🛑 Sending stop signal to /work/apphosts/mongo/apphost.cs...\nStopping /work/apphosts/mongo/apphost.cs...\n\n✅ /work/apphosts/mongo/apphost.cs stopped successfully.\n",
+    "stderr": ""
+  }
+]

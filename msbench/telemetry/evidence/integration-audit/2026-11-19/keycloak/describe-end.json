@@ -1,0 +1,84 @@
+{
+  "name": "keycloak-vdpzpndy",
+  "displayName": "keycloak",
+  "resourceType": "Container",
+  "resourceTypeDisplayName": "Keycloak",
+  "state": "Running",
+  "creationTimestamp": "2026-11-19T05:41:39+00:00",
+  "startTimestamp": "2026-11-19T05:41:40.220023+00:00",
+  "source": "quay.io/keycloak/keycloak:26.6",
+  "healthStatus": "Healthy",
+  "dashboardUrl": "https://localhost:42781/?resource=keycloak-vdpzpndy",
+  "relationships": [],
+  "urls": [
+    {
+      "name": "management",
+      "url": "https://localhost:43977",
+      "isInternal": true
+    },
+    {
+      "name": "http",
+      "url": "https://localhost:43745"
+    }
+  ],
+  "volumes": [],
+  "properties": {
+    "container.args": null,
+    "container.command": null,
+    "container.id": "40718828744ff5921315a6c26c90cc9d34b7cf914986eaea64dee075bad2895e",
+    "container.image": "quay.io/keycloak/keycloak:26.6",
+    "container.lifetime": "Session",
+    "container.ports": [
+      9000,
+      8443
+    ],
+    "resource.appArgs": [
+      "/opt/keycloak/bin/kc.sh",
+      "start-dev"
+    ],
+    "resource.appArgsSensitivity": [
+      0,
+      0
+    ]
+  },
+  "environment": {
+    "KC_BOOTSTRAP_ADMIN_PASSWORD": null,
+    "KC_BOOTSTRAP_ADMIN_USERNAME": "admin",
+    "KC_FEATURES": "opentelemetry",
+    "KC_HEALTH_ENABLED": "true",
+    "KC_HTTPS_CERTIFICATE_FILE": "/usr/lib/ssl/aspire/private/5B9B146474BE533B8E27A339DEACE94553988760.crt",
+    "KC_HTTPS_CERTIFICATE_KEY_FILE": "/usr/lib/ssl/aspire/private/5B9B146474BE533B8E27A339DEACE94553988760.key",
+    "KC_HTTPS_PORT": "8443",
+    "OTEL_BLRP_SCHEDULE_DELAY": "1000",
+    "OTEL_BSP_SCHEDULE_DELAY": "1000",
+    "OTEL_EXPORTER_OTLP_ENDPOINT": "https://aspire.dev.internal:37701",
+    "OTEL_EXPORTER_OTLP_HEADERS": "x-otlp-api-key=c4da207a6a644eadf73f6b0957d74552",
+    "OTEL_EXPORTER_OTLP_PROTOCOL": "grpc",
+    "OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT": "true",
+    "OTEL_METRIC_EXPORT_INTERVAL": "1000",
+    "OTEL_METRICS_EXEMPLAR_FILTER": "trace_based",
+    "OTEL_RESOURCE_ATTRIBUTES": "service.instance.id=vdpzpndy",
+    "OTEL_SERVICE_NAME": "keycloak",
+    "OTEL_TRACES_SAMPLER": "always_on",
+    "SSL_CERT_DIR": "/usr/lib/ssl/aspire/certs:/etc/ssl/certs:/usr/local/share/ca-certificates:/etc/pki/tls/certs"
+  },
+  "healthReports": {
+    "keycloak_management_/health/ready_200_check": {
+      "status": "Healthy"
+    }
+  },
+  "commands": {
+    "restart": {
+      "displayName": "Restart",
+      "description": "Restart resource",
+      "state": "Enabled",
+      "sortOrder": 2
+    },
+    "stop": {
+      "displayName": "Stop",
+      "description": "Stop resource",
+      "state": "Enabled",
+      "sortOrder": 1
+    }
+  }
+}

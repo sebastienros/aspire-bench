@@ -1,0 +1,72 @@
+[
+  {
+    "cmd": "/usr/local/aspire/aspire start --isolated --apphost /work/apphosts/nats/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 5.267,
+    "stdout": "Starting Aspire AppHost in the background...\n\n     AppHost:  ../work/apphosts/nats/apphost.cs                                                              \n                                                                                                             \n   Dashboard:  https://localhost:46241/login?t=dbf8f1acbf1ffe57d58d4edade4f8e36                              \n                                                                                                             \n        Logs:  /root/.aspire/logs/cli_20261119T051626198_detach-child_383069dcc9b34637aa99800fcdb0736a.log   \n                                                                                                             \n         PID:  12891                                                                                         \n\n✅ AppHost started successfully.\n",
+    "stderr": "\nA new version of Aspire is available: 17.1.0-preview.1.26568.1\nTo update, run: aspire update\nFor more information, see: https://aka.ms/aspire/update\n"
+  },
+  {
+    "cmd": "docker ps -q --no-trunc --filter id=7379a413658ad1317d2a8032928d953a6db39fc50e388e8a2c9eac09fa82fb8d",
+    "code": 0,
+    "seconds": 0.006,
+    "stdout": "7379a413658ad1317d2a8032928d953a6db39fc50e388e8a2c9eac09fa82fb8d\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker exec 7379a413658ad1317d2a8032928d953a6db39fc50e388e8a2c9eac09fa82fb8d sh -c true",
+    "code": 127,
+    "seconds": 0.034,
+    "stdout": "OCI runtime exec failed: exec failed: unable to start container process: exec: \"sh\": executable file not found in $PATH: unknown\r\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "bash -c docker run --rm --network container:7379a413658ad1317d2a8032928d953a6db39fc50e388e8a2c9eac09fa82fb8d docker.io/natsio/nats-box:latest nats --server nats://nats:<secret>@localhost:4222 server check connection",
+    "code": 0,
+    "seconds": 4.677,
+    "stdout": "OK Connection OK:connected to nats://nats:<secret>@localhost:4222 in 533.042µs OK:rtt time 44.083µs OK:round trip took 0.000061s | connect_time=0.0005s;0.5000;1.0000 rtt=0.0000s;0.5000;1.0000 request_time=0.0001s;0.5000;1.0000\n",
+    "stderr": "Unable to find image 'natsio/nats-box:latest' locally\nlatest: Pulling from natsio/nats-box\nd3531b7a4f21: Pulling fs layer\n876bf1a5d281: Pulling fs layer\n872c991e2bce: Pulling fs layer\n8683fc6ae895: Pulling fs layer\n3a321e03e259: Pulling fs layer\ncb8b2b96eb9e: Pulling fs layer\n4f4fb700ef54: Pulling fs layer\n8683fc6ae895: Waiting\n4f4fb700ef54: Waiting\n3a321e03e259: Waiting\ncb8b2b96eb9e: Waiting\nd3531b7a4f21: Verifying Checksum\nd3531b7a4f21: Download complete\nd3531b7a4f21: Pull complete\n872c991e2bce: Download complete\n8683fc6ae895: Download complete\n3a321e03e259: Verifying Checksum\n3a321e03e259: Download complete\ncb8b2b96eb9e: Verifying Checksum\ncb8b2b96eb9e: Download complete\n4f4fb700ef54: Verifying Checksum\n4f4fb700ef54: Download complete\n876bf1a5d281: Verifying Checksum\n876bf1a5d281: Download complete\n876bf1a5d281: Pull complete\n872c991e2bce: Pull complete\n8683fc6ae895: Pull complete\n3a321e03e259: Pull complete\ncb8b2b96eb9e: Pull complete\n4f4fb700ef54: Pull complete\nDigest: sha256:5162fca0f56ebe6f78e612e1ded143ce978e088393476033020e6251358dba6f\nStatus: Downloaded newer image for natsio/nats-box:latest\n"
+  },
+  {
+    "cmd": "docker pause 7379a413658ad1317d2a8032928d953a6db39fc50e388e8a2c9eac09fa82fb8d",
+    "code": 0,
+    "seconds": 0.013,
+    "stdout": "7379a413658ad1317d2a8032928d953a6db39fc50e388e8a2c9eac09fa82fb8d\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker unpause 7379a413658ad1317d2a8032928d953a6db39fc50e388e8a2c9eac09fa82fb8d",
+    "code": 0,
+    "seconds": 0.015,
+    "stdout": "7379a413658ad1317d2a8032928d953a6db39fc50e388e8a2c9eac09fa82fb8d\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker kill 7379a413658ad1317d2a8032928d953a6db39fc50e388e8a2c9eac09fa82fb8d",
+    "code": 0,
+    "seconds": 0.376,
+    "stdout": "7379a413658ad1317d2a8032928d953a6db39fc50e388e8a2c9eac09fa82fb8d\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "/usr/local/aspire/aspire resource nats start --apphost /work/apphosts/nats/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 1.169,
+    "stdout": "",
+    "stderr": "Starting resource 'nats'...\n✅ Resource 'nats' started successfully.\n"
+  },
+  {
+    "cmd": "/usr/local/aspire/aspire resource nats restart --apphost /work/apphosts/nats/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 1.494,
+    "stdout": "",
+    "stderr": "Restarting resource 'nats'...\n✅ Resource 'nats' restarted successfully.\n"
+  },
+  {
+    "cmd": "/usr/local/aspire/aspire stop --apphost /work/apphosts/nats/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 0.3,
+    "stdout": "Scanning for running AppHosts...\n📦 Found running AppHost: /work/apphosts/nats/apphost.cs\n🛑 Sending stop signal to /work/apphosts/nats/apphost.cs...\nStopping /work/apphosts/nats/apphost.cs...\n\n✅ /work/apphosts/nats/apphost.cs stopped successfully.\n",
+    "stderr": ""
+  }
+]

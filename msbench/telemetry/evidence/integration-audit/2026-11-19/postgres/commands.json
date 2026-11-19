@@ -1,0 +1,93 @@
+[
+  {
+    "cmd": "/usr/local/aspire/aspire start --isolated --apphost /work/apphosts/postgres/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 5.061,
+    "stdout": "Starting Aspire AppHost in the background...\n\n     AppHost:  ../work/apphosts/postgres/apphost.cs                                                          \n                                                                                                             \n   Dashboard:  https://localhost:42105/login?t=85eabb9c4630434c5b078a0793e2ea62                              \n                                                                                                             \n        Logs:  /root/.aspire/logs/cli_20261119T044652161_detach-child_afc5fa97425a49bbabbd90b8fc803560.log   \n                                                                                                             \n         PID:  10660                                                                                         \n\n✅ AppHost started successfully.\n",
+    "stderr": "\nA new version of Aspire is available: 17.1.0-preview.1.26568.1\nTo update, run: aspire update\nFor more information, see: https://aka.ms/aspire/update\n"
+  },
+  {
+    "cmd": "docker ps -q --no-trunc --filter id=2c67eb5172a05d06d9a4df6eedbba92915918098d378ef32f65327a717caaa22",
+    "code": 0,
+    "seconds": 0.008,
+    "stdout": "2c67eb5172a05d06d9a4df6eedbba92915918098d378ef32f65327a717caaa22\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker exec 2c67eb5172a05d06d9a4df6eedbba92915918098d378ef32f65327a717caaa22 sh -c true",
+    "code": 0,
+    "seconds": 0.107,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker exec 2c67eb5172a05d06d9a4df6eedbba92915918098d378ef32f65327a717caaa22 sh -c command -v psql || test -x psql",
+    "code": 0,
+    "seconds": 0.04,
+    "stdout": "/usr/bin/psql\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker exec 2c67eb5172a05d06d9a4df6eedbba92915918098d378ef32f65327a717caaa22 sh -c PGPASSWORD=\"$POSTGRES_PASSWORD\" psql -U \"${POSTGRES_USER:-postgres}\" -tAc 'select 1'",
+    "code": 0,
+    "seconds": 0.09,
+    "stdout": "1\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker pause 2c67eb5172a05d06d9a4df6eedbba92915918098d378ef32f65327a717caaa22",
+    "code": 0,
+    "seconds": 0.042,
+    "stdout": "2c67eb5172a05d06d9a4df6eedbba92915918098d378ef32f65327a717caaa22\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker unpause 2c67eb5172a05d06d9a4df6eedbba92915918098d378ef32f65327a717caaa22",
+    "code": 0,
+    "seconds": 0.107,
+    "stdout": "2c67eb5172a05d06d9a4df6eedbba92915918098d378ef32f65327a717caaa22\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker kill 2c67eb5172a05d06d9a4df6eedbba92915918098d378ef32f65327a717caaa22",
+    "code": 0,
+    "seconds": 0.815,
+    "stdout": "2c67eb5172a05d06d9a4df6eedbba92915918098d378ef32f65327a717caaa22\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "/usr/local/aspire/aspire resource postgres start --apphost /work/apphosts/postgres/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 0.92,
+    "stdout": "",
+    "stderr": "Starting resource 'postgres'...\n✅ Resource 'postgres' started successfully.\n"
+  },
+  {
+    "cmd": "docker exec f161ab042b294b562badbf4d96ccfe8c0599c1ea5528aafcd14d4ede1e428ed4 sh -c PGPASSWORD=\"$POSTGRES_PASSWORD\" psql -U postgres -tAc \"create table if not exists audit_marker(v text); insert into audit_marker values ('kept')\"",
+    "code": 0,
+    "seconds": 0.231,
+    "stdout": "CREATE TABLE\nINSERT 0 1\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "/usr/local/aspire/aspire resource postgres restart --apphost /work/apphosts/postgres/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 3.105,
+    "stdout": "",
+    "stderr": "Restarting resource 'postgres'...\n✅ Resource 'postgres' restarted successfully.\n"
+  },
+  {
+    "cmd": "docker exec 0f41b9b67e9796d8fe2e5c27b92180326b0c2efa49b83a27c4aad35c5eb8cc0e sh -c PGPASSWORD=\"$POSTGRES_PASSWORD\" psql -U postgres -tAc 'select v from audit_marker'",
+    "code": 1,
+    "seconds": 0.411,
+    "stdout": "",
+    "stderr": "ERROR:  relation \"audit_marker\" does not exist\nLINE 1: select v from audit_marker\n                      ^\n"
+  },
+  {
+    "cmd": "/usr/local/aspire/aspire stop --apphost /work/apphosts/postgres/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 0.368,
+    "stdout": "Scanning for running AppHosts...\n📦 Found running AppHost: /work/apphosts/postgres/apphost.cs\n🛑 Sending stop signal to /work/apphosts/postgres/apphost.cs...\nStopping /work/apphosts/postgres/apphost.cs...\n\n✅ /work/apphosts/postgres/apphost.cs stopped successfully.\n",
+    "stderr": ""
+  }
+]

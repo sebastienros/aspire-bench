@@ -1,0 +1,109 @@
+{
+  "row": "mongo",
+  "hosting": "Aspire.Hosting.MongoDB",
+  "resource": "mongo",
+  "notes": [],
+  "startSeconds": 12.757,
+  "q1": {
+    "pass": true,
+    "containerId": "a72d72935faa",
+    "image": "docker.io/library/mongo:9.0"
+  },
+  "q2": {
+    "containerEnv": [
+      "MONGO_INITDB_ROOT_PASSWORD",
+      "MONGO_INITDB_ROOT_USERNAME"
+    ],
+    "credentialArgs": false,
+    "describeEnvNames": [
+      "MONGO_INITDB_ROOT_PASSWORD",
+      "MONGO_INITDB_ROOT_USERNAME"
+    ],
+    "describeValues": [
+      "MONGO_INITDB_ROOT_USERNAME"
+    ],
+    "describeConnectionString": false,
+    "noAuth": false,
+    "pass": true
+  },
+  "q3": {
+    "pass": false,
+    "shell": true,
+    "toolInImage": true,
+    "generic": {
+      "command": "mongosh --quiet -u \"$MONGO_INITDB_ROOT_USERNAME\" -p \"$MONGO_INITDB_ROOT_PASSWORD\" --eval 'db.runCommand({ping:1}).ok'",
+      "where": "container",
+      "ok": false,
+      "code": 1,
+      "output": "MongoServerSelectionError: connection <monitor> to 127.0.0.1:27017 closed"
+    },
+    "alternatives": [
+      {
+        "command": "mongosh --quiet -u \"$MONGO_INITDB_ROOT_USERNAME\" -p \"$MONGO_INITDB_ROOT_PASSWORD\" --authenticationDatabase admin --eval 'db.runCommand({ping:1}).ok'",
+        "where": "container",
+        "ok": false,
+        "code": 1,
+        "output": "MongoServerSelectionError: connection <monitor> to 127.0.0.1:27017 closed"
+      }
+    ],
+    "works": null,
+    "endpoints": [
+      "tcp=tcp://localhost:34649"
+    ],
+    "tlsPrimary": false
+  },
+  "q4": {
+    "pass": true,
+    "spanNoStatement": false,
+    "totalSpans": 47,
+    "dependencySpans": 32,
+    "sample": {
+      "name": "isMaster admin",
+      "kind": "Client",
+      "attributes": {
+        "db.system.name": "mongodb",
+        "db.connection_id": "{ ServerId : { ClusterId : 1, EndPoint : \"Unspecified/localhost:34649\" }, LocalValue : 3 }",
+        "db.namespace": "admin",
+        "db.collection.name": "",
+        "db.operation.name": "isMaster",
+        "network.transport": "tcp",
+        "server.address": "localhost",
+        "server.port": "34649"
+      }
+    },
+    "names": [
+      "audit.op",
+      "isMaster admin",
+      "saslContinue admin",
+      "insert events",
+      "aggregate events"
+    ]
+  },
+  "q5": {
+    "refusing": "not induced",
+    "healthy": "state=Running health=Healthy mongo_check=Healthy",
+    "hasReport": true,
+    "hung": "state=Running health=Healthy mongo_check=Healthy",
+    "hungLeftHealthy": false,
+    "recoveredAfterHung": true,
+    "down": "state=Exited health=none mongo_check=Healthy",
+    "recoveredAfterDown": true,
+    "startReplacedContainer": true,
+    "pass": false
+  },
+  "q6": {
+    "commands": [
+      "restart",
+      "stop"
+    ],
+    "restartEnabled": true,
+    "extraCommands": [],
+    "restartExit": 0,
+    "backHealthy": true,
+    "containerReplaced": true,
+    "pass": true
+  },
+  "marker": {
+    "written": false
+  }
+}

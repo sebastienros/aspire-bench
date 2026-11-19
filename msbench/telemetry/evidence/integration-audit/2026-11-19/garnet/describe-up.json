@@ -1,0 +1,63 @@
+{
+  "name": "garnet-jttkpyyf",
+  "displayName": "garnet",
+  "resourceType": "Container",
+  "resourceTypeDisplayName": "Garnet",
+  "state": "Running",
+  "creationTimestamp": "2026-11-19T05:31:17+00:00",
+  "startTimestamp": "2026-11-19T05:31:34.108054+00:00",
+  "source": "ghcr.io/microsoft/garnet:1.0",
+  "healthStatus": "Healthy",
+  "dashboardUrl": "https://localhost:38501/?resource=garnet-jttkpyyf",
+  "relationships": [],
+  "urls": [
+    {
+      "name": "tcp",
+      "url": "tcp://localhost:34539"
+    }
+  ],
+  "volumes": [],
+  "properties": {
+    "container.args": null,
+    "container.command": "/bin/sh",
+    "container.id": "78826a873d50df8bdf2b41cd6a506355d5cd9ecf41f352753f761a4540d290d5",
+    "container.image": "ghcr.io/microsoft/garnet:1.0",
+    "container.lifetime": "Session",
+    "container.ports": [
+      6379
+    ],
+    "resource.appArgs": [
+      "/bin/sh",
+      "-c"
+    ],
+    "resource.appArgsSensitivity": [
+      0,
+      0
+    ],
+    "resource.connectionProperties": null,
+    "resource.connectionString": null
+  },
+  "environment": {
+    "GARNET_PASSWORD": null,
+    "SSL_CERT_DIR": "/usr/lib/ssl/aspire/certs:/etc/ssl/certs:/usr/local/share/ca-certificates:/etc/pki/tls/certs"
+  },
+  "healthReports": {
+    "garnet_check": {
+      "status": "Healthy"
+    }
+  },
+  "commands": {
+    "restart": {
+      "displayName": "Restart",
+      "description": "Restart resource",
+      "state": "Enabled",
+      "sortOrder": 2
+    },
+    "stop": {
+      "displayName": "Stop",
+      "description": "Stop resource",
+      "state": "Enabled",
+      "sortOrder": 1
+    }
+  }
+}

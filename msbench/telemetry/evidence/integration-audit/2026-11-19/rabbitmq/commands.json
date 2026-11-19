@@ -1,0 +1,93 @@
+[
+  {
+    "cmd": "/usr/local/aspire/aspire start --isolated --apphost /work/apphosts/rabbitmq/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 8.334,
+    "stdout": "Starting Aspire AppHost in the background...\n\n     AppHost:  ../work/apphosts/rabbitmq/apphost.cs                                                          \n                                                                                                             \n   Dashboard:  https://localhost:38981/login?t=9620d1d53d32ea34b8f3a490a0270102                              \n                                                                                                             \n        Logs:  /root/.aspire/logs/cli_20261119T051114173_detach-child_0ced2d7a77074a28872256c6ec308503.log   \n                                                                                                             \n         PID:  4499                                                                                          \n\n✅ AppHost started successfully.\n",
+    "stderr": "\nA new version of Aspire is available: 17.1.0-preview.1.26568.1\nTo update, run: aspire update\nFor more information, see: https://aka.ms/aspire/update\n"
+  },
+  {
+    "cmd": "docker ps -q --no-trunc --filter id=938cfddd806c08ff1c56795711939664a98c2e4a0b073f4be12225157a2a8972",
+    "code": 0,
+    "seconds": 0.006,
+    "stdout": "938cfddd806c08ff1c56795711939664a98c2e4a0b073f4be12225157a2a8972\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker exec 938cfddd806c08ff1c56795711939664a98c2e4a0b073f4be12225157a2a8972 sh -c true",
+    "code": 0,
+    "seconds": 0.029,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker exec 938cfddd806c08ff1c56795711939664a98c2e4a0b073f4be12225157a2a8972 sh -c command -v rabbitmqctl || test -x rabbitmqctl",
+    "code": 0,
+    "seconds": 0.027,
+    "stdout": "/opt/rabbitmq/sbin/rabbitmqctl\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker exec 938cfddd806c08ff1c56795711939664a98c2e4a0b073f4be12225157a2a8972 sh -c rabbitmqctl -q list_queues name messages",
+    "code": 0,
+    "seconds": 0.301,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker pause 938cfddd806c08ff1c56795711939664a98c2e4a0b073f4be12225157a2a8972",
+    "code": 0,
+    "seconds": 0.042,
+    "stdout": "938cfddd806c08ff1c56795711939664a98c2e4a0b073f4be12225157a2a8972\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker unpause 938cfddd806c08ff1c56795711939664a98c2e4a0b073f4be12225157a2a8972",
+    "code": 0,
+    "seconds": 0.019,
+    "stdout": "938cfddd806c08ff1c56795711939664a98c2e4a0b073f4be12225157a2a8972\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker kill 938cfddd806c08ff1c56795711939664a98c2e4a0b073f4be12225157a2a8972",
+    "code": 0,
+    "seconds": 0.175,
+    "stdout": "938cfddd806c08ff1c56795711939664a98c2e4a0b073f4be12225157a2a8972\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "/usr/local/aspire/aspire resource rabbitmq start --apphost /work/apphosts/rabbitmq/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 0.514,
+    "stdout": "",
+    "stderr": "Starting resource 'rabbitmq'...\n✅ Resource 'rabbitmq' started successfully.\n"
+  },
+  {
+    "cmd": "docker exec 5704c87f97e4fe6d324461dd245a49dd66e11dcc3abd991d7ee808d25fcb577d sh -c rabbitmqctl -q add_vhost audit-marker",
+    "code": 0,
+    "seconds": 0.588,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "cmd": "/usr/local/aspire/aspire resource rabbitmq restart --apphost /work/apphosts/rabbitmq/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 2.592,
+    "stdout": "",
+    "stderr": "Restarting resource 'rabbitmq'...\n✅ Resource 'rabbitmq' restarted successfully.\n"
+  },
+  {
+    "cmd": "docker exec 29eeb63256b7c76fe5598799d122a38f59daaec8b722ba47e7d02e0e61b0e875 sh -c rabbitmqctl -q list_vhosts | grep -x audit-marker && echo kept",
+    "code": 1,
+    "seconds": 0.314,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "cmd": "/usr/local/aspire/aspire stop --apphost /work/apphosts/rabbitmq/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 0.327,
+    "stdout": "Scanning for running AppHosts...\n📦 Found running AppHost: /work/apphosts/rabbitmq/apphost.cs\n🛑 Sending stop signal to /work/apphosts/rabbitmq/apphost.cs...\nStopping /work/apphosts/rabbitmq/apphost.cs...\n\n✅ /work/apphosts/rabbitmq/apphost.cs stopped successfully.\n",
+    "stderr": ""
+  }
+]

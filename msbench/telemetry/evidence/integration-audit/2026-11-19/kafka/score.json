@@ -1,0 +1,104 @@
+{
+  "row": "kafka",
+  "hosting": "Aspire.Hosting.Kafka",
+  "resource": "kafka",
+  "notes": [],
+  "startSeconds": 5.118,
+  "q1": {
+    "pass": true,
+    "containerId": "4d607bcb51b2",
+    "image": "docker.io/confluentinc/confluent-local:8.2.0"
+  },
+  "q2": {
+    "containerEnv": [],
+    "credentialArgs": false,
+    "describeEnvNames": [],
+    "describeValues": [],
+    "describeConnectionString": false,
+    "noAuth": true,
+    "pass": true
+  },
+  "q3": {
+    "pass": false,
+    "shell": true,
+    "toolInImage": false,
+    "generic": {
+      "command": "kafka-topics.sh --bootstrap-server localhost:9092 --list",
+      "where": "container",
+      "ok": false,
+      "code": 127,
+      "output": "sh: line 1: kafka-topics.sh: command not found"
+    },
+    "alternatives": [
+      {
+        "command": "kafka-topics --bootstrap-server localhost:9092 --list",
+        "where": "container",
+        "ok": false,
+        "code": "timeout",
+        "output": "[2026-11-19 05:14:12,123] WARN [AdminClient clientId=adminclient-1] Connection to node 1 (localhost/127.0.0.1:39561) could not be established. Node may not be available. (org.apache.kafka.clients.NetworkClient)\n[2026-11-19 05:14:12,240] WARN [AdminClient clientId=adminclient-1] Connection to node 1 "
+      },
+      {
+        "command": "kafka-topics --bootstrap-server localhost:29092 --list",
+        "where": "container",
+        "ok": true,
+        "code": 0,
+        "output": "audit\nhealthchecks-topic"
+      }
+    ],
+    "works": "kafka-topics --bootstrap-server localhost:29092 --list",
+    "endpoints": [
+      "internal=tcp://localhost:39771",
+      "tcp=tcp://localhost:39561"
+    ],
+    "tlsPrimary": false
+  },
+  "q4": {
+    "pass": true,
+    "spanNoStatement": false,
+    "totalSpans": 30,
+    "dependencySpans": 15,
+    "sample": {
+      "name": "audit publish",
+      "kind": "Producer",
+      "attributes": {
+        "messaging.system": "kafka",
+        "messaging.client_id": "rdkafka#producer-1",
+        "messaging.destination.name": "audit",
+        "messaging.operation": "publish",
+        "messaging.kafka.message.key": "audit"
+      }
+    },
+    "names": [
+      "audit.op",
+      "audit publish"
+    ]
+  },
+  "q5": {
+    "refusing": "not induced",
+    "healthy": "state=Running health=Healthy kafka_check=Healthy",
+    "hasReport": true,
+    "hung": "state=Running health=Healthy kafka_check=Healthy",
+    "hungLeftHealthy": false,
+    "recoveredAfterHung": true,
+    "down": "state=Exited health=none kafka_check=Healthy",
+    "recoveredAfterDown": true,
+    "startReplacedContainer": true,
+    "pass": false
+  },
+  "q6": {
+    "commands": [
+      "restart",
+      "stop"
+    ],
+    "restartEnabled": true,
+    "extraCommands": [],
+    "restartExit": 0,
+    "backHealthy": true,
+    "containerReplaced": true,
+    "pass": true
+  },
+  "marker": {
+    "written": true,
+    "kept": false
+  }
+}

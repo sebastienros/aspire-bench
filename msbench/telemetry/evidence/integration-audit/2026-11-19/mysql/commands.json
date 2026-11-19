@@ -1,0 +1,93 @@
+[
+  {
+    "cmd": "/usr/local/aspire/aspire start --isolated --apphost /work/apphosts/mysql/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 7.278,
+    "stdout": "Starting Aspire AppHost in the background...\n\n     AppHost:  ../work/apphosts/mysql/apphost.cs                                                             \n                                                                                                             \n   Dashboard:  https://localhost:37565/login?t=cd2bb17a7dfe83141462a9f365fe9271                              \n                                                                                                             \n        Logs:  /root/.aspire/logs/cli_20261119T045116184_detach-child_ae748d33fccc44fbac650b7367eb632d.log   \n                                                                                                             \n         PID:  17205                                                                                         \n\n✅ AppHost started successfully.\n",
+    "stderr": "\nA new version of Aspire is available: 17.1.0-preview.1.26568.1\nTo update, run: aspire update\nFor more information, see: https://aka.ms/aspire/update\n"
+  },
+  {
+    "cmd": "docker ps -q --no-trunc --filter id=fdc083a375e60a05c48c5ffe22776665556d5c49ed6e4723011e1c4d38aa0f94",
+    "code": 0,
+    "seconds": 0.027,
+    "stdout": "fdc083a375e60a05c48c5ffe22776665556d5c49ed6e4723011e1c4d38aa0f94\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker exec fdc083a375e60a05c48c5ffe22776665556d5c49ed6e4723011e1c4d38aa0f94 sh -c true",
+    "code": 0,
+    "seconds": 0.083,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker exec fdc083a375e60a05c48c5ffe22776665556d5c49ed6e4723011e1c4d38aa0f94 sh -c command -v mysql || test -x mysql",
+    "code": 0,
+    "seconds": 0.038,
+    "stdout": "/usr/bin/mysql\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker exec fdc083a375e60a05c48c5ffe22776665556d5c49ed6e4723011e1c4d38aa0f94 sh -c mysql -uroot -p\"$MYSQL_ROOT_PASSWORD\" -N -e 'select 1'",
+    "code": 0,
+    "seconds": 0.039,
+    "stdout": "1\n",
+    "stderr": "mysql: [Warning] Using a password on the command line interface can be insecure.\n"
+  },
+  {
+    "cmd": "docker pause fdc083a375e60a05c48c5ffe22776665556d5c49ed6e4723011e1c4d38aa0f94",
+    "code": 0,
+    "seconds": 0.039,
+    "stdout": "fdc083a375e60a05c48c5ffe22776665556d5c49ed6e4723011e1c4d38aa0f94\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker unpause fdc083a375e60a05c48c5ffe22776665556d5c49ed6e4723011e1c4d38aa0f94",
+    "code": 0,
+    "seconds": 0.019,
+    "stdout": "fdc083a375e60a05c48c5ffe22776665556d5c49ed6e4723011e1c4d38aa0f94\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "docker kill fdc083a375e60a05c48c5ffe22776665556d5c49ed6e4723011e1c4d38aa0f94",
+    "code": 0,
+    "seconds": 0.556,
+    "stdout": "fdc083a375e60a05c48c5ffe22776665556d5c49ed6e4723011e1c4d38aa0f94\n",
+    "stderr": ""
+  },
+  {
+    "cmd": "/usr/local/aspire/aspire resource mysql start --apphost /work/apphosts/mysql/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 0.709,
+    "stdout": "",
+    "stderr": "Starting resource 'mysql'...\n✅ Resource 'mysql' started successfully.\n"
+  },
+  {
+    "cmd": "docker exec 2330b31c94437d240e6ab32edf791ba6bfa013edc96871a61dd8d69cca06880d sh -c mysql -uroot -p\"$MYSQL_ROOT_PASSWORD\" -e \"create database if not exists audit; create table if not exists audit.m(v text); insert into audit.m values ('kept')\"",
+    "code": 0,
+    "seconds": 0.332,
+    "stdout": "",
+    "stderr": "mysql: [Warning] Using a password on the command line interface can be insecure.\n"
+  },
+  {
+    "cmd": "/usr/local/aspire/aspire resource mysql restart --apphost /work/apphosts/mysql/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 6.548,
+    "stdout": "",
+    "stderr": "Restarting resource 'mysql'...\n✅ Resource 'mysql' restarted successfully.\n"
+  },
+  {
+    "cmd": "docker exec e5144c7337ca3da102a8609f8aa0fee76b07b4e7565a268546872c8c97325c35 sh -c mysql -uroot -p\"$MYSQL_ROOT_PASSWORD\" -N -e 'select v from audit.m'",
+    "code": 1,
+    "seconds": 0.047,
+    "stdout": "",
+    "stderr": "mysql: [Warning] Using a password on the command line interface can be insecure.\nERROR 1049 (42000) at line 1: Unknown database 'audit'\n"
+  },
+  {
+    "cmd": "/usr/local/aspire/aspire stop --apphost /work/apphosts/mysql/apphost.cs --non-interactive --nologo",
+    "code": 0,
+    "seconds": 0.341,
+    "stdout": "Scanning for running AppHosts...\n📦 Found running AppHost: /work/apphosts/mysql/apphost.cs\n🛑 Sending stop signal to /work/apphosts/mysql/apphost.cs...\nStopping /work/apphosts/mysql/apphost.cs...\n\n✅ /work/apphosts/mysql/apphost.cs stopped successfully.\n",
+    "stderr": ""
+  }
+]

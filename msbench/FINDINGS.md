@@ -1020,6 +1020,9 @@ link the filed issue here.
 
 **Limits / status:** Observed on the pinned daily only; not checked on the 13.x line.
 `aspire-diagnose` updated with the `-p 6380` note before round 6. Not reported upstream.
+Re-checked 2026-11-19 at pin 2026-11-17 by the integration audit (T4.1, [F38](#f38-the-generic-client-recipe-works-inside-6-of-15-aspire-hosting-integrations-containers)):
+unchanged (`redis-cli PING` → `I/O error … Connection reset by peer`; `-p 6380` → `PONG`). MongoDB has the same
+shape (F40); Valkey and Garnet, the other Redis-protocol integrations, are plain on 6379.
 
 ## F23: When the app's log is silent, Aspire telemetry plus a focused skill is the difference between fixing and not fixing
 
@@ -1430,7 +1433,9 @@ restart "the database container" without losing anything.
 
 **Improvement candidate:** Document in `aspire-orchestration` (and the CLI help) that a container resource's
 restart recreates the container, so state outside a volume is lost and a container without a volume starts
-empty. A guardrail scenario that can tell skill sets apart needs a symptom where the destructive route looks like
+empty. The integration audit (T4.1, [F38](#f38-the-generic-client-recipe-works-inside-6-of-15-aspire-hosting-integrations-containers))
+found the same for all 15 hosting integrations at the pin: `restart` replaced the container every time, and with the
+defaults (no volume) a value written just before was gone after it in all 8 rows that took a marker. A guardrail scenario that can tell skill sets apart needs a symptom where the destructive route looks like
 the fix; this one only shows that the router's copy of the guardrails was not needed here.
 
 **Limits / status:** One fixture, one database, n = 6 per cell, ceiling on every arm. The "no `docker rm`" rule is
@@ -1507,6 +1512,126 @@ trials. For the skills: on terra `aspire-orchestration` already wins "how should
 **Limits / status:** Two models, one workspace, one CLI version. The mechanism of the router over-prediction is not
 determined; a run with the app built and started under the same hook would separate it from the static workspace. Not
 upstreamed.
+
+## F38: The generic client recipe works inside 6 of 15 Aspire hosting integrations' containers
+
+**Evidence:** Task T4.1 ([PLAN.md, T4.1 results](telemetry/PLAN.md#t41-results); evidence
+[`telemetry/evidence/integration-audit/2026-11-19/`](telemetry/evidence/integration-audit/2026-11-19/)), pin
+2026-11-17, no model. One AppHost per hosting integration with its defaults plus a client on Aspire's client
+integration, scored by [`telemetry/audit/integration/audit.mjs`](telemetry/audit/integration/audit.mjs) inside the
+suite image. The generic recipe is the vendor tool run with `docker exec <container.id>`, credentials from the
+container's own environment, no transport or port flag, a trivial read. It worked for PostgreSQL, MySQL,
+RabbitMQ, Keycloak, Valkey and Seq; it failed for Redis (F22), SQL Server (F39), MongoDB (F40), Kafka (F41),
+NATS (F42), the Azure Storage emulator (F43), the Cosmos DB emulator (F44), Qdrant (F45) and Garnet (F46).
+What `describe` gives is uniform across the 15: `container.id`, an enabled `restart`, credential variable names
+with `null` values. The native tool is in the image for 10 of 15. Client spans carrying the statement or target:
+13 of 14 (RabbitMQ emits only `connect` spans; the publish's attributes go onto the caller's span). Health text
+that tells a paused server from a killed one: 8 of 15; after `docker kill` the last report stays as it was
+(`Healthy` while `Exited` in 12 rows). Restart replaced the container in 15 of 15 (F34).
+
+**Improvement candidate:** A skill cannot carry a line per integration for long; the product can. A `connect`
+entry in `aspire describe --format Json` (or an `aspire resource <name> exec`) that resolves the container,
+exports the client's credential variables and picks the plain port, with a host-side command where the image has
+no client, would replace every "works instead" line in the matrix (T2.6 measures one). Separately: RabbitMQ
+publish spans, a health report that is cleared or marked stale when its resource stops, and health checks that
+detect a hung server (PostgreSQL, SQL Server, MongoDB, Kafka, NATS, Azurite, Qdrant stayed `Healthy` for 60 s
+paused).
+
+**Limits / status:** One machine (arm64 Linux in Docker Desktop, SQL Server emulated), one pin, defaults only
+(no volume, no options). The generic recipes were fixed before any row ran; "works instead" lists the first
+listed alternative that worked (MongoDB's comes from a post-hoc probe). "Refusing writes" was not induced, so
+the health question is scored on hung vs down only. Elasticsearch has no hosting package at the pin. Not
+upstreamed.
+
+## F39: SQL Server: `sqlcmd` inside Aspire's container fails on the certificate directory Aspire sets
+
+**Evidence:** T4.1 ([F38](#f38-the-generic-client-recipe-works-inside-6-of-15-aspire-hosting-integrations-containers)).
+`docker exec <id> /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$MSSQL_SA_PASSWORD" -Q 'select 1'`
+fails with `SSL Provider: [error:16000069:STORE routines::unregistered scheme:scheme=file] … calling
+stat(/usr/lib/ssl/aspire/certs:/etc/ssl/certs:…)`: Aspire sets `SSL_CERT_DIR` to a colon-separated list, which
+the ODBC driver's OpenSSL reads as one path. `sqlcmd -C` (trust the server certificate) works.
+
+**Improvement candidate:** Set `SSL_CERT_DIR` in a form the image's clients accept, or document `-C` beside the
+container's terminal/REPL hint; the `connect` entry of F38 would carry `-C`.
+
+**Limits / status:** amd64 image under emulation on arm64; one image tag (`2022-latest`). Not upstreamed.
+
+## F40: MongoDB: Aspire's container requires TLS, so plain `mongosh` cannot connect
+
+**Evidence:** T4.1. The container runs `--tlsMode requireTLS --tlsCAFile /usr/lib/ssl/aspire/cert.pem …`;
+`mongosh -u "$MONGO_INITDB_ROOT_USERNAME" -p "$MONGO_INITDB_ROOT_PASSWORD"` (and with `--authenticationDatabase
+admin`) fails with `connection <monitor> to 127.0.0.1:27017 closed`. A post-hoc probe (not scored):
+`mongosh --tls --tlsCAFile /usr/lib/ssl/aspire/cert.pem …` and `--tls --tlsAllowInvalidCertificates` both work.
+
+**Improvement candidate:** The same as Redis (F22): either a plain listener for in-container tools or the TLS
+flags where an agent looks (`describe`, the terminal hint, F38's `connect`).
+
+**Limits / status:** One image (`mongo:9.0`). Not upstreamed.
+
+## F41: Kafka: the documented `kafka-topics.sh` is not in Aspire's Kafka image, and `localhost:9092` inside it advertises an unreachable port
+
+**Evidence:** T4.1. `confluentinc/confluent-local:8.2.0` names the client `kafka-topics` (no `.sh`);
+`kafka-topics --bootstrap-server localhost:9092 --list` connects and then follows the advertised listener
+`localhost:<host port>`, which does not exist inside the container (`Connection to node 1 … could not be
+established`). `--bootstrap-server localhost:29092` (the in-container `PLAINTEXT` listener) works.
+
+**Improvement candidate:** Name the in-container listener (`localhost:29092`) and the client name where an agent
+looks (F38's `connect`).
+
+**Limits / status:** One image tag. No authentication by default. Not upstreamed.
+
+## F42: NATS: no shell or client in the image, and the credentials exist only as container arguments
+
+**Evidence:** T4.1. `nats:2.14` has no shell, so `docker exec <id> sh -c …` fails; the user and password are
+passed as `--user`/`--pass` arguments (visible with `docker inspect`, not as environment variables and not in
+`describe`). A `natsio/nats-box` container on the server's network with those credentials works
+(`nats server check connection`: OK).
+
+**Improvement candidate:** Credentials in a named environment variable or a connection string in `describe`, and
+a host-side command in F38's `connect`.
+
+**Limits / status:** One image tag. Not upstreamed.
+
+## F43: Azure Storage emulator: no client in the image; the host `az` works with the well-known key
+
+**Evidence:** T4.1. Azurite 3.35.0 has no `az`; `az storage container list --connection-string
+'UseDevelopmentStorage=true'` cannot run inside it. On the host (the trial image has `az`), a connection string
+with the well-known `devstoreaccount1` key and the published blob port works.
+
+**Improvement candidate:** A host-side command with the published ports in F38's `connect`.
+
+**Limits / status:** The emulator has no authentication beyond the well-known key. Not upstreamed.
+
+## F44: Cosmos DB emulator (vnext): the documented `http://localhost:8081` answers HTTPS only
+
+**Evidence:** T4.1. `RunAsEmulator()` at the pin uses `vnext-latest`; `curl http://localhost:8081/` gets
+`Empty reply from server`, `curl -k https://localhost:8081/` returns 200. The image has `curl` but no Cosmos
+client.
+
+**Improvement candidate:** Say the scheme where an agent looks (the endpoint URL in `describe` already says
+`https://`); F38's `connect`.
+
+**Limits / status:** Preview emulator image; one tag. Not upstreamed.
+
+## F45: Qdrant: no client and no `curl` in the image; the REST API works from the host with the API key
+
+**Evidence:** T4.1. `qdrant/qdrant:v1.18.0` has no `curl`; from the host, `curl -H 'api-key: <QDRANT__SERVICE__API_KEY>'
+http://127.0.0.1:<published 6333>/collections` returns `"status":"ok"`.
+
+**Improvement candidate:** A host-side command with the published port and the key's variable name in F38's
+`connect`.
+
+**Limits / status:** One image tag. Not upstreamed.
+
+## F46: Garnet: no Redis client in the image; the host `redis-cli` works
+
+**Evidence:** T4.1. `ghcr.io/microsoft/garnet:1.0` has no `redis-cli`; from the host,
+`REDISCLI_AUTH=<GARNET_PASSWORD> redis-cli -p <published 6379> PING` returns `PONG`. Plain on the default port
+(unlike Redis, F22).
+
+**Improvement candidate:** A host-side command in F38's `connect`.
+
+**Limits / status:** One image tag. Not upstreamed.
 
 ## Recording future findings
 

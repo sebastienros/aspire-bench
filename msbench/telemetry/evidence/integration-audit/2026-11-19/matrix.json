@@ -1,0 +1,1467 @@
+[
+  {
+    "row": "postgres",
+    "hosting": "Aspire.Hosting.PostgreSQL",
+    "resource": "postgres",
+    "notes": [],
+    "startSeconds": 5.061,
+    "q1": {
+      "pass": true,
+      "containerId": "2c67eb5172a0",
+      "image": "docker.io/library/postgres:18.3"
+    },
+    "q2": {
+      "containerEnv": [
+        "POSTGRES_USER",
+        "POSTGRES_PASSWORD",
+        "POSTGRES_HOST_AUTH_METHOD"
+      ],
+      "credentialArgs": false,
+      "describeEnvNames": [
+        "POSTGRES_HOST_AUTH_METHOD",
+        "POSTGRES_PASSWORD",
+        "POSTGRES_USER"
+      ],
+      "describeValues": [
+        "POSTGRES_HOST_AUTH_METHOD",
+        "POSTGRES_USER"
+      ],
+      "describeConnectionString": false,
+      "noAuth": false,
+      "pass": true
+    },
+    "q3": {
+      "pass": true,
+      "shell": true,
+      "toolInImage": true,
+      "generic": {
+        "command": "PGPASSWORD=\"$POSTGRES_PASSWORD\" psql -U \"${POSTGRES_USER:-postgres}\" -tAc 'select 1'",
+        "where": "container",
+        "ok": true,
+        "code": 0,
+        "output": "1"
+      },
+      "alternatives": [],
+      "works": "PGPASSWORD=\"$POSTGRES_PASSWORD\" psql -U \"${POSTGRES_USER:-postgres}\" -tAc 'select 1'",
+      "endpoints": [
+        "tcp=tcp://localhost:42565"
+      ],
+      "tlsPrimary": false
+    },
+    "q4": {
+      "pass": true,
+      "spanNoStatement": false,
+      "totalSpans": 33,
+      "dependencySpans": 17,
+      "sample": {
+        "name": "postgresql",
+        "kind": "Client",
+        "attributes": {
+          "db.query.text": "SELECT count(*) FROM pg_stat_activity",
+          "db.system.name": "postgresql",
+          "db.namespace": "postgres",
+          "server.address": "localhost",
+          "server.port": "42565",
+          "db.npgsql.data_source": "Host=localhost;Port=42565;Username=postgres",
+          "db.npgsql.connection_id": "78"
+        }
+      },
+      "names": [
+        "audit.op",
+        "CONNECT postgres",
+        "postgresql"
+      ]
+    },
+    "q5": {
+      "refusing": "not induced",
+      "healthy": "state=Running health=Healthy postgres_check=Healthy",
+      "hasReport": true,
+      "hung": "state=Running health=Healthy postgres_check=Healthy",
+      "hungLeftHealthy": false,
+      "recoveredAfterHung": true,
+      "down": "state=Exited health=none postgres_check=Unhealthy (Exception while reading from stream)",
+      "recoveredAfterDown": true,
+      "startReplacedContainer": true,
+      "pass": false
+    },
+    "q6": {
+      "commands": [
+        "restart",
+        "stop"
+      ],
+      "restartEnabled": true,
+      "extraCommands": [],
+      "restartExit": 0,
+      "backHealthy": true,
+      "containerReplaced": true,
+      "pass": true
+    },
+    "marker": {
+      "written": true,
+      "kept": false
+    }
+  },
+  {
+    "row": "redis",
+    "hosting": "Aspire.Hosting.Redis",
+    "resource": "redis",
+    "notes": [],
+    "startSeconds": 10.266,
+    "q1": {
+      "pass": true,
+      "containerId": "8540b00ae514",
+      "image": "docker.io/library/redis:8.6"
+    },
+    "q2": {
+      "containerEnv": [
+        "REDIS_PASSWORD"
+      ],
+      "credentialArgs": false,
+      "describeEnvNames": [
+        "REDIS_PASSWORD"
+      ],
+      "describeValues": [],
+      "describeConnectionString": false,
+      "noAuth": false,
+      "pass": true
+    },
+    "q3": {
+      "pass": false,
+      "shell": true,
+      "toolInImage": true,
+      "generic": {
+        "command": "REDISCLI_AUTH=\"$REDIS_PASSWORD\" redis-cli PING",
+        "where": "container",
+        "ok": false,
+        "code": 1,
+        "output": "I/O error\n\nI/O error\nError: Connection reset by peer"
+      },
+      "alternatives": [
+        {
+          "command": "REDISCLI_AUTH=\"$REDIS_PASSWORD\" redis-cli -p 6380 PING",
+          "where": "container",
+          "ok": true,
+          "code": 0,
+          "output": "PONG"
+        }
+      ],
+      "works": "REDISCLI_AUTH=\"$REDIS_PASSWORD\" redis-cli -p 6380 PING",
+      "endpoints": [
+        "secondary=tcp://localhost:39351",
+        "tcp=rediss://localhost:42923"
+      ],
+      "tlsPrimary": true
+    },
+    "q4": {
+      "pass": true,
+      "spanNoStatement": false,
+      "totalSpans": 34,
+      "dependencySpans": 20,
+      "sample": {
+        "name": "SET",
+        "kind": "Client",
+        "attributes": {
+          "db.system": "redis",
+          "db.redis.database_index": "0",
+          "db.statement": "SET",
+          "server.address": "localhost",
+          "server.port": "42923"
+        }
+      },
+      "names": [
+        "audit.op",
+        "SET",
+        "GET"
+      ]
+    },
+    "q5": {
+      "refusing": "not induced",
+      "healthy": "state=Running health=Healthy redis_check=Healthy",
+      "hasReport": true,
+      "hung": "state=Running health=Unhealthy redis_check=Unhealthy",
+      "hungLeftHealthy": true,
+      "recoveredAfterHung": true,
+      "down": "state=Exited health=none redis_check=Unhealthy",
+      "recoveredAfterDown": true,
+      "startReplacedContainer": true,
+      "pass": true
+    },
+    "q6": {
+      "commands": [
+        "restart",
+        "stop"
+      ],
+      "restartEnabled": true,
+      "extraCommands": [],
+      "restartExit": 0,
+      "backHealthy": true,
+      "containerReplaced": true,
+      "pass": true
+    },
+    "marker": {
+      "written": true,
+      "kept": false
+    }
+  },
+  {
+    "row": "sqlserver",
+    "hosting": "Aspire.Hosting.SqlServer",
+    "resource": "sqlserver",
+    "notes": [],
+    "startSeconds": 4.065,
+    "q1": {
+      "pass": true,
+      "containerId": "9b4b7f7295aa",
+      "image": "mcr.microsoft.com/mssql/server:2022-latest"
+    },
+    "q2": {
+      "containerEnv": [
+        "MSSQL_SA_PASSWORD"
+      ],
+      "credentialArgs": false,
+      "describeEnvNames": [
+        "MSSQL_SA_PASSWORD"
+      ],
+      "describeValues": [],
+      "describeConnectionString": false,
+      "noAuth": false,
+      "pass": true
+    },
+    "q3": {
+      "pass": false,
+      "shell": true,
+      "toolInImage": true,
+      "generic": {
+        "command": "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$MSSQL_SA_PASSWORD\" -h -1 -Q 'set nocount on; select 1'",
+        "where": "container",
+        "ok": false,
+        "code": 1,
+        "output": "Sqlcmd: Error: Microsoft ODBC Driver 18 for SQL Server : SSL Provider: [error:16000069:STORE routines::unregistered scheme:scheme=file][error:80000002:system library::No such file or directory:calling stat(/usr/lib/ssl/aspire/certs:/etc/ssl/certs:/usr/local/share/ca-certificates:/etc/pki/tls/certs)]"
+      },
+      "alternatives": [
+        {
+          "command": "/opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P \"$MSSQL_SA_PASSWORD\" -h -1 -Q 'set nocount on; select 1'",
+          "where": "container",
+          "ok": true,
+          "code": 0,
+          "output": "1"
+        }
+      ],
+      "works": "/opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P \"$MSSQL_SA_PASSWORD\" -h -1 -Q 'set nocount on; select 1'",
+      "endpoints": [
+        "tcp=tcp://localhost:36641"
+      ],
+      "tlsPrimary": false
+    },
+    "q4": {
+      "pass": true,
+      "spanNoStatement": false,
+      "totalSpans": 32,
+      "dependencySpans": 16,
+      "sample": {
+        "name": "SELECT sys.databases",
+        "kind": "Client",
+        "attributes": {
+          "db.system.name": "microsoft.sql_server",
+          "db.namespace": "master",
+          "server.address": "127.0.0.1",
+          "server.port": "36641",
+          "db.query.text": "SELECT count(*) FROM sys.databases",
+          "db.query.summary": "SELECT sys.databases"
+        }
+      },
+      "names": [
+        "audit.op",
+        "SELECT sys.databases"
+      ]
+    },
+    "q5": {
+      "refusing": "not induced",
+      "healthy": "state=Running health=Healthy sqlserver_check=Healthy",
+      "hasReport": true,
+      "hung": "state=Running health=Healthy sqlserver_check=Healthy",
+      "hungLeftHealthy": false,
+      "recoveredAfterHung": true,
+      "down": "state=Exited health=none sqlserver_check=Healthy",
+      "recoveredAfterDown": true,
+      "startReplacedContainer": true,
+      "pass": false
+    },
+    "q6": {
+      "commands": [
+        "restart",
+        "stop"
+      ],
+      "restartEnabled": true,
+      "extraCommands": [],
+      "restartExit": 0,
+      "backHealthy": true,
+      "containerReplaced": true,
+      "pass": true
+    },
+    "marker": {
+      "written": true,
+      "kept": false
+    }
+  },
+  {
+    "row": "mysql",
+    "hosting": "Aspire.Hosting.MySql",
+    "resource": "mysql",
+    "notes": [],
+    "startSeconds": 7.278,
+    "q1": {
+      "pass": true,
+      "containerId": "fdc083a375e6",
+      "image": "docker.io/library/mysql:9.7"
+    },
+    "q2": {
+      "containerEnv": [
+        "MYSQL_ROOT_PASSWORD"
+      ],
+      "credentialArgs": false,
+      "describeEnvNames": [
+        "MYSQL_ROOT_PASSWORD"
+      ],
+      "describeValues": [],
+      "describeConnectionString": false,
+      "noAuth": false,
+      "pass": true
+    },
+    "q3": {
+      "pass": true,
+      "shell": true,
+      "toolInImage": true,
+      "generic": {
+        "command": "mysql -uroot -p\"$MYSQL_ROOT_PASSWORD\" -N -e 'select 1'",
+        "where": "container",
+        "ok": true,
+        "code": 0,
+        "output": "1\nmysql: [Warning] Using a password on the command line interface can be insecure."
+      },
+      "alternatives": [],
+      "works": "mysql -uroot -p\"$MYSQL_ROOT_PASSWORD\" -N -e 'select 1'",
+      "endpoints": [
+        "tcp=tcp://localhost:40147"
+      ],
+      "tlsPrimary": false
+    },
+    "q4": {
+      "pass": true,
+      "spanNoStatement": false,
+      "totalSpans": 48,
+      "dependencySpans": 32,
+      "sample": {
+        "name": "Execute",
+        "kind": "Client",
+        "attributes": {
+          "db.system": "mysql",
+          "db.connection_string": "Server=localhost;Port=40147;User ID=root",
+          "db.user": "root",
+          "net.transport": "ip_tcp",
+          "net.peer.port": "40147",
+          "net.peer.ip": "127.0.0.1",
+          "net.peer.name": "localhost",
+          "db.connection_id": "10",
+          "db.statement": "SELECT count(*) FROM information_schema.schemata"
+        }
+      },
+      "names": [
+        "audit.op",
+        "Open",
+        "Execute"
+      ]
+    },
+    "q5": {
+      "refusing": "not induced",
+      "healthy": "state=Running health=Healthy mysql_check=Healthy",
+      "hasReport": true,
+      "hung": "state=Running health=Unhealthy mysql_check=Unhealthy",
+      "hungLeftHealthy": true,
+      "recoveredAfterHung": true,
+      "down": "state=Exited health=none mysql_check=Healthy",
+      "recoveredAfterDown": true,
+      "startReplacedContainer": true,
+      "pass": true
+    },
+    "q6": {
+      "commands": [
+        "restart",
+        "stop"
+      ],
+      "restartEnabled": true,
+      "extraCommands": [],
+      "restartExit": 0,
+      "backHealthy": true,
+      "containerReplaced": true,
+      "pass": true
+    },
+    "marker": {
+      "written": true,
+      "kept": false
+    }
+  },
+  {
+    "row": "mongo",
+    "hosting": "Aspire.Hosting.MongoDB",
+    "resource": "mongo",
+    "notes": [],
+    "startSeconds": 12.757,
+    "q1": {
+      "pass": true,
+      "containerId": "a72d72935faa",
+      "image": "docker.io/library/mongo:9.0"
+    },
+    "q2": {
+      "containerEnv": [
+        "MONGO_INITDB_ROOT_PASSWORD",
+        "MONGO_INITDB_ROOT_USERNAME"
+      ],
+      "credentialArgs": false,
+      "describeEnvNames": [
+        "MONGO_INITDB_ROOT_PASSWORD",
+        "MONGO_INITDB_ROOT_USERNAME"
+      ],
+      "describeValues": [
+        "MONGO_INITDB_ROOT_USERNAME"
+      ],
+      "describeConnectionString": false,
+      "noAuth": false,
+      "pass": true
+    },
+    "q3": {
+      "pass": false,
+      "shell": true,
+      "toolInImage": true,
+      "generic": {
+        "command": "mongosh --quiet -u \"$MONGO_INITDB_ROOT_USERNAME\" -p \"$MONGO_INITDB_ROOT_PASSWORD\" --eval 'db.runCommand({ping:1}).ok'",
+        "where": "container",
+        "ok": false,
+        "code": 1,
+        "output": "MongoServerSelectionError: connection <monitor> to 127.0.0.1:27017 closed"
+      },
+      "alternatives": [
+        {
+          "command": "mongosh --quiet -u \"$MONGO_INITDB_ROOT_USERNAME\" -p \"$MONGO_INITDB_ROOT_PASSWORD\" --authenticationDatabase admin --eval 'db.runCommand({ping:1}).ok'",
+          "where": "container",
+          "ok": false,
+          "code": 1,
+          "output": "MongoServerSelectionError: connection <monitor> to 127.0.0.1:27017 closed"
+        }
+      ],
+      "works": null,
+      "endpoints": [
+        "tcp=tcp://localhost:34649"
+      ],
+      "tlsPrimary": false
+    },
+    "q4": {
+      "pass": true,
+      "spanNoStatement": false,
+      "totalSpans": 47,
+      "dependencySpans": 32,
+      "sample": {
+        "name": "isMaster admin",
+        "kind": "Client",
+        "attributes": {
+          "db.system.name": "mongodb",
+          "db.connection_id": "{ ServerId : { ClusterId : 1, EndPoint : \"Unspecified/localhost:34649\" }, LocalValue : 3 }",
+          "db.namespace": "admin",
+          "db.collection.name": "",
+          "db.operation.name": "isMaster",
+          "network.transport": "tcp",
+          "server.address": "localhost",
+          "server.port": "34649"
+        }
+      },
+      "names": [
+        "audit.op",
+        "isMaster admin",
+        "saslContinue admin",
+        "insert events",
+        "aggregate events"
+      ]
+    },
+    "q5": {
+      "refusing": "not induced",
+      "healthy": "state=Running health=Healthy mongo_check=Healthy",
+      "hasReport": true,
+      "hung": "state=Running health=Healthy mongo_check=Healthy",
+      "hungLeftHealthy": false,
+      "recoveredAfterHung": true,
+      "down": "state=Exited health=none mongo_check=Healthy",
+      "recoveredAfterDown": true,
+      "startReplacedContainer": true,
+      "pass": false
+    },
+    "q6": {
+      "commands": [
+        "restart",
+        "stop"
+      ],
+      "restartEnabled": true,
+      "extraCommands": [],
+      "restartExit": 0,
+      "backHealthy": true,
+      "containerReplaced": true,
+      "pass": true
+    },
+    "marker": {
+      "written": false
+    }
+  },
+  {
+    "row": "rabbitmq",
+    "hosting": "Aspire.Hosting.RabbitMQ",
+    "resource": "rabbitmq",
+    "notes": [],
+    "startSeconds": 8.334,
+    "q1": {
+      "pass": true,
+      "containerId": "938cfddd806c",
+      "image": "docker.io/library/rabbitmq:4.3"
+    },
+    "q2": {
+      "containerEnv": [
+        "RABBITMQ_DEFAULT_USER",
+        "RABBITMQ_DEFAULT_PASS",
+        "RABBITMQ_PGP_KEY_ID"
+      ],
+      "credentialArgs": false,
+      "describeEnvNames": [
+        "RABBITMQ_DEFAULT_PASS",
+        "RABBITMQ_DEFAULT_USER"
+      ],
+      "describeValues": [
+        "RABBITMQ_DEFAULT_USER"
+      ],
+      "describeConnectionString": false,
+      "noAuth": false,
+      "pass": true
+    },
+    "q3": {
+      "pass": true,
+      "shell": true,
+      "toolInImage": true,
+      "generic": {
+        "command": "rabbitmqctl -q list_queues name messages",
+        "where": "container",
+        "ok": true,
+        "code": 0,
+        "output": ""
+      },
+      "alternatives": [],
+      "works": "rabbitmqctl -q list_queues name messages",
+      "endpoints": [
+        "tcp=tcp://localhost:42907"
+      ],
+      "tlsPrimary": false
+    },
+    "q4": {
+      "pass": false,
+      "spanNoStatement": true,
+      "totalSpans": 17,
+      "dependencySpans": 2,
+      "sample": {
+        "name": "rabbitmq connect",
+        "kind": "Client",
+        "attributes": {
+          "server.address": "localhost",
+          "server.port": "42907",
+          "messaging.system": "rabbitmq"
+        }
+      },
+      "names": [
+        "audit.op",
+        "rabbitmq connect",
+        "rabbitmq connect attempt"
+      ]
+    },
+    "q5": {
+      "refusing": "not induced",
+      "healthy": "state=Running health=Healthy rabbitmq_check=Healthy",
+      "hasReport": true,
+      "hung": "state=Running health=Unhealthy rabbitmq_check=Unhealthy",
+      "hungLeftHealthy": true,
+      "recoveredAfterHung": true,
+      "down": "state=Exited health=none rabbitmq_check=Healthy",
+      "recoveredAfterDown": true,
+      "startReplacedContainer": true,
+      "pass": true
+    },
+    "q6": {
+      "commands": [
+        "restart",
+        "stop"
+      ],
+      "restartEnabled": true,
+      "extraCommands": [],
+      "restartExit": 0,
+      "backHealthy": true,
+      "containerReplaced": true,
+      "pass": true
+    },
+    "marker": {
+      "written": true,
+      "kept": false
+    }
+  },
+  {
+    "row": "kafka",
+    "hosting": "Aspire.Hosting.Kafka",
+    "resource": "kafka",
+    "notes": [],
+    "startSeconds": 5.118,
+    "q1": {
+      "pass": true,
+      "containerId": "4d607bcb51b2",
+      "image": "docker.io/confluentinc/confluent-local:8.2.0"
+    },
+    "q2": {
+      "containerEnv": [],
+      "credentialArgs": false,
+      "describeEnvNames": [],
+      "describeValues": [],
+      "describeConnectionString": false,
+      "noAuth": true,
+      "pass": true
+    },
+    "q3": {
+      "pass": false,
+      "shell": true,
+      "toolInImage": false,
+      "generic": {
+        "command": "kafka-topics.sh --bootstrap-server localhost:9092 --list",
+        "where": "container",
+        "ok": false,
+        "code": 127,
+        "output": "sh: line 1: kafka-topics.sh: command not found"
+      },
+      "alternatives": [
+        {
+          "command": "kafka-topics --bootstrap-server localhost:9092 --list",
+          "where": "container",
+          "ok": false,
+          "code": "timeout",
+          "output": "[2026-11-19 05:14:12,123] WARN [AdminClient clientId=adminclient-1] Connection to node 1 (localhost/127.0.0.1:39561) could not be established. Node may not be available. (org.apache.kafka.clients.NetworkClient)\n[2026-11-19 05:14:12,240] WARN [AdminClient clientId=adminclient-1] Connection to node 1 "
+        },
+        {
+          "command": "kafka-topics --bootstrap-server localhost:29092 --list",
+          "where": "container",
+          "ok": true,
+          "code": 0,
+          "output": "audit\nhealthchecks-topic"
+        }
+      ],
+      "works": "kafka-topics --bootstrap-server localhost:29092 --list",
+      "endpoints": [
+        "internal=tcp://localhost:39771",
+        "tcp=tcp://localhost:39561"
+      ],
+      "tlsPrimary": false
+    },
+    "q4": {
+      "pass": true,
+      "spanNoStatement": false,
+      "totalSpans": 30,
+      "dependencySpans": 15,
+      "sample": {
+        "name": "audit publish",
+        "kind": "Producer",
+        "attributes": {
+          "messaging.system": "kafka",
+          "messaging.client_id": "rdkafka#producer-1",
+          "messaging.destination.name": "audit",
+          "messaging.operation": "publish",
+          "messaging.kafka.message.key": "audit"
+        }
+      },
+      "names": [
+        "audit.op",
+        "audit publish"
+      ]
+    },
+    "q5": {
+      "refusing": "not induced",
+      "healthy": "state=Running health=Healthy kafka_check=Healthy",
+      "hasReport": true,
+      "hung": "state=Running health=Healthy kafka_check=Healthy",
+      "hungLeftHealthy": false,
+      "recoveredAfterHung": true,
+      "down": "state=Exited health=none kafka_check=Healthy",
+      "recoveredAfterDown": true,
+      "startReplacedContainer": true,
+      "pass": false
+    },
+    "q6": {
+      "commands": [
+        "restart",
+        "stop"
+      ],
+      "restartEnabled": true,
+      "extraCommands": [],
+      "restartExit": 0,
+      "backHealthy": true,
+      "containerReplaced": true,
+      "pass": true
+    },
+    "marker": {
+      "written": true,
+      "kept": false
+    }
+  },
+  {
+    "row": "nats",
+    "hosting": "Aspire.Hosting.Nats",
+    "resource": "nats",
+    "notes": [],
+    "startSeconds": 5.268,
+    "q1": {
+      "pass": true,
+      "containerId": "7379a413658a",
+      "image": "docker.io/library/nats:2.14"
+    },
+    "q2": {
+      "containerEnv": [],
+      "credentialArgs": true,
+      "describeEnvNames": [],
+      "describeValues": [],
+      "describeConnectionString": false,
+      "noAuth": false,
+      "pass": false
+    },
+    "q3": {
+      "pass": false,
+      "shell": false,
+      "toolInImage": false,
+      "generic": {
+        "command": "nats server check connection",
+        "ok": false,
+        "code": "no shell",
+        "output": ""
+      },
+      "alternatives": [
+        {
+          "command": "host: docker run --rm --network container:{id} docker.io/natsio/nats-box:latest nats --server nats://{arg:--user}:{arg:--pass}@localhost:4222 server check connection",
+          "where": "host",
+          "ok": true,
+          "code": 0,
+          "output": "OK Connection OK:connected to nats://nats:<secret>@localhost:4222 in 533.042µs OK:rtt time 44.083µs OK:round trip took 0.000061s | connect_time=0.0005s;0.5000;1.0000 rtt=0.0000s;0.5000;1.0000 request_time=0.0001s;0.5000;1.0000\nUnable to find image 'natsio/nats-box:latest' locally\nlatest: Pulling fro"
+        }
+      ],
+      "works": "host: docker run --rm --network container:{id} docker.io/natsio/nats-box:latest nats --server nats://{arg:--user}:{arg:--pass}@localhost:4222 server check connection",
+      "endpoints": [
+        "tcp=tcp://localhost:44593"
+      ],
+      "tlsPrimary": false
+    },
+    "q4": {
+      "pass": true,
+      "spanNoStatement": false,
+      "totalSpans": 32,
+      "dependencySpans": 16,
+      "sample": {
+        "name": "audit.events publish",
+        "kind": "Producer",
+        "attributes": {
+          "messaging.system": "nats",
+          "messaging.operation": "publish",
+          "messaging.destination.name": "audit.events"
+        }
+      },
+      "names": [
+        "audit.op",
+        "audit.events publish"
+      ]
+    },
+    "q5": {
+      "refusing": "not induced",
+      "healthy": "state=Running health=Healthy nats_check=Healthy",
+      "hasReport": true,
+      "hung": "state=Running health=Healthy nats_check=Healthy",
+      "hungLeftHealthy": false,
+      "recoveredAfterHung": true,
+      "down": "state=Exited health=none nats_check=Degraded (Connecting to NATS server...)",
+      "recoveredAfterDown": true,
+      "startReplacedContainer": true,
+      "pass": false
+    },
+    "q6": {
+      "commands": [
+        "restart",
+        "stop"
+      ],
+      "restartEnabled": true,
+      "extraCommands": [],
+      "restartExit": 0,
+      "backHealthy": true,
+      "containerReplaced": true,
+      "pass": true
+    }
+  },
+  {
+    "row": "storage",
+    "hosting": "Aspire.Hosting.Azure.Storage",
+    "resource": "storage",
+    "notes": [],
+    "startSeconds": 6.982,
+    "q1": {
+      "pass": true,
+      "containerId": "06633688c1e1",
+      "image": "mcr.microsoft.com/azure-storage/azurite:3.35.0"
+    },
+    "q2": {
+      "containerEnv": [],
+      "credentialArgs": false,
+      "describeEnvNames": [],
+      "describeValues": [],
+      "describeConnectionString": false,
+      "noAuth": true,
+      "pass": true
+    },
+    "q3": {
+      "pass": false,
+      "shell": true,
+      "toolInImage": false,
+      "generic": {
+        "command": "az storage container list --connection-string 'UseDevelopmentStorage=true' -o tsv",
+        "where": "container",
+        "ok": false,
+        "code": 127,
+        "output": "sh: az: not found"
+      },
+      "alternatives": [
+        {
+          "command": "host: az storage container list --connection-string 'DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:{port:10000}/devstoreaccount1;' -o tsv",
+          "where": "host",
+          "ok": true,
+          "code": 0,
+          "output": "None\tNone\tNone\tNone\taudit\t\tNone"
+        }
+      ],
+      "works": "host: az storage container list --connection-string 'DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:{port:10000}/devstoreaccount1;' -o tsv",
+      "endpoints": [
+        "table=http://localhost:46687",
+        "queue=http://localhost:38367",
+        "blob=http://localhost:33343"
+      ],
+      "tlsPrimary": false
+    },
+    "q4": {
+      "pass": true,
+      "spanNoStatement": false,
+      "totalSpans": 75,
+      "dependencySpans": 30,
+      "sample": {
+        "name": "PUT",
+        "kind": "Client",
+        "attributes": {
+          "http.request.method": "PUT",
+          "server.address": "127.0.0.1",
+          "server.port": "33343",
+          "url.full": "http://127.0.0.1:33343/devstoreaccount1/audit?*",
+          "http.response.status_code": "201 Created",
+          "network.protocol.version": "1.1"
+        }
+      },
+      "names": [
+        "audit.op",
+        "BlobContainerClient.CreateIfNotExists",
+        "PUT",
+        "BlobClient.Upload"
+      ]
+    },
+    "q5": {
+      "refusing": "not induced",
+      "healthy": "state=Running health=Healthy storage_check=Healthy",
+      "hasReport": true,
+      "hung": "state=Running health=Healthy storage_check=Healthy",
+      "hungLeftHealthy": false,
+      "recoveredAfterHung": true,
+      "down": "state=Exited health=none storage_check=Healthy",
+      "recoveredAfterDown": true,
+      "startReplacedContainer": true,
+      "pass": false
+    },
+    "q6": {
+      "commands": [
+        "restart",
+        "stop"
+      ],
+      "restartEnabled": true,
+      "extraCommands": [],
+      "restartExit": 0,
+      "backHealthy": true,
+      "containerReplaced": true,
+      "pass": true
+    }
+  },
+  {
+    "row": "cosmos",
+    "hosting": "Aspire.Hosting.Azure.CosmosDB",
+    "resource": "cosmos",
+    "notes": [],
+    "startSeconds": 7.873,
+    "q1": {
+      "pass": true,
+      "containerId": "934715921e56",
+      "image": "mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:vnext-latest"
+    },
+    "q2": {
+      "containerEnv": [
+        "CERT_SECRET",
+        "OTEL_POSTGRES_USER",
+        "OTEL_POSTGRES_PASSWORD",
+        "ORIGINAL_USER"
+      ],
+      "credentialArgs": false,
+      "describeEnvNames": [
+        "CERT_SECRET"
+      ],
+      "describeValues": [],
+      "describeConnectionString": false,
+      "noAuth": false,
+      "pass": true
+    },
+    "q3": {
+      "pass": false,
+      "shell": true,
+      "toolInImage": true,
+      "generic": {
+        "command": "curl -fsS http://localhost:8081/ -o /dev/null -w '%{http_code}'",
+        "where": "container",
+        "ok": false,
+        "code": 52,
+        "output": "000curl: (52) Empty reply from server"
+      },
+      "alternatives": [
+        {
+          "command": "curl -ksS https://localhost:8081/ -o /dev/null -w '%{http_code}'",
+          "where": "container",
+          "ok": true,
+          "code": 0,
+          "output": "200"
+        }
+      ],
+      "works": "curl -ksS https://localhost:8081/ -o /dev/null -w '%{http_code}'",
+      "endpoints": [
+        "emulatorhealth=http://localhost:39147",
+        "emulator=https://localhost:36355"
+      ],
+      "tlsPrimary": false
+    },
+    "q4": {
+      "pass": true,
+      "spanNoStatement": false,
+      "totalSpans": 69,
+      "dependencySpans": 53,
+      "sample": {
+        "name": "GET",
+        "kind": "Client",
+        "attributes": {
+          "http.request.method": "GET",
+          "server.address": "169.254.169.254",
+          "server.port": "80",
+          "url.full": "http://169.254.169.254/metadata/instance?*"
+        }
+      },
+      "names": [
+        "audit.op",
+        "GET",
+        "POST"
+      ]
+    },
+    "q5": {
+      "refusing": "not induced",
+      "healthy": "state=Running health=Healthy cosmos_emulatorhealth_/ready_200_check=Healthy",
+      "hasReport": true,
+      "hung": "state=Running health=Unhealthy cosmos_emulatorhealth_/ready_200_check=Unhealthy (Request to http://localhost:39147/ready timed out)",
+      "hungLeftHealthy": true,
+      "recoveredAfterHung": true,
+      "down": "state=Exited health=none cosmos_emulatorhealth_/ready_200_check=Healthy",
+      "recoveredAfterDown": true,
+      "startReplacedContainer": true,
+      "pass": true
+    },
+    "q6": {
+      "commands": [
+        "restart",
+        "stop"
+      ],
+      "restartEnabled": true,
+      "extraCommands": [],
+      "restartExit": 0,
+      "backHealthy": true,
+      "containerReplaced": true,
+      "pass": true
+    }
+  },
+  {
+    "row": "qdrant",
+    "hosting": "Aspire.Hosting.Qdrant",
+    "resource": "qdrant",
+    "notes": [],
+    "startSeconds": 4.069,
+    "q1": {
+      "pass": true,
+      "containerId": "baf50d88497b",
+      "image": "docker.io/qdrant/qdrant:v1.18.0"
+    },
+    "q2": {
+      "containerEnv": [
+        "QDRANT__SERVICE__API_KEY"
+      ],
+      "credentialArgs": false,
+      "describeEnvNames": [
+        "QDRANT__SERVICE__API_KEY"
+      ],
+      "describeValues": [],
+      "describeConnectionString": false,
+      "noAuth": false,
+      "pass": true
+    },
+    "q3": {
+      "pass": false,
+      "shell": true,
+      "toolInImage": false,
+      "generic": {
+        "command": "curl -fsS -H \"api-key: $QDRANT__SERVICE__API_KEY\" http://localhost:6333/collections",
+        "where": "container",
+        "ok": false,
+        "code": 127,
+        "output": "sh: 1: curl: not found"
+      },
+      "alternatives": [
+        {
+          "command": "host: curl -fsS -H 'api-key: {env:QDRANT__SERVICE__API_KEY}' http://127.0.0.1:{port:6333}/collections",
+          "where": "host",
+          "ok": true,
+          "code": 0,
+          "output": "{\"result\":{\"collections\":[]},\"status\":\"ok\",\"time\":5.333e-6}"
+        }
+      ],
+      "works": "host: curl -fsS -H 'api-key: {env:QDRANT__SERVICE__API_KEY}' http://127.0.0.1:{port:6333}/collections",
+      "endpoints": [
+        "http=http://localhost:34281",
+        "http=http://localhost:34281/dashboard",
+        "grpc=http://localhost:45403"
+      ],
+      "tlsPrimary": false
+    },
+    "q4": {
+      "pass": true,
+      "spanNoStatement": false,
+      "totalSpans": 30,
+      "dependencySpans": 15,
+      "sample": {
+        "name": "POST",
+        "kind": "Client",
+        "attributes": {
+          "http.request.method": "POST",
+          "server.address": "localhost",
+          "server.port": "45403",
+          "url.full": "http://localhost:45403/qdrant.Collections/List",
+          "http.response.status_code": "200 OK",
+          "network.protocol.version": "2"
+        }
+      },
+      "names": [
+        "audit.op",
+        "POST"
+      ]
+    },
+    "q5": {
+      "refusing": "not induced",
+      "healthy": "state=Running health=Healthy qdrant_check=Healthy",
+      "hasReport": true,
+      "hung": "state=Running health=Healthy qdrant_check=Healthy",
+      "hungLeftHealthy": false,
+      "recoveredAfterHung": true,
+      "down": "state=Exited health=none qdrant_check=Healthy",
+      "recoveredAfterDown": true,
+      "startReplacedContainer": true,
+      "pass": false
+    },
+    "q6": {
+      "commands": [
+        "restart",
+        "stop"
+      ],
+      "restartEnabled": true,
+      "extraCommands": [],
+      "restartExit": 0,
+      "backHealthy": true,
+      "containerReplaced": true,
+      "pass": true
+    }
+  },
+  {
+    "row": "keycloak",
+    "hosting": "Aspire.Hosting.Keycloak",
+    "resource": "keycloak",
+    "notes": [],
+    "startSeconds": 2.857,
+    "q1": {
+      "pass": true,
+      "containerId": "59042ddec4dd",
+      "image": "quay.io/keycloak/keycloak:26.6"
+    },
+    "q2": {
+      "containerEnv": [
+        "KC_BOOTSTRAP_ADMIN_USERNAME",
+        "KC_BOOTSTRAP_ADMIN_PASSWORD",
+        "KC_HTTPS_CERTIFICATE_KEY_FILE"
+      ],
+      "credentialArgs": false,
+      "describeEnvNames": [
+        "KC_BOOTSTRAP_ADMIN_PASSWORD",
+        "KC_BOOTSTRAP_ADMIN_USERNAME",
+        "KC_HTTPS_CERTIFICATE_KEY_FILE"
+      ],
+      "describeValues": [
+        "KC_BOOTSTRAP_ADMIN_USERNAME",
+        "KC_HTTPS_CERTIFICATE_KEY_FILE"
+      ],
+      "describeConnectionString": false,
+      "noAuth": false,
+      "pass": true
+    },
+    "q3": {
+      "pass": true,
+      "shell": true,
+      "toolInImage": true,
+      "generic": {
+        "command": "/opt/keycloak/bin/kcadm.sh config credentials --config /tmp/kcadm.config --server http://localhost:8080 --realm master --user \"$KC_BOOTSTRAP_ADMIN_USERNAME\" --password \"$KC_BOOTSTRAP_ADMIN_PASSWORD\" && /opt/keycloak/bin/kcadm.sh get realms --config /tmp/kcadm.config --fields realm",
+        "where": "container",
+        "ok": true,
+        "code": 0,
+        "output": "[ {\n  \"realm\" : \"master\"\n} ]Logging into http://localhost:8080 as user admin of realm master"
+      },
+      "alternatives": [],
+      "works": "/opt/keycloak/bin/kcadm.sh config credentials --config /tmp/kcadm.config --server http://localhost:8080 --realm master --user \"$KC_BOOTSTRAP_ADMIN_USERNAME\" --password \"$KC_BOOTSTRAP_ADMIN_PASSWORD\" && /opt/keycloak/bin/kcadm.sh get realms --config /tmp/kcadm.config --fields realm",
+      "endpoints": [
+        "management=https://localhost:43977",
+        "http=https://localhost:43745"
+      ],
+      "tlsPrimary": true
+    },
+    "q4": {
+      "pass": true,
+      "spanNoStatement": false,
+      "totalSpans": 32,
+      "dependencySpans": 16,
+      "sample": {
+        "name": "GET",
+        "kind": "Client",
+        "attributes": {
+          "http.request.method": "GET",
+          "server.address": "localhost",
+          "server.port": "43745",
+          "url.full": "https://localhost:43745/realms/master/.well-known/openid-configuration",
+          "http.response.status_code": "200 OK",
+          "network.protocol.version": "1.1"
+        }
+      },
+      "names": [
+        "audit.op",
+        "GET"
+      ]
+    },
+    "q5": {
+      "refusing": "not induced",
+      "healthy": "state=Running health=Healthy keycloak_management_/health/ready_200_check=Healthy",
+      "hasReport": true,
+      "hung": "state=Running health=Unhealthy keycloak_management_/health/ready_200_check=Unhealthy (Request to https://localhost:43977/health/ready timed out)",
+      "hungLeftHealthy": true,
+      "recoveredAfterHung": true,
+      "down": "state=Exited health=none keycloak_management_/health/ready_200_check=Healthy",
+      "recoveredAfterDown": true,
+      "startReplacedContainer": true,
+      "pass": true
+    },
+    "q6": {
+      "commands": [
+        "restart",
+        "stop"
+      ],
+      "restartEnabled": true,
+      "extraCommands": [],
+      "restartExit": 0,
+      "backHealthy": true,
+      "containerReplaced": true,
+      "pass": true
+    }
+  },
+  {
+    "row": "valkey",
+    "hosting": "Aspire.Hosting.Valkey",
+    "resource": "valkey",
+    "notes": [],
+    "startSeconds": 3.998,
+    "q1": {
+      "pass": true,
+      "containerId": "a6a242981577",
+      "image": "docker.io/valkey/valkey:9.1"
+    },
+    "q2": {
+      "containerEnv": [
+        "VALKEY_PASSWORD",
+        "VALKEY_VERSION"
+      ],
+      "credentialArgs": false,
+      "describeEnvNames": [
+        "VALKEY_PASSWORD"
+      ],
+      "describeValues": [],
+      "describeConnectionString": false,
+      "noAuth": false,
+      "pass": true
+    },
+    "q3": {
+      "pass": true,
+      "shell": true,
+      "toolInImage": true,
+      "generic": {
+        "command": "REDISCLI_AUTH=\"$VALKEY_PASSWORD\" valkey-cli PING",
+        "where": "container",
+        "ok": true,
+        "code": 0,
+        "output": "PONG"
+      },
+      "alternatives": [],
+      "works": "REDISCLI_AUTH=\"$VALKEY_PASSWORD\" valkey-cli PING",
+      "endpoints": [
+        "tcp=tcp://localhost:38213"
+      ],
+      "tlsPrimary": false
+    },
+    "q4": {
+      "pass": true,
+      "spanNoStatement": false,
+      "totalSpans": 47,
+      "dependencySpans": 30,
+      "sample": {
+        "name": "SET",
+        "kind": "Client",
+        "attributes": {
+          "db.system": "redis",
+          "db.redis.database_index": "0",
+          "db.statement": "SET",
+          "server.address": "localhost",
+          "server.port": "38213"
+        }
+      },
+      "names": [
+        "audit.op",
+        "SET",
+        "GET"
+      ]
+    },
+    "q5": {
+      "refusing": "not induced",
+      "healthy": "state=Running health=Healthy valkey_check=Healthy",
+      "hasReport": true,
+      "hung": "state=Running health=Unhealthy valkey_check=Unhealthy",
+      "hungLeftHealthy": true,
+      "recoveredAfterHung": true,
+      "down": "state=Exited health=none valkey_check=Healthy",
+      "recoveredAfterDown": true,
+      "startReplacedContainer": true,
+      "pass": true
+    },
+    "q6": {
+      "commands": [
+        "restart",
+        "stop"
+      ],
+      "restartEnabled": true,
+      "extraCommands": [],
+      "restartExit": 0,
+      "backHealthy": true,
+      "containerReplaced": true,
+      "pass": true
+    },
+    "marker": {
+      "written": true,
+      "kept": false
+    }
+  },
+  {
+    "row": "garnet",
+    "hosting": "Aspire.Hosting.Garnet",
+    "resource": "garnet",
+    "notes": [],
+    "startSeconds": 4.586,
+    "q1": {
+      "pass": true,
+      "containerId": "78826a873d50",
+      "image": "ghcr.io/microsoft/garnet:1.0"
+    },
+    "q2": {
+      "containerEnv": [
+        "GARNET_PASSWORD"
+      ],
+      "credentialArgs": false,
+      "describeEnvNames": [
+        "GARNET_PASSWORD"
+      ],
+      "describeValues": [],
+      "describeConnectionString": false,
+      "noAuth": false,
+      "pass": true
+    },
+    "q3": {
+      "pass": false,
+      "shell": true,
+      "toolInImage": false,
+      "generic": {
+        "command": "REDISCLI_AUTH=\"$GARNET_PASSWORD\" redis-cli PING",
+        "where": "container",
+        "ok": false,
+        "code": 127,
+        "output": "sh: 1: redis-cli: not found"
+      },
+      "alternatives": [
+        {
+          "command": "host: REDISCLI_AUTH='{env:GARNET_PASSWORD}' redis-cli -p {port:6379} PING",
+          "where": "host",
+          "ok": true,
+          "code": 0,
+          "output": "PONG"
+        }
+      ],
+      "works": "host: REDISCLI_AUTH='{env:GARNET_PASSWORD}' redis-cli -p {port:6379} PING",
+      "endpoints": [
+        "tcp=tcp://localhost:34539"
+      ],
+      "tlsPrimary": false
+    },
+    "q4": {
+      "pass": true,
+      "spanNoStatement": false,
+      "totalSpans": 46,
+      "dependencySpans": 30,
+      "sample": {
+        "name": "SET",
+        "kind": "Client",
+        "attributes": {
+          "db.system": "redis",
+          "db.redis.database_index": "0",
+          "db.statement": "SET",
+          "server.address": "localhost",
+          "server.port": "34539"
+        }
+      },
+      "names": [
+        "audit.op",
+        "SET",
+        "GET"
+      ]
+    },
+    "q5": {
+      "refusing": "not induced",
+      "healthy": "state=Running health=Healthy garnet_check=Healthy",
+      "hasReport": true,
+      "hung": "state=Running health=Unhealthy garnet_check=Unhealthy",
+      "hungLeftHealthy": true,
+      "recoveredAfterHung": true,
+      "down": "state=Exited health=none garnet_check=Healthy",
+      "recoveredAfterDown": true,
+      "startReplacedContainer": true,
+      "pass": true
+    },
+    "q6": {
+      "commands": [
+        "restart",
+        "stop"
+      ],
+      "restartEnabled": true,
+      "extraCommands": [],
+      "restartExit": 0,
+      "backHealthy": true,
+      "containerReplaced": true,
+      "pass": true
+    },
+    "marker": {
+      "written": true,
+      "kept": false
+    }
+  },
+  {
+    "row": "seq",
+    "hosting": "Aspire.Hosting.Seq",
+    "resource": "seq",
+    "notes": [],
+    "startSeconds": 4.182,
+    "q1": {
+      "pass": true,
+      "containerId": "978fb5d96e2f",
+      "image": "docker.io/datalust/seq:2025.2"
+    },
+    "q2": {
+      "containerEnv": [
+        "SEQ_FIRSTRUN_NOAUTHENTICATION"
+      ],
+      "credentialArgs": false,
+      "describeEnvNames": [
+        "SEQ_FIRSTRUN_NOAUTHENTICATION"
+      ],
+      "describeValues": [
+        "SEQ_FIRSTRUN_NOAUTHENTICATION"
+      ],
+      "describeConnectionString": false,
+      "noAuth": false,
+      "pass": true
+    },
+    "q3": {
+      "pass": true,
+      "shell": true,
+      "toolInImage": true,
+      "generic": {
+        "command": "seqcli search -c 1",
+        "where": "container",
+        "ok": true,
+        "code": 0,
+        "output": ""
+      },
+      "alternatives": [],
+      "works": "seqcli search -c 1",
+      "endpoints": [
+        "http=http://localhost:37563"
+      ],
+      "tlsPrimary": false
+    },
+    "q4": {
+      "pass": null,
+      "na": "telemetry sink, no client call to trace"
+    },
+    "q5": {
+      "refusing": "not induced",
+      "healthy": "state=Running health=Healthy seq_http_/health_200_check=Healthy",
+      "hasReport": true,
+      "hung": "state=Running health=Unhealthy seq_http_/health_200_check=Unhealthy (Request to http://localhost:37563/health timed out)",
+      "hungLeftHealthy": true,
+      "recoveredAfterHung": true,
+      "down": "state=Exited health=none seq_http_/health_200_check=Healthy",
+      "recoveredAfterDown": true,
+      "startReplacedContainer": true,
+      "pass": true
+    },
+    "q6": {
+      "commands": [
+        "restart",
+        "stop"
+      ],
+      "restartEnabled": true,
+      "extraCommands": [],
+      "restartExit": 0,
+      "backHealthy": true,
+      "containerReplaced": true,
+      "pass": true
+    }
+  },
+  {
+    "row": "elasticsearch",
+    "skipped": "no package at pin: microsoft/aspire 30326eb8 has no Aspire.Hosting.Elasticsearch (git ls-tree 30326eb8 src/)"
+  }
+]

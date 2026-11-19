@@ -1,0 +1,96 @@
+{
+  "row": "rabbitmq",
+  "hosting": "Aspire.Hosting.RabbitMQ",
+  "resource": "rabbitmq",
+  "notes": [],
+  "startSeconds": 8.334,
+  "q1": {
+    "pass": true,
+    "containerId": "938cfddd806c",
+    "image": "docker.io/library/rabbitmq:4.3"
+  },
+  "q2": {
+    "containerEnv": [
+      "RABBITMQ_DEFAULT_USER",
+      "RABBITMQ_DEFAULT_PASS",
+      "RABBITMQ_PGP_KEY_ID"
+    ],
+    "credentialArgs": false,
+    "describeEnvNames": [
+      "RABBITMQ_DEFAULT_PASS",
+      "RABBITMQ_DEFAULT_USER"
+    ],
+    "describeValues": [
+      "RABBITMQ_DEFAULT_USER"
+    ],
+    "describeConnectionString": false,
+    "noAuth": false,
+    "pass": true
+  },
+  "q3": {
+    "pass": true,
+    "shell": true,
+    "toolInImage": true,
+    "generic": {
+      "command": "rabbitmqctl -q list_queues name messages",
+      "where": "container",
+      "ok": true,
+      "code": 0,
+      "output": ""
+    },
+    "alternatives": [],
+    "works": "rabbitmqctl -q list_queues name messages",
+    "endpoints": [
+      "tcp=tcp://localhost:42907"
+    ],
+    "tlsPrimary": false
+  },
+  "q4": {
+    "pass": false,
+    "spanNoStatement": true,
+    "totalSpans": 17,
+    "dependencySpans": 2,
+    "sample": {
+      "name": "rabbitmq connect",
+      "kind": "Client",
+      "attributes": {
+        "server.address": "localhost",
+        "server.port": "42907",
+        "messaging.system": "rabbitmq"
+      }
+    },
+    "names": [
+      "audit.op",
+      "rabbitmq connect",
+      "rabbitmq connect attempt"
+    ]
+  },
+  "q5": {
+    "refusing": "not induced",
+    "healthy": "state=Running health=Healthy rabbitmq_check=Healthy",
+    "hasReport": true,
+    "hung": "state=Running health=Unhealthy rabbitmq_check=Unhealthy",
+    "hungLeftHealthy": true,
+    "recoveredAfterHung": true,
+    "down": "state=Exited health=none rabbitmq_check=Healthy",
+    "recoveredAfterDown": true,
+    "startReplacedContainer": true,
+    "pass": true
+  },
+  "q6": {
+    "commands": [
+      "restart",
+      "stop"
+    ],
+    "restartEnabled": true,
+    "extraCommands": [],
+    "restartExit": 0,
+    "backHealthy": true,
+    "containerReplaced": true,
+    "pass": true
+  },
+  "marker": {
+    "written": true,
+    "kept": false
+  }
+}

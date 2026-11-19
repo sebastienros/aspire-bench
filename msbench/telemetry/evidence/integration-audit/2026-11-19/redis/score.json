@@ -1,0 +1,102 @@
+{
+  "row": "redis",
+  "hosting": "Aspire.Hosting.Redis",
+  "resource": "redis",
+  "notes": [],
+  "startSeconds": 10.266,
+  "q1": {
+    "pass": true,
+    "containerId": "8540b00ae514",
+    "image": "docker.io/library/redis:8.6"
+  },
+  "q2": {
+    "containerEnv": [
+      "REDIS_PASSWORD"
+    ],
+    "credentialArgs": false,
+    "describeEnvNames": [
+      "REDIS_PASSWORD"
+    ],
+    "describeValues": [],
+    "describeConnectionString": false,
+    "noAuth": false,
+    "pass": true
+  },
+  "q3": {
+    "pass": false,
+    "shell": true,
+    "toolInImage": true,
+    "generic": {
+      "command": "REDISCLI_AUTH=\"$REDIS_PASSWORD\" redis-cli PING",
+      "where": "container",
+      "ok": false,
+      "code": 1,
+      "output": "I/O error\n\nI/O error\nError: Connection reset by peer"
+    },
+    "alternatives": [
+      {
+        "command": "REDISCLI_AUTH=\"$REDIS_PASSWORD\" redis-cli -p 6380 PING",
+        "where": "container",
+        "ok": true,
+        "code": 0,
+        "output": "PONG"
+      }
+    ],
+    "works": "REDISCLI_AUTH=\"$REDIS_PASSWORD\" redis-cli -p 6380 PING",
+    "endpoints": [
+      "secondary=tcp://localhost:39351",
+      "tcp=rediss://localhost:42923"
+    ],
+    "tlsPrimary": true
+  },
+  "q4": {
+    "pass": true,
+    "spanNoStatement": false,
+    "totalSpans": 34,
+    "dependencySpans": 20,
+    "sample": {
+      "name": "SET",
+      "kind": "Client",
+      "attributes": {
+        "db.system": "redis",
+        "db.redis.database_index": "0",
+        "db.statement": "SET",
+        "server.address": "localhost",
+        "server.port": "42923"
+      }
+    },
+    "names": [
+      "audit.op",
+      "SET",
+      "GET"
+    ]
+  },
+  "q5": {
+    "refusing": "not induced",
+    "healthy": "state=Running health=Healthy redis_check=Healthy",
+    "hasReport": true,
+    "hung": "state=Running health=Unhealthy redis_check=Unhealthy",
+    "hungLeftHealthy": true,
+    "recoveredAfterHung": true,
+    "down": "state=Exited health=none redis_check=Unhealthy",
+    "recoveredAfterDown": true,
+    "startReplacedContainer": true,
+    "pass": true
+  },
+  "q6": {
+    "commands": [
+      "restart",
+      "stop"
+    ],
+    "restartEnabled": true,
+    "extraCommands": [],
+    "restartExit": 0,
+    "backHealthy": true,
+    "containerReplaced": true,
+    "pass": true
+  },
+  "marker": {
+    "written": true,
+    "kept": false
+  }
+}
