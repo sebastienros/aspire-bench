@@ -3022,7 +3022,7 @@ so the two skills whose removal would change the diagnosis route (`aspire-orches
 
 | Card | Skill (v0.0.6 size, references) | Jobs it claims | Scenario(s) and source | Can the harness exercise it? | Trials / cost | Results |
 |---|---|---|---|---|---|---|
-| T3.1 | `aspire-orchestration` (22 KB, 5 refs) | start/stop/wait, resource restart, file locks, port conflicts, worktrees, VS Code sessions | `cold-start`; **restart-after-change** (edit one project, restart only it, verify); **two-app isolation** (port of S01: two apps up, repair one); **port conflict** (a stray process holds the app's port) | Yes for the four; VS Code flows: `no verdict` | 4 × 5 × 2 × 6 = 240 ≈ $9.70 | pending |
+| T3.1 | `aspire-orchestration` (22 KB, 5 refs) | start/stop/wait, resource restart, file locks, port conflicts, worktrees, VS Code sessions | `cold-start`; **restart-after-change** (edit one project, restart only it, verify); **two-app isolation** (port of S01: two apps up, repair one); **port conflict** (a stray process holds the app's port) | Yes for the four scenarios; corrected 2026-11-19: file locks cannot occur on this Linux harness (a running assembly is not locked), so file locks, VS Code flows and worktree starts are `no verdict` ([T3.1 rule](#t31-fixtures-and-rule-as-computed-written-2026-11-19-before-any-t31-trial-or-pilot)) | 4 × 5 × 2 × 6 = 240 ≈ $9.70 | pending |
 | T3.2 | `aspireify` (21 KB, 10 refs) | wire an AppHost for an existing repo, add Postgres/Redis/Rabbit/Mongo, ServiceDefaults, TS toolchain repair | **Adoption** (port of A01: raw Bingo, add an AppHost that runs it; grader: live app under Aspire, source unchanged); **add a dependency** (add Redis to an existing AppHost and use it from one project) | Yes; TS toolchain repair: `no verdict` | 2 × 4 × 2 × 6 = 96 ≈ $3.90 | pending |
 | T3.3 | `aspire-init` (10 KB, 2 refs) | `aspire new` / `aspire init`, pick a template, hand off to `aspireify` | **Greenfield** (empty folder, "create an Aspire app with an API and Postgres and run it"; grader: `aspire describe` shows the resources healthy and the API answers) | Yes | 1 × 4 × 2 × 6 = 48 ≈ $1.90 | pending |
 | T3.4 | `aspire-deployment` (18 KB, 7 refs) | publish/deploy to Compose, Kubernetes, Azure, AWS, Radius; teardown | **Preconfigured publishing** (port of the P01 preconfigured pair: complete AppHost and raw Compose, "publish and run the production build locally"); Kubernetes and clouds: `no verdict` | Compose yes; others no | 1 × 5 × 2 × 6 = 60 ≈ $2.40 | pending |
@@ -3149,9 +3149,48 @@ checks):
     full `aspire stop` + start fails `keptRunning` and `gameKept`; `dotnet build` + `restart` passes. Raw: build,
     kill the admin, `start.sh` fails `keptRunning` (containers restarted). Restore check: the Aspire repair passes
     with egress rejected (`iptables … REJECT`): the rebuild never reaches a feed.
-- **`two-app`** and **`port-conflict`**: fixtures gated locally; their fault and README are **pending the
-  coordinating session's ruling** (sent 2026-11-19 before any pilot). They get their own re-pin and their design
-  is written here before their pilots.
+- **`two-app`** (port of S01's two-app layout and neighbor grading, with a lifecycle fault; **coordinating session's
+  Q2 ruling, 2026-11-19, before any pilot**: S01's Redis ACL denial tests diagnosis, which Phases 1 and 2 covered,
+  and this card audits lifecycle guidance). A complete second copy runs from `/neighbor-app` for another event
+  (containers `neighbor-*`; raw ports 54321/63791/18081/15174 and its own supervisor; Aspire AppHost started with
+  `BENCH_RUN_ID=neighbor --isolated`), with its own squares and one called square. The target's admin process is
+  hung (SIGSTOP): Aspire shows it Running and Unhealthy, the raw supervisor still sees it alive, every admin page and
+  API call hangs, the player page loads. Prompt: get the admin working again; `/neighbor-app` must keep running
+  exactly as it is; restarting the target is allowed.
+  - **Scoping, part of what the cell measures:** from `/app` an unscoped `aspire` command targets `/app`'s AppHost;
+    from `/` it refuses and asks for `--apphost`. In the Aspire arms only docker- or process-level commands reach
+    the neighbor. In raw the two admins' command lines are identical (`dotnet bin/Debug/net10.0/BingoBoard.Admin.dll`)
+    and differ only by working directory.
+  - Checks: `target` (common checks, a fresh write in the target's database and not in the neighbor's,
+    call/clear/status), `neighborKept` (AppHost or supervisor, admin and Vite pid + start time, both containers' id +
+    start time as at setup; its squares and called square intact; a fresh neighbor write lands in its own database
+    only). Recorded: whether the hung process was replaced.
+  - Reference repairs: Aspire `aspire resource boardadmin restart --apphost /app/apphost.cs`; raw: kill the hung
+    target admin (its supervisor then stops the target), `start.sh` in `/app`.
+  - Local gates (both kinds) fail → repair → pass; negative: `pkill` of every admin + restart of the target fails
+    `neighborKept`. Footprint: 2.9 GiB memory, 6.9 GB inner Docker storage (limits 8 GB, 20 GB).
+- **`port-conflict`** (**coordinating session's Q1 ruling, 2026-11-19, before any pilot**: the scenario tests the
+  skill's port-conflict guidance, so the start must be able to meet the stray). Nothing is running; a board preview
+  server of another team (`node /usr/local/lib/bingo-ops/board-preview.mjs`, 200 on `/`, 404 everywhere else,
+  `127.0.0.1` and `::1`) holds the admin's configured port: 5039 (the launch profile's, which a plain `aspire start`
+  binds) on Aspire, `ADMIN_PORT` 18080 on raw. Setup asserts it holds the port before `ready`.
+  - **This scenario's README differs from every other scenario's on the start command, identically across its
+    Aspire arms:** "Start with `aspire start --apphost apphost.cs --non-interactive`" (no `--isolated`), written by
+    the fault's own setup (called from its own `entrypoint.sh` branch); the shared overlay is unchanged. Raw's
+    README is unchanged.
+  - Prompt: start the app; other services belong to other people, do not stop or change anything that is not part
+    of the application.
+  - Checks: `serving` (the admin origin the app advertises returns the Bingo admin's version JSON, then the
+    cold-start checks: fresh write in Postgres, player proxy, call/clear/status; content, not status codes),
+    `strayKept` (the preview keeps pid, start time and port).
+  - Measured: with the plain start `aspire wait boardadmin` times out (120 s), `boardadmin` shows Unhealthy at
+    `http://localhost:5039`, `bingoboard` stays Waiting. Raw `start.sh` refuses: "Port 18080 is already in use. Stop
+    the conflicting service before starting."
+  - Reference repairs: Aspire `aspire start --isolated` (bootstrap); raw `ADMIN_PORT=18090 bash scripts/start.sh`.
+    Local gates (both kinds) fail → repair → pass; negatives: the plain start fails, killing the preview then
+    starting fails `strayKept`.
+  - The skill's guidance for this symptom ("Port already in use | Previous instance running | Stop, then restart",
+    and `--isolated` "to avoid port conflicts" in worktrees) is quoted in the results beside what each trial did.
 
 **Guard** (ruling 5): `aspire-skills-noorchestration` and `aspire-skills` on luna `slow-sql` and `slow-redis` × 6, same
 round (48 trials: the card's 24 plus the same-round `aspire-skills` control).
@@ -3184,11 +3223,17 @@ limit, that is reported before the round, not changed after it). Oracle gates `g
    `slow-sql` not slower by > 10 % (p < 0.10) and passes ≥ bundle − 1, luna `slow-redis` time only. A failing
    guard or bundle-minus cell makes the card `no verdict` with that cell named.
 5. **`no verdict`** otherwise; at most one top-up (ruling 6).
-6. **`split`**: terra's T3.9 matrix. `aspire-orchestration` was selected on 6 of 107 runs of other skills' prompts,
-   all six on prompts labelled as the router's (`router-3`, `-5`, `-6`, two runs each). Reading (a), pending the
-   coordinating session's ruling: those are run/restart jobs orchestration's own description claims and the
-   router's removal ships (T1.3), so false selection is counted on the seven other skills' prompts (0 of 96) and
-   `split` does not fire; reading (b) counts them (6 ≥ 3 → `split`/narrow, re-run T3.9 only).
+6. **`split`** (**coordinating session's Q3 ruling, 2026-11-19: the row as written**; re-scoping the denominator with
+   the count in view is refused, as in T1.4 and T2.1). On terra's T3.9 matrix `aspire-orchestration` was selected on
+   6 of 107 runs of other skills' prompts, all six on the router's (`router-3`, `-5`, `-6`, two runs each): the row
+   fires. Descriptive, beside it: 0 of 96 against the seven other skills' prompts. Its action is executed: **round
+   `t31-sel`** (selection ledger), terra, the router's six prompts and orchestration's six × `aspire-skills-norouter`
+   (T1.3's proposal) and `aspire-skills` (same-round control) × 2 runs (48 runs ≈ $1.40). Rule, written before the
+   run: if under `norouter` no skill other than `aspire-orchestration` is selected on the router's prompts and
+   orchestration's own-prompt rate stays ≥ 10/12, the selection verdict is "the split row fires on v0.0.6;
+   discharged by the router's removal (T1.3), confirmed by `t31-sel`"; if another skill takes those prompts, or the
+   own rate drops below 10/12, `split / narrow the trigger` stands and names the prompts. The outcome verdict from
+   the trial cells is computed independently; the card may carry both.
 7. **Rows the scenarios do not exercise** (ruling 9), `no verdict`: VS Code lifecycle tools and their stop-result
    matrix (`aspire_apphost_start`/`_stop`, `notEditorOwned`, `ambiguousSession`: a VS Code session with the Aspire
    extension's tools, which T0.4's adapter does not load); file-lock recovery (MSB3491/CS2012: a Windows harness,
@@ -3196,7 +3241,7 @@ limit, that is reported before the round, not changed after it). Oracle gates `g
    the trial workspace is a plain checkout); `aspire update --self/--migrate`, integration discovery, default watch.
 
 **Recorded per trial, read from the trajectories, not graded:** `rebuild` / `restart` / `dotnet build` / `aspire
-stop` of the AppHost / `kill` of an app process (`restart-change`); the skill's references read; and, once ruled,
+stop` of the AppHost / `kill` of an app process (`restart-change`); the skill's references read;
 `--apphost` scoping and commands naming the neighbor (`two-app`), `aspire stop` before a new start (the skill's
 "port already in use → stop, then restart" row), `--isolated`, a launch-profile edit, and any signal sent to the
 preview process (`port-conflict`).

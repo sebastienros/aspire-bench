@@ -532,7 +532,8 @@ async function startNeighbor() {
     }
 }
 
-// Option (a), pending the coordinating session's ruling: the target's admin process is hung (SIGSTOP). It
+// The fault (coordinating session, Q2 ruling: a lifecycle fault, not S01's ACL denial, since this card audits
+// lifecycle guidance): the target's admin process is hung (SIGSTOP). It
 // stays alive (raw: the supervisor still sees it; Aspire: Running, health checks time out); every page and
 // API call to it hangs.
 async function injectTwoApp(endpoints) {
@@ -603,8 +604,9 @@ async function verifyTwoApp(state, endpoints, details) {
 // 5039, which a start without --isolated binds). The prompt forbids stopping what is not part of the app.
 const previewScript = "/usr/local/lib/bingo-ops/board-preview.mjs";
 const previewPattern = /board-preview\.mjs/;
-// Aspire arms: the workspace README gives the plain start, the skill's own default outside a worktree
-// (pending the coordinating session's ruling; false keeps the shared README's --isolated start).
+// Aspire arms: this fault's README gives the plain start, the skill's own default outside a worktree, so the start
+// can meet the preview (coordinating session, Q1 ruling: under the shared README's --isolated no Aspire start does).
+// Written here, by the fault's own setup; the shared overlay is unchanged and every arm of the scenario gets it.
 const plainStartReadme = true;
 
 async function setupPortConflict() {

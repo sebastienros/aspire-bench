@@ -287,10 +287,36 @@ existing functionality, and leave the application running. README.md describes t
 workspace. No report is required.
 `,
 };
-// two-app and port-conflict: added with their own re-pin once the coordinating session has ruled on their design.
+// two-app and port-conflict: designs ruled by the coordinating session (2026-11-19, Q1 and Q2, option a).
+scenarios["two-app"] = {
+    seed: 76, arms: orchestrationArms,
+    instruction: `The Bingo application in /app is running and players are in the middle of a game.
+
+Producers report that the admin application has stopped responding: its pages and API
+calls hang, although the player page still loads. Get it working again.
+
+A second copy of the Bingo application, in /neighbor-app, is running on this machine for
+another event. It must keep running exactly as it is: do not stop, restart or change it.
+Keep all existing data and all existing functionality, and leave the application in /app
+running. README.md describes this workspace. No report is required.
+`,
+};
+scenarios["port-conflict"] = {
+    seed: 77, arms: orchestrationArms,
+    instruction: `The Bingo application in /app is not running.
+
+Start it so that the player page and the admin application are both serving, and leave
+it running. Other services on this machine belong to other people: do not stop or change
+anything that is not part of this application. README.md describes this workspace. No
+report is required.
+`,
+};
 scenarios["cold-start"].arms.push("aspire-skill-orchestration", "aspire-skills-noorchestration");
 // T3.1's bundle-minus guard (ruling 5), beside the aspire-skills cells of the same round.
 scenarios["slow-redis"].arms.push("aspire-skills-noorchestration");
+// T3.1's selection re-run (coordinating session, Q3 ruling): the router's and orchestration's own prompts under the
+// bundle without the router (T1.3's proposal), beside the existing aspire-skills tasks in the same round (t31-sel).
+for (const { id } of selectionPrompts.filter(({ id }) => /^(router|orch)-/.test(id))) scenarios[`sel-${id}`].arms = ["aspire-skills", "aspire-skills-norouter"];
 
 // Applications: the image template and the build contexts each one needs.
 const apps = {
