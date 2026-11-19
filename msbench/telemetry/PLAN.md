@@ -1884,7 +1884,7 @@ source build against its `-src` control.
   call whose result is a reply from the server), median over the trials where it fired, with the count
   fired. *Amended 2026-11-19 ~05:20 UTC, after `t25` was submitted and before any `t25` result was read:*
   the rule first named `seconds_to_root_cause_seen`, which the T2.4 lane has since shown fires on the
-  opening `ps` listing on this scenario (REPORT §6 metrics note); on the lean arms the two fields agree at
+  opening `ps` listing on this scenario (REPORT §3.7 metrics note); on the lean arms the two fields agree at
   this pin (luna lean 38.9 vs 39.0 s, mcp-all 54.8 vs 56.0), on `raw` and `aspire-cli` they do not, so the
   companion readings would be wrong on the old field. `seconds_to_root_cause_seen` is reported beside it.
   Time = `agent_seconds`; p = exact two-sided Mann-Whitney.
