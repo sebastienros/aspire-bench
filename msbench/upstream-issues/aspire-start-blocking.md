@@ -44,7 +44,9 @@ because the workspace README named the waits.
 
 - Treat the AppHost launch (15–20 s here, before any resource starts) as the cold-start cost to reduce:
   break it down (file-based AppHost build and restore, DCP start, dashboard start), cache what can be cached,
-  and start resources earlier.
+  and start resources earlier. Two pointers that much of it is first-start cost (not measured in the cells
+  above): a warm workspace in another round (3 trials) reached a verified-up app in 34.5 s against 49.0 s cold,
+  and locally a second start with the AppHost already built launched in about 4.5 s against 15–20 s.
 - A `--wait` on `aspire start` is still a reasonable convenience (one call, endpoints printed, fewer tokens:
   terra used 49k against 72k), but it should not be expected to make agents faster. If it is added, it should
   not be the default under `--non-interactive` without an opt-out, since it changes scripted behaviour.

@@ -1017,7 +1017,9 @@ AppHost's own launch (build, DCP, dashboard: 15–20 s before any resource is wa
 cold-start gain has to come from there.
 
 **Limits / status:** the 11-09 cells had 3 trials (smallest attainable p = 0.10), T1.6 and T2.2 six; one
-application; the 15–20 s launch is not broken down further. Measured, not upstreamed. Draft issues: [aspire-start-blocking.md](upstream-issues/aspire-start-blocking.md) (updated with T2.2: the blocking start is not the lever), [skills-remove-router-add-aspire-start.md](upstream-issues/skills-remove-router-add-aspire-start.md).
+application; the 15–20 s launch is not broken down further. Two pointers, not measurements of this card, that much
+of it is first-start cost: `t01b-warm` (T0.1, n = 3, another round) reached verified-up in 34.5 s against 49.0 s cold,
+and locally a second patched start with the AppHost already built launched in about 4.5 s against 15–20 s. Measured, not upstreamed. Draft issues: [aspire-start-blocking.md](upstream-issues/aspire-start-blocking.md) (updated with T2.2: the blocking start is not the lever), [skills-remove-router-add-aspire-start.md](upstream-issues/skills-remove-router-add-aspire-start.md).
 
 ## F22: Aspire main's Redis container serves TLS on 6379, so the generic `redis-cli` recipe fails inside it
 
@@ -1054,13 +1056,15 @@ shape (F40); Valkey and Garnet, the other Redis-protocol integrations, are plain
 **The fallback hint, measured (Task T2.4, pin 2026-11-17, round `t23`, n = 6):** `aspire describe` (table and
 JSON `connect`) carrying "port 6379 is TLS inside the container … `redis-cli -p 6380`", read from the container's
 arguments, on the no-skill arm against the unpatched source build. **Drop**, on the `slow-sql` luna guard (4/6
-against 6/6; neither miss went near the hint: one never ran `describe`, the other read it filtered and patched
-code). Terra reached its first Redis reply sooner by medians (15.5 against 21.6 s, p = 0.49; 6/6 both); luna
+against 6/6; neither miss went near the hint: one never ran `describe`, the other saw no hint and never touched
+Redis; both patched code). Terra reached its first Redis reply sooner by medians (15.5 against 21.6 s, p = 0.49; 6/6 both); luna
 passed no trial on either arm. In the decision arm the trap was rare before the run (a bare `redis-cli` failed
 first in 1 of 12 `aspire-cli` trials at the pin, luna reaching Redis in 1 of 6), and the hint reached 4/6 terra
 trials before their first `redis-cli`. On the shipped skills (secondary, out of the rule), where the trap fires
 (5/12 luna, 2/6 terra first-call failures at the pin), the hint was seen in 1/6 terra and 2/6 luna trials and
-nothing improved: those skills send agents to other commands than a plain `describe`. The skill note stays; the
+nothing improved: those agents read `describe --format Json`, which at about 24 KB comes back as an 886-character
+preview ([F31](#f31-copilot-cli-shows-a-500-character-preview-of-any-tool-result-over-about-20-kb)), then filter the spill with `jq`/`grep`, so the JSON `connect` field never reached the screen;
+only the table row's copy was ever seen. The skill note stays; the
 port swap (option 1) was not measured, because the source arms rebuild only `Aspire.Cli`
 ([PLAN.md, T2.4 results](telemetry/PLAN.md#t24-results)). T2.6's generic `connect` object
 ([F50](#f50-a-connect-block-in-describe-lets-a-skill-drop-every-integration-specific-line-at-no-cost)) uses the

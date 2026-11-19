@@ -54,13 +54,14 @@ Coding agents with no Aspire skills, 6 trials per cell, against the unpatched bu
 - gpt-6-luna fixed it in no trial on either arm, although 3 of 6 hinted trials got a working Redis reply
   against 1 of 6 without the hint.
 - With the shipped Aspire skills, where the trap fires most (the first `redis-cli` failed in 5 of 12 luna
-  and 2 of 6 terra trials), agents rarely ran a plain `aspire describe`, saw the hint in 1–2 of 6 trials,
-  and nothing improved.
+  and 2 of 6 terra trials), agents read `aspire describe --format Json`. At about 24 KB that output comes back
+  to the model as an 886-character preview of a spilled file, which agents then filter with `jq`/`grep`, so the
+  JSON hint never reached the screen; they saw the table's copy in 1–2 of 6 trials, and nothing improved.
 
-The hint helps only an agent that reads `describe`, and the agents that hit the trap mostly don't. That
+A hint in `describe` helps only where it lands on screen: the table row did, the JSON field did not. That
 argues for the primary proposal (swap the ports, so the generic command works wherever the agent learned
-it), which was not measured, and, for the fallback, a hint in the places the shipped skills do send agents
-(the `aspire-terminals` reference row for `redis-cli`). A generic `connect` block in `describe --format
+it), which was not measured; for the fallback, the hint has to be in the table, near the top of a short JSON
+output, or in the error path, and in the `aspire-terminals` reference row for `redis-cli`. A generic `connect` block in `describe --format
 Json` that a skill points to did work in a separate measurement (aspire-bench F50).
 
 ## Evidence

@@ -1376,7 +1376,9 @@ root cause was 1.17× (p = 0.002) and 1.15×, and the `slow-redis` guard passed 
 exporter-left-running miss, 4/6–5/6 in four earlier rounds). One trace read is under 5 % of a trial, so cutting it by
 63 % cannot move the total. **T2.4, drop on the guard:** `slow-sql` luna 4/6 against 6/6, neither miss through the
 hint; terra's first Redis reply came sooner by medians only (15.5 against 21.6 s, p = 0.49), luna passed nothing on
-either arm, and on the shipped skills, where the TLS trap fires, the hint was rarely seen and nothing improved. The
+either arm, and on the shipped skills, where the TLS trap fires, the hint was rarely seen and nothing improved: agents read
+`describe` as JSON, which comes back as an 886-character preview and is then filtered, so only the table's copy of
+the hint was ever on screen. The
 hint was chosen over the port swap because the source arms rebuild only the CLI; the swap is unmeasured
 ([FINDINGS F19, F22](../FINDINGS.md#f22-aspire-mains-redis-container-serves-tls-on-6379-so-the-generic-redis-cli-recipe-fails-inside-it);
 issue draft `aspire-redis-default-ports.md` updated). [PLAN.md, T2.3 results](PLAN.md#t23-results),

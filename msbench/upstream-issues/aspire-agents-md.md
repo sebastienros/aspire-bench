@@ -69,8 +69,9 @@ With the orchestration skill present, the agent followed the skill, not the file
 ## Caveats
 
 - Measured on one app and one harness; the workspace README also named the start command.
-- The remaining gap to a hand-written start script (39 s against 28 s) is `aspire start` returning before the
-  resources are healthy, plus the waits: see [aspire-start-blocking.md](aspire-start-blocking.md).
+- The remaining gap to a hand-written start script (39 s against 28 s) is Aspire's own time to a healthy app
+  (AppHost launch 15–20 s, then resource start-up), not the start returning before health: a blocking start
+  closed none of it (see [aspire-start-blocking.md](aspire-start-blocking.md)).
 - If the orchestration skill is removed from a set, other skills' descriptions that name it (for example
   `aspire-diagnose`'s "DO NOT USE FOR … (aspire-orchestration)") should point to the file instead: 2 of 6
   trials tried to load the missing skill.

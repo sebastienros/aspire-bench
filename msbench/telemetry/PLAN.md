@@ -1837,7 +1837,7 @@ Byte counts on the started app: [`evidence/agent-surface/2026-11-18-mcp/`](evide
 
 Every model had a gap in this round (G > 0), so the no-gap clause did not apply. Pass rates are 6/6 on every arm.
 `t16`'s figures, for reference only: raw 33.3 / 28.8 / 41.5 s and `aspire-cli` 41.3 / 39.8 / 40.4 s (luna / terra /
-sol); `t16` sol's missing gap was round drift. Warm start (T0.1, `t01b-warm`, luna, 3 trials): 34.5 s to
+sol); `t16` sol's missing gap was not reproduced. Warm start (T0.1, `t01b-warm`, luna, 3 trials): 34.5 s to
 verified-up against 49.0 s cold (`aspire-lean`, `t01b`).
 
 Round `t22` (Copilot CLI 1.0.99, suite `e165626`, tasks `672b69b`, dataset `40a1dac`), 162 trials: no timeouts, no
@@ -1882,7 +1882,11 @@ firing in both. Extracted runs were deleted and re-fetched after other lanes' co
   waiting on all seven resources rather than the two the agents waited on, and the second snapshot read.
 - **Agents re-check anyway.** Terra ran `aspire wait` after a blocking start that had already reported both
   resources healthy in 6/6 trials (luna 2/6, sol 6/6 after its unfinished starts), because the README names the
-  waits. Commands to verified-up fell (terra 5 → 3) and tokens fell on terra (72k → 49k), but time did not.
+  waits; `aspire describe` after the start ran in 1/6, 4/6 and 4/6 (luna / terra / sol). The patched start came
+  back unfinished at Copilot's shell wait in 3/6 luna, 0/6 terra and 6/6 sol trials. The pre-registered phase split
+  (before / start / waits / after, T2.11) is replaced here by the time from the start command to verified-up, split
+  by finished and unfinished starts, because medians of phases mix trials whose start blocked with trials whose
+  start returned early. Commands to verified-up fell (terra 5 → 3) and tokens fell on terra (72k → 49k), but time did not.
 - **One command in the skill or the file does not help either.** `aspire-lean-start-wait` against `aspire-cli-wait`
   (same build) is 0.99× / 0.93× / 1.03× (luna / terra / sol; p ≥ 0.14), and against official `aspire-lean-start`
   1.04× / 1.04× / 1.05× (build differs). File v3 against v2 on the same build (luna): 1.10× slower (41.8 vs 37.8 s,
@@ -1983,8 +1987,8 @@ Extracted runs were deleted and re-fetched after other lanes' collects; 0 of 282
   against 3,393 as JSON (−63 %), but that read is under 5 % of a trial's 60–70k characters, so the trial totals
   move with everything else the agent reads.
 - **The extra time to root cause is not in the trace step.** From the trace read to the first database command:
-  luna 12.1 against 11.0 s, terra 3.9 against 5.3 s, with the same number of code reads in between (luna 5–8
-  against 3–7; terra 0–1 against 0). The difference sits after the first database command and is not explained;
+  luna 12.1 against 11.0 s, terra 3.9 against 5.3 s, with code reads in between of luna 1–8 (median 6) against 3–7
+  (median 4.5) and terra 0–1 against 0. The difference sits after the first database command and is not explained;
   the arm also changed the skill's step 2 text (which no longer names `source` and `destination`) together with
   the CLI, so the two cannot be separated in this design.
 - **The guard misses are the cell's known failure.** Both failed `slow-redis` trials reached Redis (33–36 s) and
@@ -2063,20 +2067,26 @@ step 3) stays and the card closes.
 Same round `t23` as T2.3 (table above).
 
 **Mechanisms.**
-- **The hint reached the agents that read `describe`.** It appeared in a tool result before the first `redis-cli`
-  in 4 of 6 terra and 2 of the 3 luna trials that ran `redis-cli` at all; terra's first `redis-cli` still failed in
-  1 of 6 (the control's in 0 of 6 this round, against 1 of 6 at `t01b`). The trap was rare in this arm, as
-  pre-registered.
+- **Only the table half of the hint was ever seen.** Every unfiltered `aspire describe --format Json` (about 24 KB)
+  came back as Copilot's 886-character preview with the output spilled to a file (F31), and agents then read the
+  spill through `jq`/`grep` for the fields they wanted, which drops `connect`. The table row carries the hint and
+  was read: before the first `redis-cli` the hint was on screen in 4 of 6 terra trials (all through the table; one
+  other saw only the JSON preview, one ran no `describe` first) and in 2 of the 3 luna trials that ran `redis-cli`.
+  Terra's first `redis-cli` still failed in 1 of 6 (the control's in 0 of 6 this round, 1 of 6 at `t01b`). The trap
+  was rare in this arm, as pre-registered.
 - **The guard misses did not go through the hint.** Of the two failed `slow-sql` trials, one never ran `aspire
-  describe` and patched application code; the other read `describe --format Json` piped through `grep` and never
-  touched Redis. Both are luna's no-skill code-editing miss; the no-skill luna `slow-sql` cell passed 6/6 in `t01b`,
-  `t210` and this round's control.
+  describe` and patched application code; the other saw no hint (its `describe` reads were a table without the Redis
+  row's hint on screen, the 886-character JSON preview and a filtered JSON read) and never touched Redis. Both are
+  luna's no-skill code-editing miss; the no-skill luna `slow-sql` cell passed 6/6 in `t01b` and in this round's control
+  (and `aspire-cli-agents` 6/6 in `t210`).
 - **The shipped-set pair (secondary, out of the rule) shows no gain.** On `aspire-skills`, where the trap fires,
-  the hint was seen in 1 of 6 terra trials and 2 of 6 luna (the shipped skills send agents to other commands than
-  a plain `describe`): terra's first `redis-cli` failed in 2 of 6 against 3 of 6, its reply came at 28.2 against
+  the hint was seen in 1 of 6 terra trials and 2 of 6 luna. Those agents did run `describe` (as at the pin), but as
+  JSON: 5 of 6 terra trials started with `describe --format Json`, got the preview, and filtered the spill, so the
+  `connect` field never reached the screen; the one terra trial that read the table saw the hint. Terra's first `redis-cli` failed in 2 of 6 against 3 of 6, its reply came at 28.2 against
   24.2 s (p = 0.70), and luna got no reply at all against 1 of 6, pass 0/6 on both. Nothing here motivates a
-  re-targeted card for the hint; a hint where the shipped skills look (the `aspire-terminals` reference row) or the
-  port swap (not measured) would be the next candidates.
+  re-targeted card for this hint as built. A JSON hint has to survive the preview (near the top of a short output,
+  or a `describe cache` that stays under the limit) or the filters agents apply; the port swap (not measured) needs
+  neither.
 - **Relation to T2.6.** T2.6 shipped a generic `connect` object in `describe --format Json` (same field; this
   string is its `note` + `command` for Redis). Its agents ran `connect.command` as given in 4/6 Redis trials,
   because the lean skill's step 3 told them to look there; T2.4's no-skill agents had no such pointer.
