@@ -303,6 +303,13 @@ Aspire CLI commands run, characters returned by tools, **seconds to root cause o
 (first tool result matching the scenario's evidence pattern) and **seconds to first repair
 command**.
 
+Known limits of the two timers (noted 2026-11-19, PLAN T0.1 and T2.4): on `slow-sql`, seconds to first
+repair also fires on an `rg` for the SQL text or on a `kill` restart. On `slow-redis`, seconds to root
+cause fires on any result that names `report-exporter`, including the opening `ps` listing, so it
+measures when the agent first listed processes (terra `aspire-cli` median 4.3 s), not when it saw the
+cause. Do not compare `slow-redis` cells on it; `seconds_to_redis_reply` (first `redis-cli` call that
+got a reply, T2.4) and seconds to first repair (stopping the exporter) are the usable times there.
+
 Tests: exact two-sided Mann-Whitney on per-trial values for every headline pair. With 3
 trials per arm the smallest attainable p is 0.10, with 6 vs 6 it is 0.002. Cells with 3
 per arm are reported as direction and magnitude only.

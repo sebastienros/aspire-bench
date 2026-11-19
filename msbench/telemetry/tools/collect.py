@@ -37,6 +37,8 @@ PHASES = {
                  re.compile(r"CREATE\s+(UNIQUE\s+)?INDEX|DROP\s+TRIGGER|DISABLE\s+TRIGGER|CREATE\s+OR\s+REPLACE\s+FUNCTION|ALTER\s+TABLE", re.I)),
     "read-only": (re.compile(r"read-only transaction|25006|default_transaction_read_only", re.I),
                   re.compile(r"RESET\s+default_transaction_read_only|default_transaction_read_only\s*(=|TO)\s*'?(off|false)", re.I)),
+    # slow-redis: the root-cause pattern also matches the opening `ps` listing (report-exporter.sh), so
+    # seconds_to_root_cause_seen is not a usable time on this scenario; use seconds_to_redis_reply (T2.4).
     "slow-redis": (re.compile(r"report-exporter|redis\.call\(.KEYS|KEYS.{0,40}report:session", re.I),
                    re.compile(r"\bpkill\b|\bkillall\b|\bkill\s+(-\w+\s+)?\d+|CLIENT\s+KILL|CLIENT\s+PAUSE|ACL\s+SETUSER|rename-command", re.I)),
     # Held-out Shop app (T0.2). slow-sql: the JSON_VALUE statement on screen (EF Core log line,

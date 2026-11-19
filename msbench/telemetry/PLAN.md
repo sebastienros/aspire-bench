@@ -1732,10 +1732,12 @@ source build against its `-src` control.
 - **Measure:** `seconds_to_verified_up` (T2.11's definition). The patched start's `Resource '<name>' is healthy.`
   lines are wait evidence under the existing reader, so a blocking start that reports both `bingoboard` and
   `boardadmin` is the verified-up point. Medians over graded trials, same round.
-- **Gap and closure per model:** G = median(`aspire-cli-src`) − median(`raw`); closed = median(`aspire-cli-src`) −
-  median(`aspire-cli-wait`). The model's clause holds if closed ≥ G / 2 and `aspire-cli-wait` passes at least
-  `aspire-cli-src`'s count minus one. **Where G ≤ 0** (no gap: `t16` sol had raw 41.5 s against `aspire-cli`
-  40.4 s), the clause is "`aspire-cli-wait` ≤ `aspire-cli-src`" (no regression) — put to the user before submission.
+- **Gap and closure per model,** from the same-round `t22` cells only (`t16`'s figures are reported beside them, not
+  used): G = median(`aspire-cli-src`) − median(`raw`); closed = median(`aspire-cli-src`) − median(`aspire-cli-wait`).
+  The model's clause holds if closed ≥ G / 2. **Where G ≤ 0** (no gap to close; `t16` sol had raw 41.5 s against
+  `aspire-cli` 40.4 s), the clause is "`aspire-cli-wait` ≤ `aspire-cli-src` on seconds to verified-up" (no
+  regression). On every model, also: `aspire-cli-wait` passes ≥ `aspire-cli-src`'s count minus one. Both
+  definitions agreed with the coordinating session on 2026-11-19, before any `t22` result.
 - **`ship`** if the clause holds on all three models; **`revise`** if on one or two (named); **`drop`** if on none.
   p (exact two-sided Mann-Whitney, `aspire-cli-wait` vs `aspire-cli-src`) is reported, not in the rule.
 - **Reported whatever the verdict:** `agent_seconds`, `commands_to_verified_up` and tokens per arm; T2.11's phase
@@ -1824,8 +1826,11 @@ source build against its `-src` control.
   reason to re-run.
 - **Measure.** `seconds_to_root_cause_seen` is unusable on `slow-redis`: it fires on any result that names
   `report-exporter`, including the opening `ps` listing (terra `aspire-cli` median 4.3 s). The time measure is
-  therefore a new `collect.py` field, `seconds_to_redis_reply`: from the first trajectory event to the first
-  `redis-cli` call that got an answer (output, and none of the TLS-port errors), with `redis_cli_first_failed`.
+  therefore a new `collect.py` field, `seconds_to_redis_reply`: from the first trajectory event to the completion of
+  the first tool call whose command runs `redis-cli` and whose result is a reply from the server, not an error
+  (non-empty output with none of `I/O error`, `Connection reset`, `Could not connect`, `Connection refused`,
+  `NOAUTH`, `WRONGPASS`, `wrong version number`, `Server closed`, `Protocol error`); with `redis_cli_first_failed`
+  (the first `redis-cli` call returned such an error). Back-filled over every `slow-redis` trial already collected.
   `seconds_to_first_fix` (stopping the exporter) is reported.
 - **Cells**, round `t23`: `slow-redis` × luna, terra × 6, `aspire-cli-src` (no skill, unpatched) vs
   `aspire-cli-redishint` (no skill, patched). The hint changes what `describe` shows, so a guard: `slow-sql` luna
@@ -1833,8 +1838,12 @@ source build against its `-src` control.
 - **`ship`** if, on luna or on terra, `aspire-cli-redishint`'s median `seconds_to_redis_reply` is ≤ 0.80 × the
   control's or it passes ≥ control + 2, and on neither model does it pass < control − 1, and the guard holds
   (`slow-sql` luna passes ≥ control − 1). Otherwise **`drop`**: keep the skill note (lean step 3) and close.
-- Secondary, outside the rule, only if the coordinator approves the extra ≈ $1.7: the shipped set without MCP,
-  `aspire-skills-src` vs `aspire-skills-redishint`, `slow-redis` × luna, terra × 6, where the trap fires.
+- **Secondary pair, out of the rule** (agreed with the coordinating session, ≈ $1.7): the shipped set without MCP,
+  `aspire-skills-src` vs `aspire-skills-redishint`, `slow-redis` × luna, terra × 6. Motivation: the trap fires on
+  the shipped set (first `redis-cli` failed in 5/12 luna and 2/6 terra `aspire-skills` trials), against 1/12 on
+  `aspire-cli`. The verdict is by the card's rule on the no-skill arm alone. If the no-skill arm shows nothing and
+  this pair shows a clear gain, the verdict still follows the rule, and the pair goes into the write-up as the
+  finding that would motivate a re-targeted card; nothing ships on this pair alone.
 
 ### T2.5 Redis client tracing in the aspirified template
 
