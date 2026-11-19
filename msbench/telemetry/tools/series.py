@@ -3,6 +3,9 @@
 
     tools/series.py        reads results/trials.jsonl and results/ledger.jsonl,
                            writes results/series.jsonl and results/series.md
+    tools/series.py --include-excluded <round,...> --out <dir>
+                           also counts those rounds although their ledger lines carry `excluded`
+                           (T4.5's smoke), and writes <dir>/series.{jsonl,md} instead
 
 A cell is (agent, scenario, model, arm). A run is one measurement of the matrix:
 - on the first pin (2026-11-09) every round is pooled into one run, the way comparison.md and
@@ -107,7 +110,7 @@ def spark(values):
     return "".join(SPARK[round((v - low) / (high - low) * (len(SPARK) - 1))] for v in values)
 
 
-def load():
+def load(include=frozenset()):
     ledger = {}
     for line in (SUITE / "results/ledger.jsonl").read_text().splitlines():
         if line.strip():
@@ -116,7 +119,8 @@ def load():
     trials = []
     for line in (SUITE / "results/trials.jsonl").read_text().splitlines():
         row = json.loads(line)
-        if (row["model_requested"] == "oracle" or row.get("excluded") or row.get("infrastructure_failure")
+        if (row["model_requested"] == "oracle" or (row.get("excluded") and row["round"] not in include)
+                or row.get("infrastructure_failure")
                 or row.get("agent_seconds") is None):
             continue
         entry = ledger.get(row["run_id"], {})
@@ -292,10 +296,16 @@ def render(rows):
 
 
 def main():
-    rows = build(load())
+    import sys
+    include = frozenset(sys.argv[sys.argv.index("--include-excluded") + 1].split(",")) if "--include-excluded" in sys.argv else frozenset()
+    out = Path(sys.argv[sys.argv.index("--out") + 1]) if "--out" in sys.argv else SUITE / "results"
+    if include and out == SUITE / "results":
+        raise SystemExit("--include-excluded needs --out <dir>: excluded rounds never enter results/series.*")
+    out.mkdir(parents=True, exist_ok=True)
+    rows = build(load(include))
     public = [{k: v for k, v in r.items() if not k.startswith("_")} for r in rows]
-    (SUITE / "results/series.jsonl").write_text("".join(json.dumps(r, sort_keys=True) + "\n" for r in public))
-    (SUITE / "results/series.md").write_text(render(public) + "\n")
+    (out / "series.jsonl").write_text("".join(json.dumps(r, sort_keys=True) + "\n" for r in public))
+    (out / "series.md").write_text(render(public) + "\n")
     flagged = [r for r in public if any(f.startswith(("regress", "leak")) for f in r["flags"])]
     print(f"{len(public)} cell-runs; {len(flagged)} with a regression or leak flag")
 

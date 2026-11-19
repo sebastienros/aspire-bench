@@ -3,6 +3,9 @@
 
     tools/collect.py            extract any run not yet extracted, then rebuild results
     tools/collect.py --no-fetch only re-derive from artifacts already on disk
+    tools/collect.py --rounds a,b   the runs already in results/trials.jsonl (from disk) plus every run of
+                                    rounds a and b (fetched): a lane adds its own rounds without fetching,
+                                    or publishing, another lane's rounds still in flight (PLAN T4.5)
 
 Outputs (committed): results/trials.jsonl (one row per trial) and results/summary.md.
 Raw artifacts stay outside the repository in $TELEMETRY_DATA_DIR; each row records the
@@ -170,22 +173,24 @@ for _short, _folder in AUDITED_SKILLS.items():
 
 
 @functools.lru_cache(maxsize=None)
-def skills_content(task_commit, scenario, arm):
+def skills_content(task_commit, scenario, arm, task_path=None):
     """Fingerprint of the skill files a task's image receives: the set named by the task's SKILLS
     build arg, composed as common/skills/compose.sh does from the suite commit the task builds from.
-    None when the ledger line names no task commit (the first pin) or the task cannot be read."""
+    None when the ledger line names no task commit (the first pin) or the task cannot be read.
+    task_path: the ledger's `task_path` when the task lives outside tasks/ (T4.5's track/tasks)."""
     if not task_commit:
         return None
     git = lambda *args: subprocess.run(["git", "-C", str(REPO), *args], capture_output=True, text=True)
-    compose = git("show", f"{task_commit}:msbench/telemetry/tasks/{scenario}/{arm}/environment/docker-compose.yaml")
+    task_path = task_path or f"msbench/telemetry/tasks/{scenario}/{arm}"
+    compose = git("show", f"{task_commit}:{task_path}/environment/docker-compose.yaml")
     if compose.returncode:
         return None
     skill_set = re.search(r"^\s+SKILLS:\s*(\S+)", compose.stdout, re.M)
     skill_set = skill_set.group(1) if skill_set else "none"
     if skill_set not in SKILL_SETS:
         return skill_set  # none, or plugin (the shipped tag, recorded in skills_sha)
-    suite = re.search(r"#([0-9a-f]{40}):msbench/telemetry/common", compose.stdout).group(1)
-    tree = git("ls-tree", "-r", f"{suite}:msbench/telemetry/common/skills")
+    suite, common = re.search(r"#([0-9a-f]{40}):(msbench/telemetry/(?:track/)?common)\b", compose.stdout).groups()
+    tree = git("ls-tree", "-r", f"{suite}:{common}/skills")
     blobs = collections.defaultdict(dict)
     for line in tree.stdout.splitlines():
         meta, path = line.split("\t", 1)
@@ -248,7 +253,7 @@ def analyze_trial(result_path, entry):
                agent=agent_of(entry), agent_package=entry.get("agent_package"), task=entry.get("task"),
                aspire_build=entry.get("aspire_build"), skills_sha=entry.get("skills_sha"),
                task_repo_commit=entry.get("task_repo_commit"),
-               skills_content=skills_content(entry.get("task_repo_commit"), entry["scenario"], entry["arm"]),
+               skills_content=skills_content(entry.get("task_repo_commit"), entry["scenario"], entry["arm"], entry.get("task_path")),
                excluded=entry.get("excluded"),
                trial=native.get("trial_name"),
                url=f"https://msbenchapp.azurewebsites.net/run-analysis/{entry['run_id']}",
@@ -1076,11 +1081,16 @@ def compare_pin(rows):
 
 def main():
     ledger = [json.loads(line) for line in (SUITE / "results/ledger.jsonl").read_text().splitlines() if line.strip()]
+    rounds = set(sys.argv[sys.argv.index("--rounds") + 1].split(",")) if "--rounds" in sys.argv else None
+    if rounds is not None:
+        published = {json.loads(line)["run_id"] for line in (SUITE / "results/trials.jsonl").read_text().splitlines() if line.strip()}
+        ledger = [e for e in ledger if e["run_id"] in published or e["round"] in rounds]
     rows = []
     for entry in ledger:
         if entry.get("cancelled"):
             continue
-        root = DATA / "extracted" / entry["run_id"] if "--no-fetch" in sys.argv else fetch(entry["run_id"])
+        fetch_it = "--no-fetch" not in sys.argv and (rounds is None or entry["round"] in rounds)
+        root = fetch(entry["run_id"]) if fetch_it else DATA / "extracted" / entry["run_id"]
         trials = [p for p in root.rglob("result.json") if "trial_name" in p.read_text()[:4000]]
         if not trials:
             print(f"pending/no result: {entry['run_id']} {entry['scenario']} {entry['arm']} {entry['model']}", file=sys.stderr)

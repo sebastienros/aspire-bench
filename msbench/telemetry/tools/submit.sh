@@ -14,6 +14,9 @@
 # BENCH_LEDGER names another ledger file; the selection benchmark (T3.9) keeps its runs in
 # results/selection-ledger.jsonl so they never enter trials.jsonl, the cells or the series.
 # BENCH_EXCLUDED=<reason> writes the ledger line with that `excluded` reason (pilots and probes).
+# BENCH_DATASET=<path> submits from another dataset file (T4.5: track/dataset.jsonl, whose core tasks live
+# under track/tasks at a newer pin); the row is found by scenario and arm, and the ledger line records
+# `dataset` and `task_path`. Unset: dataset.jsonl and tasks/<scenario>/<arm>, as before.
 set -euo pipefail
 suite="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 repo="$(cd "$suite/../.." && pwd)"
@@ -24,7 +27,12 @@ ledger="${BENCH_LEDGER:-results/ledger.jsonl}"; [[ "$ledger" == /* ]] || ledger=
 export PATH="$HOME/Library/Application Support/pipx/venvs/msbench-cli/bin:$HOME/.local/bin:$PATH"
 export MSBENCH_DISABLE_RUN_ANALYSIS=1
 agent="${BENCH_AGENT:-github-copilot-cli}"
-task_dir="msbench/telemetry/tasks/$scenario/$arm"
+dataset="${BENCH_DATASET:-$suite/dataset.jsonl}"; [[ "$dataset" == /* ]] || dataset="$suite/$dataset"
+if [[ -n "${BENCH_DATASET:-}" ]]; then
+    task_dir="$(jq -er --arg b "aspire-telemetry-$scenario" --arg v "$arm" 'select(.variant_of_benchmark == $b and .benchmark_variant == $v) | .task_path' "$dataset")"
+else
+    task_dir="msbench/telemetry/tasks/$scenario/$arm"
+fi
 # The agent package (and for Copilot CLI the CLI itself) is pinned so every cell of a harness runs
 # the same build.
 agent_env=(); agent_assets=""
@@ -57,7 +65,7 @@ if [[ "$arm" == *-cc && "$model" != oracle && "$agent" != claude-code ]]; then
 fi
 stamp="$(date -u +%Y%m%dT%H%M%SZ)"
 log="$data/logs/$round-$scenario-$arm-$model${BENCH_AGENT:+-$agent}-$stamp.log"
-common=(--dataset "$suite/dataset.jsonl" --benchmark "aspire-telemetry-$scenario" --variant "$arm"
+common=(--dataset "$dataset" --benchmark "aspire-telemetry-$scenario" --variant "$arm"
     --backend ces-staging --acr msbenchstaging.azurecr.io --num_retries 0 --no-wait
     --data-dir "$data" --tag suite=aspire-telemetry --tag "round=$round" --tag "arm=$arm")
 if [[ "$model" == oracle ]]; then
@@ -75,14 +83,15 @@ fi
 # Read before submitting, so a run is never submitted without its ledger line.
 # The toolchain pins as the remote build sees them: the task's Dockerfile at the dataset's task
 # commit, and the skills provenance at the suite commit that task's compose file names.
-task_sha="$(jq -er --arg p "msbench/telemetry/tasks/$scenario/$arm" 'select(.task_path == $p) | .task_repo_commit' "$suite/dataset.jsonl")"
+task_sha="$(jq -er --arg p "$task_dir" 'select(.task_path == $p) | .task_repo_commit' "$dataset")"
 dockerfile="$(git -C "$repo" show "$task_sha:$task_dir/environment/Dockerfile")"
-suite_sha="$(git -C "$repo" show "$task_sha:$task_dir/environment/docker-compose.yaml" | grep -oE 'aspire-bench\.git#[0-9a-f]{40}:msbench/telemetry/common' | head -1 | cut -d'#' -f2 | cut -d: -f1)"
+suite_ref="$(git -C "$repo" show "$task_sha:$task_dir/environment/docker-compose.yaml" | grep -oE 'aspire-bench\.git#[0-9a-f]{40}:msbench/telemetry/(track/)?common' | head -1 | cut -d'#' -f2)"
+suite_sha="${suite_ref%%:*}"; common_dir="${suite_ref#*:}"
 aspire_build="$(sed -nE 's/^ARG ASPIRE_VERSION=(.*)/\1/p' <<<"$dockerfile")+$(sed -nE 's/^ARG ASPIRE_COMMIT=(.*)/\1/p' <<<"$dockerfile")"
-skills_sha="$(git -C "$repo" show "$suite_sha:msbench/telemetry/common/skills/PROVENANCE.md" | grep -m1 -oE '^\| `current` \| `microsoft/aspire-skills` @ `[0-9a-f]{40}` \(v[0-9.]+' | sed -E 's/.*@ `([0-9a-f]{40})` \((v[0-9.]+)/\2 \1/')"
+skills_sha="$(git -C "$repo" show "$suite_sha:$common_dir/skills/PROVENANCE.md" | grep -m1 -oE '^\| `current` \| `microsoft/aspire-skills` @ `[0-9a-f]{40}` \(v[0-9.]+' | sed -E 's/.*@ `([0-9a-f]{40})` \((v[0-9.]+)/\2 \1/')"
 # T2.10: the -agents arms copy common/agents-md/<AGENTS_MD>.md to /app/AGENTS.md; record its size.
 agents_md="$(git -C "$repo" show "$task_sha:$task_dir/environment/docker-compose.yaml" | sed -nE 's/^ +AGENTS_MD: ([a-z0-9-]+)$/\1/p')"
-agents_md_bytes="$([[ -n "$agents_md" ]] && git -C "$repo" show "$suite_sha:msbench/telemetry/common/agents-md/$agents_md.md" | wc -c | tr -d ' ' || true)"
+agents_md_bytes="$([[ -n "$agents_md" ]] && git -C "$repo" show "$suite_sha:$common_dir/agents-md/$agents_md.md" | wc -c | tr -d ' ' || true)"
 [[ -z "$agents_md" || "$agents_md_bytes" =~ ^[0-9]+$ ]] || { echo "Cannot read AGENTS.md for $task_dir at $suite_sha" >&2; exit 1; }
 # VS Code does not read task.toml's MCP servers; it gets the same server from the assets folder that
 # matches the task (see vscodeOverrides in gen-tasks.mjs).
@@ -95,9 +104,15 @@ if [[ "$agent" == vscode && "$model" != oracle ]]; then
     mode+=(--agent_assets "$agent_assets")
 fi
 [[ "$aspire_build" =~ ^[0-9][^+]*\+[0-9a-f]{40}$ && "$skills_sha" =~ ^v[0-9.]+\ [0-9a-f]{40}$ ]] || { echo "Cannot read pins for $task_dir at $task_sha" >&2; exit 1; }
+# BENCH_DRY_RUN=1 prints what would be submitted (and the pins read) and submits nothing.
+if [[ "${BENCH_DRY_RUN:-}" == 1 ]]; then
+    echo "dry run: $task_dir @ ${task_sha:0:7} ($aspire_build, skills $skills_sha) dataset ${dataset#"$suite/"} round $round model $model x $repeat"
+    exit 0
+fi
 cd "$repo"
 msbench-cli run "${common[@]}" "${mode[@]}" >"$log" 2>&1 || { tail -30 "$log" >&2; exit 1; }
-dataset_sha="$(shasum -a 256 "$suite/dataset.jsonl" | cut -d' ' -f1)"
+dataset_sha="$(shasum -a 256 "$dataset" | cut -d' ' -f1)"
+dataset_rel="$([[ -n "${BENCH_DATASET:-}" ]] && echo "${dataset#"$suite/"}" || true)"
 assets_sha="$([[ -n "$agent_assets" ]] && shasum -a 256 "$agent_assets/user-overrides.yaml" | cut -d' ' -f1 || true)"
 # An oracle gate runs no harness.
 if [[ "$model" == oracle ]]; then agent=""; agent_package=""; fi
@@ -108,6 +123,7 @@ while read -r run_id; do
         --arg aspire_build "$aspire_build" --arg skills_sha "$skills_sha" --arg task "${BENCH_TASK:-}" \
         --arg agent "$agent" --arg timeout_mult "${BENCH_AGENT_TIMEOUT_MULTIPLIER:-}" --arg agent_package "$agent_package" --arg assets "${agent_assets#"$suite/"}" --arg assets_sha "$assets_sha" \
         --arg agents_md "$agents_md" --arg agents_md_bytes "$agents_md_bytes" --arg resume "${BENCH_RESUME_TRAJECTORY:-}" --arg excluded "${BENCH_EXCLUDED:-}" --arg cc_version "${CLAUDE_CODE_VERSION:-}" \
+        --arg dataset_rel "$dataset_rel" --arg task_path "$task_dir" \
         '{run_id: $run_id, scenario: $scenario, arm: $arm, model: $model, round: $round, submitted_at: $submitted_at,
           dataset_sha256: $dataset_sha256, log: $log, task_repo_commit: $task_sha, aspire_build: $aspire_build,
           skills_sha: $skills_sha}
@@ -119,5 +135,6 @@ while read -r run_id; do
          + (if $timeout_mult == "" or $agent == "" then {} else {agent_timeout_multiplier: ($timeout_mult|tonumber)} end)
          + (if $resume == "1" and $agent != "" then {resume_trajectory: true} else {} end)
          + (if $excluded == "" then {} else {excluded: $excluded} end)
-         + (if $agent != "claude-code" then {} else {agent_cli_version_requested: $cc_version} end)' | tee -a "$ledger"
+         + (if $agent != "claude-code" then {} else {agent_cli_version_requested: $cc_version} end)
+         + (if $dataset_rel == "" then {} else {dataset: $dataset_rel, task_path: $task_path} end)' | tee -a "$ledger"
 done

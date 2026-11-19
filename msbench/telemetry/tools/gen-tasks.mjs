@@ -393,6 +393,10 @@ function assertSamePins() {
 }
 
 // skills: a folder under common/skills, or "none". mcp: declare `aspire agent mcp`.
+// REPORT §11's core matrix (PLAN T4.5): what every tracking run measures.
+export const coreMatrix = ["slow-sql", "slow-redis", "cold-start"].flatMap(scenario =>
+    ["raw", "aspire-cli", "aspire-skills-mcp", "aspire-lean"].map(arm => [scenario, arm]));
+
 export const arms = {
     "raw": { kind: "raw", skills: "none", mcp: false },
     "aspire-cli": { kind: "aspire", skills: "none", mcp: false },
@@ -603,7 +607,7 @@ name = "${step.name}"
 `).join("")}`;
 }
 
-function compose(fault, { kind, skills, cli, agents, variant, claudeCode, mcp }, suiteSha, app) {
+function compose(fault, { kind, skills, cli, agents, variant, claudeCode, mcp }, suiteSha, app, common = "msbench/telemetry/common") {
     const git = (sha, path) => `${repo}.git#${sha}:${path}`;
     const contexts = Object.entries(apps[app].contexts(suiteSha))
         .map(([name, [variable, sha, path]]) => `\n        ${name}: \${${variable}:-${git(sha, path)}}`).join("");
@@ -621,7 +625,7 @@ function compose(fault, { kind, skills, cli, agents, variant, claudeCode, mcp },
         APP_VARIANT: ${variant}` : ""}${claudeCode ? `
         CLAUDE_CODE: ${mcp ? "skills-mcp" : "skills"}` : ""}
       additional_contexts:
-        suite: \${TELEMETRY_SUITE_CONTEXT:-${git(suiteSha, "msbench/telemetry/common")}}${contexts}
+        suite: \${TELEMETRY_SUITE_CONTEXT:-${git(suiteSha, common)}}${contexts}
 `;
 }
 
@@ -726,6 +730,45 @@ node /opt/benchmark/bench.mjs solve
     }
     writeFileSync(join(root, "dataset.jsonl"), rows.join("\n") + "\n");
     console.log(`Wrote ${rows.length} dataset rows, ${rows.length - existing.length} new pinned to tasks ${taskSha}`);
+} else if (process.argv[2] === "track-tasks") {
+    // PLAN T4.5: REPORT §11's core matrix at a newer pin, under track/ so that no task, dataset row,
+    // template or common/ file of the program moves. The pins come from track/common/PIN.json (written by
+    // tools/track.sh with the copy of common/ at --suite-sha); the template's ARG defaults are replaced
+    // with them in each task's Dockerfile copy. Regenerates track/tasks entirely (one pin at a time).
+    const suiteSha = args["suite-sha"];
+    if (!/^[0-9a-f]{40}$/.test(suiteSha ?? "")) throw new Error("--suite-sha <40-hex commit> required");
+    const pin = JSON.parse(readFileSync(join(root, "track/common/PIN.json"), "utf8"));
+    let dockerfile = readFileSync(join(root, "tools/templates/Dockerfile"), "utf8");
+    for (const [arg, value] of [["ASPIRE_VERSION", pin.aspire_version], ["ASPIRE_COMMIT", pin.aspire_commit],
+        ["ASPIRE_SHA256_AMD64", pin.sha256_amd64], ["ASPIRE_SHA256_ARM64", pin.sha256_arm64]]) {
+        const pattern = new RegExp(`^ARG ${arg}=\\S+$`, "gm");
+        if (!pattern.test(dockerfile)) throw new Error(`template has no ARG ${arg}`);
+        dockerfile = dockerfile.replace(pattern, `ARG ${arg}=${value}`);
+    }
+    rmSync(join(root, "track/tasks"), { recursive: true, force: true });
+    for (const [scenario, arm] of coreMatrix) {
+        const definition = scenarios[scenario], config = arms[arm];
+        const dir = join(root, "track/tasks", scenario, arm);
+        for (const sub of ["environment", "tests", "solution"]) mkdirSync(join(dir, sub), { recursive: true });
+        writeFileSync(join(dir, "task.toml"), taskToml(scenario, arm, definition, config));
+        writeFileSync(join(dir, "instruction.md"), definition.instruction);
+        writeFileSync(join(dir, "environment/Dockerfile"), dockerfile);
+        writeFileSync(join(dir, "environment/docker-compose.yaml"),
+            compose(definition.fault ?? scenario, config, suiteSha, "bingo", "msbench/telemetry/track/common"));
+        for (const sub of ["tests/test.sh", "solution/solve.sh"]) cpSync(join(root, "tasks", scenario, arm, sub), join(dir, sub));
+    }
+    console.log(`Generated ${coreMatrix.length} track/tasks folders pinned to suite ${suiteSha} (${pin.aspire_version}, skills ${pin.skills_tag})`);
+} else if (process.argv[2] === "track-dataset") {
+    const taskSha = args["task-sha"];
+    if (!/^[0-9a-f]{40}$/.test(taskSha ?? "")) throw new Error("--task-sha <40-hex commit> required");
+    const rows = coreMatrix.map(([scenario, arm]) => JSON.stringify({
+        ...JSON.parse(readFileSync(join(root, "dataset.jsonl"), "utf8").split("\n").filter(Boolean)
+            .find(line => JSON.parse(line).task_path === `msbench/telemetry/tasks/${scenario}/${arm}`)),
+        task_path: `msbench/telemetry/track/tasks/${scenario}/${arm}`,
+        task_repo_commit: taskSha,
+    }));
+    writeFileSync(join(root, "track/dataset.jsonl"), rows.join("\n") + "\n");
+    console.log(`Wrote ${rows.length} track/dataset.jsonl rows pinned to tasks ${taskSha}`);
 } else if (process.argv[2] === "agent-assets") {
     // One asset folder per MCP setting; submit.sh picks the one matching the task's task.toml.
     for (const [name, mcp] of [["base", false], ["mcp", true]]) {
