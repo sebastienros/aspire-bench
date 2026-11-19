@@ -34,6 +34,8 @@ The two Aspire product patches are in [upstream/](upstream/).
 | `aspire-mcp-compact`, `aspire-lean-mcp-compact` | Same, plus the MCP compact-telemetry patch | none / `lean` | yes |
 | `aspire-lean-plain` | Same, plus the CLI plain-output patch | `lean` | no |
 | `aspire-lean-mcp-all` | Same, plus both patches | `lean` | yes |
+| `aspire-mcp-compact2`, `aspire-lean-mcp-compact2` | Same as `-compact`, plus `list_resources` one line per resource (`details` for the JSON) and `list_console_logs` `limit` (default 50) / `severity` (`mcp-compact2.patch`, cumulative over 0001; PLAN T2.1; lean arm on `slow-redis` only) | none / `lean` | yes |
+| `aspire-mcp-tools8`, `aspire-lean-mcp-tools8` | Source control registering only the eight MCP tools agents call (`mcp-tools8.patch`; PLAN T2.7; lean arm on `slow-redis` only) | none / `lean` | yes |
 | `aspire-skills-mon` | Aspirified app | `mon` = current with only `aspire-monitoring`'s description replaced by lean's; router kept (PLAN T1.2) | no |
 | `aspire-skills-norouter` | Aspirified app | `norouter` = current minus the `aspire` router, nothing added (PLAN T1.3, T3.8) | no |
 | `aspire-lean-agents`, `aspire-cli-agents`, `aspire-skills-agents` | Aspirified app plus `/app/AGENTS.md` beside the AppHost ([`common/agents-md`](common/agents-md), one file per skill family; PLAN T2.10) | `lean` / none / `current` | no |

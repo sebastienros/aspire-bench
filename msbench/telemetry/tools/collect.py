@@ -329,6 +329,16 @@ def analyze_trial(result_path, entry):
         len(json.dumps(atif_text(result.get("content")) if isinstance(result, dict) else result))
         for e in events if e.get("type") == "tool.execution_complete"
         for result in [e["data"].get("result", "")])
+    # PLAN T2.1: the share of that from MCP tools, and how many MCP results Copilot CLI replaced by its
+    # 20 KB spill notice (FINDINGS F31). Content as delivered; a spilled result counts at its notice size.
+    tool_names = {e["data"].get("toolCallId"): e["data"].get("toolName", "")
+                  for e in events if e.get("type") == "tool.execution_start"}
+    mcp_results = [atif_text(result.get("content")) if isinstance(result, dict) else str(result)
+                   for e in events if e.get("type") == "tool.execution_complete"
+                   and tool_names.get(e["data"].get("toolCallId"), "").startswith("aspire-")
+                   for result in [e["data"].get("result", "")]]
+    row["mcp_result_content_chars"] = sum(len(json.dumps(text)) for text in mcp_results)  # counted as above
+    row["mcp_spills"] = sum(text.startswith("Output too large to read at once (") for text in mcp_results)
     return row
 
 
@@ -876,7 +886,8 @@ ARM_ORDER = ["raw", "aspire-cli", "aspire-skills", "aspire-mcp", "aspire-skills-
              # Phase 2 CLI lane (T2.2, T2.9, T2.3, T2.4): source builds, patched next to their -src control.
              "aspire-cli-src", "aspire-cli-wait", "aspire-lean-start-wait",
              "aspire-lean-noorch-agents-src", "aspire-lean-noorch-agents-v3", "aspire-lean-tracetable",
-             "aspire-cli-redishint", "aspire-skills-src", "aspire-skills-redishint"]
+             "aspire-cli-redishint", "aspire-skills-src", "aspire-skills-redishint",
+             "aspire-mcp-compact2", "aspire-lean-mcp-compact2", "aspire-mcp-tools8", "aspire-lean-mcp-tools8"]
 
 
 def arm_order(cell_arm):

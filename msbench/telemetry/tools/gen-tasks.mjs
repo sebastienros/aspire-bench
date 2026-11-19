@@ -98,7 +98,10 @@ export const scenarios = {
             // T2.3 guard (trace tree with statements) and T2.4 (Redis connect hint), each next to its -src control.
             "aspire-lean-src", "aspire-lean-tracetable", "aspire-cli-src", "aspire-cli-redishint",
             // T2.4 secondary: the shipped set without MCP, where the TLS-port trap fires.
-            "aspire-skills-src", "aspire-skills-redishint"],
+            "aspire-skills-src", "aspire-skills-redishint",
+            // Phase 2 MCP lane guards on lean + MCP: T2.1 (list_resources/list_console_logs compact, over 0001)
+            // against aspire-lean-mcp-compact; T2.7 (eight tools) against aspire-lean-mcp-src.
+            "aspire-lean-mcp-compact2", "aspire-lean-mcp-tools8"],
         instruction: sluggish,
     },
     "read-only": {
@@ -246,6 +249,14 @@ export const arms = {
     "aspire-cli-redishint": { kind: "aspire", skills: "none", mcp: false, cli: "cli-redis-connect-hint" },
     "aspire-skills-src": { kind: "aspire", skills: "current", mcp: false, cli: "control" },
     "aspire-skills-redishint": { kind: "aspire", skills: "current", mcp: false, cli: "cli-redis-connect-hint" },
+    // T2.1: patch 0001 + list_resources one line per resource and list_console_logs limit/severity
+    // (mcp-compact2.patch, cumulative), against aspire-mcp-compact; guard on lean against aspire-lean-mcp-compact.
+    "aspire-mcp-compact2": { kind: "aspire", skills: "none", mcp: true, cli: "mcp-compact2" },
+    "aspire-lean-mcp-compact2": { kind: "aspire", skills: "lean", mcp: true, cli: "mcp-compact2" },
+    // T2.7: the unpatched control registering only the eight tools agents call (mcp-tools8.patch),
+    // against aspire-mcp-src; guard on lean against aspire-lean-mcp-src.
+    "aspire-mcp-tools8": { kind: "aspire", skills: "none", mcp: true, cli: "mcp-tools8" },
+    "aspire-lean-mcp-tools8": { kind: "aspire", skills: "lean", mcp: true, cli: "mcp-tools8" },
 };
 const onlyIn = {
     "aspire-lean-start": ["cold-start"], "aspire-skills-plugin": ["slow-sql"],
@@ -259,6 +270,8 @@ const onlyIn = {
     "aspire-skills-src": ["slow-redis"], "aspire-skills-redishint": ["slow-redis"],
     "aspire-cli-wait": ["cold-start"], "aspire-lean-start-wait": ["cold-start"],
     "aspire-lean-noorch-agents-src": ["cold-start"], "aspire-lean-noorch-agents-v3": ["cold-start"],
+    "aspire-mcp-compact2": ["slow-sql", "read-only"], "aspire-lean-mcp-compact2": ["slow-redis"],
+    "aspire-mcp-tools8": ["slow-sql", "read-only"], "aspire-lean-mcp-tools8": ["slow-redis"],
 };
 
 // The Aspire MCP server as every harness registers it. Copilot CLI receives it from task.toml

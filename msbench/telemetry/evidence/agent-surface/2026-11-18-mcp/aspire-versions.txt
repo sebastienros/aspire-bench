@@ -1,0 +1,6 @@
+control 17.1.0-agentic.control+30326eb876d6897b1feadc8bc800f78e466b1b52
+mcp-compact-telemetry 17.1.0-agentic.mcpcompacttelemetry+30326eb876d6897b1feadc8bc800f78e466b1b52
+mcp-compact2 17.1.0-agentic.mcpcompact2+30326eb876d6897b1feadc8bc800f78e466b1b52
+mcp-tools8 17.1.0-agentic.mcptools8+30326eb876d6897b1feadc8bc800f78e466b1b52
+official 17.1.0-preview.1.26567.3+30326eb876d6897b1feadc8bc800f78e466b1b52
+on PATH (started nothing) 17.1.0-agentic.cliplainoutput+30326eb876d6897b1feadc8bc800f78e466b1b52

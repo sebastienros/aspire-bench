@@ -1646,6 +1646,50 @@ source build against its `-src` control.
 | Trials / cost | 2 × 2 × 2 × 6 + 6 = 54 ≈ $2.00 |
 | Results | pending |
 
+#### T2.1 decision rule, as computed (written 2026-11-18, before any `t21` result was read)
+
+- **Round `t21`**, Copilot CLI 1.0.99, pin 2026-11-17, n = 6 per cell, on the additive re-pin that adds the arms below
+  (existing tasks byte-identical). Same-round `raw` on `slow-sql`, `read-only` × luna, terra and `slow-redis` luna, for the
+  series only; no clause reads it. The controls' tasks build from suite `305a8ed` (no-skill arms) and `c28f654` (lean
+  `slow-redis` arms); between those and this re-pin `common/` changed only on paths these scenarios do not take
+  (cold-start, selection and stuck-db branches, app variants, other arms' patches, skill sets and `AGENTS.md` files), and
+  the template's new build arguments are empty here, so each new arm differs from its control by the patch alone.
+- **Local gates** (`local.sh`'s up → verify fails → reference repair → verify passes, run under `p2mcp-*` image names):
+  `slow-sql` × `aspire` none × `mcp-compact2` (adding 5 squares 2,616 ms before repair, pass after) and × `mcp-tools8`
+  (2,408 ms, pass after), 2026-11-18.
+- **Patch.** `common/aspire-patches/mcp-compact2.patch`, built from source at `30326eb8` like every `-src` arm: patch 0001
+  verbatim plus (1) `list_resources` returns one line per resource (name, display name, type, source, state, health,
+  exit code, waiting-for, endpoint URLs, command names; disabled commands marked) and the full JSON only with
+  `details: true`, optionally for one `resourceName`; (2) `list_console_logs` takes `limit` (default 50, up to 2,000) and
+  `severity` (`Error` / `Warning`: lines written to stderr or carrying a level marker, plus their indented continuation
+  lines), both applied server-side before the 8k-token cap. Local Aspire branch `sebros/p2-mcp-compact2` (never pushed).
+- **Arms.** `aspire-mcp-compact2` against `aspire-mcp-compact` (patch 0001 alone) on `slow-sql`, `read-only` × luna, terra.
+  **Guard** `aspire-lean-mcp-compact2` against `aspire-lean-mcp-compact` on `slow-redis` luna, both in this round. The
+  guard runs on the lean arms because no `slow-redis` task exists for the no-skill MCP arms and a no-skill MCP arm is
+  at the floor there (`aspire-skills-mcp` 0/6 in `t01b` and `t17-copilot`); the route the guard protects (step 3 at the
+  cache) comes from `aspire-diagnose`. T1.4 guarded the same way.
+- **Characters read** = per-trial `tool_result_content_chars` (everything tools returned to the model, as Copilot CLI
+  delivered it), as T1.5 and T2.10 used it. **Gate:** compact2's cell median at least 30 % below the control's, in each of
+  the four cells. **Ceiling, stated before the run:** in `t14`'s `aspire-mcp-compact` cells the two tools made up 12 %
+  (`slow-sql` luna), 12 % (`slow-sql` terra), 22 % (`read-only` luna) and 25 % (`read-only` terra) of that measure, so the
+  gate is out of reach unless the agents' other reading changes. Put to the coordinating session on 2026-11-18 with the
+  alternative of gating on MCP content only (`mcp_result_content_chars`, new in `collect.py`: the MCP tools' share of the
+  same measure, where the two tools were 26 % to 49 %). Until it rules, the total decides and the MCP-only figure is
+  reported, not decisive; a ruling made before any `t21` result is read is recorded here with its date.
+- **Time does not regress:** in no cell is compact2's median agent seconds higher than the control's with exact two-sided
+  Mann-Whitney p < 0.05 (`stats.py`, every graded trial).
+- **Verdict.** Ship: gate met in all four cells, no regression, guard holds. Revise: gate met in one to three cells, or met
+  everywhere with the guard failing. Drop: gate met in no cell, or time regresses in a luna cell. A pass-rate loss of more
+  than one trial in any cell is reported next to the verdict.
+- **Guard:** `aspire-lean-mcp-compact2` passes at least `aspire-lean-mcp-compact`'s count minus one. If the control itself
+  passes 0 or 1 of 6, the guard is read on whether the compact2 trials ran the cache's own tool (`redis-cli`) at least as
+  often as the control's, and the verdict says so.
+- **Mechanism, reported with the verdict (F31):** per arm and tool, calls, content characters, results over the 20 KB
+  spill threshold and spill-file reads (`tools/mcp_payloads.py`); how often agents asked for `details` and used
+  `limit`/`severity`; byte counts of each tool on the started Bingo app before and after
+  (`evidence/agent-surface/2026-11-18-mcp/`).
+- A trial that reaches the 900 s limit or fails with model-service 5xx is an infrastructure failure and is re-run once.
+
 ### T2.2 Blocking start that prints endpoints
 
 | | |
@@ -1875,6 +1919,36 @@ source build against its `-src` control.
 | Decision rule | Pursue if input tokens drop ≥ 5% with no change in route or pass rate; drop if under 2% (the prefix is dominated by other things) |
 | Trials / cost | 2 × 6 × 2 = 24 + 12 guard = 36 ≈ $0.60 |
 | Results | pending |
+
+#### T2.7 decision rule, as computed (written 2026-11-18, before any `t21-t27` result was read)
+
+- **Round `t21-t27`** (run `t21`, so it shares `t21`'s `raw` cells), same task graph and conditions as T2.1.
+- **The eight tools**, from `results/trials.jsonl` (`mcp_calls`, 422 Copilot CLI MCP-arm trials over both pins, excluded
+  trials left out): `list_traces` 939 calls in 319 trials, `list_structured_logs` 718 / 280, `list_resources` 671 / 341,
+  `list_console_logs` 411 / 180, `list_apphosts` 243 / 241, `wait_for_resources` 214 / 136, `execute_resource_command`
+  201 / 140, `list_trace_structured_logs` 133 / 101. **Not registered:** `select_apphost` (13 calls in 13 trials, each right after a
+  `list_apphosts` that listed the one AppHost, `/app/apphost.cs`, which the server uses without the call; the server's
+  error text names `select_apphost` only when several AppHosts are in scope), `get_doc` (1), `list_integrations`, `doctor`,
+  `refresh_tools`, `list_docs`, `search_docs` (0). Patch `common/aspire-patches/mcp-tools8.patch` on the unpatched control
+  (it removes the seven after registration; nothing else changes). Local branch `sebros/p2-mcp-tools8`.
+- **Arms.** `aspire-mcp-tools8` against `aspire-mcp-src` (15 tools, same source build) on `slow-sql`, `read-only` × luna;
+  **guard** `aspire-lean-mcp-tools8` against `aspire-lean-mcp-src` on `slow-redis` luna (lean for the reason given in T2.1).
+- **Input tokens, two measures.** (i) The card's: median `input_tokens` per trial, tools8 against src, per cell, with
+  `stats.py`'s exact test. (ii) The attributable drop, which isolates the change from route noise: Copilot CLI records the
+  tool-schema size of every model call (`tool_tokens` in `session.usage_checkpoint`: 7,659 for the 31 tools of an
+  `aspire-mcp-src` trial at this pin, 5,673 for `raw`'s 16, so the 15 Aspire tools cost 1,986 tokens per call). Per tools8
+  trial: (src `tool_tokens` − tools8 `tool_tokens`) × that trial's model calls ÷ (its `input_tokens` + that product),
+  median per cell.
+- **Verdict on (ii).** Pursue if ≥ 5 % in both cells with no change in route or pass rate; drop if under 2 % in both; anything
+  else is "no verdict between the bars" and the recommendation is written from the measured share. (i) is reported; at
+  n = 6 its spread between rounds is tens of percent, so it decides nothing alone. If (i) puts a cell in a different band
+  from (ii) with p < 0.05, the case goes to the coordinating session.
+- **No change in route or pass rate:** pass count within one trial of the control in each cell; the per-tool MCP call counts
+  are reported for both arms, and any call the src arm makes to one of the seven removed tools is listed.
+- **Guard:** `aspire-lean-mcp-tools8` passes at least `aspire-lean-mcp-src`'s count minus one (floor reading as in T2.1).
+- **Then the recommendation** between lazy registration (`refresh_tools`), one docs tool for the three, and shorter
+  descriptions, from the schema bytes of each tool (`tools/list` on the started Bingo app, `evidence/agent-surface/2026-11-18-mcp/`).
+- Infrastructure failures as in T2.1.
 
 ### T2.8 An MCP route to the dependency
 

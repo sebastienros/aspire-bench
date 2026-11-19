@@ -27,6 +27,9 @@ LATER_PIN_PAIRS = [("aspire-cli", "raw"), ("aspire-skills-plugin", "aspire-skill
                    # T2.10: the instructions file against each control arm.
                    ("aspire-lean-agents", "aspire-lean"), ("aspire-cli-agents", "aspire-cli"),
                    ("aspire-skills-agents", "aspire-skills"),
+                   # Phase 2 MCP lane: T2.1 against patch 0001, T2.7 against the unpatched control.
+                   ("aspire-mcp-compact2", "aspire-mcp-compact"), ("aspire-lean-mcp-compact2", "aspire-lean-mcp-compact"),
+                   ("aspire-mcp-tools8", "aspire-mcp-src"), ("aspire-lean-mcp-tools8", "aspire-lean-mcp-src"),
                    # T2.11: file v2, with the orchestration skill kept and removed.
                    ("aspire-lean-agents-v2", "aspire-lean"), ("aspire-lean-noorch-agents", "aspire-lean"),
                    ("aspire-lean-noorch-agents", "aspire-cli"),

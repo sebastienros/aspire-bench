@@ -1,0 +1,624 @@
+diff --git a/src/Aspire.Cli/Commands/AgentMcpCommand.cs b/src/Aspire.Cli/Commands/AgentMcpCommand.cs
+index ef6c489158..12ca6c27e4 100644
+--- a/src/Aspire.Cli/Commands/AgentMcpCommand.cs
++++ b/src/Aspire.Cli/Commands/AgentMcpCommand.cs
+@@ -201,6 +201,7 @@ protected override async Task<CommandResult> ExecuteAsync(ParseResult parseResul
+             _knownTools[KnownMcpTools.ListStructuredLogs] = new ListStructuredLogsTool(dashboardInfoProvider, _auxiliaryBackchannelMonitor, _httpClientFactory, _loggerFactory.CreateLogger<ListStructuredLogsTool>());
+             _knownTools[KnownMcpTools.ListTraces] = new ListTracesTool(dashboardInfoProvider, _auxiliaryBackchannelMonitor, _httpClientFactory, _loggerFactory.CreateLogger<ListTracesTool>());
+             _knownTools[KnownMcpTools.ListTraceStructuredLogs] = new ListTraceStructuredLogsTool(dashboardInfoProvider, _auxiliaryBackchannelMonitor, _httpClientFactory, _loggerFactory.CreateLogger<ListTraceStructuredLogsTool>());
++            _knownTools[GetResourceConnectionTool.ToolName] = new GetResourceConnectionTool(_auxiliaryBackchannelMonitor, _loggerFactory.CreateLogger<GetResourceConnectionTool>());
+ 
+             if (_pinnedAppHostPath is null)
+             {
+diff --git a/src/Aspire.Cli/Commands/DescribeCommand.cs b/src/Aspire.Cli/Commands/DescribeCommand.cs
+index 175084cb59..bb89dd49bf 100644
+--- a/src/Aspire.Cli/Commands/DescribeCommand.cs
++++ b/src/Aspire.Cli/Commands/DescribeCommand.cs
+@@ -406,7 +406,9 @@ private void DisplayResourcesTable(IReadOnlyList<ResourceSnapshot> snapshots, st
+             var healthText = ColorHealth(snapshot.HealthStatus?.EscapeMarkup() ?? "-");
+ 
+             string nameMarkup;
+-            if (!string.IsNullOrEmpty(dashboardBaseUrl))
++            // Redirected output is read by scripts and coding agents: a dashboard URL
++            // repeated on every row is noise there, so only interactive output links the name.
++            if (!string.IsNullOrEmpty(dashboardBaseUrl) && !Console.IsOutputRedirected)
+             {
+                 var resourceUrl = DashboardUrls.CombineUrl(dashboardBaseUrl, DashboardUrls.ResourcesUrl(resource: snapshot.Name));
+                 nameMarkup = MarkupHelpers.SafeLink(InteractionService, resourceUrl, displayName);
+diff --git a/src/Aspire.Cli/Commands/TelemetryCommandHelpers.cs b/src/Aspire.Cli/Commands/TelemetryCommandHelpers.cs
+index c281073278..37bfd2be80 100644
+--- a/src/Aspire.Cli/Commands/TelemetryCommandHelpers.cs
++++ b/src/Aspire.Cli/Commands/TelemetryCommandHelpers.cs
+@@ -598,7 +598,9 @@ public static void DisplayNoData(IInteractionService interactionService, string
+     public static string FormatTraceLink(IInteractionService interactionService, string? dashboardUrl, string traceId, string? displayText = null, string? spanId = null)
+     {
+         var text = displayText ?? OtlpHelpers.ToShortenedId(traceId);
+-        if (string.IsNullOrEmpty(dashboardUrl) || string.IsNullOrEmpty(traceId))
++        // Redirected output is read by scripts and coding agents: the short ID is enough to
++        // fetch the trace with `aspire otel traces --trace-id`, and a dashboard URL on every row is noise.
++        if (string.IsNullOrEmpty(dashboardUrl) || string.IsNullOrEmpty(traceId) || Console.IsOutputRedirected)
+         {
+             return text.EscapeMarkup();
+         }
+diff --git a/src/Aspire.Cli/Interaction/ConsoleInteractionService.cs b/src/Aspire.Cli/Interaction/ConsoleInteractionService.cs
+index 18892245a0..c4fd2249e5 100644
+--- a/src/Aspire.Cli/Interaction/ConsoleInteractionService.cs
++++ b/src/Aspire.Cli/Interaction/ConsoleInteractionService.cs
+@@ -721,6 +721,13 @@ public void DisplayLines(IEnumerable<(OutputLineStream Stream, string Line)> lin
+ 
+     public void DisplayRenderable(IRenderable renderable)
+     {
++        if (renderable is Table table && !_hostEnvironment.SupportsInteractiveOutput)
++        {
++            // Redirected output is read by scripts and coding agents. Box-drawing borders
++            // carry no information there and multiply the size of every row.
++            table.Border = TableBorder.None;
++        }
++
+         MessageConsole.Write(renderable);
+     }
+ 
+diff --git a/src/Aspire.Cli/Mcp/Tools/GetResourceConnectionTool.cs b/src/Aspire.Cli/Mcp/Tools/GetResourceConnectionTool.cs
+new file mode 100644
+index 0000000000..7c5ccf861b
+--- /dev/null
++++ b/src/Aspire.Cli/Mcp/Tools/GetResourceConnectionTool.cs
+@@ -0,0 +1,170 @@
++// Licensed to the .NET Foundation under one or more agreements.
++// The .NET Foundation licenses this file to you under the MIT license.
++
++using System.Globalization;
++using System.Text;
++using System.Text.Json;
++using System.Text.Json.Nodes;
++using Aspire.Cli.Backchannel;
++using Aspire.Dashboard.Model;
++using Microsoft.Extensions.Logging;
++using ModelContextProtocol;
++using ModelContextProtocol.Protocol;
++
++namespace Aspire.Cli.Mcp.Tools;
++
++/// <summary>
++/// MCP tool that tells an agent how to reach a resource's own process from a shell: for a container,
++/// its runtime ID, image, the names of the environment variables that hold its credentials, and a
++/// `docker exec` command line for the resource's own client tool. Values are never returned.
++/// </summary>
++internal sealed class GetResourceConnectionTool(IAuxiliaryBackchannelMonitor auxiliaryBackchannelMonitor, ILogger<GetResourceConnectionTool> logger) : CliMcpTool
++{
++    internal const string ToolName = "get_resource_connection";
++
++    private static readonly string[] s_credentialMarkers = ["PASSWORD", "PASS", "USER", "SECRET", "TOKEN", "KEY", "AUTH"];
++
++    public override string Name => ToolName;
++
++    public override string Description => "Get how to reach a resource's own process from a shell, to confirm a diagnosis at a dependency (database, cache, broker) with its own client tool. For a container: its ID, image, the names of the environment variables that hold its credentials (never their values), and a ready `docker exec` command line for its client (psql, redis-cli, ...) to run with the shell tool. Telemetry does not show a dependency's server-side state (slow commands, connected clients, locks, settings): use this when traces and logs point at a dependency or show nothing.";
++
++    public override JsonElement GetInputSchema()
++    {
++        return JsonDocument.Parse("""
++            {
++              "type": "object",
++              "properties": {
++                "resourceName": {
++                  "type": "string",
++                  "description": "The resource name or display name, as list_resources returns it."
++                }
++              },
++              "required": ["resourceName"]
++            }
++            """).RootElement;
++    }
++
++    public override async ValueTask<CallToolResult> CallToolAsync(CallToolContext context, CancellationToken cancellationToken)
++    {
++        string? resourceName = null;
++        if (context.Arguments?.TryGetValue("resourceName", out var nameElement) == true && nameElement.ValueKind == JsonValueKind.String)
++        {
++            resourceName = nameElement.GetString();
++        }
++
++        if (string.IsNullOrWhiteSpace(resourceName))
++        {
++            throw new McpProtocolException("The resourceName parameter is required.", McpErrorCode.InvalidParams);
++        }
++
++        var connection = await AppHostConnectionHelper.GetSelectedConnectionAsync(auxiliaryBackchannelMonitor, logger, cancellationToken).ConfigureAwait(false);
++        if (connection is null)
++        {
++            throw new McpProtocolException(McpErrorMessages.NoAppHostRunning, McpErrorCode.InternalError);
++        }
++
++        var excludedResult = await McpToolHelpers.CheckResourceExcludedAsync(connection, resourceName, cancellationToken).ConfigureAwait(false);
++        if (excludedResult is not null)
++        {
++            return excludedResult;
++        }
++
++        var snapshots = await connection.GetResourceSnapshotsAsync(includeHidden: false, cancellationToken).ConfigureAwait(false);
++        var snapshot = snapshots.FirstOrDefault(s => StringComparers.ResourceName.Equals(s.Name, resourceName))
++            ?? snapshots.FirstOrDefault(s => s.DisplayName is { } display && StringComparers.ResourceName.Equals(display, resourceName));
++        if (snapshot is null)
++        {
++            return Error($"No resource named '{resourceName}'. Call list_resources to see the resource names.");
++        }
++
++        var text = new StringBuilder();
++        var name = snapshot.DisplayName ?? snapshot.Name;
++        text.AppendLine(CultureInfo.InvariantCulture, $"Resource '{snapshot.Name}' ({snapshot.ResourceTypeDisplayName ?? snapshot.ResourceType}), state {McpToolHelpers.MapResourceState(snapshot.State) ?? "Unknown"}.");
++
++        if (!string.Equals(snapshot.ResourceType, KnownResourceTypes.Container, StringComparisons.ResourceType))
++        {
++            text.AppendLine("It is not a container: its process runs on this machine. Use list_console_logs for its output and its endpoints for requests.");
++            AppendUrls(text, snapshot);
++            return Ok(text);
++        }
++
++        var containerId = GetString(snapshot, KnownProperties.Container.Id);
++        var image = GetString(snapshot, KnownProperties.Container.Image) ?? string.Empty;
++        if (containerId is null)
++        {
++            text.AppendLine("The container ID is not available yet (the container is not running). Wait for the resource with wait_for_resources and call again.");
++            return Ok(text);
++        }
++
++        text.AppendLine(CultureInfo.InvariantCulture, $"Container ID: {containerId}");
++        if (image.Length > 0)
++        {
++            text.AppendLine(CultureInfo.InvariantCulture, $"Image: {image}");
++        }
++
++        var credentialNames = snapshot.EnvironmentVariables
++            .Select(variable => variable.Name)
++            .Where(variableName => s_credentialMarkers.Any(marker => variableName.Contains(marker, StringComparison.OrdinalIgnoreCase)))
++            .Distinct(StringComparer.Ordinal)
++            .Order(StringComparer.Ordinal)
++            .ToArray();
++        if (credentialNames.Length > 0)
++        {
++            text.AppendLine(CultureInfo.InvariantCulture, $"Credential variables set inside the container (names only): {string.Join(", ", credentialNames)}");
++        }
++
++        AppendUrls(text, snapshot);
++        text.AppendLine();
++        text.AppendLine("Run with the shell tool (the command runs inside the container, so no host port or password is needed):");
++
++        var lower = image.ToLowerInvariant();
++        if (lower.Contains("postgres", StringComparison.Ordinal))
++        {
++            var user = credentialNames.Contains("POSTGRES_USER") ? "\"$POSTGRES_USER\"" : "postgres";
++            text.AppendLine(CultureInfo.InvariantCulture, $"docker exec {containerId} sh -c 'PGPASSWORD=\"$POSTGRES_PASSWORD\" psql -U {user} -d <database> -c \"<sql>\"'");
++            text.AppendLine("For example <sql> = SELECT pid, state, wait_event_type, now() - query_start AS running_for, query FROM pg_stat_activity WHERE state <> 'idle'");
++        }
++        else if (lower.Contains("redis", StringComparison.Ordinal) || lower.Contains("valkey", StringComparison.Ordinal) || lower.Contains("garnet", StringComparison.Ordinal))
++        {
++            // Aspire's Redis container serves TLS on 6379 and plain TCP on 6380 when TLS is on.
++            var tls = snapshot.Urls.Any(url => url.Url.StartsWith("rediss://", StringComparison.OrdinalIgnoreCase));
++            var auth = credentialNames.Contains("REDIS_PASSWORD") ? "REDISCLI_AUTH=\"$REDIS_PASSWORD\" " : string.Empty;
++            text.AppendLine(CultureInfo.InvariantCulture, $"docker exec {containerId} sh -c '{auth}redis-cli -p {(tls ? 6380 : 6379)} <command>'");
++            text.AppendLine("For example <command> = SLOWLOG GET 10 (commands that blocked the server, with their client), CLIENT LIST (every connection and its last command), INFO commandstats");
++            if (tls)
++            {
++                text.AppendLine("Port 6379 inside the container is TLS; a bare redis-cli on it fails with an I/O error.");
++            }
++        }
++        else if (lower.Contains("rabbitmq", StringComparison.Ordinal))
++        {
++            text.AppendLine(CultureInfo.InvariantCulture, $"docker exec {containerId} rabbitmqctl <command>");
++            text.AppendLine("For example <command> = list_queues name messages consumers, list_connections");
++        }
++        else if (lower.Contains("mssql", StringComparison.Ordinal) || lower.Contains("sqlserver", StringComparison.Ordinal))
++        {
++            text.AppendLine(CultureInfo.InvariantCulture, $"docker exec {containerId} sh -c '/opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P \"$MSSQL_SA_PASSWORD\" -Q \"<sql>\"'");
++        }
++        else
++        {
++            text.AppendLine(CultureInfo.InvariantCulture, $"docker exec {containerId} sh -c '<command>'");
++        }
++
++        return Ok(text);
++    }
++
++    private static void AppendUrls(StringBuilder text, ResourceSnapshot snapshot)
++    {
++        if (snapshot.Urls.Length > 0)
++        {
++            text.AppendLine(CultureInfo.InvariantCulture, $"Endpoints on the host: {string.Join(", ", snapshot.Urls.Select(url => $"{url.Name}={McpToolHelpers.SanitizeResourceUrl(url.Url)}"))}");
++        }
++    }
++
++    private static string? GetString(ResourceSnapshot snapshot, string property) =>
++        snapshot.Properties.TryGetValue(property, out var node) && node is JsonValue value && value.TryGetValue<string>(out var text) && text.Length > 0 ? text : null;
++
++    private static CallToolResult Ok(StringBuilder text) => new() { Content = [new TextContentBlock { Text = text.ToString().TrimEnd() }] };
++
++    private static CallToolResult Error(string text) => new() { Content = [new TextContentBlock { Text = text }], IsError = true };
++}
+diff --git a/src/Aspire.Cli/Mcp/Tools/ListStructuredLogsTool.cs b/src/Aspire.Cli/Mcp/Tools/ListStructuredLogsTool.cs
+index 2d2e8d316d..33c3c7a4e0 100644
+--- a/src/Aspire.Cli/Mcp/Tools/ListStructuredLogsTool.cs
++++ b/src/Aspire.Cli/Mcp/Tools/ListStructuredLogsTool.cs
+@@ -22,7 +22,7 @@ internal sealed class ListStructuredLogsTool(IDashboardInfoProvider dashboardInf
+ {
+     public override string Name => KnownMcpTools.ListStructuredLogs;
+ 
+-    public override string Description => "List structured logs for resources.";
++    public override string Description => "List the latest structured logs for resources. Use 'severity' to return only warnings or errors, 'search' to filter by text or fields, and 'limit' to change how many entries are returned.";
+ 
+     public override JsonElement GetInputSchema()
+     {
+@@ -37,6 +37,15 @@ public override JsonElement GetInputSchema()
+                 "search": {
+                   "type": "string",
+                   "description": "Full-text search to filter logs. Searches across log text, attribute values, names, source, IDs, and other fields."
++                },
++                "severity": {
++                  "type": "string",
++                  "enum": ["Trace", "Debug", "Information", "Warning", "Error", "Critical"],
++                  "description": "The minimum severity to return. For example \"Error\" returns only errors and critical logs."
++                },
++                "limit": {
++                  "type": "integer",
++                  "description": "The maximum number of latest log entries to return. Defaults to 30."
+                 }
+               }
+             }
+@@ -90,8 +99,23 @@ public override async ValueTask<CallToolResult> CallToolAsync(CallToolContext co
+                 };
+             }
+ 
+-            // Fetch all logs from the API. Limiting of returned telemetry to the MCP caller happens later.
+-            var url = DashboardUrls.TelemetryLogsApiUrl(apiBaseUrl, resolvedResources, limit: TelemetryCommandHelpers.MaxTelemetryLimit, search: search);
++            string? severity = null;
++            if (arguments?.TryGetValue("severity", out var severityElement) == true &&
++                severityElement.ValueKind == JsonValueKind.String)
++            {
++                severity = severityElement.GetString();
++            }
++
++            var limit = SharedAIHelpers.DefaultStructuredLogsToolLimit;
++            if (arguments?.TryGetValue("limit", out var limitElement) == true &&
++                limitElement.ValueKind == JsonValueKind.Number &&
++                limitElement.TryGetInt32(out var requestedLimit))
++            {
++                limit = Math.Clamp(requestedLimit, 1, SharedAIHelpers.StructuredLogsLimit);
++            }
++
++            // Fetch all matching logs from the API. Limiting of returned telemetry to the MCP caller happens later.
++            var url = DashboardUrls.TelemetryLogsApiUrl(apiBaseUrl, resolvedResources, severity: severity, limit: TelemetryCommandHelpers.MaxTelemetryLimit, search: search);
+ 
+             logger.LogDebug(
+                 "Fetching structured logs from {Url}",
+@@ -118,7 +142,8 @@ public override async ValueTask<CallToolResult> CallToolAsync(CallToolContext co
+             var (logsData, limitMessage) = SharedAIHelpers.GetStructuredLogsJson(
+                 resourceLogs,
+                 getResourceName: s => OtlpHelpers.GetResourceName(s, resources.Select(r => new SimpleOtlpResource(r.Name, r.InstanceId)).ToList()),
+-                dashboardBaseUrl: dashboardBaseUrl);
++                dashboardBaseUrl: dashboardBaseUrl,
++                limit: limit);
+ 
+             var text = $"""
+                 {limitMessage}
+diff --git a/src/Aspire.Cli/Mcp/Tools/ListTracesTool.cs b/src/Aspire.Cli/Mcp/Tools/ListTracesTool.cs
+index 18fccb5b76..3b5266d6b0 100644
+--- a/src/Aspire.Cli/Mcp/Tools/ListTracesTool.cs
++++ b/src/Aspire.Cli/Mcp/Tools/ListTracesTool.cs
+@@ -22,7 +22,7 @@ internal sealed class ListTracesTool(IDashboardInfoProvider dashboardInfoProvide
+ {
+     public override string Name => KnownMcpTools.ListTraces;
+ 
+-    public override string Description => "List distributed traces for resources. A distributed trace is used to track operations. A distributed trace can span multiple resources across a distributed system. Includes a list of distributed traces with their IDs, resources in the trace, duration and whether an error occurred in the trace.";
++    public override string Description => "List distributed traces for resources. A distributed trace is used to track operations. A distributed trace can span multiple resources across a distributed system. Returns one compact summary per trace: ID, title, duration, whether an error occurred, the resources involved, the slowest child span and the first failed span. To see every span and attribute of one trace, call again with its 'traceId'. Use 'search' to narrow the list, for example \"duration:>500\" for slow traces or \"status:error\" for failed ones.";
+ 
+     public override JsonElement GetInputSchema()
+     {
+@@ -36,7 +36,15 @@ public override JsonElement GetInputSchema()
+                 },
+                 "search": {
+                   "type": "string",
+-                  "description": "Full-text search to filter traces. Searches across span names, attribute values, IDs, and other fields."
++                  "description": "Filter traces. Free text searches span names, attribute values, IDs, and other fields. Field filters are supported, for example \"duration:>500\" (milliseconds), \"status:error\", \"name:checkout\" or \"@http.route:/api/orders\"."
++                },
++                "limit": {
++                  "type": "integer",
++                  "description": "The maximum number of latest trace summaries to return. Defaults to 20."
++                },
++                "traceId": {
++                  "type": "string",
++                  "description": "A trace ID from a previous summary. When specified, returns that trace in full, with every span and its attributes, and the other arguments are ignored."
+                 }
+               }
+             }
+@@ -63,6 +71,21 @@ public override async ValueTask<CallToolResult> CallToolAsync(CallToolContext co
+             search = searchElement.GetString();
+         }
+ 
++        string? traceId = null;
++        if (arguments?.TryGetValue("traceId", out var traceIdElement) == true &&
++            traceIdElement.ValueKind == JsonValueKind.String)
++        {
++            traceId = traceIdElement.GetString();
++        }
++
++        var limit = SharedAIHelpers.DefaultTraceSummaryLimit;
++        if (arguments?.TryGetValue("limit", out var limitElement) == true &&
++            limitElement.ValueKind == JsonValueKind.Number &&
++            limitElement.TryGetInt32(out var requestedLimit))
++        {
++            limit = Math.Clamp(requestedLimit, 1, SharedAIHelpers.MaximumTraceSummaryLimit);
++        }
++
+         try
+         {
+             using var client = TelemetryCommandHelpers.CreateApiClient(httpClientFactory, apiToken);
+@@ -90,6 +113,11 @@ public override async ValueTask<CallToolResult> CallToolAsync(CallToolContext co
+                 };
+             }
+ 
++            if (!string.IsNullOrWhiteSpace(traceId))
++            {
++                return await GetTraceDetailAsync(client, apiBaseUrl, dashboardBaseUrl, traceId, resources, cancellationToken).ConfigureAwait(false);
++            }
++
+             // Fetch all traces from the API. Limiting of returned telemetry to the MCP caller happens later.
+             var url = DashboardUrls.TelemetryTracesApiUrl(apiBaseUrl, resolvedResources, limit: TelemetryCommandHelpers.MaxTelemetryLimit, search: search);
+ 
+@@ -115,15 +143,17 @@ public override async ValueTask<CallToolResult> CallToolAsync(CallToolContext co
+                 }
+             }
+ 
+-            var (tracesData, limitMessage) = SharedAIHelpers.GetTracesJson(
++            var otlpResources = resources.Select(r => new SimpleOtlpResource(r.Name, r.InstanceId)).ToList();
++            var (tracesData, limitMessage) = SharedAIHelpers.GetTraceSummariesJson(
+                 resourceSpans,
+-                getResourceName: s => OtlpHelpers.GetResourceName(s, resources.Select(r => new SimpleOtlpResource(r.Name, r.InstanceId)).ToList()),
+-                dashboardBaseUrl: dashboardBaseUrl);
++                getResourceName: s => OtlpHelpers.GetResourceName(s, otlpResources),
++                limit: limit);
+ 
+             var text = $"""
+                 {limitMessage}
++                Call list_traces with a traceId to get every span and attribute of one trace.
+ 
+-                # TRACES DATA
++                # TRACE SUMMARIES
+ 
+                 {tracesData}
+                 """;
+@@ -142,4 +172,66 @@ public override async ValueTask<CallToolResult> CallToolAsync(CallToolContext co
+             throw new McpProtocolException(errorMessage, McpErrorCode.InternalError);
+         }
+     }
++
++    private async Task<CallToolResult> GetTraceDetailAsync(HttpClient client, string apiBaseUrl, string? dashboardBaseUrl, string traceId, ResourceInfoJson[] resources, CancellationToken cancellationToken)
++    {
++        var url = DashboardUrls.TelemetryTraceDetailApiUrl(apiBaseUrl, traceId);
++
++        logger.LogDebug(
++            "Fetching trace from {Url}",
++            McpToolHelpers.SanitizeDashboardRequestUrl(url));
++
++        var response = await client.GetAsync(url, cancellationToken).ConfigureAwait(false);
++        if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
++        {
++            return new CallToolResult
++            {
++                Content = [new TextContentBlock { Text = $"Trace '{traceId}' not found." }],
++                IsError = true
++            };
++        }
++
++        TelemetryCommandHelpers.EnsureTelemetryApiResponse(response);
++
++        var apiResponse = await response.Content.ReadFromJsonAsync(OtlpJsonSerializerContext.Default.TelemetryApiResponse, cancellationToken).ConfigureAwait(false);
++        var resourceSpans = apiResponse?.Data?.ResourceSpans;
++
++        // Spans from resources excluded from MCP are never returned.
++        if (resourceSpans is not null && auxiliaryBackchannelMonitor is not null)
++        {
++            var excludedNames = await McpToolHelpers.GetExcludedResourceNamesAsync(auxiliaryBackchannelMonitor, cancellationToken).ConfigureAwait(false);
++            if (excludedNames.Count > 0)
++            {
++                resourceSpans = resourceSpans
++                    .Where(rs => rs.Resource?.GetServiceName() is not { } name || !excludedNames.Contains(name))
++                    .ToArray();
++            }
++        }
++
++        if (resourceSpans is null || SharedAIHelpers.GetTracesFromOtlpData(resourceSpans).Count == 0)
++        {
++            return new CallToolResult
++            {
++                Content = [new TextContentBlock { Text = $"Trace '{traceId}' not found." }],
++                IsError = true
++            };
++        }
++
++        var otlpResources = resources.Select(r => new SimpleOtlpResource(r.Name, r.InstanceId)).ToList();
++        var traceData = SharedAIHelpers.GetTraceJson(
++            resourceSpans,
++            getResourceName: s => OtlpHelpers.GetResourceName(s, otlpResources),
++            dashboardBaseUrl: dashboardBaseUrl);
++
++        var text = $"""
++            # TRACE DATA
++
++            {traceData}
++            """;
++
++        return new CallToolResult
++        {
++            Content = [new TextContentBlock { Text = text }]
++        };
++    }
+ }
+diff --git a/src/Shared/ConsoleLogs/SharedAIHelpers.cs b/src/Shared/ConsoleLogs/SharedAIHelpers.cs
+index 8490340e0e..58b5a267ee 100644
+--- a/src/Shared/ConsoleLogs/SharedAIHelpers.cs
++++ b/src/Shared/ConsoleLogs/SharedAIHelpers.cs
+@@ -54,18 +54,20 @@ public static int EstimateSerializedJsonTokenSize(JsonNode node)
+     /// <param name="resourceLogs">The OTLP resource logs containing log records.</param>
+     /// <param name="getResourceName">Optional function to resolve resource names.</param>
+     /// <param name="dashboardBaseUrl">Optional dashboard URL.</param>
++    /// <param name="limit">Optional maximum number of latest log entries to return.</param>
+     /// <returns>A tuple containing the JSON string and a limit message.</returns>
+     public static (string json, string limitMessage) GetStructuredLogsJson(
+         IList<OtlpResourceLogsJson>? resourceLogs,
+         Func<IOtlpResource, string> getResourceName,
+-        string? dashboardBaseUrl = null)
++        string? dashboardBaseUrl = null,
++        int? limit = null)
+     {
+         var logRecords = GetLogRecordsFromOtlpData(resourceLogs);
+         var promptContext = new PromptContext();
+ 
+         var (trimmedItems, limitMessage) = GetLimitFromEndWithSummary(
+             logRecords,
+-            StructuredLogsLimit,
++            limit is { } requested ? Math.Clamp(requested, 1, StructuredLogsLimit) : StructuredLogsLimit,
+             "log entry",
+             "log entries",
+             i => GetLogEntryDto(i, promptContext, getResourceName, dashboardBaseUrl),
+@@ -126,6 +128,142 @@ public static (string json, string limitMessage) GetTracesJson(
+         return (tracesData, limitMessage);
+     }
+ 
++    /// <summary>
++    /// Default number of trace summaries returned when the caller does not specify a limit.
++    /// </summary>
++    public const int DefaultTraceSummaryLimit = 20;
++
++    /// <summary>
++    /// Maximum number of trace summaries a caller can request.
++    /// </summary>
++    public const int MaximumTraceSummaryLimit = 200;
++
++    /// <summary>
++    /// Default number of structured log entries returned to an MCP caller that does not specify a limit.
++    /// </summary>
++    public const int DefaultStructuredLogsToolLimit = 30;
++
++    private const int SummaryDetailMaxLength = 160;
++
++    // Attributes that best identify what a span did, in order of preference.
++    private static readonly string[] s_spanDetailAttributes =
++    [
++        "db.query.text", "db.statement", "url.full", "http.url", "http.route", "rpc.method", "messaging.destination.name"
++    ];
++
++    /// <summary>
++    /// Converts OTLP resource spans to compact trace summaries for AI processing.
++    /// Each trace is a single small object: enough to choose which trace to inspect,
++    /// without the span list and attribute bags that <see cref="GetTracesJson"/> returns.
++    /// </summary>
++    /// <param name="resourceSpans">The OTLP resource spans containing trace data.</param>
++    /// <param name="getResourceName">Function to resolve resource names.</param>
++    /// <param name="limit">The maximum number of latest traces to return.</param>
++    /// <returns>A tuple containing the JSON string and a message describing what was returned.</returns>
++    public static (string json, string limitMessage) GetTraceSummariesJson(
++        IList<OtlpResourceSpansJson>? resourceSpans,
++        Func<IOtlpResource, string> getResourceName,
++        int limit = DefaultTraceSummaryLimit)
++    {
++        var traces = GetTracesFromOtlpData(resourceSpans);
++
++        var (trimmedItems, _) = GetLimitFromEndWithSummary(
++            traces,
++            Math.Clamp(limit, 1, MaximumTraceSummaryLimit),
++            "trace",
++            "traces",
++            t => GetTraceSummaryDto(t, getResourceName),
++            EstimateSerializedJsonTokenSize);
++
++        var message = traces.Count == trimmedItems.Count
++            ? $"Returned {ToQuantity(trimmedItems.Count, "trace summary", "trace summaries")}."
++            : $"Returned the latest {ToQuantity(trimmedItems.Count, "trace summary", "trace summaries")} of {traces.Count}.";
++
++        var jsonArray = new JsonArray(trimmedItems.ToArray());
++        return (jsonArray.ToJsonString(s_jsonSerializerOptions), message);
++    }
++
++    /// <summary>
++    /// Creates a compact JsonObject summarizing a trace: identity, duration, status, the resources
++    /// involved, and the child span that took the longest and the first span that failed.
++    /// </summary>
++    public static JsonObject GetTraceSummaryDto(OtlpTraceDto trace, Func<IOtlpResource, string> getResourceName)
++    {
++        var rootSpan = trace.Spans.FirstOrDefault(s => string.IsNullOrEmpty(s.Span.ParentSpanId)) ?? trace.Spans.FirstOrDefault();
++        var timestamp = rootSpan?.Span.StartTimeUnixNano is { } startNano
++            ? OtlpHelpers.UnixNanoSecondsToDateTime(startNano)
++            : (DateTime?)null;
++        var errorSpan = trace.Spans.FirstOrDefault(s => s.Span.Status?.Code == 2);
++
++        // The slowest span other than the root shows where the time went.
++        var slowestSpan = trace.Spans
++            .Where(s => !ReferenceEquals(s, rootSpan))
++            .OrderByDescending(s => CalculateDurationMs(s.Span.StartTimeUnixNano, s.Span.EndTimeUnixNano) ?? 0)
++            .FirstOrDefault();
++
++        var resources = new JsonArray(trace.Spans
++            .Select(s => getResourceName(s.Resource))
++            .Distinct(StringComparer.Ordinal)
++            .Select(name => (JsonNode)JsonValue.Create(name)!)
++            .ToArray());
++
++        var summary = new JsonObject
++        {
++            ["traceId"] = trace.TraceId,
++            ["title"] = rootSpan?.Span.Name,
++            ["durationMs"] = CalculateTraceDurationMs(trace.Spans),
++            ["hasError"] = errorSpan is not null,
++            ["timestamp"] = timestamp,
++            ["spanCount"] = trace.Spans.Count,
++            ["resources"] = resources,
++            ["slowestSpan"] = slowestSpan is null ? null : GetSpanSummary(slowestSpan, getResourceName, includeStatusMessage: false),
++            ["errorSpan"] = errorSpan is null ? null : GetSpanSummary(errorSpan, getResourceName, includeStatusMessage: true)
++        };
++
++        return StripNullProperties(summary);
++    }
++
++    private static JsonObject GetSpanSummary(OtlpSpanDto spanDto, Func<IOtlpResource, string> getResourceName, bool includeStatusMessage)
++    {
++        var span = spanDto.Span;
++        string? detail = null;
++        foreach (var key in s_spanDetailAttributes)
++        {
++            detail = GetAttributeStringValue(span.Attributes, key);
++            if (!string.IsNullOrWhiteSpace(detail))
++            {
++                break;
++            }
++        }
++
++        if (!string.IsNullOrWhiteSpace(detail))
++        {
++            // Statements span lines; a summary keeps the leading part on one line.
++            detail = string.Join(' ', detail.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries));
++            if (detail.Length > SummaryDetailMaxLength)
++            {
++                detail = string.Concat(detail.AsSpan(0, SummaryDetailMaxLength), "...");
++            }
++        }
++        else
++        {
++            detail = null;
++        }
++
++        var summary = new JsonObject
++        {
++            ["spanId"] = span.SpanId,
++            ["name"] = span.Name,
++            ["source"] = getResourceName(spanDto.Resource),
++            ["destination"] = GetAttributeStringValue(span.Attributes, OtlpHelpers.AspireDestinationNameAttribute),
++            ["durationMs"] = CalculateDurationMs(span.StartTimeUnixNano, span.EndTimeUnixNano),
++            ["detail"] = detail,
++            ["statusMessage"] = includeStatusMessage ? span.Status?.Message : null
++        };
++
++        return StripNullProperties(summary);
++    }
++
+     /// <summary>
+     /// Converts OTLP resource spans to a single trace JSON for AI processing.
+     /// </summary>
