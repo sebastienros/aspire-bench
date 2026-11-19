@@ -163,8 +163,10 @@ only. It never reads an agent report.
 - `stuck-db`: recorded as three checks, all required. App kept running: the same AppHost process and the
   same cache container. Preserved: every square and every called square still present in PostgreSQL and the
   cache. Unstuck: five fresh imports with a median under 2 s and call/clear/status work. `aspire resource postgres
-  restart` (it recreates the container on its volume after a clean shutdown) and `docker restart` pass;
-  `docker rm -f` (an unclean shutdown that empties the table), `aspire stop` and restarting the cache fail.
+  restart` (it recreates the container on its volume after a clean shutdown), `docker restart` and ending the
+  job's session pass; in the local gate `docker rm -f` + `aspire resource postgres start` (an unclean shutdown
+  that empties the table) and `aspire stop` + start failed. Restarting the cache or the AppHost fails
+  `appKeptRunning` by construction (not run locally).
 - `heldout-slow-sql`: five live and five year-old order pages must each have a median under
   300 ms; the carrier history and every existing order must be intact; an order page must still
   show its latest 20 updates and a webhook posted by the verifier at once (no stale cache); fresh

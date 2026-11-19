@@ -1312,10 +1312,11 @@ running, stopped by a Copilot CLI policy hook at the first skill load (repositor
 eval driver, so the hook lives in `/etc/github-copilot/policy.d/`). 400 runs, $5.84, median 17 s each. Calibrated
 against the trials of the same pin and bundle, it is **usable as a proxy on terra and not on luna**. Terra
 reproduced both diagnosis targets (`aspire-monitoring` 18/18 with the shipped set and MCP, `aspire-diagnose` 18/18
-with the lean set), but luna chose the router first in 17 of 18 runs against 9 of 18 trials. Against every trial of
+with the lean set), but luna chose the router first in 17 of 18 runs against 9 of 18 trials (on the card's v0.0.5 figure, 14 of 18, it
+would have passed). Against every trial of
 the pin, 15 of 17 cells agree, and both misses are the router winning where the trials split, so the proxy
 over-predicts the router. On terra the v0.0.6 matrix is clean: every skill but the router is selected on 11–12 of
 its 12 own prompts and never on another's, and no distractor loads a skill. The one overlap is that
-`aspire-orchestration` takes the router's run-and-restart prompts, the same job it carried without the router in T1.3
-and T3.8 ([FINDINGS F37](../FINDINGS.md#f37-a-static-workspace-selection-run-predicts-the-trials-first-skill-except-that-it-over-predicts-the-router)).
+`aspire-orchestration` wins three start/restart/stop prompts labelled as the router's (one upstream case, two written
+here), the job it carried without the router in T1.3 and T3.8 ([FINDINGS F37](../FINDINGS.md#f37-a-static-workspace-selection-run-predicts-the-trials-first-skill-except-that-it-over-predicts-the-router)).
 [PLAN.md, T3.9 results](PLAN.md#t39-results).

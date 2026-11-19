@@ -1489,20 +1489,23 @@ driver; `/etc/github-copilot/policy.d/*.json` is, with no folder trust. On the p
 terra matched both (`aspire-monitoring` 18/18 with the shipped set and MCP, `aspire-diagnose` 18/18 with the lean set),
 and luna matched `aspire-diagnose` (18/18) but picked the router first in 17 of 18 runs against 9 of 18 trials (16 of
 30 over two rounds). Against every trial of the pin, 15 of 17 suite-prompt cells agree; both misses are the router
-winning where the trials split (terra with the narrowed monitoring trigger: 8/8 runs against 9/18 trials). The
-openings are identical (`git status`, `glob`, `view`, same output); trial agents that skipped the router turned to
-`aspire-list_apphosts` or more reads instead. On terra the v0.0.6 matrix is clean: every skill but the router is picked
+winning where the trials split (terra with the narrowed monitoring trigger: 8/8 runs against 9/18 trials). Prompt,
+`README.md` read and `git status` output are identical; the static copy lacks the build output and AppHost state a
+started app leaves (gitignored). Trial agents that skipped the router turned to `aspire-list_apphosts` or more reads
+instead. On the card's v0.0.5 figures (router 14/18) luna would have passed; v0.0.6 lowered the trials' rate, not the
+runs'. On terra the v0.0.6 matrix is clean: every skill but the router is picked
 on 11–12 of its 12 own-prompt runs and never on another's, no distractor loads a skill (0/24), and
-`aspire-orchestration` takes the router's run-and-restart prompts (6 of 11). Runs cost $0.003 (luna) to $0.028 (terra)
+`aspire-orchestration` wins three run-and-restart prompts labelled as the router's (6 of 11 runs; one upstream case,
+two written here). Runs cost $0.003 (luna) to $0.028 (terra)
 and take a median 17 s.
 
 **Improvement candidate:** Use the static selection run as the selection column for skill changes on terra-class
 models, re-calibrated (six targets, about $1.50) after each skill-set change; confirm any router rate on luna with
-trials. For the skills: the router and `aspire-orchestration` both claim "how do I run / restart / stop this app",
-and orchestration wins those prompts on terra; that job belongs to one of them.
+trials. For the skills: on terra `aspire-orchestration` already wins "how should an agent start / restart / stop this app"
+(one upstream router case, two written here), so the router's claim on those jobs adds nothing there.
 
 **Limits / status:** Two models, one workspace, one CLI version. The mechanism of the router over-prediction is not
-determined; a run with the app started under the same hook would separate it from the static workspace. Not
+determined; a run with the app built and started under the same hook would separate it from the static workspace. Not
 upstreamed.
 
 ## Recording future findings

@@ -9,7 +9,7 @@ and excluded from every table.
 
 Runs: 404 (4 without a usable trajectory or with a runner exception); the hook fired in 387 of the 389 runs that asked for a tool (the others answered without one); cost $5.84.
 
-## Calibration against the full trials (same pin, same bundle, same prompts)
+## Calibration against the full trials (same pin, bundle and prompts; the static copy has no build output or AppHost state)
 
 | Target | Model | Trials (`t01b`) | Selection runs | Trial rate inside the runs' 90 % interval |
 |---|---|---|---|---|

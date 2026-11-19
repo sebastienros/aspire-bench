@@ -199,7 +199,7 @@ def report(rows):
     usable = [r for r in usable if not r["round"].startswith(PROBE_PREFIX)]
 
     # Calibration
-    lines += ["## Calibration against the full trials (same pin, same bundle, same prompts)", "",
+    lines += ["## Calibration against the full trials (same pin, bundle and prompts; the static copy has no build output or AppHost state)", "",
               "| Target | Model | Trials (`t01b`) | Selection runs | Trial rate inside the runs' 90 % interval |",
               "|---|---|---|---|---|"]
     for (arm, model, scenarios), (label, skill, selected) in trial_baseline().items():
