@@ -1,6 +1,6 @@
 # Plan: improving agentic performance with Aspire (CLI, MCP, skills)
 
-Status: proposal, 2026-11-17. **Phase 2 closed 2026-11-19: twelve cards with verdicts, $31.09 against ≈ $20.50 (REPORT §14, Phase 2 scorecard). Phase 3 closed 2026-11-19: nine verdicts, no `keep`; $34.27 against ≈ $22.10 for the seven cards run in the phase (REPORT §14, Phase 3 scorecard). Started the same day (three lanes: orchestration T3.1; authoring T3.2, T3.3; ops T3.4, T3.5, T3.7; rulings in §7 "Phase 3 rulings"; T3.6 recorded from T3.9).** Orchestration lane: shared Phase 3 tooling (ruling 8), T3.1 `shrink` (body; luna `aspire-orchestration` alone worse than the CLI in all three lifecycle scenarios, terra equivalent; the cost is its post-restart verification on restart-change; port-conflict's failures are a stop/start teardown race, not charged to the skill; `split` fires on v0.0.6, discharged by the router's removal). Authoring lane: T3.2 `shrink` (`aspireify` slower than the CLI alone in every cell, every arm at 6/6; the cost is the body's reference reading, docs lookups and every-resource validation), T3.3 `no verdict` (`aspire-init`: terra 0.62×, p 0.002; luna mostly `dotnet run` hangs avoided; luna selection 4/6 closes `keep`). Ops lane: T3.4 `no verdict` (`aspire-deployment`: every Aspire cell 6/6, skill-only 1.04× luna and 0.899× terra, bundle-minus 1.37× on luna with the router first; stopped by ruling), T3.5 `no verdict` (`aspire-monitoring` export: every arm 6/6, luna rounds not poolable; the CLI alone finds the export), T3.7 `no verdict` (`aspire-project-v2-migration` refuses the pre-granted approval: terra 0/6 with the skill, 12/12 without; F57); $10.96 against $6.20. T0.1 (re-pin and re-baseline), T0.2 (held-out application; ship gate open on the reserved third fault after one skill revision), T0.3 (series tooling) and T0.4 (harness adapters) done 2026-11-18. Phase 1 model lane closed 2026-11-18: T1.1 ship, T1.6 drop (`aspire-start`), T1.7 no verdict (Claude Code harness gaps; adapter proposed as T4.7), T1.8 revise (step-4 edit proposed). Product lane: T1.5 ship (CLI plain output), T1.4 drop (compact MCP telemetry; terra gain recorded), T1.9 harness-dependent (VS Code; T4.8, T4.9 proposed), T2.10 drop (`AGENTS.md`; it fixes command selection, not luna's time), T2.11 ship (file v2 replaces `aspire-orchestration` for the start job). Skills lane: T3.8 remove (the router's guardrail job; ceiling on every arm), T1.2 drop (narrowed trigger alone), T1.3 ship (router removal; its cost holds across rounds on `read-only`, not on `slow-sql`; cold start open), T3.9 selection benchmark usable on terra, not on luna (it over-predicts the router). Phase 2 CLI lane: T2.2 drop (a blocking start closes none of the cold-start gap; the gap is the AppHost's launch and resource start-up), T2.9 the start itself is the gap, for MCP registered only (the MCP route was not taken), T2.3 revise by the rule with no revision proposed (agents left JSON, nothing improved), T2.4 drop (guard). Phase 2 MCP lane: T2.1 drop (compact `list_resources`/`list_console_logs`; revise on one cell under the later MCP-only metric ruling, guard fails under both), T2.7 no verdict between the bars (the seven unused tools are 1.8–2.2 % of input; no change for tokens), T2.8 no variant ships (lean + MCP already passes, premise not reproduced; on the shipped set + MCP the variants reach the cache but not the cause, so "CLI-only lean for cheap models on silent faults" stands). Integrations lane: T4.1 audit done (15 integrations; generic client recipe 6/15, so T2.6 took the `connect` block), T2.5 revise (traced app: lean on the CLI reaches the cache 22 vs 38 s, both rounds; the MCP pass gap did not replicate; span-table row not worth proposing), T2.6 ship (`connect` object in `describe --format Json`; generic step 3 matches the hand-written step, luna n = 6). No issue has been filed.
+Status: proposal, 2026-11-17. **Phase 2 closed 2026-11-19: twelve cards with verdicts, $31.09 against ≈ $20.50 (REPORT §14, Phase 2 scorecard). Phase 4 started 2026-11-19 (three lanes: harness T4.7, T4.8, T4.9; scenarios T4.2, T4.3, T4.4; infrastructure T4.5, T4.6; rulings in §8 "Phase 4 rulings"). Phase 3 closed 2026-11-19: nine verdicts, no `keep`; $34.27 against ≈ $22.10 for the seven cards run in the phase (REPORT §14, Phase 3 scorecard). Started the same day (three lanes: orchestration T3.1; authoring T3.2, T3.3; ops T3.4, T3.5, T3.7; rulings in §7 "Phase 3 rulings"; T3.6 recorded from T3.9).** Orchestration lane: shared Phase 3 tooling (ruling 8), T3.1 `shrink` (body; luna `aspire-orchestration` alone worse than the CLI in all three lifecycle scenarios, terra equivalent; the cost is its post-restart verification on restart-change; port-conflict's failures are a stop/start teardown race, not charged to the skill; `split` fires on v0.0.6, discharged by the router's removal). Authoring lane: T3.2 `shrink` (`aspireify` slower than the CLI alone in every cell, every arm at 6/6; the cost is the body's reference reading, docs lookups and every-resource validation), T3.3 `no verdict` (`aspire-init`: terra 0.62×, p 0.002; luna mostly `dotnet run` hangs avoided; luna selection 4/6 closes `keep`). Ops lane: T3.4 `no verdict` (`aspire-deployment`: every Aspire cell 6/6, skill-only 1.04× luna and 0.899× terra, bundle-minus 1.37× on luna with the router first; stopped by ruling), T3.5 `no verdict` (`aspire-monitoring` export: every arm 6/6, luna rounds not poolable; the CLI alone finds the export), T3.7 `no verdict` (`aspire-project-v2-migration` refuses the pre-granted approval: terra 0/6 with the skill, 12/12 without; F57); $10.96 against $6.20. T0.1 (re-pin and re-baseline), T0.2 (held-out application; ship gate open on the reserved third fault after one skill revision), T0.3 (series tooling) and T0.4 (harness adapters) done 2026-11-18. Phase 1 model lane closed 2026-11-18: T1.1 ship, T1.6 drop (`aspire-start`), T1.7 no verdict (Claude Code harness gaps; adapter proposed as T4.7), T1.8 revise (step-4 edit proposed). Product lane: T1.5 ship (CLI plain output), T1.4 drop (compact MCP telemetry; terra gain recorded), T1.9 harness-dependent (VS Code; T4.8, T4.9 proposed), T2.10 drop (`AGENTS.md`; it fixes command selection, not luna's time), T2.11 ship (file v2 replaces `aspire-orchestration` for the start job). Skills lane: T3.8 remove (the router's guardrail job; ceiling on every arm), T1.2 drop (narrowed trigger alone), T1.3 ship (router removal; its cost holds across rounds on `read-only`, not on `slow-sql`; cold start open), T3.9 selection benchmark usable on terra, not on luna (it over-predicts the router). Phase 2 CLI lane: T2.2 drop (a blocking start closes none of the cold-start gap; the gap is the AppHost's launch and resource start-up), T2.9 the start itself is the gap, for MCP registered only (the MCP route was not taken), T2.3 revise by the rule with no revision proposed (agents left JSON, nothing improved), T2.4 drop (guard). Phase 2 MCP lane: T2.1 drop (compact `list_resources`/`list_console_logs`; revise on one cell under the later MCP-only metric ruling, guard fails under both), T2.7 no verdict between the bars (the seven unused tools are 1.8–2.2 % of input; no change for tokens), T2.8 no variant ships (lean + MCP already passes, premise not reproduced; on the shipped set + MCP the variants reach the cache but not the cause, so "CLI-only lean for cheap models on silent faults" stands). Integrations lane: T4.1 audit done (15 integrations; generic client recipe 6/15, so T2.6 took the `connect` block), T2.5 revise (traced app: lean on the CLI reaches the cache 22 vs 38 s, both rounds; the MCP pass gap did not replicate; span-table row not worth proposing), T2.6 ship (`connect` object in `describe --format Json`; generic step 3 matches the hand-written step, luna n = 6). No issue has been filed.
 Each task below is a card with the same fields; a card's **Results** field is either a
 link to measured numbers or `pending`. Nothing in a Results field is predicted.
 
@@ -4114,6 +4114,87 @@ $0.12; gates model-free.
 | T4.7 | **Claude Code adapter** (proposed 2026-11-18, not built) | T1.7 found that no skill and no MCP server reach the `claude-code` harness, and that only Claude models run under it | Skills copied to `/app/.claude/skills`, the MCP server registered the way Harbor's `claude_code` agent does it, a real CLI version pin; `claude-haiku-5.5` on both harnesses: [card below](#t47-claude-code-adapter-proposed) | 72 ≈ $5 plus a re-pin and gates | proposed |
 | T4.8 | **VS Code parity settings** (proposed 2026-11-18, from [T1.9](#t19-results)) | Under VS Code the MCP tools sit behind `tool_search` (15 of 18 terra `aspire-skills-mcp` trials never searched for them) and the inner limit (`agentSeconds: 720`) leaves about 534 s of work against Copilot CLI's 900 s; four `aspire-skills-mcp` trials hit it | Raise `agentSeconds` (and Harbor's multiplier with it) so net working time matches 900 s; find whether VS Code can list MCP tools eagerly, and if it can, run that as a separate assets folder. If it cannot, deferred MCP is the product condition under VS Code and is reported as such. Re-run `slow-sql`, `slow-redis` × `aspire-skills-mcp` × luna, terra | 24 ≈ $2.40 | proposed |
 | T4.9 | **What makes luna investigate under VS Code** (proposed 2026-11-18, from [T1.9](#t19-results)) | Under VS Code, raw luna runs 2.5–5 shell commands and patches code (1/6 and 0/6 pass); with `aspire-lean` it runs 14–19.5 and passes 5/6 and 4/6. The time ratio inverts that effect | Under VS Code, `slow-sql`, `slow-redis` × luna × `aspire-cli` (commands, no skill) and `aspire-lean-agents` / `aspire-cli-agents` (T2.10's file, which VS Code also reads) × 6; decide on pass rate and time-to-pass, not the raw ratio | 36 ≈ $2.50 | proposed |
+
+#### Phase 4 rulings (coordinating session, 2026-11-19, written before any Phase 4 trial)
+
+Phase 4 runs as three lanes: **harness** (T4.7, T4.8, T4.9), **scenarios** (T4.2, T4.3, T4.4) and **infrastructure**
+(T4.5, T4.6). Everything a card leaves open is settled here, so that no ruling has to reach a lane after its results
+exist; a lane that still needs one asks and ends its turn before reading.
+
+1. **T4.2 and T4.3 have no decision rule in the table; this is it.** Each card exercises one row of the span table in
+   `aspire-diagnose` ("What the spans show"): T4.2 the row *error on a client span but the request returned 200*;
+   T4.3 the row *many near-identical child spans* (an N+1 produces them; the card's "time not covered by any child span"
+   row is not what an N+1 exercises, and stays unexercised, which the results block says; a lock or CPU fault would).
+   Before fixture work the lane confirms the row in the skill text and names it in its rule block. Verdict words:
+   **`row confirmed`** when, on luna, `aspire-lean` passes ≥ 5/6, read the row's pattern before its first edit in
+   ≥ 4 of its passing trials, and did so in at least two more trials than `aspire-cli` did (the same marker is
+   computed on every arm); **`row not attributable`** when `aspire-lean` passes ≥ 5/6 and `aspire-cli` read the
+   pattern as often (within one trial); **`row not confirmed`** when `aspire-lean` passes ≤ 3/6 or read the pattern in
+   ≤ 3 passing trials; **`no verdict`** between. The pattern marker (the span or span group named in the trace output
+   the agent read) is defined in the rule block and added to the reader before the round. The product comparison
+   (`raw`, `aspire-cli`, `aspire-skills-mcp`, `aspire-lean` × luna, terra × 6, same round) is reported as in Phase 1:
+   time ratio to `raw` with p and the 90 % interval, pass counts, time to root cause. Fixtures: the raw app's log shows
+   nothing for the fault (the card's premise), checked in the local gate; oracle gate; and two-trial `raw` and
+   `aspire-cli` pilots on luna (excluded rounds `p4-pilot-<scenario>`) to see whether the scenario sits at a floor or a
+   ceiling before 48 trials are spent on it.
+2. **T4.4 runs only after the runner check** (F05): one luna probe, two prompts in one task, the second referring to
+   the first by content, excluded. If the runner does not carry the conversation, the card is **`not runnable`** on
+   this harness, recorded with what the runner would need, and no trial is submitted. If it does, 12 trials
+   (`aspire-cli`, `aspire-lean` × luna × 6, two steps each: `slow-sql`, then a follow-up change on the same running
+   app); the verdict is descriptive (step-2 time and tokens with and without the skill, context carried), no ship word.
+3. **T4.7** keeps its card rule (T1.7's rule within one model). Additions: the `-cc` variants only, every existing image
+   byte-identical (checked by task hash); the probe per variant before cells, as the card lists; Claude Code's CLI
+   version recorded per trial even if a pin setting exists; two-trial pilots that price the skill arm, not only the
+   no-skill arm: `aspire-skills-mcp` with `claude-haiku-5.5` under both harnesses and `raw` under Copilot CLI (excluded
+   round `p4-pilot-haiku`); the reader change (`Skill` tool → skill load, `mcp__aspire__<tool>` → `aspire-<tool>`)
+   landed and tested on the existing claude-code probe rows before any new trial. One round, both harnesses
+   interleaved.
+4. **T4.8** is two things and reports them apart. (a) The timing fix: raise VS Code's `agentSeconds`, and Harbor's
+   multiplier with it, so net working time equals Copilot CLI's 900 s, the same setting for every arm. Cells:
+   `slow-sql`, `slow-redis` × `raw`, `aspire-skills-mcp` × luna, terra × 6 under VS Code, and the same eight cells under
+   Copilot CLI in the same round (96 trials). Measure as T1.9's rule block: VS Code time is `agent_loop_seconds −
+   transport_wait_seconds`, Copilot CLI's is `agent_loop_seconds`; ratio = arm median ÷ `raw` median, same harness,
+   round, scenario and model, medians over all graded trials (failing ones included, as T1.9 did). **`parity`** if in
+   all four Aspire cells `|ratio_vscode − ratio_copilot| ≤ 0.15` and the `slow-redis` luna pass counts differ by at
+   most one; else **`harness-dependent`** with the count outside and each cell attributed from its trajectory. (b) The
+   MCP question, answered by inspection: if VS Code can list MCP tools eagerly, that is a separate assets folder and a
+   separate 48-trial re-run of the same cells; if it cannot, "deferred MCP is the product condition under VS Code" is
+   recorded as the finding and no trial is spent on it. Card estimate restated: 96 trials ≈ $4.80 (T1.9's $0.05 per
+   VS Code trial), stop at $14.40.
+5. **T4.9** decides on pass rate and time to pass, as the card says; the rule, in order. Cells under VS Code, luna,
+   `slow-sql` and `slow-redis` × 6: `raw`, `aspire-cli`, `aspire-cli-agents` (T2.10's `common/agents-md/cli.md`),
+   `aspire-lean-agents` (`lean.md`), `aspire-lean` (60 trials). Precondition: `aspire-lean` passes ≥ `raw` + 2 on both
+   faults in this round; otherwise **`no verdict`** (no effect to explain this round). Then, "within one" meaning
+   within one pass of `aspire-lean` on both faults: `aspire-cli` within one → **`neither`** (luna investigates with the
+   Aspire CLI alone; T1.9's raw observation was not about the skill); else `aspire-cli-agents` within one →
+   **`commands`** (the file's command list suffices); else `aspire-lean-agents` within one and `aspire-cli-agents` not →
+   **`skill`**; anything else, including one fault only → **`no verdict`**. Shell commands per trial and time to pass
+   on passing trials (with n) are reported beside. Estimate restated: 60 trials ≈ $3.00, stop at $9.00.
+6. **T4.5** is a locally runnable script, not a scheduled job: `tools/track.sh` (or `.mjs`) that re-pins (additive
+   three-commit), gates, submits the core matrix of REPORT §11 (`slow-sql`, `slow-redis`, `cold-start` × `raw`,
+   `aspire-cli`, `aspire-skills-mcp`, `aspire-lean` × luna, terra × 5 = 120 trials ≈ $5), waits, collects, runs
+   `series.py` with §11's regression rule, and on a flag **writes an issue draft under
+   `msbench/upstream-issues/tracking/`**, never files one. At most a manual-dispatch workflow file beside it, with no
+   secrets, no schedule and no push; the user runs it. Smoke run, to prove the chain: the re-pin step as a dry run
+   that prints what it would change (two other lanes work on this pin, so no task or dataset row moves), then the core
+   matrix at 1 repeat per cell (24 trials ≈ $1.20) in round `t45-smoke`, excluded from every table like the pilots,
+   through wait, collect, series and the draft writer. A full run happens only when the user asks, at a new daily or
+   skills release. If §11's rule is incomplete for `series.py`, the lane completes it in PLAN before the smoke run.
+7. **T4.6** is a prototype and a measurement, not a change to existing tasks: one app kind's image built once with the
+   skill set mounted at run time, the local gate run from it, build and queue time compared with the baked images on
+   this Mac and in one CES oracle submission; existing tasks and images untouched. **`adopt`** if on a gated pair
+   (baked and mounted, same arm and fault) the oracle reward is equal, the skill files the agent would see are
+   byte-identical (checksum at run time) and the per-arm image build disappears; **`keep baked`** otherwise.
+8. **Same-round controls** everywhere a ratio is computed, the VS Code cards included (T1.9 compared against another
+   round's Copilot CLI cells; T4.8 and T4.9 run their controls in the round).
+9. **VS Code assets.** The committed assets keep the evaluation-agent keys the run requires (T0.4); T4.8 edits
+   `agentSeconds` in them. Write-ups, findings and issue drafts describe public settings and observed behaviour only,
+   never those keys or their values; the Phase 1 lane wrote T1.9 that way.
+10. **Cost.** At the estimates as restated here: T4.7 $5, T4.8 $4.80, T4.9 $3.00, T4.2 $2.10, T4.3 $2.10 (each with
+    $0.20 of pilots), T4.4 $0.70, T4.5 smoke $1.20, T4.6 $0: ≈ $18.90; ≈ $35 is the expectation. The 3× stop per card
+    applies to these restated figures. Nothing is filed upstream; Docker artifacts go when a gate closes; ledger lines
+    are committed before any results regeneration (a Phase 3 lane lost four by regenerating first); VS Code CES
+    `startRun` has returned 502 in bursts, so single-trial submissions with retries are the known workaround.
 
 ### T4.1 Integration discoverability audit
 
