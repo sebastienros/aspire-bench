@@ -2224,6 +2224,9 @@ gate, so the integration's health check added nothing.
 reading needs), so on the cheapest model traces without the CLI and skill made the outcome worse than no traces
 (0/6 vs 3/6, p = 0.18). On terra traces add nothing either way (164.6 vs 172.1 s).
 
+*Replication (2026-11-19, `t25-span`, [below](#t25-follow-up-results)): the same tasks one round later gave luna lean + MCP
+5/6 traced and 2/6 untraced; pooled 8/12 each. The CLI route's faster time to the cache replicated (22.3 vs 38.4 s).*
+
 **What to revise.** The template change helps the lean CLI route and hurts the MCP route and the raw app on luna,
 so it should not ship alone. Two revisions are open: the skill's span table needs a row for "many near-identical
 client spans to one dependency, each slow" → the dependency is slow, go to step 3 (one sentence in
@@ -2253,6 +2256,37 @@ A secondary measurement under T2.5, approved by the coordinating session; it doe
   whether the row is quoted in the trajectory before step 3.
 - **If it holds**, the issue draft gets the row as the remedy next to the template change; nothing is filed.
   Expected ≈ $1.3 (60 luna at ≈ $0.02); stop and report above $3.
+
+#### T2.5 follow-up results
+
+Round `t25-span`, 60 luna trials (no infrastructure failure), tasks `a814f21` and the `t25` controls' tasks,
+**$0.89**. Gates: local fail → repair → pass; `gate-t25-span` 4/5 reward 1, the fifth
+(`aspire-lean-mcp-all-spanrow-traced`) lost twice to infrastructure before the oracle ran (environment start
+timeout; then the image build could not reach `archive.ubuntu.com`) and returned reward 1 on the third attempt
+(`gate-t25-span3`), which was submitted together with the round rather than before it; the cell's image differs
+from the `gate-t25`-gated `aspire-lean-mcp-all-traced` by skill files only.
+
+| Cell (luna) | With the row | Same-round control | Time ratio (p) | Redis reply, median (fired) | Edited `/app/src` |
+|---|---|---|---|---|---|
+| `slow-redis` lean, untraced | 5/6 | 6/6 | **1.28×** (139.3 vs 109.1 s, p = 0.82) | 33.5 vs 38.4 s (6 / 6) | 1 / 0 |
+| `slow-redis` lean, traced | 6/6 | 5/6 | 1.03× | 20.4 vs 22.3 s (6 / 5) | 0 / 1 |
+| `slow-redis` lean + MCP, untraced | 3/6 | 2/6 | 1.01× | 42.3 vs 42.5 s (5 / 5) | 3 / 4 |
+| `slow-redis` lean + MCP, traced | **5/6** | 5/6 | 0.80× | 24.4 vs 31.1 s (5 / 5) | 1 / 1 |
+| `slow-sql` lean (guard) | 6/6 | 6/6 | 0.95× | – | 1 / 2 |
+
+**By the rule as computed: not worth proposing.** Condition one holds (traced lean + MCP with the row 5/6); condition
+two fails on one cell, the untraced `slow-redis` lean cell, at 1.28× its control. That cell's app has no cache spans,
+so the row has nothing to apply to there, and the same trials reached Redis sooner (33.5 vs 38.4 s); the 1.28× is
+inside same-round spread (p = 0.82). This disagreement between the rule and the data is put to the coordinating
+session; nothing is added to the issue draft until it rules.
+
+**Replication of T2.5's controls.** The four `slow-redis` controls are `t25`'s cells re-run on the same tasks one
+round later. Pass counts did not replicate on the MCP route: untraced lean + MCP went 6/6 → **2/6** (4/6 edited the
+source, with no cache spans in the trace), traced lean + MCP 3/6 → 5/6. Pooled over both rounds luna lean + MCP is
+8/12 traced and 8/12 untraced, and lean on the CLI 11/12 both ways. What replicated is the time to the cache on the CLI
+route: traced 22.1 and 22.3 s against untraced 38.7 and 38.4 s. T2.5's verdict stays as computed on `t25`; its
+mechanism note holds for what the failing trials did, but the MCP pass-rate gap it explains is not a stable effect
+at n = 6 (luna MCP patches code with or without cache spans).
 
 ### T2.6 A "reach this resource" surface
 

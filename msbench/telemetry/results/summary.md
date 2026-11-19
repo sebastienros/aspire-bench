@@ -399,21 +399,25 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 | aspire-cli-redishint | 0/6 | 132 | 7 | - | 759,700 | 8,540 | 0.019 | 44 | - | 0 | 293,116 |
 | aspire-cli-src | 0/6 | 179 | 8 | - | 831,472 | 11,478 | 0.020 | 47 | - | 0 | 256,852 |
 | aspire-cli-traced | 2/6 | 135 | 6 | 47 | 842,834 | 7,397 | 0.019 | 43 | - | 0 | 234,798 |
-| aspire-lean (tasks 1479041e) | 19/24 | 136 | 40 | 72 | 511,455 | 7,075 | 0.014 | 36 | aspire-diagnosex24, aspire-orchestrationx2 | 0 | 183,042 |
+| aspire-lean (tasks 1479041e) | 25/30 | 120 | 40 | 69 | 504,857 | 6,736 | 0.014 | 36 | aspire-diagnosex30, aspire-orchestrationx2 | 0 | 187,332 |
 | aspire-lean (tasks 916a57ce) | 4/6 | 150 | 37 | 66 | 555,040 | 8,366 | 0.015 | 40 | aspire-diagnosex6 | 0 | 193,064 |
 | aspire-lean-agents | 2/6 | 194 | 30 | 64 | 865,599 | 14,711 | 0.022 | 48 | aspire-diagnosex6, aspire-orchestrationx2 | 0 | 210,112 |
 | aspire-lean-connect | 6/6 | 100 | 41 | 72 | 497,937 | 6,940 | 0.014 | 38 | aspire-diagnosex6 | 0 | 233,321 |
-| aspire-lean-mcp-all | 17/18 | 124 | 40 | 65 | 669,193 | 8,918 | 0.017 | 42 | aspire-diagnosex18 | 8 | 249,417 |
+| aspire-lean-mcp-all | 19/24 | 127 | 41 | 66 | 669,193 | 8,918 | 0.017 | 42 | aspire-diagnosex24 | 8 | 247,826 |
 | aspire-lean-mcp-all-conn | 6/6 | 90 | 29 | 52 | 652,972 | 6,739 | 0.016 | 39 | aspire-diagnosex6 | 11 | 288,984 |
 | aspire-lean-mcp-all-hint | 4/6 | 147 | 38 | 65 | 759,810 | 10,388 | 0.020 | 44 | aspire-diagnosex6 | 10 | 285,825 |
+| aspire-lean-mcp-all-spanrow | 3/6 | 164 | 42 | 68 | 713,756 | 10,614 | 0.019 | 40 | aspire-diagnosex6 | 9 | 286,001 |
+| aspire-lean-mcp-all-spanrow-traced | 5/6 | 105 | 24 | 56 | 416,699 | 6,169 | 0.013 | 26 | aspire-diagnosex6 | 8 | 234,383 |
 | aspire-lean-mcp-all-step | 5/6 | 111 | 32 | 63 | 565,804 | 8,326 | 0.016 | 38 | aspire-diagnosex6 | 9 | 262,733 |
-| aspire-lean-mcp-all-traced | 3/6 | 160 | 48 | 68 | 705,259 | 8,550 | 0.018 | 36 | aspire-diagnosex6 | 9 | 337,530 |
+| aspire-lean-mcp-all-traced | 8/12 | 132 | 39 | 71 | 662,246 | 8,003 | 0.017 | 36 | aspire-diagnosex12 | 9 | 327,754 |
 | aspire-lean-mcp-compact | 9/12 | 141 | 49 | 90 | 745,008 | 9,651 | 0.020 | 43 | aspire-diagnosex12 | 12 | 328,114 |
 | aspire-lean-mcp-compact2 | 2/6 | 189 | 44 | 74 | 893,484 | 13,112 | 0.022 | 47 | aspire-diagnosex6 | 10 | 250,282 |
 | aspire-lean-mcp-src | 8/12 | 191 | 43 | 74 | 701,304 | 9,536 | 0.018 | 42 | aspire-diagnosex12 | 4 | 296,036 |
 | aspire-lean-mcp-tools8 | 3/6 | 221 | 40 | 65 | 932,100 | 15,678 | 0.025 | 48 | aspire-diagnosex6 | 2 | 252,758 |
+| aspire-lean-spanrow | 5/6 | 139 | 33 | 90 | 525,178 | 6,778 | 0.014 | 39 | aspire-diagnosex6 | 0 | 228,061 |
+| aspire-lean-spanrow-traced | 6/6 | 100 | 20 | 38 | 504,714 | 5,716 | 0.015 | 30 | aspire-diagnosex6 | 0 | 228,556 |
 | aspire-lean-src | 12/12 | 110 | 31 | 57 | 497,670 | 7,436 | 0.015 | 38 | aspire-diagnosex12 | 0 | 211,764 |
-| aspire-lean-traced | 6/6 | 85 | 22 | 47 | 409,217 | 5,234 | 0.012 | 32 | aspire-diagnosex6 | 0 | 203,758 |
+| aspire-lean-traced | 11/12 | 94 | 22 | 44 | 418,824 | 5,405 | 0.013 | 30 | aspire-diagnosex12 | 0 | 189,321 |
 | aspire-lean-tracetable | 4/6 | 119 | 35 | 59 | 692,303 | 8,284 | 0.018 | 44 | aspire-diagnosex6 | 0 | 211,418 |
 | aspire-skills | 0/12 | 222 | 60 | - | 784,350 | 11,218 | 0.022 | 46 | aspire-monitoringx6, aspire-orchestrationx3 | 0 | 266,807 |
 | aspire-skills-mcp | 0/12 | 163 | 4 | - | 1,013,608 | 9,532 | 0.023 | 49 | aspirex6, aspire-monitoringx6, aspire-orchestrationx1 | 10 | 430,422 |
@@ -469,7 +473,7 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 | aspire-cli-agents | 6/6 | 151 | 50 | 73 | 680,115 | 11,274 | 0.018 | 46 | - | 0 | 230,654 |
 | aspire-cli-redishint | 4/6 | 118 | 55 | 88 | 644,350 | 7,520 | 0.017 | 50 | - | 0 | 253,891 |
 | aspire-cli-src | 6/6 | 136 | 62 | 87 | 772,410 | 8,480 | 0.019 | 46 | - | 0 | 252,044 |
-| aspire-lean (tasks 1479041e) | 12/12 | 97 | 21 | 57 | 391,404 | 6,730 | 0.013 | 33 | aspire-diagnosex12 | 0 | 147,628 |
+| aspire-lean (tasks 1479041e) | 18/18 | 94 | 21 | 57 | 346,814 | 6,000 | 0.011 | 30 | aspire-diagnosex18 | 0 | 131,750 |
 | aspire-lean (tasks 916a57ce) | 6/6 | 112 | 26 | 59 | 383,232 | 7,168 | 0.012 | 30 | aspire-diagnosex6 | 0 | 164,680 |
 | aspire-lean-agents | 6/6 | 117 | 18 | 64 | 433,843 | 7,924 | 0.013 | 34 | aspire-diagnosex6 | 0 | 146,593 |
 | aspire-lean-connect | 6/6 | 79 | 22 | 32 | 271,195 | 4,512 | 0.009 | 26 | aspire-diagnosex6 | 0 | 129,794 |
@@ -480,6 +484,7 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 | aspire-lean-mcp-compact | 6/6 | 122 | 26 | 56 | 474,092 | 8,324 | 0.015 | 34 | aspire-diagnosex6 | 8 | 257,455 |
 | aspire-lean-mcp-src | 6/6 | 94 | 34 | 52 | 382,320 | 5,091 | 0.012 | 30 | aspire-diagnosex6 | 4 | 245,135 |
 | aspire-lean-noorch-agents | 6/6 | 104 | 20 | 53 | 345,366 | 7,218 | 0.011 | 33 | aspire-diagnosex6 | 0 | 156,628 |
+| aspire-lean-spanrow | 6/6 | 86 | 27 | 47 | 271,736 | 5,250 | 0.009 | 27 | aspire-diagnosex6 | 0 | 121,914 |
 | aspire-lean-src | 12/12 | 98 | 21 | 47 | 335,904 | 5,982 | 0.011 | 29 | aspire-diagnosex12 | 0 | 140,260 |
 | aspire-lean-traced | 6/6 | 92 | 19 | 43 | 374,967 | 6,512 | 0.012 | 32 | aspire-diagnosex6 | 0 | 157,742 |
 | aspire-lean-tracetable | 6/6 | 111 | 24 | 48 | 413,602 | 7,217 | 0.012 | 30 | aspire-diagnosex6 | 0 | 148,764 |

@@ -1703,7 +1703,11 @@ client integration (the lean CLI route gained), but only with that skill row.
 
 **Limits / status:** One fault, n = 6 per cell, one round; the luna differences in pass count have Fisher p = 0.18.
 The traced template also moves the app's OpenTelemetry core to 1.18.0 and adds a Redis health check (it stayed
-`Healthy` under this fault). Verdict `revise`; not upstreamed (issue draft
+`Healthy` under this fault). **Replication (`t25-span`, same tasks, next round):** luna lean + MCP passed 5/6 traced
+and 2/6 untraced (4/6 untraced trials also edited the source), so pooled 8/12 each: the MCP pass gap is not stable
+at n = 6, and luna on MCP patches the caller with or without cache spans. The CLI route's faster time to the cache
+replicated (22.3 vs 38.4 s). The span-table row was measured in the same round (PLAN "T2.5 follow-up results").
+Verdict `revise`; not upstreamed (issue draft
 [`skills-aspireify-redis-client-tracing.md`](upstream-issues/skills-aspireify-redis-client-tracing.md) updated).
 
 ## F48: The Aspire MCP server's tool list costs about 4 % of a luna trial's input, and the seven unused tools about 2 %

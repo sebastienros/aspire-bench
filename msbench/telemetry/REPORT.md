@@ -1307,7 +1307,9 @@ both directions: a slow request now carries about 45 `HMGET` spans, which the di
 an N+1, and the trace detail (44 KB as JSON, 66 KB through MCP) is over the harness's preview limit. The failing
 luna trials batched the cache reads in the application, as did every instrumented-raw trial (0/6 against raw's
 3/6), so traces without the CLI and skill made the cheapest model worse, not better; terra passed every cell.
-The template change needs a span-table row ("many slow client spans to one dependency → the dependency is slow")
+A replicate round one day later reversed the MCP pass counts (5/6 traced, 2/6 untraced; 8/12 each pooled) and
+confirmed only the CLI route's faster time to the cache (22 vs 38 s again), so the MCP loss is not a stable effect
+at n = 6. The template change needs a span-table row ("many slow client spans to one dependency → the dependency is slow")
 before it ships ([FINDINGS F47](../FINDINGS.md#f47-cache-client-spans-make-a-blocked-cache-look-like-an-n1-and-the-cheapest-model-patches-the-caller);
 issue draft updated). [PLAN.md, T2.5 results](PLAN.md#t25-results).
 
