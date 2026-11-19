@@ -51,6 +51,17 @@ faults, two models: agent time fell in all eight cells (−6% to −36%); input 
 its main route (median 5 to 10 MCP calls and 1 CLI call per trial, against 2 to 3 MCP
 and 4 to 7 CLI calls before).
 
+**Decision n, 2026-11-18** (aspire-bench PLAN T1.4, daily `30326eb8`, Copilot CLI 1.0.99, 6 trials per
+cell): patched vs unpatched without skills, agent time −29 % and −30 % on the stronger model
+(`gpt-6.1-terra`, p = 0.009 and 0.002) and −10 % to −12 % on the cheapest (`gpt-6-luna`, not significant;
+one cell passed 4/6 against 6/6). With the lean skill set the patch moved agents from the CLI onto MCP and cost
+8 % to 24 % more input tokens. The benchmark's pre-registered rule required a significant gain on the
+cheapest model, so the patch was not taken forward there. Under Copilot CLI the unpatched 30 KB results are
+not read whole: the harness replaces any result over about 20 KB with a 500-character preview and a file
+path, so the measured gain comes from fewer follow-up file reads, not from a smaller context. A smaller
+default response is still what a harness without that limit needs; the numbers above are specific to this
+harness.
+
 ## Caveats
 
 - The default shape of `list_traces` changes; a `format: full` option would keep the

@@ -931,7 +931,7 @@ larger than the log line.
 | Decision rule | Ship if time improves with p < 0.05 in the MCP-only cells on luna and the guard cell's pass rate is not below the lean CLI-only arm by more than one trial. If the guard fails, T2.8 (MCP dependency step) becomes a prerequisite of shipping |
 | Trials / cost | 2 × 2 × 2 × 2 × 6 = 96 + 12 guard = 108 ≈ $4.10 |
 | Issue draft | [aspire-mcp-compact-telemetry.md](../upstream-issues/aspire-mcp-compact-telemetry.md) |
-| Results | 11-09 pins n = 3: done; decision n: pending. 2026-11-17 pin: patches 0001 and `agentic-all` apply cleanly to `30326eb8` (`git apply --check`, exit 0); the `*-src`, `*-compact` and `aspire-lean-mcp-all` tasks were regenerated at that pin by T0.1 but not gated there, so gate them before this card's round |
+| Results | 11-09 pins n = 3: done. **Decision n, 2026-11-18: `drop`** by the rule as computed: on luna the compact server is not significantly faster in either MCP-only cell (`slow-sql` −12 %, p = 0.73; `read-only` −10 %, p = 0.70, and 4/6 against 6/6); the guard holds (`slow-redis` luna, `aspire-lean-mcp-compact` 5/6 against the CLI-only `aspire-lean` 5/6, round `t14-guard`), so T2.8 is not a prerequisite. On terra the same pair is −29 % (p = 0.009) and −30 % (p = 0.002). Under Copilot CLI the unpatched results never reach the model whole: results over about 20 KB are saved to a file and shown as a 500-character preview ([F31](../FINDINGS.md#f31-copilot-cli-shows-a-500-character-preview-of-any-tool-result-over-about-20-kb)). [T1.4 results](#t14-results) below |
 
 #### T1.4 decision rule, as computed (written 2026-11-18, before any `t14` result was read)
 
@@ -939,6 +939,122 @@ larger than the log line.
 - **Ship clause:** `aspire-mcp-compact` vs `aspire-mcp-src` on luna, **both** `slow-sql` and `read-only`: median agent seconds lower and exact two-sided Mann-Whitney p < 0.05 (`stats.py`, every graded trial, pass or fail). One cell alone is "revise", neither is "drop". Lean-MCP and terra cells are reported, not decisive. A pass-rate loss of more than one trial in any cell is reported next to the verdict.
 - **Guard clause:** `aspire-lean-mcp-compact` on `slow-redis` luna passes at least the lean CLI-only arm's count minus one. The CLI-only comparator is `aspire-lean` (official daily) in the same round, since no `slow-redis` task exists for `aspire-lean-src`. **Neither `slow-redis/aspire-lean-mcp-src` nor `slow-redis/aspire-lean-mcp-compact` exists as a task** (`gen-tasks.mjs` emits `slow-redis` only for `raw`, `aspire-cli`, `aspire-skills-mcp`, `aspire-lean`, `aspire-lean-mcp-all`); adding them is a re-pin, which belongs to the skills lane. Until they run, the guard is read on the proxy `aspire-lean-mcp-all` (patches 0001 + 0002, gated) and the verdict is conditional. Guard fails → T2.8 becomes a prerequisite of shipping.
 - A trial that hits the 900 s limit or crashes with model-service 5xx is an infrastructure failure and is re-run once; otherwise it counts as a fail.
+
+
+#### T1.4 results
+
+**Verdict: `drop`, by the rule as computed** (ship clause not met on luna; guard met). The card defines
+only "ship"; the mapping "one luna cell = revise, neither = drop" was added by this lane before the run
+(2c299da). Terra was declared "reported, not decisive" in the same note, and it is the one model on which
+the patch is clearly faster. The user may rule on that, as for T0.2; nothing was re-run.
+
+**Rounds** (Copilot CLI 1.0.99, n = 6 per cell, 2026-11-18): `t14` (138 trials, tasks `1479041`),
+`t14-guard` (24 trials: `raw` and `aspire-lean` on tasks `1479041`, `aspire-lean-mcp-src` and
+`aspire-lean-mcp-compact` on tasks `705f197`, the skills lane's additive re-pin of suite `c28f654`, whose
+diff from `305a8ed` adds `stuck-db` and selection branches to `bench.mjs` and new skill sets to
+`compose.sh` and touches nothing on the `slow-redis` path or in the `lean` set), and `t14-topup` (4 raw
+luna replacements, below). Gates: `gate-t01-src` (15/15, tasks `0dfaf98f`; the source images differ at
+`1479041` by the `aspire-diagnose` step-1 text only) and, for the two new guard cells, the skills lane's
+`gate-p1s` `2026111876633824` (src) and `2026111876636390` (compact), both reward 1. Patch 0001 applied and
+built in every compact image (a graded trial implies it). 166 of 166 graded; no model-service 5xx in any trial.
+
+**Cells** (time = agent seconds, median; ÷ raw = same round, scenario and model; MCP = median MCP calls
+per trial):
+
+| Round | Scenario | Model | Arm | Pass | Time | ÷ raw | Input tokens | MCP | $/trial | Run IDs |
+|---|---|---|---|---|---:|---:|---:|---:|---:|---|
+| t14 | slow-sql | luna | raw | 5/6 | 120 | 1.00× | 474k | 0 | 0.015 | `2026111875726166`…`729198` |
+| t14 | slow-sql | luna | aspire-mcp-src | 6/6 | 171 | 1.43× | 769k | 8 | 0.021 | `2026111875733474`…`736724` |
+| t14 | slow-sql | luna | aspire-mcp-compact | 6/6 | 151 | 1.26× | 608k | 10 | 0.020 | `2026111875741130`…`744260` |
+| t14 | slow-sql | luna | aspire-lean-mcp-src | 6/6 | 94 | 0.78× | 382k | 4 | 0.012 | `2026111875748426`…`751612` |
+| t14 | slow-sql | luna | aspire-lean-mcp-compact | 6/6 | 122 | 1.02× | 474k | 8 | 0.015 | `2026111875755882`…`759016` |
+| t14 | slow-sql | terra | raw | 6/6 | 63 | 1.00× | 187k | 0 | 0.060 | `2026111875763128`…`766252` |
+| t14 | slow-sql | terra | aspire-mcp-src | 6/6 | 94 | 1.50× | 414k | 8.5 | 0.087 | `2026111875770380`…`773618` |
+| t14 | slow-sql | terra | aspire-mcp-compact | 6/6 | 67 | 1.06× | 288k | 6 | 0.080 | `2026111875777688`…`780970` |
+| t14 | slow-sql | terra | aspire-lean-mcp-src | 6/6 | 69 | 1.09× | 240k | 3 | 0.062 | `2026111875785038`…`788040` |
+| t14 | slow-sql | terra | aspire-lean-mcp-compact | 6/6 | 67 | 1.07× | 260k | 6 | 0.067 | `2026111875792246`…`795422` |
+| t14 | read-only | luna | raw | 6/6 | 86 | 1.00× | 424k | 0 | 0.015 | `2026111875799560`, `…800226`, `…801566`, `…802198` + `t14-topup` `2026111881321304`, `…321950` |
+| t14 | read-only | luna | aspire-mcp-src | 6/6 | 134 | 1.56× | 788k | 12.5 | 0.020 | `2026111875806994`…`810614` |
+| t14 | read-only | luna | aspire-mcp-compact | 4/6 | 120 | 1.40× | 785k | 13 | 0.020 | `2026111875814918`…`818134` |
+| t14 | read-only | luna | aspire-lean-mcp-src | 6/6 | 101 | 1.17× | 490k | 7.5 | 0.014 | `2026111875822664`…`825984` |
+| t14 | read-only | luna | aspire-lean-mcp-compact | 6/6 | 86 | 1.00× | 567k | 11 | 0.014 | `2026111875830150`…`833564` |
+| t14 | read-only | terra | raw | 6/6 | 56 | 1.00× | 206k | 0 | 0.062 | `2026111875837652`…`841086` |
+| t14 | read-only | terra | aspire-mcp-src | 6/6 | 80 | 1.44× | 472k | 11 | 0.086 | `2026111875845610`…`849158` |
+| t14 | read-only | terra | aspire-mcp-compact | 6/6 | 56 | 1.01× | 356k | 10 | 0.082 | `2026111875861780`…`865176` |
+| t14 | read-only | terra | aspire-lean-mcp-src | 6/6 | 55 | 1.00× | 235k | 4 | 0.059 | `2026111875870086`…`873950` |
+| t14 | read-only | terra | aspire-lean-mcp-compact | 6/6 | 48 | 0.86× | 291k | 10 | 0.068 | `2026111875894820`…`898206` |
+| t14 | slow-redis | luna | raw | 2/6 | 259 | 1.00× | 528k | 0 | 0.020 | `2026111875910064`…`913274` |
+| t14 | slow-redis | luna | aspire-lean | 4/6 | 141 | 0.54× | 583k | 0 | 0.015 | `2026111875918196`…`921544` |
+| t14 | slow-redis | luna | aspire-lean-mcp-all (proxy) | 6/6 | 179 | 0.69× | 715k | 5 | 0.023 | `2026111875925940`…`929318` |
+| t14-guard | slow-redis | luna | raw | 0/6 | 280 | 1.00× | 684k | 0 | 0.022 | `2026111878362042`, `…366634`, `…369584`, `…372518` + `t14-topup` `2026111881325068`, `…325764` |
+| t14-guard | slow-redis | luna | aspire-lean | 5/6 | 137 | 0.49× | 461k | 0 | 0.014 | `2026111878387572`…`406340` |
+| t14-guard | slow-redis | luna | aspire-lean-mcp-src | 4/6 | 191 | 0.68× | 668k | 3.5 | 0.017 | `2026111878423676`…`432864` |
+| t14-guard | slow-redis | luna | aspire-lean-mcp-compact | 5/6 | 173 | 0.62× | 755k | 12 | 0.020 | `2026111878448694`…`460428` |
+
+**Patch against its control** (exact two-sided Mann-Whitney, n = 6 vs 6, `stats.py`'s test):
+
+| Scenario | Model | Pair | Time | p | Input tokens | p | Pass |
+|---|---|---|---:|---:|---:|---:|---|
+| slow-sql | luna | `aspire-mcp-compact` vs `-src` | −12 % | 0.73 | −21 % | 0.24 | 6/6 vs 6/6 |
+| read-only | luna | `aspire-mcp-compact` vs `-src` | −10 % | 0.70 | −0 % | 0.70 | **4/6** vs 6/6 |
+| slow-sql | terra | `aspire-mcp-compact` vs `-src` | **−29 %** | 0.009 | −30 % | 0.009 | 6/6 vs 6/6 |
+| read-only | terra | `aspire-mcp-compact` vs `-src` | **−30 %** | 0.002 | −24 % | 0.24 | 6/6 vs 6/6 |
+| slow-sql | luna | `aspire-lean-mcp-compact` vs `-src` | +30 % | 0.18 | +24 % | 0.18 | 6/6 vs 6/6 |
+| read-only | luna | `aspire-lean-mcp-compact` vs `-src` | −14 % | 0.13 | +16 % | 0.49 | 6/6 vs 6/6 |
+| slow-sql | terra | `aspire-lean-mcp-compact` vs `-src` | −2 % | 0.49 | +8 % | 0.31 | 6/6 vs 6/6 |
+| read-only | terra | `aspire-lean-mcp-compact` vs `-src` | −14 % | 0.015 | **+24 %** | 0.026 | 6/6 vs 6/6 (cost +13 %, p = 0.026) |
+| slow-redis | luna | `aspire-lean-mcp-compact` vs `-src` (`t14-guard`) | −9 % | 0.94 | +13 % | 0.39 | 5/6 vs 4/6 |
+
+**Guard.** `aspire-lean-mcp-compact` 5/6 against the CLI-only `aspire-lean` 5/6 in the same round
+(`t14-guard`): within one trial, so the guard holds and T2.8 does not become a prerequisite. The proxy in
+`t14` agrees (`aspire-lean-mcp-all` 6/6 against `aspire-lean` 4/6). The 11-09 failure, agents that stay in
+MCP and patch code, did not recur: every compact guard trial also ran `redis-cli` (4 to 16 times), and the
+one failure (`2026111878454582`) patched the application without finding the exporter, as did every
+failure on every lean arm (`aspire-lean` `…388476`; `-src` `…427444`, `…432864`). Every passing trial on
+every lean arm read `SLOWLOG` or `CLIENT LIST`, and all but one (`aspire-lean` `…403694`) named the exporter;
+the revised `aspire-diagnose` step 3 sends MCP agents to the cache the same way it sends CLI agents.
+
+**Mechanism, read from the trajectories.**
+1. **Under Copilot CLI the unpatched results never reach the model whole.** Copilot CLI saves any tool
+   result over about 20 KB to a file and returns an 837-character notice with a 500-character preview
+   (spilled results 20.3 to 70.7 KB, largest result kept 18.2 KB, in these rounds;
+   [F31](../FINDINGS.md#f31-copilot-cli-shows-a-500-character-preview-of-any-tool-result-over-about-20-kb)). The
+   unpatched `list_traces` (about 30 KB at every call, "Returned latest 21 traces. Earlier 118 traces not
+   returned") and the large `list_structured_logs` calls are all spilled: 168 spills in the 54 src trials,
+   followed by 125 `rg`/`view` reads of the spill files. The compact arms spilled 31 times (54 trials) with
+   12 such reads. So what the patch saves under this harness is the follow-up file reads, not context.
+2. **Compact results go into the context whole, so agents call them more.** A compact `list_traces` returns
+   4.0k to 8.5k characters of content per call (mean per cell; `limit`, `search` and `traceId` drill-downs),
+   against 837 characters of preview for the unpatched call. Agents made more `list_traces` calls (median 2 to
+   6.5 per trial against 0.5 to 4) and read 14k to 28k characters of trace content per trial against 0.4k
+   to 3.3k. On terra the fewer file reads and turns outweigh this (−29 % and −30 % time); on luna they do
+   not (−10 % and −12 %, not significant).
+3. **With lean skills the patch changes the route.** On `aspire-lean-mcp-src` the skill keeps agents on the
+   CLI (median 5 to 6.5 `aspire` commands per trial, 3 to 7.5 MCP calls); on `aspire-lean-mcp-compact` MCP
+   becomes the main route (1 to 1.5 `aspire` commands, 6 to 12 MCP calls), as on the 11-09 pin. That costs
+   tokens (+8 % to +24 %, p = 0.026 on terra `read-only`) and, on luna `slow-sql`, time (+30 %, not
+   significant).
+4. **Luna `read-only` 4/6.** Both failures (`2026111875816204`, `…817488`) read SQLSTATE 25006 from the MCP
+   logs, then patched `Program.cs` (a session-level workaround) and never ran `psql`; every passing compact
+   trial and every src trial ran `psql` (2 to 11 times) and fixed the default at the database. That is the failure
+   the shipped MCP arms showed on 11-09; whether the compact shape caused it here is not determinable at two
+   trials.
+
+**Against the 11-09 result** ("−6 % to −36 % time in 8/8 cells", n = 3): at n = 6 the MCP-only pair is
+faster in 4/4 cells but significant only on terra; the lean pair is slower or level in two of four cells and
+uses more tokens in three. REPORT §7.2 and the issue draft are updated accordingly.
+
+**Timeouts, two readings.** Four raw luna trials reached the 900 s limit without any 5xx:
+`2026111875800846`, `…802804` (`read-only`, `t14`), `2026111878368298`, `…373770` (`slow-redis`,
+`t14-guard`). In each the agent went idle at 348 to 577 s (`assistant.idle` is the last event), after
+restarting the raw app with `scripts/start.sh` from its shell, and Copilot CLI did not exit; two of the four
+still graded 1. The rule as written counts a 900 s hit as an infrastructure failure, so the four carry an
+`excluded` reason in the ledger and were re-run once (`t14-topup`): `read-only` 2/2, `slow-redis` 0/2. The
+other reading (T0.1's: a timeout without 5xx is an agent result) gives raw `read-only` luna 5/6 and
+`slow-redis` luna (`t14-guard`) 1/6 with 900 s in the medians. No ship or guard clause involves raw.
+
+**Cost.** $6.05 recorded ($5.58 `t14`, $0.39 `t14-guard`, $0.08 `t14-topup`) against the card's $4.10;
+terra trials cost $0.059 to $0.087.
 
 ### T1.5 CLI plain output when redirected
 

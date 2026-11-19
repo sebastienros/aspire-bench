@@ -667,7 +667,7 @@ say where to look when the trace does not name the culprit.
 
 | Change | What | Measured gain | Confidence | Issue draft / patch |
 |---|---|---|---|---|
-| **Compact MCP telemetry** | `list_traces` returns one summary per trace (slowest child span with its statement, first failed span), takes `limit` and `traceId`; `list_structured_logs` takes `limit` and `severity`. 25 unit tests pass, 5 new | `list_traces {}` 31.8 KB → 9.0 KB; filtered 30.0 KB → 2.9 KB. Agent time −6% to −36% in 8/8 cells; tokens −8% to −62% when MCP is the main route; with lean skills + both patches, MCP becomes the agent's main route and `read-only` luna passes 3/3 | Medium: direction consistent in 8/8, 3 trials per cell | [aspire-mcp-compact-telemetry.md](../upstream-issues/aspire-mcp-compact-telemetry.md), [0001](upstream/0001-mcp-compact-telemetry.patch) |
+| **Compact MCP telemetry** | `list_traces` returns one summary per trace (slowest child span with its statement, first failed span), takes `limit` and `traceId`; `list_structured_logs` takes `limit` and `severity`. 25 unit tests pass, 5 new | `list_traces {}` 31.8 KB → 9.0 KB; filtered 30.0 KB → 2.9 KB. Agent time −6% to −36% in 8/8 cells; tokens −8% to −62% when MCP is the main route; with lean skills + both patches, MCP becomes the agent's main route and `read-only` luna passes 3/3 | Medium on 11-09 (8/8, n = 3). At n = 6 on the 2026-11-17 pin: −29 % / −30 % time on terra (p ≤ 0.009), −10 % / −12 % on luna (n.s., one cell 4/6 vs 6/6); with lean skills +8 % to +24 % tokens. Copilot CLI previews any result over ~20 KB, so the unpatched 30 KB never reached the model whole ([PLAN T1.4](PLAN.md#t14-results), F31) | [aspire-mcp-compact-telemetry.md](../upstream-issues/aspire-mcp-compact-telemetry.md), [0001](upstream/0001-mcp-compact-telemetry.patch) |
 | **Plain CLI output when redirected** | 13 lines: no table borders, no per-row dashboard links when stdout is not a TTY | `aspire describe` 4,244 → 1,086 bytes (−74%); slow-trace list −77%; characters read by the agent −21% to −59%; time −12% to +1%, no cell significant | High on bytes, none on time: a context saving | [aspire-cli-plain-output.md](../upstream-issues/aspire-cli-plain-output.md), [0002](upstream/0002-cli-plain-output.patch) |
 | **A start that waits and prints endpoints** | One command that blocks until resources are healthy and prints their URLs | Would remove the `wait` ×2 and `describe` steps every Aspire cold-start trial ran (ports are allocated at start and `start`/`wait` print none, so `describe` is the only way to the first `curl`); the gap to raw is 15% to 56% | Not measured (see 7.3) | [aspire-start-blocking.md](../upstream-issues/aspire-start-blocking.md) |
 | **Redis plain port** | Plain on 6379 and TLS on 6380, or a hint wherever an agent would look | Removes a diagnosis cycle spent on the tool rather than the incident | Observed, not measured | [aspire-redis-default-ports.md](../upstream-issues/aspire-redis-default-ports.md) |
@@ -1221,3 +1221,17 @@ terra (1.12×–1.42×, p ≤ 0.017 in every skilled cell) and level or faster o
 including $1.11 for the 18 `raw` trials the plan's rules add.
 [PLAN.md, T1.6 results](PLAN.md#t16-results);
 [FINDINGS F21](../FINDINGS.md#f21-cold-start-is-slower-with-aspire-whatever-the-skills-removing-the-router-needs-an-owner-for-each-former-job).
+
+**Phase 1, T1.4: MCP compact telemetry at decision n.** Patch 0001 against its source-built control, Copilot
+CLI, n = 6 (rounds `t14`, `t14-guard`, 166 trials, $6.05). Without skills the compact server was faster on
+terra in both cells (−29 %, p = 0.009 on `slow-sql`; −30 %, p = 0.002 on `read-only`) but not on luna (−12 %,
+p = 0.73; −10 %, p = 0.70, where it also passed 4/6 against 6/6: two agents fixed the app, not the database).
+With the lean skill set it moved agents from the CLI onto MCP and cost tokens (+8 % to +24 %). The guard held:
+on `slow-redis` luna the lean compact arm passed 5/6, level with the CLI-only lean arm, and every compact agent
+left MCP for `redis-cli`, so T2.8 is not a prerequisite. The verdict by the rule written before the run is
+**drop** (it required a significant luna gain); terra was declared non-decisive in advance. The trajectories
+explain the gap: Copilot CLI replaces any tool result over about 20 KB with a 500-character preview and a
+file path, so the unpatched 30 KB `list_traces` never reached the model whole, and the patch saved follow-up
+file reads rather than context, while luna agents made more drill-down calls on the compact output
+([FINDINGS F31](../FINDINGS.md#f31-copilot-cli-shows-a-500-character-preview-of-any-tool-result-over-about-20-kb)).
+[PLAN.md, T1.4 results](PLAN.md#t14-results).

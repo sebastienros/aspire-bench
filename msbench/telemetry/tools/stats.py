@@ -7,6 +7,7 @@ The smallest attainable two-sided p is 2/C(n+m, n): 0.0022 for 6 vs 6, 0.1 for 3
 """
 import itertools
 import json
+import math
 import statistics
 from collections import defaultdict
 from pathlib import Path
@@ -29,20 +30,33 @@ METRICS = [("agent_seconds", "s"), ("input_tokens", "tok"), ("cost_usd", "$")]
 
 
 def mann_whitney(a, b):
-    """Exact two-sided p-value of the rank-sum statistic (mid-ranks for ties)."""
+    """Exact two-sided p-value of the rank-sum statistic (mid-ranks for ties).
+
+    Counts, over all C(n+m, n) ways to pick A's ranks, how many sums are at least as far from
+    the mean as the observed one. Counted by dynamic programming on doubled ranks (mid-ranks
+    are halves, so doubled they are integers): the same integers full enumeration gives, so the
+    same p, but pooled cells of 20+ trials per arm stay fast (C(56, 28) is about 7.6e15)."""
     pooled = sorted(a + b)
-    rank = {}
+    rank2 = {}
     for value in set(pooled):
         positions = [i + 1 for i, v in enumerate(pooled) if v == value]
-        rank[value] = sum(positions) / len(positions)
-    ranks = [rank[v] for v in a + b]
-    observed = sum(ranks[:len(a)])
-    expected = len(a) * (len(a) + len(b) + 1) / 2
-    extreme = total = 0
-    for combo in itertools.combinations(range(len(ranks)), len(a)):
-        total += 1
-        if abs(sum(ranks[i] for i in combo) - expected) >= abs(observed - expected) - 1e-9:
-            extreme += 1
+        rank2[value] = 2 * sum(positions) // len(positions)
+    ranks = [rank2[v] for v in a + b]
+    n = len(a)
+    observed = sum(ranks[:n])
+    expected = n * (len(ranks) + 1)  # twice n(N+1)/2
+    # ways[k][s]: subsets of k ranks among those seen so far whose doubled sum is s.
+    top = sum(ranks)
+    ways = [[0] * (top + 1) for _ in range(n + 1)]
+    ways[0][0] = 1
+    for r in ranks:
+        for k in range(n, 0, -1):
+            row, below = ways[k], ways[k - 1]
+            for s in range(top, r - 1, -1):
+                if below[s - r]:
+                    row[s] += below[s - r]
+    total = math.comb(len(ranks), n)
+    extreme = sum(count for s, count in enumerate(ways[n]) if abs(s - expected) >= abs(observed - expected))
     return extreme / total
 
 

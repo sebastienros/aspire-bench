@@ -1305,6 +1305,37 @@ skill) and luna `slow-sql`/`slow-redis` guard cells, before it ships.
 different Opus build may wait less. How much of the wait comes with the aspirified app whatever the skill says needs an Opus `aspire-cli` cell, which does not exist yet. An instruction to confirm through telemetry costs most on the model that follows instructions
 most closely. Not applied, not upstreamed.
 
+## F31: Copilot CLI shows a 500-character preview of any tool result over about 20 KB
+
+**Evidence:** PLAN [T1.4 results](telemetry/PLAN.md#t14-results), rounds `t14` and `t14-guard` (Copilot CLI
+1.0.99, package `github-copilot-cli-pkg-main-20261014-215627`). When a tool result is larger than about 20 KB,
+Copilot CLI writes it to `/tmp/<n>-copilot-tool-output-<id>.txt` and gives the model an 837-character
+notice instead: the size, the path, advice to use `rg`/`view`/`jq`, and the first 500 characters
+(results spilled in these rounds: 20.3 to 70.7 KB; largest result passed whole: 18.2 KB). The unpatched
+MCP `list_traces` (about 30 KB at every call, "Returned latest 21 traces. Earlier 118 traces not returned
+because of size limits") is spilled every time, and so are the large `list_structured_logs` and
+`list_resources` results: 168 spills in 54 unpatched-server trials, followed by 125 `rg`/`view` reads of the
+spill files. With the compact server (patch 0001) 31 spills in 54 trials and 12 reads. Copilot's
+`detailedContent` keeps the full text, so `tool_result_chars` (which counts it) reports bytes the model never
+saw; `tool_result_content_chars` counts what it saw.
+
+**Effect:** The premise of the compact-telemetry patch ("the tools fill the 8k-token budget on every call",
+[F18](#f18-mcp-telemetry-tools-fill-an-8k-token-budget-on-every-call)) describes the MCP server, not
+what a Copilot CLI agent reads. Under this harness the compact shape puts more trace text into the context per
+call (4k to 8.5k characters against an 837-character notice) and saves the follow-up file reads. At n = 6 that
+gave −29 % and −30 % time on terra (p ≤ 0.009) and −10 % to −12 % on luna (not significant), where agents also
+made more drill-down calls. VS Code and other harnesses truncate or pass results differently, so a size
+measured at the server is not the size an agent reads.
+
+**Improvement candidate:** Measure MCP and CLI result sizes as the harness delivers them
+(`tool_result_content_chars`, and the spill notice) and state the harness next to any "bytes saved" claim. For
+the product: keep each MCP telemetry result under the common harness limits (about 20 KB here) by default, so
+the agent gets data rather than a pointer to a file.
+
+**Limits / status:** One Copilot CLI build; the threshold was inferred from observed sizes, not from Copilot
+CLI's source or documentation. Whether the 11-09 rounds spilled the same way was not checked (same package, so
+probably). Not reported upstream.
+
 ## Recording future findings
 
 Give each finding a stable ID and include evidence links, exact observed
