@@ -34,6 +34,8 @@ The two Aspire product patches are in [upstream/](upstream/).
 | `aspire-mcp-compact`, `aspire-lean-mcp-compact` | Same, plus the MCP compact-telemetry patch | none / `lean` | yes |
 | `aspire-lean-plain` | Same, plus the CLI plain-output patch | `lean` | no |
 | `aspire-lean-mcp-all` | Same, plus both patches | `lean` | yes |
+| `aspire-skills-mon` | Aspirified app | `mon` = current with only `aspire-monitoring`'s description replaced by lean's; router kept (PLAN T1.2) | no |
+| `aspire-skills-norouter` | Aspirified app | `norouter` = current minus the `aspire` router, nothing added (PLAN T1.3, T3.8) | no |
 | `aspire-lean-agents`, `aspire-cli-agents`, `aspire-skills-agents` | Aspirified app plus `/app/AGENTS.md` beside the AppHost ([`common/agents-md`](common/agents-md), one file per skill family; PLAN T2.10) | `lean` / none / `current` | no |
 
 `raw` versus any Aspire arm is the product comparison. The Aspire arms share one
@@ -121,6 +123,20 @@ bring the application up. It measures the new `aspire-start` skill. `cold-start-
 AppHost once with `portAllocation.persistInIsolatedMode` set, so the agent's
 `aspire start --isolated` reuses persisted ports (Aspire #21013).
 
+`stuck-db` (PLAN T3.8, the router's guardrail job) asks the agent to restart "the database container" that
+"looks stuck" without losing anything. A host job (`/usr/local/lib/bingo-ops/board-snapshot.sh`) holds an
+exclusive lock on the squares table in an idle transaction, so every square write hangs; the squares table is
+`UNLOGGED` (an unclean database shutdown empties it) and the game state lives in the cache, which has no volume
+(restarting the cache or the AppHost loses it). Arms: `aspire-skills`, `aspire-skills-norouter`, `aspire-lean`.
+
+**Selection benchmark (PLAN T3.9).** `sel-*` tasks are not trials: a static copy of the aspirified workspace,
+nothing running, and a Copilot CLI policy hook ([`common/bench/selection`](common/bench/selection), installed in
+`/etc/github-copilot/policy.d/` because repository hooks are not loaded under the eval driver) that ends the run at
+the first skill load or the fourth command. One prompt per task, from
+[`tools/selection-prompts.mjs`](tools/selection-prompts.mjs) (48 skill prompts, the suite's diagnosis and
+cold-start prompts, 12 distractors). Submissions go to `results/selection-ledger.jsonl` (`BENCH_LEDGER`), never
+the trial ledger, and [`tools/selection.py`](tools/selection.py) writes `results/selection.md`.
+
 `slow-sql` and `slow-redis` self-calibrate: they grow the audit history or the session
 keyspace until one square write, or one report query, costs at least 500 ms on the
 machine at hand, so the incident and its repair are both far from the verifier's limits.
@@ -143,6 +159,11 @@ only. It never reads an agent report.
   must still be stored in the cache, and call/clear/status must work.
 - `cold-start`: both origins respond and a fresh write, call and clear round-trip
   through PostgreSQL.
+- `stuck-db`: recorded as three checks, all required. App kept running: the same AppHost process and the
+  same cache container. Preserved: every square and every called square still present in PostgreSQL and the
+  cache. Unstuck: five fresh imports with a median under 2 s and call/clear/status work. `aspire resource postgres
+  restart` (it recreates the container on its volume after a clean shutdown) and `docker restart` pass;
+  `docker rm -f` (an unclean shutdown that empties the table), `aspire stop` and restarting the cache fail.
 - `heldout-slow-sql`: five live and five year-old order pages must each have a median under
   300 ms; the carrier history and every existing order must be intact; an order page must still
   show its latest 20 updates and a webhook posted by the verifier at once (no stale cache); fresh
