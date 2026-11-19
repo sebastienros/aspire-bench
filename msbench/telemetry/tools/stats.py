@@ -33,6 +33,8 @@ LATER_PIN_PAIRS = [("aspire-cli", "raw"), ("aspire-skills-plugin", "aspire-skill
                    # T2.8: three MCP routes to the dependency against the current lean + MCP arm.
                    ("aspire-lean-mcp-all-conn", "aspire-lean-mcp-all"), ("aspire-lean-mcp-all-hint", "aspire-lean-mcp-all"),
                    ("aspire-lean-mcp-all-step", "aspire-lean-mcp-all"),
+                   ("aspire-skills-mcp-all", "aspire-skills-mcp"), ("aspire-skills-mcp-all-conn", "aspire-skills-mcp-all"),
+                   ("aspire-skills-mcp-all-hint", "aspire-skills-mcp-all"), ("aspire-skills-mcp-all-step", "aspire-skills-mcp-all"),
                    # T2.11: file v2, with the orchestration skill kept and removed.
                    ("aspire-lean-agents-v2", "aspire-lean"), ("aspire-lean-noorch-agents", "aspire-lean"),
                    ("aspire-lean-noorch-agents", "aspire-cli"),

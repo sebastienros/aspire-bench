@@ -1313,14 +1313,14 @@ issue draft updated). [PLAN.md, T2.5 results](PLAN.md#t25-results).
 
 **Phase 2, T2.1: compact `list_resources` and `list_console_logs`.** Patch 0001 plus one line per resource in
 `list_resources` (the JSON behind `details`) and `limit` (default 50) / `severity` on `list_console_logs`, against patch
-0001 alone, round `t21` (90 trials, $3.50 against $2.00). Verdict **drop** by the rule as computed: characters read fell
-16 % to 23 % in three cells and rose 11 % on luna `slow-sql`, short of the 30 % gate everywhere, and the lean `slow-redis`
-guard failed (2/6 against 4/6; every failure in both arms reached the cache and then patched the application). Per call
+0001 alone, round `t21` (90 trials, $3.50 against $2.00). Verdict **revise** under the coordinating session's metric
+ruling (MCP-tool content must fall ≥ 30 % in every cell; it fell 35 % on terra `slow-sql` only, 4 % to 25 % elsewhere), a
+ruling sent before the results but received after `drop` had been recorded on the first-written metric (total characters
+read fell 16 % to 23 % in three cells and rose 11 % on luna `slow-sql`). The lean `slow-redis` guard failed (2/6 against 4/6; every failure in both arms reached the cache and then patched the application). Per call
 `list_resources` went from 10,321 to a median 1,360–2,252 characters, but agents asked for `details` in 26 of 74 calls and
 called it more. Neither tool ever crossed Copilot CLI's 20 KB spill threshold (F31), so the change could only shrink what
 already reached the model; the two tools were 12 % to 25 % of the characters read before the run, which capped the gain.
-Gating on MCP content (an alternative put to the coordinating session before the run) would read revise (terra `slow-sql`
-−35 %). [PLAN.md, T2.1 results](PLAN.md#t21-results).
+[PLAN.md, T2.1 results](PLAN.md#t21-results).
 
 **Phase 2, T2.7: MCP tool count and schema size.** The unpatched server registering only the eight tools agents call,
 round `t21-t27` (36 trials, $0.83 against $0.60). Copilot CLI's own count: the 15 Aspire tools cost 1,986 tokens per model

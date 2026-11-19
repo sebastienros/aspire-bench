@@ -208,5 +208,42 @@ def t28():
         print("\nNo variant reaches 5/6 within the slow-sql bar: **CLI-only lean for cheap models on silent faults** (rule).")
 
 
+def t28s():
+    cells = rows({"t28-skills"})
+    base_redis, base_sql = cells[("slow-redis", LUNA, "aspire-skills-mcp-all")], cells[("slow-sql", LUNA, "aspire-skills-mcp-all")]
+    official = cells[("slow-redis", LUNA, "aspire-skills-mcp")]
+    print("## T2.8 on the shipped set + MCP (round t28-skills)\n")
+    print("| Arm | slow-redis pass | skills loaded (none / router / monitoring) | redis-cli run | SLOWLOG/CLIENT LIST | s to redis reply | slow-redis s | variant used | slow-sql pass | slow-sql s | ÷ control | p |")
+    print("|---|---|---|---:|---:|---:|---:|---|---|---:|---:|---:|")
+    sql_med = med([t["agent_seconds"] for t in base_sql])
+    qualifying = []
+    for arm in ("aspire-skills-mcp", "aspire-skills-mcp-all", "aspire-skills-mcp-all-conn", "aspire-skills-mcp-all-hint", "aspire-skills-mcp-all-step"):
+        r, s = cells[("slow-redis", LUNA, arm)], cells[("slow-sql", LUNA, arm)]
+        use = [dependency_use(t["run_id"]) for t in r]
+        loaded = [json.dumps(t.get("skills_loaded") or []) for t in r]
+        skills = f"{sum(l == '[]' for l in loaded)} / {sum('\"aspire\"' in l for l in loaded)} / {sum('aspire-monitoring' in l for l in loaded)}"
+        if arm.endswith("conn"):
+            used = sum(1 for t in r if (t.get("mcp_calls") or {}).get("aspire-get_resource_connection"))
+        elif arm.endswith("hint"):
+            used = sum(1 for t in r if (t.get("mcp_calls") or {}).get("aspire-list_resources"))
+        else:
+            used = sum(1 for t in r if "aspire-monitoring" in json.dumps(t.get("skills_loaded") or ""))
+        p = compare(s, base_sql, "agent_seconds")[3] if s and arm not in ("aspire-skills-mcp", "aspire-skills-mcp-all") else None
+        smed = med([t["agent_seconds"] for t in s])
+        ratio = smed / sql_med if smed and sql_med else None
+        print(f"| {arm} | {passes(r)}/{len(r)} | {skills} | {sum(u[0] for u in use)} | {sum(u[1] for u in use)} | {med([t.get('seconds_to_redis_reply') for t in r]) or '-'} "
+              f"| {med([t['agent_seconds'] for t in r]) or 0:.0f} | {used}/{len(r)} | {passes(s)}/{len(s)} | {smed or 0:.0f} | {ratio or 0:.2f} | {'-' if p is None else f'{p:.3f}'} |")
+        if arm.startswith("aspire-skills-mcp-all-") and len(r) and passes(r) >= 5 and ratio is not None and ratio <= 1.15:
+            qualifying.append((passes(r), -(med([t["agent_seconds"] for t in r]) or 0), arm))
+    if passes(official) >= 5:
+        print(f"\nOfficial aspire-skills-mcp passes {passes(official)}/{len(official)}: **no verdict, premise not reproduced on the shipped set either** (rule).")
+    elif passes(base_redis) >= 5:
+        print(f"\naspire-skills-mcp-all passes {passes(base_redis)}/{len(base_redis)}: patches 0001 + 0002 alone get there; **no verdict for the variants** (rule).")
+    elif qualifying:
+        print(f"\n**Ship {max(qualifying)[2]}** (qualifying: {[q[2] for q in qualifying]})")
+    else:
+        print("\nNo variant reaches 5/6 within the slow-sql bar: **CLI-only lean for cheap models on silent faults**, lean + MCP already passes (rule).")
+
+
 if __name__ == "__main__":
-    {"t21": t21, "t27": t27, "t28": t28}[sys.argv[1]]()
+    {"t21": t21, "t27": t27, "t28": t28, "t28s": t28s}[sys.argv[1]]()

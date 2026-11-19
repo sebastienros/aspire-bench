@@ -1644,7 +1644,7 @@ source build against its `-src` control.
 | Cells | `slow-sql`, `read-only` × luna, terra × 6, `aspire-mcp-compact2` vs `aspire-mcp-compact`; guard `slow-redis` luna |
 | Decision rule | Ship if characters read drop ≥ 30% and time does not regress; the time gain is expected to be small and is not the gate |
 | Trials / cost | 2 × 2 × 2 × 6 + 6 = 54 ≈ $2.00 |
-| Results | **2026-11-19: `drop`** by the rule as computed: characters read fell 16 % to 23 % in three of four cells and rose 11 % in luna `slow-sql`, so no cell met the 30 % gate, and the `slow-redis` guard failed (2/6 against 4/6). `list_resources` itself shrank from 10,321 to a median 1,360–2,252 characters per call, and MCP content per trial fell 4 % to 35 %. Neither tool crossed Copilot CLI's 20 KB spill threshold in either arm, so the F31 mechanism was not in play. Gating on MCP content instead (alternative (b), put to the coordinating session before the run, no ruling) gives revise (one cell, terra `slow-sql` −35 %). [T2.1 results](#t21-results) below |
+| Results | **2026-11-19: `revise`** under the coordinating session's metric ruling (gate on MCP-tool content: −35 % in terra `slow-sql` only, the other three cells −4 %, −25 %, −19 %; guard failed 2/6 against 4/6). The ruling was sent before the results but reached this lane after they had been read and `drop` had been recorded on the rule as first written (characters read in total: no cell under −30 %); both readings are kept below. `list_resources` itself shrank from 10,321 to a median 1,360–2,252 characters per call, and MCP content per trial fell 4 % to 35 %. Neither tool crossed Copilot CLI's 20 KB spill threshold in either arm, so the F31 mechanism was not in play. Gating on MCP content instead (alternative (b), put to the coordinating session before the run, no ruling) gives revise (one cell, terra `slow-sql` −35 %). [T2.1 results](#t21-results) below |
 
 #### T2.1 decision rule, as computed (written 2026-11-18, before any `t21` result was read)
 
@@ -1676,6 +1676,10 @@ source build against its `-src` control.
   alternative of gating on MCP content only (`mcp_result_content_chars`, new in `collect.py`: the MCP tools' share of the
   same measure, where the two tools were 26 % to 49 %). Until it rules, the total decides and the MCP-only figure is
   reported, not decisive; a ruling made before any `t21` result is read is recorded here with its date.
+  **Ruling, 2026-11-19 (coordinating session):** gate on MCP-tool content characters, ≥ 30 % in all four cells, same-round
+  control; report the precedent total, input tokens per trial and the count of tool results over 20 KB per trial beside it,
+  not decisive. Sent before any `t21` result was read, received by this lane after the results had been read (see T2.1
+  results).
 - **Time does not regress:** in no cell is compact2's median agent seconds higher than the control's with exact two-sided
   Mann-Whitney p < 0.05 (`stats.py`, every graded trial).
 - **Verdict.** Ship: gate met in all four cells, no regression, guard holds. Revise: gate met in one to three cells, or met
@@ -1692,10 +1696,17 @@ source build against its `-src` control.
 
 #### T2.1 results
 
-**Verdict: `drop`, by the rule as computed.** No cell met the gate (characters read ≥ 30 % lower) and the guard
-failed. Alternative (b), gating on MCP content only, was put to the coordinating session on 2026-11-18 before the run
-and not ruled on; under it the gate is met in one cell (terra `slow-sql`, −35 %) and the verdict would be revise. Nothing
-was re-run.
+**Verdict: `revise`, under the coordinating session's ruling of 2026-11-19 on the metric.** The ruling (gate on
+MCP-tool content characters, ≥ 30 % lower in all four cells; the precedent total, input tokens and the count of results
+over 20 KB reported beside it, not decisive) answered alternative (b), which this lane put to the coordinating session
+on 2026-11-18 before the run. Its reason: the card's hypothesis is that these two tools carry the remaining MCP penalty,
+so the measure is their share of what MCP returns, not of everything the agent reads. **Order of events:** the ruling was
+sent before any `t21` result was read but reached this lane only after the results had been read and the verdict `drop`
+had been pushed on the rule as first written (6186bbb); the ruled reading is the same arithmetic on numbers already
+computed for that commit (the MCP-chars column below), and no number moved. Under the ruled metric the gate is met in one
+cell (terra `slow-sql`, −35 %; luna `slow-sql` −4 %, luna `read-only` −25 %, terra `read-only` −19 %), and the guard fails;
+the rule's mapping (gate in one to three cells, or guard failing) gives revise. Under the rule as first written (total
+characters read) no cell met the gate: drop. Nothing was re-run. The time clause holds (no regression).
 
 **Round `t21`** (Copilot CLI 1.0.99, 90 trials, 2026-11-19), tasks `b3c1f0d` for the new arms, earlier graphs for the
 controls (patch alone differs, see the rule). Gates `gate-t21` 6/6 reward 1 (`2026111918349402`…`18361706`). 90 of 90
@@ -2362,7 +2373,8 @@ the container name) would remove the copy errors. Issue draft
   median per cell.
 - **Verdict on (ii).** Pursue if ≥ 5 % in both cells with no change in route or pass rate; drop if under 2 % in both; anything
   else is "no verdict between the bars" and the recommendation is written from the measured share. (i) is reported; at
-  n = 6 its spread between rounds is tens of percent, so it decides nothing alone. If (i) puts a cell in a different band
+  n = 6 its spread between rounds is tens of percent, so it decides nothing alone. **Accepted by the coordinating session,
+  2026-11-19.** If (i) puts a cell in a different band
   from (ii) with p < 0.05, the case goes to the coordinating session.
 - **No change in route or pass rate:** pass count within one trial of the control in each cell; the per-tool MCP call counts
   are reported for both arms, and any call the src arm makes to one of the seven removed tools is listed.
@@ -2436,7 +2448,7 @@ both) holds. In substance the change sits at the drop bar: the schema is not whe
 | Cells | `slow-redis` × luna × 6, `aspire-lean-mcp-all` with each variant vs the current one; guard `slow-sql` luna × 6 on every variant (a hint that sends agents to the dependency too early would show there) |
 | Decision rule | Ship the variant that brings luna to ≥ 5/6 on `slow-redis` without a time regression above 15% on `slow-sql`; if none does, the recommendation stands as "CLI-only lean for cheap models on silent faults" |
 | Trials / cost | 3 variants × 6 = 18 + 24 guard = 42 ≈ $0.70 |
-| Results | **2026-11-19: no verdict, premise not reproduced**, by the rule as computed: the same-round control `aspire-lean-mcp-all` passed `slow-redis` luna 5/6, and every control trial ran `redis-cli` and read `SLOWLOG` or `CLIENT LIST`. Lean + MCP agents leave MCP at this pin. Variant A (`get_resource_connection`) passed 6/6 and was called in every trial before the first `redis-cli`; `slow-sql` 0.73× the control's time (p = 0.065). B (list_resources hint) 4/6, C (skill text) 5/6. A meets the card's own ship clause; whether that ships, and whether to run the variants on the shipped set + MCP where the failure is, is put to the coordinating session. [T2.8 results](#t28-results) below |
+| Results | **2026-11-19, lean: no verdict, premise not reproduced at this pin**; the variants move to the shipped set + MCP (coordinating session, option 1; rule below, round `t28-skills`). By the rule as computed: the same-round control `aspire-lean-mcp-all` passed `slow-redis` luna 5/6, and every control trial ran `redis-cli` and read `SLOWLOG` or `CLIENT LIST`. Lean + MCP agents leave MCP at this pin. Variant A (`get_resource_connection`) passed 6/6 and was called in every trial before the first `redis-cli`; `slow-sql` 0.73× the control's time (p = 0.065). B (list_resources hint) 4/6, C (skill text) 5/6. A met the card's own ship clause on lean, which the premise clause overrides. [T2.8 results](#t28-results) below |
 
 #### T2.8 decision rule, as computed (written 2026-11-19, before any `t28` result was read)
 
@@ -2481,8 +2493,9 @@ both) holds. In substance the change sits at the drop bar: the schema is not whe
 **Verdict: no verdict, premise not reproduced, by the rule as computed.** The same-round control passed `slow-redis`
 luna 5/6, so no variant could "bring luna to 5/6". On the card's own ship clause alone, variant A
 (`get_resource_connection`) would ship: 6/6 on `slow-redis`, and `slow-sql` at 0.73× the control's time (bar ≤ 1.15).
-That case, and the base-arm question (the shipped set + MCP is where agents still stay in MCP), are put to the
-coordinating session; nothing was re-run.
+That case, and the base-arm question (the shipped set + MCP is where agents still stay in MCP), went to the coordinating
+session, which answered (option 1, 2026-11-19): lean is recorded as "no verdict, premise not reproduced at this pin" and the
+variants move to the shipped set + MCP (rule and results below). Nothing was re-run.
 
 **Round `t28`** (60 trials, 2026-11-19), tasks `9438613`; gates `gate-t28` 6/6 reward 1 (`2026111919577782`…`19590200`).
 60 of 60 graded; no 900 s hit, no 5xx, no exclusion. Extractions taken while the round was finishing were deleted and
@@ -2516,6 +2529,49 @@ Time = agent seconds, median; p = exact Mann-Whitney against the control (`tools
   should be read together.
 
 **Cost.** $0.91 for `t28`, against the card's $0.70.
+
+#### T2.8 on the shipped set + MCP: decision rule, as computed (written 2026-11-19, before any `t28-skills` result was read)
+
+- **Why a second round.** The coordinating session's answer to the base-arm question (option 1, 2026-11-19): T2.8 on lean is
+  recorded as **"no verdict, premise not reproduced at this pin"** (`aspire-lean-mcp-all` `slow-redis` luna 5/6 in `t28`,
+  6/6 in `t14`), and the three variants move to the shipped set + MCP, where the failure the card describes is
+  (`aspire-skills-mcp` `slow-redis` luna 0/6 in `t01b` and in `t17-copilot`; none of those 12 trials but one ran `redis-cli`).
+- **Round `t28-skills`** (run `t28`, sharing its `raw` cells), Copilot CLI 1.0.99, pin 2026-11-17, luna, n = 6, every arm in
+  the same round.
+- **Arms.** Controls: `aspire-skills-mcp` (the shipped v0.0.6 set + MCP on the official daily, the arm of the 0/6 history),
+  on `slow-redis`; `aspire-skills-mcp-all` (the same set + MCP on the source build with patches 0001 + 0002), on `slow-redis`
+  and `slow-sql`, the arm each variant differs from by one thing. Variants, on `slow-redis` and `slow-sql`:
+  **A** `aspire-skills-mcp-all-conn` (`agentic-all-conn.patch`), **B** `aspire-skills-mcp-all-hint` (`agentic-all-hint.patch`),
+  **C** `aspire-skills-mcp-all-step` (skill set `current-mcpstep`, `agentic-all`). A and B are the patches gated for the lean
+  round, unchanged.
+- **Where C's text goes, and why.** The shipped set has no `aspire-diagnose` and no dependency step anywhere; its router
+  sends "something's wrong" to `aspire-monitoring`. C adds **step 6 to `aspire-monitoring`'s Investigation Workflow**
+  (telemetry and the MCP tools do not show a dependency's own state; when traces point at a database or cache, or show
+  nothing, leave MCP and run its client inside the container: the same `aspire describe` → `docker exec` psql /
+  `redis-cli -p 6380` lines as `aspire-diagnose` step 3), and **one sentence on the router's "something's wrong" bullet**
+  pointing to that step, so the text is on the router's path whether an agent loads the router, the monitoring skill, or
+  both. Because the shipped set has no such step, all three variants carry the commands (A in the tool's output, B in
+  `list_resources`' text, C in the skill). Reach: in the 12 earlier `aspire-skills-mcp` `slow-redis` luna trials, 6 loaded
+  no skill at all, so C can reach at most about half the trials; A and B reach any trial that uses MCP.
+- **Ship clause (the card's, unchanged):** a variant ships if luna passes `slow-redis` at least 5/6 and its `slow-sql` median
+  agent seconds is at most 1.15 × `aspire-skills-mcp-all`'s in the same round. Two or more qualifying: the higher
+  `slow-redis` pass count, then the lower `slow-redis` median time. The bar is not changed to "control + 2".
+- **Premise checks, in order.** (1) If the official `aspire-skills-mcp` passes `slow-redis` at least 5/6 in this round, the
+  verdict is "no verdict, premise not reproduced on the shipped set either". (2) If `aspire-skills-mcp-all` passes at least
+  5/6, patches 0001 + 0002 alone bring the shipped set there and no variant can be credited: "no verdict" for the variants,
+  and the patches' effect is reported.
+- **Fallback (the card's sentence):** if neither check fires and no variant reaches 5/6 within the `slow-sql` bar, the
+  recommendation stands as **"CLI-only lean for cheap models on silent faults"**, with the added fact that lean + MCP
+  already passes (`aspire-lean-mcp-all` 6/6 in `t14`, 5/6 in `t28`).
+- **Reported beside the verdict:** per arm, skills loaded (router, monitoring, none), `redis-cli` run and `SLOWLOG`/`CLIENT
+  LIST` read, `seconds_to_redis_reply`, use of the variant (`get_resource_connection` calls, `list_resources` calls, step 6
+  in a loaded skill).
+- **Gates:** local up → fail → repair → pass for `current-mcpstep` + `agentic-all` on `slow-redis` (A and B were gated on the
+  lean image); oracle gates on every new task before model trials.
+- **Cost, before submitting:** 54 trials at the shipped-set MCP luna rate measured at this pin ($0.013 to $0.039, about
+  $0.025) ≈ $1.35, 1.9× the card's $0.70 for this round alone; with `t28` ($0.91) T2.8 comes to about $2.30, 3.2× the card.
+  The round itself is under the 3× stop rule, and the second round is the coordinating session's request.
+- Infrastructure failures as in T2.1.
 
 ### T2.9 Cold start through MCP
 

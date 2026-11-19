@@ -104,6 +104,8 @@ export const scenarios = {
             "aspire-lean-mcp-compact2", "aspire-lean-mcp-tools8",
             // T2.8: three MCP routes to the dependency on lean + both patches, against aspire-lean-mcp-all.
             "aspire-lean-mcp-all-conn", "aspire-lean-mcp-all-hint", "aspire-lean-mcp-all-step",
+            // T2.8 retargeted to the shipped set + MCP: source-built control with both patches, and the three variants.
+            "aspire-skills-mcp-all", "aspire-skills-mcp-all-conn", "aspire-skills-mcp-all-hint", "aspire-skills-mcp-all-step",
             // T2.6: the generic step 3 on the describe-connect patch (control: aspire-lean-src above).
             "aspire-lean-connect",
             // T2.5 follow-up: one span-table row in aspire-diagnose, traced and untraced, CLI and MCP.
@@ -269,6 +271,12 @@ export const arms = {
     "aspire-lean-mcp-all-conn": { kind: "aspire", skills: "lean", mcp: true, cli: "agentic-all-conn" },
     "aspire-lean-mcp-all-hint": { kind: "aspire", skills: "lean", mcp: true, cli: "agentic-all-hint" },
     "aspire-lean-mcp-all-step": { kind: "aspire", skills: "lean-mcpstep", mcp: true, cli: "agentic-all" },
+    // T2.8 on the shipped set + MCP (where agents stay in MCP): the shipped v0.0.6 set with patches 0001 + 0002 as the
+    // control each variant differs from by one thing, then the same three variants (C in aspire-monitoring + router).
+    "aspire-skills-mcp-all": { kind: "aspire", skills: "current", mcp: true, cli: "agentic-all" },
+    "aspire-skills-mcp-all-conn": { kind: "aspire", skills: "current", mcp: true, cli: "agentic-all-conn" },
+    "aspire-skills-mcp-all-hint": { kind: "aspire", skills: "current", mcp: true, cli: "agentic-all-hint" },
+    "aspire-skills-mcp-all-step": { kind: "aspire", skills: "current-mcpstep", mcp: true, cli: "agentic-all" },
     // T2.6 (choice from T4.1's audit): aspire-diagnose's step 3 says only "run describe's `connect` command"
     // (skill set lean-connect), on a CLI built from source with that block (patch describe-connect); control aspire-lean-src.
     "aspire-lean-connect": { kind: "aspire", skills: "lean-connect", mcp: false, cli: "describe-connect" },
@@ -296,6 +304,8 @@ const onlyIn = {
     "aspire-mcp-compact2": ["slow-sql", "read-only"], "aspire-lean-mcp-compact2": ["slow-redis"],
     "aspire-mcp-tools8": ["slow-sql", "read-only"], "aspire-lean-mcp-tools8": ["slow-redis"],
     "aspire-lean-mcp-all-conn": ["slow-sql"], "aspire-lean-mcp-all-hint": ["slow-sql"], "aspire-lean-mcp-all-step": ["slow-sql"],
+    "aspire-skills-mcp-all": ["slow-sql"], "aspire-skills-mcp-all-conn": ["slow-sql"], "aspire-skills-mcp-all-hint": ["slow-sql"],
+    "aspire-skills-mcp-all-step": ["slow-sql"],
 };
 
 // The Aspire MCP server as every harness registers it. Copilot CLI receives it from task.toml
