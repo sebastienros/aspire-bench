@@ -1,0 +1,14 @@
+services:
+  main:
+    privileged: true
+    build:
+      args:
+        APP_KIND: aspire
+        SKILLS: none
+        FAULT: read-only
+        CLI_KIND: source
+        CLI_PATCH: mcp-compact2
+      additional_contexts:
+        suite: ${TELEMETRY_SUITE_CONTEXT:-https://github.com/sebastienros/aspire-bench.git#78b8fb7b5f1102c4d574c70aee25f90c1457b2cc:msbench/telemetry/common}
+        raw-app: ${TELEMETRY_RAW_APP_CONTEXT:-https://github.com/sebastienros/aspire-bench.git#baacba3e17181491c9a4d419db7d0e6763c3d363:msbench/bingo/common/raw-app}
+        aspire-app: ${TELEMETRY_ASPIRE_APP_CONTEXT:-https://github.com/sebastienros/aspire-bench.git#baacba3e17181491c9a4d419db7d0e6763c3d363:msbench/bingo/common/aspire-app}
