@@ -1818,6 +1818,8 @@ source build against its `-src` control.
   auth prefix only when `--requirepass` is set). Read from the arguments, not hard-coded. Branch
   `sebros/p2-redis-hint`. Leak review: it says how to connect, as the lean skill's step 3 does; no command, key,
   client or fault.
+  T2.6's generic `connect` object uses the same top-level field; this string is its `note` + `command` for
+  Redis (cross-reference added 2026-11-19 at the integrations lane's request; different arms and rounds, no pooling).
 - **Before the run, from the pin's trajectories:** in the decision arm the trap is rare. A bare `redis-cli`
   failed first in 1 of 6 terra `aspire-cli` trials; luna reached `redis-cli` in 1 of 6 (it edits code, 0/6 pass in
   `t01b`). Terra learns port 6380 from the `ps` listing of the container's `redis-server` arguments. Where the
