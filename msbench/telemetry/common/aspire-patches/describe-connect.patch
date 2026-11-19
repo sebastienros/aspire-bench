@@ -1,0 +1,180 @@
+diff --git a/src/Aspire.Cli/Backchannel/ResourceConnect.cs b/src/Aspire.Cli/Backchannel/ResourceConnect.cs
+new file mode 100644
+index 0000000000..23d0c566fc
+--- /dev/null
++++ b/src/Aspire.Cli/Backchannel/ResourceConnect.cs
+@@ -0,0 +1,121 @@
++// Licensed to the .NET Foundation under one or more agreements.
++// The .NET Foundation licenses this file to you under the MIT license.
++
++using System.Globalization;
++using System.Text.Json;
++using System.Text.Json.Nodes;
++using Aspire.Dashboard.Model;
++using Aspire.Shared.Model.Serialization;
++
++namespace Aspire.Cli.Backchannel;
++
++/// <summary>
++/// Agentic patch (aspire-bench T2.6, from the T4.1 integration audit): how to reach a resource with its own
++/// client tool, as a command line an agent appends the tool's arguments to. Inside the container when the
++/// image has the client (credentials come from the container's own environment, the port that accepts the
++/// plain protocol is picked), otherwise from the host with the published port. Never contains a secret value.
++/// </summary>
++internal static class ResourceConnect
++{
++    public static ResourceConnectJson? Get(ResourceSnapshot snapshot)
++    {
++        if (!string.Equals(snapshot.ResourceType, KnownResourceTypes.Container, StringComparisons.ResourceType))
++        {
++            return null;
++        }
++
++        var id = GetString(snapshot, KnownProperties.Container.Id);
++        var image = (GetString(snapshot, KnownProperties.Container.Image) ?? string.Empty).ToLowerInvariant();
++        if (string.IsNullOrEmpty(id) || image.Length == 0)
++        {
++            return null;
++        }
++
++        var env = snapshot.EnvironmentVariables.Select(v => v.Name).ToHashSet(StringComparer.Ordinal);
++        var args = GetArgs(snapshot);
++        string? Arg(string flag) => args.IndexOf(flag) is var i and >= 0 && i + 1 < args.Count ? args[i + 1] : null;
++        string Exec(string inner) => $"docker exec {id} sh -c '{inner} \"$@\"' sh";
++        string? HostPort(string name) => snapshot.Urls.FirstOrDefault(u => string.Equals(u.Name, name, StringComparison.OrdinalIgnoreCase))?.Url is { } url
++            && Uri.TryCreate(url, UriKind.Absolute, out var uri) ? uri.Port.ToString(CultureInfo.InvariantCulture) : null;
++        string Secret(string variable) => $"$(docker exec {id} printenv {variable})";
++
++        if (Has(image, "postgres"))
++        {
++            var user = env.Contains("POSTGRES_USER") ? "\"$POSTGRES_USER\"" : "postgres";
++            return Container(Exec($"PGPASSWORD=\"$POSTGRES_PASSWORD\" exec psql -U {user}"), "psql", "-d <database> -c \"<sql>\"");
++        }
++        if (Has(image, "valkey"))
++        {
++            return Container(Exec("REDISCLI_AUTH=\"$VALKEY_PASSWORD\" exec valkey-cli"), "valkey-cli", "<command>, for example INFO");
++        }
++        if (Has(image, "garnet"))
++        {
++            var port = HostPort("tcp");
++            return port is null ? null : Host($"env REDISCLI_AUTH=\"{Secret("GARNET_PASSWORD")}\" redis-cli -p {port}", "redis-cli", "<command>",
++                "The image has no client; this runs the host's redis-cli against the published port.");
++        }
++        if (Has(image, "redis"))
++        {
++            // Aspire starts Redis with TLS on 6379 (the port a bare redis-cli uses) and plain TCP on --port.
++            var plain = Arg("--tls-port") is not null ? Arg("--port") : null;
++            var auth = env.Contains("REDIS_PASSWORD") ? "REDISCLI_AUTH=\"$REDIS_PASSWORD\" " : string.Empty;
++            return Container(Exec($"{auth}exec redis-cli{(plain is null ? string.Empty : $" -p {plain}")}"), "redis-cli", "<command>, for example INFO");
++        }
++        if (Has(image, "mysql") || Has(image, "mariadb"))
++        {
++            return Container(Exec("MYSQL_PWD=\"$MYSQL_ROOT_PASSWORD\" exec mysql -uroot"), "mysql", "-e \"<sql>\"");
++        }
++        if (Has(image, "mongo"))
++        {
++            var tls = Arg("--tlsMode") is "requireTLS" or "preferTLS" && Arg("--tlsCAFile") is { } ca ? $" --tls --tlsCAFile {ca}" : string.Empty;
++            return Container(Exec($"exec mongosh --quiet{tls} -u \"$MONGO_INITDB_ROOT_USERNAME\" -p \"$MONGO_INITDB_ROOT_PASSWORD\""), "mongosh", "--eval \"<expression>\"");
++        }
++        if (Has(image, "mssql"))
++        {
++            // -C: the ODBC driver cannot read the certificate directory list the container is given.
++            return Container(Exec("exec /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P \"$MSSQL_SA_PASSWORD\""), "sqlcmd", "-Q \"<sql>\"");
++        }
++        if (Has(image, "rabbitmq"))
++        {
++            return Container(Exec("exec rabbitmqctl"), "rabbitmqctl", "<command>, for example list_queues name messages consumers");
++        }
++        if (Has(image, "kafka") || Has(image, "confluent"))
++        {
++            // The in-container listener; localhost:9092 advertises the host port, which does not exist inside.
++            return Container(Exec("exec kafka-topics --bootstrap-server localhost:29092"), "kafka-topics", "--list (other kafka-* tools take the same --bootstrap-server)");
++        }
++        if (Has(image, "cosmos"))
++        {
++            return Container(Exec("exec curl -ks https://localhost:8081"), "curl", "<path>");
++        }
++        if (Has(image, "qdrant"))
++        {
++            var port = HostPort("http");
++            return port is null ? null : Host($"curl -s -H \"api-key: {Secret("QDRANT__SERVICE__API_KEY")}\" http://127.0.0.1:{port}", "curl", "<path>, for example /collections",
++                "The image has no client; this calls the REST API on the published port.");
++        }
++        if (Has(image, "azurite"))
++        {
++            var port = HostPort("blob");
++            return port is null ? null : Host($"az storage container list --connection-string \"DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:{port}/devstoreaccount1;\"", "az", "(other az storage commands take the same --connection-string)",
++                "The emulator image has no client; this runs the host's az against the published blob port with the emulator's well-known key.");
++        }
++        return null;
++    }
++
++    private static ResourceConnectJson Container(string command, string tool, string append)
++        => new() { Command = command, Runs = "container", Tool = tool, Append = append };
++
++    private static ResourceConnectJson Host(string command, string tool, string append, string note)
++        => new() { Command = command, Runs = "host", Tool = tool, Append = append, Note = note };
++
++    private static bool Has(string image, string name) => image.Contains(name, StringComparison.Ordinal);
++
++    private static List<string?> GetArgs(ResourceSnapshot snapshot)
++        => snapshot.Properties.TryGetValue("resource.appArgs", out var node) && node is JsonArray array
++            ? array.Select(a => a?.GetValueKind() == JsonValueKind.String ? a.GetValue<string>() : null).ToList()
++            : [];
++
++    private static string? GetString(ResourceSnapshot snapshot, string key)
++        => snapshot.Properties.TryGetValue(key, out var node) && node is JsonValue value && value.TryGetValue<string>(out var text) ? text : null;
++}
+diff --git a/src/Aspire.Cli/Backchannel/ResourceSnapshotMapper.cs b/src/Aspire.Cli/Backchannel/ResourceSnapshotMapper.cs
+index 2e053cf4d1..1ff7efd8e2 100644
+--- a/src/Aspire.Cli/Backchannel/ResourceSnapshotMapper.cs
++++ b/src/Aspire.Cli/Backchannel/ResourceSnapshotMapper.cs
+@@ -166,7 +166,8 @@ public static ResourceJson MapToResourceJson(ResourceSnapshot snapshot, IReadOnl
+             HealthReports = healthReports,
+             Properties = properties,
+             Relationships = relationships.ToArray(),
+-            Commands = commands
++            Commands = commands,
++            Connect = ResourceConnect.Get(snapshot)
+         };
+     }
+ 
+diff --git a/src/Shared/Model/Serialization/ResourceJson.cs b/src/Shared/Model/Serialization/ResourceJson.cs
+index 1bb876267e..90666a4fe6 100644
+--- a/src/Shared/Model/Serialization/ResourceJson.cs
++++ b/src/Shared/Model/Serialization/ResourceJson.cs
+@@ -127,6 +127,34 @@ internal sealed class ResourceJson
+     /// Dictionary key is the command name.
+     /// </summary>
+     public Dictionary<string, ResourceCommandJson>? Commands { get; set; }
++
++    /// <summary>
++    /// Agentic patch (aspire-bench T2.6): how to reach the resource with its own client tool.
++    /// </summary>
++    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
++    public ResourceConnectJson? Connect { get; set; }
++}
++
++/// <summary>
++/// A command line that reaches a resource with its own client tool; the caller appends the tool's arguments.
++/// </summary>
++internal sealed class ResourceConnectJson
++{
++    /// <summary>The command line, ending where the tool's own arguments go.</summary>
++    public string? Command { get; set; }
++
++    /// <summary>Where the client runs: <c>container</c> (inside the resource's container) or <c>host</c>.</summary>
++    public string? Runs { get; set; }
++
++    /// <summary>The client tool the command runs.</summary>
++    public string? Tool { get; set; }
++
++    /// <summary>What to append, with an example.</summary>
++    public string? Append { get; set; }
++
++    /// <summary>Anything an agent must know to use it.</summary>
++    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
++    public string? Note { get; set; }
+ }
+ 
+ /// <summary>

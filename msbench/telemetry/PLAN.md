@@ -1922,6 +1922,49 @@ source build against its `-src` control.
 | Trials / cost | 2 × 2 × 6 = 24 ≈ $0.40 plus the product work |
 | Results | pending |
 
+#### T2.6 rule, as computed (written 2026-11-19, before any `t26` trial)
+
+- **Choice, from T4.1:** the client tool is in the image for 10 of 15 integrations, under the 11 the T4.1 rule
+  set for `exec`, so the surface is a **`connect` block in `aspire describe --format Json`**
+  ([T4.1 results](#t41-results)). Patch `common/aspire-patches/describe-connect.patch` (CLI only, on
+  `30326eb8`; the official daily still starts the AppHost): each container resource whose image the CLI knows
+  gets `connect: {command, runs, tool, append, note?}`, a command line that ends where the client's own
+  arguments go, credentials read from the container's environment by name, the plain port picked (Redis:
+  `--port` when `--tls-port` is set; MongoDB: `--tls --tlsCAFile` when TLS is required; SQL Server: `-C`;
+  Kafka: `localhost:29092`), and a host-side command for images without a client (Garnet, Qdrant, Azurite).
+  No secret value is ever printed. NATS and Keycloak get none. **Schema shared with T2.4:** T2.4's patch
+  (`cli-redis-connect-hint.patch`, cut first and already gated) adds the same top-level field, `connect`, as a
+  string for Redis only; T2.6 keeps the name and makes it an object, and T2.4's string is T2.6's
+  `connect.note` plus `connect.command` for that one image, so if both ship the upstream proposal is one feature
+  (field name agreed with the coordinating session; the two cards run different arms and rounds, no pooling). For the two cells:
+  `docker exec <id> sh -c 'PGPASSWORD="$POSTGRES_PASSWORD" exec psql -U "$POSTGRES_USER" "$@"' sh` and
+  `docker exec <id> sh -c 'REDISCLI_AUTH="$REDIS_PASSWORD" exec redis-cli -p 6380 "$@"' sh`.
+- **Skill.** Set `lean-connect` = `lean` with `connect-overrides/aspire-diagnose/SKILL.md`: step 3 says only
+  "`aspire describe <resource> --format Json`, then `<connect.command> <the tool's arguments>`" plus generic
+  advice that names no server, tool, port or command (slow operations log, sessions or clients, locks, objects
+  on the slow table or key; stop the client, do not restart, flush or drop). The PostgreSQL commands
+  (`EXPLAIN`, `\d+`, `pg_stat_activity`), the Redis commands (`SLOWLOG GET`, `CLIENT LIST`) and the
+  `-p 6380` note are gone. Steps 1, 2 and 4 are byte-identical. New skill file, new fingerprint.
+- **Cells**, round `t26`, luna, Copilot CLI 1.0.99, n = 6: `slow-sql`, `slow-redis` × {`aspire-lean-connect`,
+  `aspire-lean-src`} (24). The control is lean on the unpatched source build at the same commit (both CLIs
+  managed, not NativeAOT); `slow-sql/aspire-lean-src` (suite `305a8ed`) and `slow-redis/aspire-lean-src`
+  (suite `e165626`, emitted by the CLI lane for T2.3/T2.4) are re-run in `t26`. Their skill content equals
+  `lean` at the treatment's suite (every `common/skills` change since is additive). The treatment differs by
+  the patch and the step-3 text, which is the comparison the card asks for.
+- **Time** = `agent_seconds` (the card's "time"); median ratio treatment ÷ control; p = exact two-sided
+  Mann-Whitney. `seconds_to_redis_reply` on `slow-redis` and `seconds_to_root_cause_seen` on `slow-sql` are
+  reported, not gating.
+- **"Within 10 % on time and pass rate", as computed:** one-sided, since the claim is "no loss": on each fault,
+  (a) time ratio ≤ 1.10 and (b) the treatment passes at least as many trials as the control (at n = 6 one trial
+  is 16.7 points, so a 10-point band on pass rate admits no fewer passes). **`ship`** if (a) and (b) hold on
+  both faults. **`drop`** if on either fault the ratio is > 1.25 or the treatment passes ≤ control − 2.
+  Otherwise **`revise`**, naming the fault and the condition. Same-round lean drift was up to 0.13 between
+  rounds of one cell (T1.9), about the band's width, so a ratio between 1.00 and 1.25 is read with its p.
+- **Mechanism measures:** trials that read `connect` and ran its command; trials that wrote their own
+  `docker exec`; `redis_cli_first_failed`; trials that patched code instead of stopping the client.
+- **Guard:** none beyond the two cells: both faults are the guard scenarios. A trial at the 900 s limit is a
+  failure; a trial lost before the agent ran is re-run once. Expected ≈ $0.40 (24 luna at ≈ $0.015).
+
 ### T2.7 MCP tool count and schema size
 
 | | |
@@ -2625,6 +2668,9 @@ Server, MySQL, MongoDB, RabbitMQ, Cosmos via `curl`, Keycloak, Valkey, Seq), und
 `exec`, so T2.6 builds the **`connect` block in `describe --format Json`**, which can also give a host-side
 command. The count sits on the boundary: Kafka's image has the client under the Confluent name
 (`kafka-topics`), which would make it 11 under a looser reading, and Cosmos counts only through `curl`.
+Even then an `exec` would not be generic for Kafka: its client is present under another name and its default
+listener is unreachable inside the container, so `exec` would need the same per-integration knowledge T2.6 is
+meant to take out of the skill. The coordinating session confirmed the rule as computed (2026-11-19).
 
 ### T4.7 Claude Code adapter (proposed)
 

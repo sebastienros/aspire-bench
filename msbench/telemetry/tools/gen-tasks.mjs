@@ -103,7 +103,9 @@ export const scenarios = {
             // against aspire-lean-mcp-compact; T2.7 (eight tools) against aspire-lean-mcp-src.
             "aspire-lean-mcp-compact2", "aspire-lean-mcp-tools8",
             // T2.8: three MCP routes to the dependency on lean + both patches, against aspire-lean-mcp-all.
-            "aspire-lean-mcp-all-conn", "aspire-lean-mcp-all-hint", "aspire-lean-mcp-all-step"],
+            "aspire-lean-mcp-all-conn", "aspire-lean-mcp-all-hint", "aspire-lean-mcp-all-step",
+            // T2.6: the generic step 3 on the describe-connect patch (control: aspire-lean-src above).
+            "aspire-lean-connect"],
         instruction: sluggish,
     },
     "read-only": {
@@ -265,6 +267,9 @@ export const arms = {
     "aspire-lean-mcp-all-conn": { kind: "aspire", skills: "lean", mcp: true, cli: "agentic-all-conn" },
     "aspire-lean-mcp-all-hint": { kind: "aspire", skills: "lean", mcp: true, cli: "agentic-all-hint" },
     "aspire-lean-mcp-all-step": { kind: "aspire", skills: "lean-mcpstep", mcp: true, cli: "agentic-all" },
+    // T2.6 (choice from T4.1's audit): aspire-diagnose's step 3 says only "run describe's `connect` command"
+    // (skill set lean-connect), on a CLI built from source with that block (patch describe-connect); control aspire-lean-src.
+    "aspire-lean-connect": { kind: "aspire", skills: "lean-connect", mcp: false, cli: "describe-connect" },
 };
 const onlyIn = {
     "aspire-lean-start": ["cold-start"], "aspire-skills-plugin": ["slow-sql"],
@@ -273,6 +278,7 @@ const onlyIn = {
     "aspire-lean-agents-v2": ["cold-start"], "aspire-lean-noorch-agents": ["slow-sql"],
     // T2.5: slow-redis carries them in its arm list; slow-sql gets the traced lean arm as the guard.
     "aspire-cli-traced": [], "aspire-lean-traced": ["slow-sql"], "aspire-lean-mcp-all-traced": [], "raw-otel": [],
+    "aspire-lean-connect": ["slow-sql"],
     // Phase 2 CLI lane: slow-sql gets the T2.3 arm and the T2.4 guard; the cold-start arms are listed there.
     "aspire-cli-src": ["slow-sql"], "aspire-cli-redishint": ["slow-sql"], "aspire-lean-tracetable": ["slow-sql"],
     "aspire-skills-src": ["slow-redis"], "aspire-skills-redishint": ["slow-redis"],

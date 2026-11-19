@@ -1,0 +1,24 @@
+READY tele-aspire-slow-sql-p2int
+== verify before repair (must fail)
+{"fault":"slow-sql","kind":"aspire","passed":false,"squaresPreserved":43,"insertMs":[2574,2690,2531,2643,2490],"updateMs":[2540,2525,2523,2521,2506],"baselinePerRowMs":559,"failure":"Adding 5 squares still takes 2574 ms (limit 600)"}
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Adding 5 squares still takes 2574 ms (limit 600)
+    at verifySlowSql (file:///opt/benchmark/bench.mjs:353:5)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async verify (file:///opt/benchmark/bench.mjs:512:41)
+    at async file:///opt/benchmark/bench.mjs:557:1 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v24.14.0
+== reference repair
+== verify after repair (must pass)
+{"fault":"slow-sql","kind":"aspire","passed":true,"squaresPreserved":43,"insertMs":[5,4,4,4,3],"updateMs":[3,3,3,3,3],"baselinePerRowMs":559}

@@ -1,0 +1,8 @@
+id=6 addr=172.19.0.1:44526 laddr=172.19.0.2:6379 fd=16 name=c865cb06228b(SE.Redis-v2.7.27.49176) age=68 idle=1 flags=P db=0 sub=5 psub=0 ssub=0 multi=-1 watch=0 qbuf=0 qbuf-free=0 argv-mem=0 multi-mem
+id=32 addr=172.19.0.1:48940 laddr=172.19.0.2:6380 fd=22 name=report-exporter age=65 idle=1 flags=N db=0 sub=0 psub=0 ssub=0 multi=-1 watch=0 qbuf=0 qbuf-free=0 argv-mem=0 multi-mem=0 rbs=1024 rbp=10 o
+id=7 addr=172.19.0.1:44528 laddr=172.19.0.2:6379 fd=17 name=c865cb06228b(SE.Redis-v2.7.27.49176) age=68 idle=1 flags=N db=0 sub=0 psub=0 ssub=0 multi=-1 watch=0 qbuf=0 qbuf-free=0 argv-mem=0 multi-mem
+ count 
+-------
+    13
+(1 row)
+
