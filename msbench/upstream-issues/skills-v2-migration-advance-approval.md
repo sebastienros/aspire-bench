@@ -18,7 +18,7 @@ of 6 with the shipped skill set. Without the skill the same model migrated corre
 
 ## What happens
 
-The agent completes a correct assessment: the right `AddDotnetProject` calls, the launch profile kept, the
+In most of these trials the agent completes a correct assessment: the right `AddDotnetProject` calls, the launch profile kept, the
 `Aspire.Hosting.Dotnet` package at the AppHost's version. Then it stops: "Migration is blocked pending approval of
 the exact edits below", "advance approval of unspecified edits does not satisfy that boundary". In a
 non-interactive run (CI, an agent harness, a scripted request) nobody answers, so nothing is migrated.

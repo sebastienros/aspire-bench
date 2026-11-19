@@ -1533,7 +1533,7 @@ live traffic, recovered before the agent starts; "export the traces and logs of 
 in log data, the same AppHost). Arms `aspire-cli`, `skill-only`, the v0.0.6 bundle, `bundle-minus`; luna, terra × 6
 plus one top-up. **`no verdict`:** every arm passed every trial; luna `skill-only` ÷ `aspire-cli` 1.07× then 1.19×
 in two rounds whose `aspire-cli` medians differ by 27 %, so they cannot be pooled (ruling 6); terra pooled 0.97×
-(0.83–1.15). The CLI names the job itself: all 72 trials ran `aspire export`, listed in `aspire --help`; the skill
+(0.83–1.15). The CLI names the job itself: `aspire export`, listed in `aspire --help`, ran in 54 of 72 trials (terra 36/36; luna mostly exported through `aspire otel` with a raised limit); the skill
 added a median of 1–2 reference reads and 16 % input tokens on terra (p 0.006). On this pin `aspire otel` returns the
 newest 200 records unless `--limit` is raised, so an export at the default misses an incident minutes old; no
 trial fell for it ([FINDINGS F51](../FINDINGS.md#f51-the-cli-alone-exports-an-incidents-telemetry-as-well-as-the-monitoring-skill)).
@@ -1572,8 +1572,8 @@ Aspire), environment-owned PostgreSQL and Redis, "publish and run the production
 boards, nothing supplied changed). **`no verdict` (row 4)**, stopped by the coordinating session: every Aspire cell 6/6;
 luna `skill-only` 1.04× `aspire-cli` (p 0.94), terra 0.899× (just outside the ±10 % band); without the skill the
 router went first in 5 of 6 luna trials and the bundle was 1.37× slower (p 0.24, the T1.3 pattern on a new job, F17).
-The CLI alone reached `aspire deploy` in 6/6 luna trials. Aspire against raw: 1.18× on luna, 1.37× on terra
-(p 0.004); raw ran `docker compose up --build` in 12/12. Two terra setups failed on a `pg_isready` race in the fixture,
+The CLI alone reached a working deployment every time (`aspire deploy` 4/6 on luna; on terra `aspire publish` and `docker compose up` 6/6). Aspire against raw: 1.18× on luna, 1.37× on terra
+(p 0.004); raw ran `docker compose up --build` (11/11 readable trajectories). Two terra setups failed on a `pg_isready` race in the fixture,
 excluded and re-run. $3.82 against $2.40. [PLAN.md, T3.4 results](PLAN.md#t34-results).
 
 **Phase 3, T3.1: `aspire-orchestration`, lifecycle jobs.** Three new scenarios on the Bingo images, each with a raw
@@ -1609,9 +1609,9 @@ plus `cold-start` (reported) and the luna `slow-sql`/`slow-redis` guard.
 approval granted in the prompt (the card's single-turn design); feed vendored at the pin (the authoring lane's
 mechanism); grader: no `AddProject`, the three projects running as Project v2 resources, the same resources healthy
 and the same endpoint names. **`no verdict`** (row 4, the card stops): the skill refuses the pre-granted approval. Terra
-with the skill passed 0/6 alone and 1/6 in the bundle; it stopped after a correct plan and asked for approval of
-the exact edits. Without the skill both models migrated 12/12; luna mostly ignored the boundary (5/6, 1.10× the
+with the skill passed 0/6 alone and 1/6 in the bundle; 9 of the 11 failures never edited the AppHost, and 7 of
+those ended with the plan and a request for approval of the exact edits. Without the skill both models migrated 12/12; luna mostly ignored the boundary (5/6, 1.10× the
 CLI's time). The skill's own claim, assessment and approval in conversation, needs a two-turn harness
-([FINDINGS F57](../FINDINGS.md#f57-aspire-project-v2-migration-refuses-an-approval-granted-in-advance-so-a-single-turn-migration-never-happens),
+([FINDINGS F57](../FINDINGS.md#f57-aspire-project-v2-migration-stops-a-mid-tier-model-at-its-approval-step-even-when-the-request-grants-the-approval),
 draft `skills-v2-migration-advance-approval.md`, not filed). $4.83 against $1.90 (accepted at ≈ $5.80).
 [PLAN.md, T3.7 results](PLAN.md#t37-results).

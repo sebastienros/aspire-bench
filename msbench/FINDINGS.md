@@ -1799,7 +1799,8 @@ Not upstreamed (draft [`aspire-describe-connect.md`](upstream-issues/aspire-desc
 trials, pin 2026-11-17. Scenario `export`: a 45 s read-only database incident under live traffic, over before the
 agent starts; the prompt asks for the last 10 minutes of traces and logs as files for a bug report. Every arm
 (`aspire-cli`, `aspire-monitoring` alone, the v0.0.6 bundle, the bundle without it) passed every trial on luna and
-terra. All 72 trials ran `aspire export`, which `aspire --help` lists; `aspire-monitoring` alone was 1.07× and 1.19×
+terra. `aspire export`, which `aspire --help` lists, ran in 54 of 72 trials (terra 36/36, luna 18/36; luna's other exports
+went through `aspire otel` with a raised `--limit`); `aspire-monitoring` alone was 1.07× and 1.19×
 the CLI's time on luna in two rounds (not poolable: the CLI arm moved 27 % between them) and 0.97× on terra pooled
 (interval 0.83–1.15), reading 1–2 references and 16 % more input tokens on terra (p 0.006). Measured on the pin:
 `aspire export` has no time-window option, and `aspire otel logs|traces|spans` return the **newest 200 records**
@@ -1964,14 +1965,14 @@ avoid it was not tested. One application; the delay is timing-dependent (the loc
 at once). Not upstreamed
 (draft [`aspire-stop-teardown-race.md`](upstream-issues/aspire-stop-teardown-race.md)).
 
-## F57: `aspire-project-v2-migration` refuses an approval granted in advance, so a single-turn migration never happens
+## F57: `aspire-project-v2-migration` stops a mid-tier model at its approval step even when the request grants the approval
 
 **Evidence:** Task T3.7 ([PLAN.md, T3.7 results](telemetry/PLAN.md#t37-results)), round `t37`, 48 trials, pin
 2026-11-17. A running file-based AppHost with three `AddProject` calls. The prompt: assess and migrate to the Project
 v2 APIs, "you have my approval in advance for every edit the migration needs … do not wait for further
 confirmation". Without the skill, both models migrated in every trial (`aspire-cli` 12/12, the bundle without it
 12/12). With it, terra passed 0/6 alone and 1/6 in the shipped bundle (Fisher p 0.002 against the CLI). In 9 of
-those 11 failures `apphost.cs` was never touched (two were edited and not restarted). The agent stopped after a correct per-resource plan and asked
+those 11 failures `apphost.cs` was never touched (two were edited and not restarted). Seven of those nine ended with the per-resource plan and a request
 for approval, citing the skill's boundary: "advance approval of unspecified edits does not satisfy that boundary".
 Luna mostly went ahead (5/6) and took 1.10× the CLI's time.
 

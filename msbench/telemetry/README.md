@@ -152,7 +152,8 @@ under live traffic, recovered before the agent starts; the prompt asks for the t
 as files in `/app/bug-report/` without changing or restarting the app. `migration` (aspirified app plus a third .NET
 project, `scoreboard`, from [`common/app-variants/migration`](common/app-variants/migration)): the running AppHost
 declares three projects with `AddProject`; the prompt asks to assess and migrate them to the Project v2 APIs, with the
-approval pre-granted; setup warms the NuGet cache with `Aspire.Hosting.Dotnet` at the pin. `publishing` (port of the
+approval pre-granted; the image vendors the pinned daily's Aspire packages (the authoring lane's `vendor.sh` and the
+CLI's `packages` sidecar), and setup warms the NuGet cache with `Aspire.Hosting.Dotnet` at the pin. `publishing` (port of the
 P01 preconfigured pair, [`common/app-variants/publishing-raw`](common/app-variants/publishing-raw) and
 [`publishing-aspire`](common/app-variants/publishing-aspire)): a complete production model (`compose.yaml`, or an
 AppHost with a Docker Compose environment) and production Dockerfiles, no deployment script; environment-owned
