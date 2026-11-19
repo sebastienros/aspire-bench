@@ -1526,3 +1526,15 @@ gates timed out, 6 trials failed in `apt-get`; all re-run once, excluded rows ma
 volumes; gate artifacts are now removed as soon as a round closes. Two coordinator rulings (T2.1's metric, T2.8's
 option) reached their lanes after the results had been read, because messages to a mid-turn session queue until its
 turn ends; a ruling that must precede the reading belongs in the lane's brief.
+
+**Phase 3, T3.5: `aspire-monitoring`'s own job, export.** New scenario `export`: a 45 s read-only incident under
+live traffic, recovered before the agent starts; "export the traces and logs of the last 10 minutes to files in
+`/app/bug-report/`" without touching the app (grader: the incident's error traces in trace data, its error message
+in log data, the same AppHost). Arms `aspire-cli`, `skill-only`, the v0.0.6 bundle, `bundle-minus`; luna, terra × 6
+plus one top-up. **`no verdict`:** every arm passed every trial; luna `skill-only` ÷ `aspire-cli` 1.07× then 1.19×
+in two rounds whose `aspire-cli` medians differ by 27 %, so they cannot be pooled (ruling 6); terra pooled 0.97×
+(0.83–1.15). The CLI names the job itself: all 72 trials ran `aspire export`, listed in `aspire --help`; the skill
+added a median of 1–2 reference reads and 16 % input tokens on terra (p 0.006). On this pin `aspire otel` returns the
+newest 200 records unless `--limit` is raised, so an export at the default misses an incident minutes old; no
+trial fell for it ([FINDINGS F51](../FINDINGS.md#f51-the-cli-alone-exports-an-incidents-telemetry-as-well-as-the-monitoring-skill)).
+$2.31 against $1.90. [PLAN.md, T3.5 results](PLAN.md#t35-results).

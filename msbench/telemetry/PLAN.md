@@ -3026,7 +3026,7 @@ so the two skills whose removal would change the diagnosis route (`aspire-orches
 | T3.2 | `aspireify` (21 KB, 10 refs) | wire an AppHost for an existing repo, add Postgres/Redis/Rabbit/Mongo, ServiceDefaults, TS toolchain repair | **Adoption** (port of A01: raw Bingo, add an AppHost that runs it; grader: live app under Aspire, source unchanged); **add a dependency** (add Redis to an existing AppHost and use it from one project) | Yes; TS toolchain repair: `no verdict` | 2 × 4 × 2 × 6 = 96 ≈ $3.90 | pending |
 | T3.3 | `aspire-init` (10 KB, 2 refs) | `aspire new` / `aspire init`, pick a template, hand off to `aspireify` | **Greenfield** (empty folder, "create an Aspire app with an API and Postgres and run it"; grader: `aspire describe` shows the resources healthy and the API answers) | Yes | 1 × 4 × 2 × 6 = 48 ≈ $1.90 | pending |
 | T3.4 | `aspire-deployment` (18 KB, 7 refs) | publish/deploy to Compose, Kubernetes, Azure, AWS, Radius; teardown | **Preconfigured publishing** (port of the P01 preconfigured pair: complete AppHost and raw Compose, "publish and run the production build locally"); Kubernetes and clouds: `no verdict` | Compose yes; others no | 1 × 5 × 2 × 6 = 60 ≈ $2.40 | pending |
-| T3.5 | `aspire-monitoring` (14 KB, 3 refs) | observe logs/traces/metrics, export, standalone dashboard, browser telemetry, deployed-app routing | Its diagnosis claim is already measured (REPORT §4, T1.2). Add its **own** job: **export** ("export the last 10 minutes of traces and logs to files for a bug report"; grader: files exist with the incident's spans) | Export yes; browser telemetry and deployed routing: `no verdict` | 1 × 4 × 2 × 6 = 48 ≈ $1.90 | pending |
+| T3.5 | `aspire-monitoring` (14 KB, 3 refs) | observe logs/traces/metrics, export, standalone dashboard, browser telemetry, deployed-app routing | Its diagnosis claim is already measured (REPORT §4, T1.2). Add its **own** job: **export** ("export the last 10 minutes of traces and logs to files for a bug report"; grader: files exist with the incident's spans) | Export yes; browser telemetry and deployed routing: `no verdict` | 1 × 4 × 2 × 6 = 48 ≈ $1.90 | Done 2026-11-19, [T3.5 results](#t35-results): **`no verdict`** on export (every arm 6/6; luna skill-only 1.07× then 1.19×, rounds not poolable, `aspire-cli` 27 % apart; terra pooled 0.97× [0.83–1.15]); every trial ran `aspire export`; $2.31 |
 | T3.6 | `aspire-terminals` (10 KB, 4 refs) | `WithTerminal`, REPLs, tapes, terminal CLI | No live-outcome scenario fits the harness | **`no verdict`** on outcome; selection only (T3.9) | 0 | Done 2026-11-19, [T3.6 results](#t36-results): `no verdict` on outcome; selection clean on terra (12/12 own, 0/106 other), luna 10/12 own (descriptive) |
 | T3.7 | `aspire-project-v2-migration` (14 KB, 2 refs) | migrate `AddProject` to `DotnetProjectResource` APIs with assessment and approval | **Migration** (an AppHost with three `AddProject` calls; "assess and migrate to the v2 project APIs"; grader: builds, starts, same resources healthy, same endpoints) | Yes, single-turn means the "explicit approval" step is pre-granted in the prompt | 1 × 4 × 2 × 6 = 48 ≈ $1.90 | pending |
 | T3.8 | `aspire` router (21 KB, 2 refs) | detect AppHosts, guardrails ("investigate before editing", "never edit `.aspire/modules`"), route | Its routing cost is T1.3. Its guardrail job: **guardrail scenario** ("the db container looks stuck, restart it" on an app whose database holds unsaved state; grader: state preserved, no `docker rm`, no `aspire stop` of the whole app). Arms: `bundle`, `bundle-minus` (no router), `lean` | Yes for this one guardrail; the others: `no verdict` | 1 × 3 × 2 × 6 = 36 ≈ $1.50 | Done 2026-11-18, [T3.8 results](#t38-results): every arm 6/6 on both models, no destructive command in 48 trials; guardrail job `remove` (ceiling caveat) |
@@ -3593,6 +3593,47 @@ round waits for the coordinating session (the 3× stop).
   (ruling 9): browser telemetry (a harness with a browser driving the frontend), deployed-app routing (a
   deployed target, T3.4's harness or a cloud), the standalone dashboard (`aspire dashboard run` against an app
   outside an AppHost: a fixture without an AppHost), diagnosis (measured in T1.2).
+
+#### T3.5 results
+
+**Verdict: `no verdict`** on the export job (2026-11-19, rounds `t35` and `t35-topup`, rule as computed above, two
+cells, row 4 twice). Every arm passed every trial: 24/24 per arm and model in `t35`, 12/12 `skill-only` and
+`aspire-cli` per model across both rounds. With passes at the ceiling the card rests on time, and time does not
+settle on luna.
+
+| Round, model | `skill-only` ÷ `aspire-cli` (s) | 90 % interval | p | `bundle-minus` ÷ `bundle` | interval |
+|---|---|---|---|---|---|
+| `t35` luna | 114.1 / 106.3 = **1.07×** | 0.91–1.44 | 0.49 | 94.5 / 102.3 = 0.92× | 0.59–1.38 |
+| `t35` terra | 52.4 / 54.9 = 0.95× | 0.70–1.16 | 0.82 | 56.0 / 52.0 = 1.08× | 0.96–1.24 |
+| `t35-topup` luna | 91.4 / 77.1 = 1.19× | 0.67–1.73 | 0.82 | | |
+| `t35-topup` terra | 57.8 / 55.9 = 1.03× | 0.85–1.33 | 0.94 | | |
+| pooled terra (n = 12) | 53.9 / 55.5 = 0.97× | 0.83–1.15 | 0.74 | | |
+
+- **Row 1 (`keep`) fails**: luna `skill-only` is not faster (1.07×, p 0.49) and passes tie 6/6. Selection would
+  have held: luna `aspire-skills` loaded `aspire-monitoring` first in 6/6 trials, terra's T3.9 matrix has it 12/12
+  own and 0/106 other.
+- **Row 3 (`remove`) fails on the interval only**: both medians are inside 0.90–1.10, passes equal, `bundle-minus`
+  within 10 % of the bundle on both models (0.92×, 1.08×), but luna's interval (0.91–1.44) is not inside
+  0.75–1.25. **Row 4: one top-up** (`t35-topup`, `skill-only` and `aspire-cli` × both models × 6, as ruling 6
+  allows once per card). **Pooling fails on luna**: the two rounds' `aspire-cli` medians are 106.3 s and 77.1 s,
+  27 % apart (ruling 6 requires 15 %), so the rounds are reported apart and the card ends `no verdict`. Terra pools
+  (54.9 s against 55.9 s) and reads equivalent: 0.97×, interval 0.83–1.15, 12/12 against 12/12.
+- **Mechanism: the CLI already names the job.** All 72 trials ran `aspire export`, which `aspire --help` lists;
+  terra relied on the bundle (an `aspire otel` export with a raised limit in 1 of 36 trials); luna also wrote `aspire otel logs|traces` JSON with
+  a raised `--limit` in 30 of 36 trials, the skill's arms included. No trial lost the incident to the 200-record
+  default (fixture block above). The skill cost reading: `skill-only` read a median of 2 references on luna and 1 on
+  terra, and used 16 % more input tokens on terra pooled (p 0.006; luna
+  +22 %, p 0.10).
+- **`bundle-minus` route:** without `aspire-monitoring` the router was loaded first (luna 5/6, terra 6/6) and, in 3
+  luna trials, told the agent to load `aspire-monitoring`, whose skill call returned nothing (the skill is absent);
+  those three are counted as attempts, not loads, and all six passed.
+- **Not exercised** (ruling 9): browser telemetry, deployed-app routing, the standalone dashboard, as listed in the
+  fixture block; diagnosis is T1.2's.
+- **What would settle it:** a same-round n = 12 per arm on luna (luna's round-to-round `aspire-cli` drift here,
+  27 %, is larger than any effect the card can detect at n = 6); the card's one top-up is spent, so it stops.
+
+**Cost.** $2.31 against $1.90 (1.2×): `t35` $1.53 (luna $0.012, terra $0.051 per trial), `t35-topup` $0.73, pilot
+$0.05; gates model-free.
 
 #### T3.7 fixture, as computed (written 2026-11-19, before any `t37` or pilot trial)
 

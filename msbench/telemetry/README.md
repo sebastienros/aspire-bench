@@ -49,6 +49,8 @@ The two Aspire product patches are in [upstream/](upstream/).
 | `aspire-cli-wait`, `aspire-lean-start-wait`, `aspire-lean-noorch-agents-v3` | Same, plus the blocking-start patch (`aspire start` waits for resources and prints endpoints; default under `--non-interactive`; PLAN T2.2) | none / `lean-start-wait` = lean + one-command `aspire-start` / `lean-noorch` + `AGENTS.md` v3 | no |
 | `aspire-lean-tracetable` | Same, plus the trace-detail patch (statement/URL under each span of `otel traces -t`; PLAN T2.3) | `lean-tracetable` = lean with `aspire-diagnose` step 2 reading the tree | no |
 | `aspire-cli-redishint`, `aspire-skills-redishint` | Same, plus the Redis connect-hint patch (`describe` table and JSON; PLAN T2.4) | none / `current` | no |
+| `aspire-skill-monitoring`, `aspire-skill-migration`, `aspire-skill-deployment` | Aspirified app (`export`, `migration`, `publishing`; PLAN T3.5, T3.7, T3.4) | `skill-<short>` = that one shipped v0.0.6 skill alone (Phase 3 `skill-only`) | no |
+| `aspire-skills-nomonitoring`, `aspire-skills-nomigration`, `aspire-skills-nodeployment` | Same | `no<short>` = v0.0.6 without that skill (Phase 3 `bundle-minus`) | no |
 
 `raw` versus any Aspire arm is the product comparison. The Aspire arms share one
 application, one AppHost and one toolchain, so differences between them isolate
@@ -141,6 +143,19 @@ exclusive lock on the squares table in an idle transaction, so every square writ
 `UNLOGGED` (an unclean database shutdown empties it) and the game state lives in the cache, which has no volume
 (restarting the cache or the AppHost loses it). Arms: `aspire-skills`, `aspire-skills-norouter`, `aspire-lean`.
 
+**Phase 3 ops scenarios (PLAN T3.4, T3.5, T3.7).** `export` (aspirified app): a 45 s read-only database incident
+under live traffic, recovered before the agent starts; the prompt asks for the traces and logs of the last 10 minutes
+as files in `/app/bug-report/` without changing or restarting the app. `migration` (aspirified app plus a third .NET
+project, `scoreboard`, from [`common/app-variants/migration`](common/app-variants/migration)): the running AppHost
+declares three projects with `AddProject`; the prompt asks to assess and migrate them to the Project v2 APIs, with the
+approval pre-granted; setup warms the NuGet cache with `Aspire.Hosting.Dotnet` at the pin. `publishing` (port of the
+P01 preconfigured pair, [`common/app-variants/publishing-raw`](common/app-variants/publishing-raw) and
+[`publishing-aspire`](common/app-variants/publishing-aspire)): a complete production model (`compose.yaml`, or an
+AppHost with a Docker Compose environment) and production Dockerfiles, no deployment script; environment-owned
+PostgreSQL and Redis on an external network; the prompt asks to publish and run the production build locally on
+18080/18081. Its private Docker daemon gets P01's DNS plan (a relay on its bridge on CES, whose resolver is loopback).
+No `raw` arm for `export` and `migration`.
+
 **Selection benchmark (PLAN T3.9).** `sel-*` tasks are not trials: a static copy of the aspirified workspace,
 nothing running, and a Copilot CLI policy hook ([`common/bench/selection`](common/bench/selection), installed in
 `/etc/github-copilot/policy.d/` because repository hooks are not loaded under the eval driver) that ends the run at
@@ -171,6 +186,18 @@ only. It never reads an agent report.
   must still be stored in the cache, and call/clear/status must work.
 - `cold-start`: both origins respond and a fresh write, call and clear round-trip
   through PostgreSQL.
+- `export`: four checks, all required: the setup AppHost process still runs; something was written under
+  `/app/bug-report`; a trace-data file (zip expanded; OTLP, `aspire otel` JSON or tables) carries one of the
+  incident's error trace IDs recorded at setup; a log-data file carries the incident's error message.
+- `migration`: four checks, all required: no `AddProject` call left and the three projects run as Project v2
+  resources (`resource.launchConfigurationType` `project-with-external-build.v1`); every baseline resource back in its
+  baseline state and health; the same endpoint names and schemes; squares kept, a fresh write/call/clear, and the
+  scoreboard answering through service discovery.
+- `publishing` ([`common/bench/publishing/grade.mjs`](common/bench/publishing/grade.mjs), ported from P01): three
+  checks, all required: no supplied file changed and the environment's dependencies, network, volume and data as at
+  setup; exactly the two Compose services, images built during the trial, Production, loopback-only ports, no bind
+  mounts or development processes; real login, the preserved catalog, version routing, the served Vue bundle equal to
+  a reference build of these sources, SignalR and a fresh Redis board.
 - `stuck-db`: recorded as three checks, all required. App kept running: the same AppHost process and the
   same cache container. Preserved: every square and every called square still present in PostgreSQL and the
   cache. Unstuck: five fresh imports with a median under 2 s and call/clear/status work. `aspire resource postgres

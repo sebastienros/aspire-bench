@@ -261,6 +261,24 @@ they are listed in trials.jsonl and excluded from every other column.
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | aspire-lean | 3 | 3/3 | 3/3 | 64 | 297,826 | 0.008 | 16 | - | - |
 
+## export / gpt-6-luna
+
+| Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| aspire-cli | 12 | 12/12 | 12/12 | 100 | 305,041 | 0.010 | 26 | - | - |
+| aspire-skills | 6 | 6/6 | 6/6 | 102 | 313,888 | 0.012 | 20 | - | - |
+| aspire-skill-monitoring | 12 | 12/12 | 12/12 | 103 | 371,184 | 0.012 | 25 | - | - |
+| aspire-skills-nomonitoring | 6 | 6/6 | 6/6 | 94 | 380,987 | 0.011 | 24 | - | - |
+
+## export / gpt-6.1-terra
+
+| Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| aspire-cli | 12 | 12/12 | 12/12 | 56 | 182,012 | 0.044 | 16 | - | - |
+| aspire-skills | 6 | 6/6 | 6/6 | 52 | 242,002 | 0.054 | 14 | - | - |
+| aspire-skill-monitoring | 12 | 12/12 | 12/12 | 54 | 211,016 | 0.051 | 14 | - | - |
+| aspire-skills-nomonitoring | 6 | 6/6 | 6/6 | 56 | 239,570 | 0.053 | 16 | - | - |
+
 ## heldout-cache / claude-opus-5.5
 
 | Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
@@ -633,6 +651,11 @@ tool calls' arguments; search results are not reads). Later pins only; cells whe
 | cold-start | gpt-6-luna | aspire-lean-agents-v2 | 6 | 5/6 | 2 | `aspire-orchestration/references/app-commands.md` 5, `aspire-orchestration/references/agent-workflows.md` 4, `aspire-orchestration/references/safety-guardrails.md` 3 |
 | cold-start | gpt-6.2-sol | aspire-lean | 12 | 2/12 | 0 | `aspire-orchestration/references/app-commands.md` 2 |
 | cold-start-warm | gpt-6-luna | aspire-lean | 3 | 3/3 | 3 | `aspire-orchestration/references/app-commands.md` 3, `aspire-orchestration/references/detection.md` 3, `aspire-orchestration/references/safety-guardrails.md` 2 |
+| export | gpt-6-luna | aspire-skills | 6 | 6/6 | 2 | `aspire-monitoring/references/diagnostics-bridge.md` 6, `aspire-monitoring/references/monitoring.md` 6 |
+| export | gpt-6-luna | aspire-skill-monitoring | 12 | 12/12 | 2 | `aspire-monitoring/references/monitoring.md` 12, `aspire-monitoring/references/diagnostics-bridge.md` 11 |
+| export | gpt-6-luna | aspire-skills-nomonitoring | 6 | 3/6 | 0.5 | `aspire-orchestration/references/agent-workflows.md` 1, `aspire/aspire-monitoring/references/monitoring.md` 1, `aspire/references/aspire-monitoring/references/monitoring.md` 1 |
+| export | gpt-6.1-terra | aspire-skills | 6 | 6/6 | 1 | `aspire-monitoring/references/monitoring.md` 6 |
+| export | gpt-6.1-terra | aspire-skill-monitoring | 12 | 12/12 | 1 | `aspire-monitoring/references/monitoring.md` 12 |
 | heldout-cache | gpt-6-luna | aspire-lean | 6 | 1/6 | 0 | `aspire-orchestration/references/agent-workflows.md` 1, `aspire-orchestration/references/resource-management.md` 1 |
 | heldout-cache | gpt-6-luna | aspire-lean-agents | 6 | 2/6 | 0 | `aspire-orchestration/references/resource-management.md` 2 |
 | heldout-cache | gpt-6.1-terra | aspire-lean | 6 | 1/6 | 0 | `aspire-orchestration/references/resource-management.md` 1 |

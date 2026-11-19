@@ -1786,6 +1786,27 @@ each hosting integration rather than keyed on image names in the CLI, with a sho
 drift (p ≥ 0.39), so the result is "no loss without the skill's integration lines", not a speed-up. Verdict `ship`.
 Not upstreamed (draft [`aspire-describe-connect.md`](upstream-issues/aspire-describe-connect.md)).
 
+## F51: The CLI alone exports an incident's telemetry as well as the monitoring skill
+
+**Evidence:** Task T3.5 ([PLAN.md, T3.5 results](telemetry/PLAN.md#t35-results)), rounds `t35` and `t35-topup`, 72
+trials, pin 2026-11-17. Scenario `export`: a 45 s read-only database incident under live traffic, over before the
+agent starts; the prompt asks for the last 10 minutes of traces and logs as files for a bug report. Every arm
+(`aspire-cli`, `aspire-monitoring` alone, the v0.0.6 bundle, the bundle without it) passed every trial on luna and
+terra. All 72 trials ran `aspire export`, which `aspire --help` lists; `aspire-monitoring` alone was 1.07× and 1.19×
+the CLI's time on luna in two rounds (not poolable: the CLI arm moved 27 % between them) and 0.97× on terra pooled
+(interval 0.83–1.15), reading 1–2 references and 16 % more input tokens on terra (p 0.006). Measured on the pin:
+`aspire export` has no time-window option, and `aspire otel logs|traces|spans` return the **newest 200 records**
+unless `--limit` is raised (200 against 3,563 logs in the local gate), so an export at the default limit drops an
+incident a few minutes old without saying so.
+
+**Improvement candidate:** None for the skill on this job (the card stops at `no verdict`; equivalence holds on
+terra). For the CLI: say when a result was truncated by the default `--limit` (a trailing line or a JSON field), and
+consider a `--since` window on `aspire export` and `aspire otel`, which is what a "last N minutes" request needs.
+
+**Limits / status:** One scenario, both models at the pass ceiling, so time alone decides and luna's round drift
+exceeds the effect; the truncation note is from the local gate and the CLI's behaviour, not from a failing trial (no
+trial used the default limit for its export). Not upstreamed.
+
 ## Recording future findings
 
 Give each finding a stable ID and include evidence links, exact observed

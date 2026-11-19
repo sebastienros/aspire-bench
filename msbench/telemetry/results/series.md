@@ -33,6 +33,7 @@ infrastructure failures are left out.
 | github-copilot-cli | t28 | 20261119 | 2026-11-17 | t28, t28-skills, t28-skills-topup | 17.1.0-preview.1.26567.3+30326eb8 | v0.0.6 | T2.8 |
 | github-copilot-cli | t23 | 20261119 | 2026-11-17 | t23 | 17.1.0-preview.1.26567.3+30326eb8 | v0.0.6 | T2.3, T2.4 |
 | github-copilot-cli | t26 | 20261119 | 2026-11-17 | t26 | 17.1.0-preview.1.26567.3+30326eb8 | v0.0.6 | T2.6 |
+| github-copilot-cli | t35 | 20261119 | 2026-11-17 | t35, t35-topup | 17.1.0-preview.1.26567.3+30326eb8 | v0.0.6 | T3.5 |
 
 ## cold-start / claude-opus-5.5
 
@@ -152,6 +153,24 @@ infrastructure failures are left out.
 | Arm | Run | n | Pass | Agent s (MAD) | Input tok | Time × raw | trail | Tokens × raw | trail | Skill sel. | MCP calls | Chars read | Flags | Time ratio |
 |---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---|
 | aspire-lean | t01b | 3 | 3/3 | 64 (2) | 297,826 | – | – | – | – | 100% | 0 | 99,034 | no-raw |  |
+
+## export / gpt-6-luna
+
+| Arm | Run | n | Pass | Agent s (MAD) | Input tok | Time × raw | trail | Tokens × raw | trail | Skill sel. | MCP calls | Chars read | Flags | Time ratio |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---|
+| aspire-cli | t35 | 12 | 12/12 | 100 (18) | 305,041 | – | – | – | – | 0% | 0 | 82,324 | no-raw |  |
+| aspire-skills | t35 | 6 | 6/6 | 102 (22) | 313,888 | – | – | – | – | 100% | 0 | 92,554 | no-raw |  |
+| aspire-skill-monitoring | t35 | 12 | 12/12 | 103 (24) | 371,184 | – | – | – | – | 100% | 0 | 87,475 | no-raw |  |
+| aspire-skills-nomonitoring | t35 | 6 | 6/6 | 94 (10) | 380,987 | – | – | – | – | 100% | 0 | 79,084 | no-raw |  |
+
+## export / gpt-6.1-terra
+
+| Arm | Run | n | Pass | Agent s (MAD) | Input tok | Time × raw | trail | Tokens × raw | trail | Skill sel. | MCP calls | Chars read | Flags | Time ratio |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---|
+| aspire-cli | t35 | 12 | 12/12 | 56 (6) | 182,012 | – | – | – | – | 0% | 0 | 71,432 | no-raw |  |
+| aspire-skills | t35 | 6 | 6/6 | 52 (2) | 242,002 | – | – | – | – | 100% | 0 | 69,061 | no-raw |  |
+| aspire-skill-monitoring | t35 | 12 | 12/12 | 54 (4) | 211,016 | – | – | – | – | 100% | 0 | 60,318 | no-raw |  |
+| aspire-skills-nomonitoring | t35 | 6 | 6/6 | 56 (4) | 239,570 | – | – | – | – | 100% | 0 | 45,329 | no-raw |  |
 
 ## heldout-cache / claude-opus-5.5
 

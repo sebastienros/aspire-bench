@@ -160,6 +160,10 @@ Each pin (toolchain) has its own table; trials of different pins are never compa
 | cold-start | gpt-6.2-sol | aspire-lean-start-wait vs aspire-lean-start | 6 vs 12 | -1% (p=0.494) | 0.99x [0.93-1.05] | -26% (p=0.003) | -24% (p=0.001) |
 | cold-start | gpt-6.2-sol | aspire-lean-mcp vs aspire-lean-start | 6 vs 12 | -7% (p=0.023) | 0.93x [0.87-0.98] | -9% (p=0.180) | -18% (p=0.000) |
 | cold-start | gpt-6.2-sol | aspire-lean-mcp vs aspire-lean | 6 vs 12 | -3% (p=0.187) | 0.97x [0.91-1.01] | -9% (p=0.250) | -8% (p=0.151) |
+| export | gpt-6-luna | aspire-skill-monitoring vs aspire-cli | 12 vs 12 | +3% (p=0.514) | 1.03x [0.87-1.42] | +22% (p=0.101) | +26% (p=0.114) |
+| export | gpt-6-luna | aspire-skills-nomonitoring vs aspire-skills | 6 vs 6 | -8% (p=1.000) | 0.92x [0.59-1.38] | +21% (p=0.394) | -6% (p=0.937) |
+| export | gpt-6.1-terra | aspire-skill-monitoring vs aspire-cli | 12 vs 12 | -3% (p=0.744) | 0.97x [0.83-1.15] | +16% (p=0.006) | +16% (p=0.006) |
+| export | gpt-6.1-terra | aspire-skills-nomonitoring vs aspire-skills | 6 vs 6 | +8% (p=0.310) | 1.08x [0.96-1.24] | -1% (p=0.699) | -2% (p=0.485) |
 | heldout-cache | claude-opus-5.5 | aspire-lean vs raw | 3 vs 3 | -5% (p=1.000) | 0.95x [0.68-1.89] | +26% (p=0.200) | +4% (p=1.000) |
 | heldout-cache | gpt-6-luna | aspire-lean vs raw | 6 vs 6 | -19% (p=0.394) | 0.81x [0.61-1.16] | -4% (p=0.589) | -0% (p=0.485) |
 | heldout-cache | gpt-6-luna | aspire-skills-mcp vs raw | 6 vs 6 | -39% (p=0.015) | 0.61x [0.42-0.87] | +47% (p=0.093) | +14% (p=0.485) |
