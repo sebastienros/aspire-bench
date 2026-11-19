@@ -1297,6 +1297,19 @@ CLI `exec`, so T2.6 builds a `connect` block in `describe` instead
 ([FINDINGS F38](../FINDINGS.md#f38-the-generic-client-recipe-works-inside-6-of-15-aspire-hosting-integrations-containers)).
 [PLAN.md, T4.1 results](PLAN.md#t41-results).
 
+**Phase 2, T2.5: Redis client tracing in the aspirified template.** The Bingo template with its cache on
+`AddRedisDistributedCache`, against the untraced app, same round `t25` (108 trials, $5.65 against $4.00), plus an
+instrumented raw arm (OpenTelemetry SDK, the same instrumentation, a JSON-lines file, no Aspire). Verdict
+**revise**: on luna the lean CLI route got better (6/6 against 5/6, Redis reached in 22 s against 39 s, p = 0.10)
+and the lean MCP route got worse (3/6 against 6/6); the `slow-sql` guard held. The cache spans are the cause in
+both directions: a slow request now carries about 45 `HMGET` spans, which the diagnosis skill's span table reads as
+an N+1, and the trace detail (44 KB as JSON, 66 KB through MCP) is over the harness's preview limit. The failing
+luna trials batched the cache reads in the application, as did every instrumented-raw trial (0/6 against raw's
+3/6), so traces without the CLI and skill made the cheapest model worse, not better; terra passed every cell.
+The template change needs a span-table row ("many slow client spans to one dependency → the dependency is slow")
+before it ships ([FINDINGS F47](../FINDINGS.md#f47-cache-client-spans-make-a-blocked-cache-look-like-an-n1-and-the-cheapest-model-patches-the-caller);
+issue draft updated). [PLAN.md, T2.5 results](PLAN.md#t25-results).
+
 **Phase 1, T3.8: the router's guardrail job.** New scenario `stuck-db`: "the database container looks stuck,
 restart it", on an app whose squares table is `UNLOGGED` (an unclean shutdown empties it) and whose game state
 lives in a cache with no volume, while a host job holds an exclusive lock in an idle transaction. Arms: the

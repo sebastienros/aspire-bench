@@ -1633,6 +1633,30 @@ http://127.0.0.1:<published 6333>/collections` returns `"status":"ok"`.
 
 **Limits / status:** One image tag. Not upstreamed.
 
+## F47: Cache client spans make a blocked cache look like an N+1, and the cheapest model patches the caller
+
+**Evidence:** Task T2.5 ([PLAN.md, T2.5 results](telemetry/PLAN.md#t25-results)), round `t25`, 108 trials, pin
+2026-11-17. The aspirified Bingo app with its cache on `Aspire.StackExchange.Redis.DistributedCaching`
+(`AddRedisDistributedCache`), against the same arms on the untraced app, same round, `slow-redis` (a host script
+runs `KEYS` in a loop, every cache call queues behind it). A slow status request now carries about 45 `HMGET` client
+spans of 120–280 ms; its trace detail is 44 KB as CLI JSON and 65.9 KB through MCP `list_traces`, over the 20 KB
+preview limit of F31. On luna: lean on the CLI passed 6/6 (control 5/6) and reached Redis in 22 s (control 39 s,
+p = 0.10); lean with MCP passed 3/6 (control 6/6); the instrumented raw app (OpenTelemetry SDK, same
+instrumentation, file exporter, no Aspire) passed 0/6 (raw 3/6). Every failure batched the cache reads in
+`BingoService.cs` and left the exporter running; all six `raw-otel` trials read `traces.jsonl` and edited the
+source. Terra passed 6/6 in every cell and edited no source.
+
+**Improvement candidate:** Keep the template change, and add one row to `aspire-diagnose`'s span table: "many
+near-identical client spans to one dependency, each slow → the dependency is slow; go to step 3", so the N+1 row is
+not the only reading of many child spans. The trace detail for a ~45-span request should fit under the harness's
+preview limit (the compact trace work in T2.1/T2.3). On the product side, `aspireify` should still propose the
+client integration (the lean CLI route gained), but only with that skill row.
+
+**Limits / status:** One fault, n = 6 per cell, one round; the luna differences in pass count have Fisher p = 0.18.
+The traced template also moves the app's OpenTelemetry core to 1.18.0 and adds a Redis health check (it stayed
+`Healthy` under this fault). Verdict `revise`; not upstreamed (issue draft
+[`skills-aspireify-redis-client-tracing.md`](upstream-issues/skills-aspireify-redis-client-tracing.md) updated).
+
 ## Recording future findings
 
 Give each finding a stable ID and include evidence links, exact observed

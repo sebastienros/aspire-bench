@@ -1858,7 +1858,7 @@ source build against its `-src` control.
 | Companion | **Instrumented raw arm** (REPORT §12.4): the raw app with the OpenTelemetry SDK and a file exporter, no Aspire. Same cells. This is what separates "has traces" from "has `aspire otel` and a skill" |
 | Trials / cost | 2 × 3 × 6 × 2 app variants = 72, plus 24 for the instrumented raw arm ≈ $4.00 |
 | Issue draft | [skills-aspireify-redis-client-tracing.md](../upstream-issues/skills-aspireify-redis-client-tracing.md) |
-| Results | pending |
+| Results | [**revise**](#t25-results): luna lean CLI 6/6 and faster to the cache; luna lean MCP 3/6 and `raw-otel` 0/6 patch the caller (cache spans read as N+1); $5.65 |
 
 #### T2.5 rule, as computed (written 2026-11-19, before any `t25` trial)
 
@@ -1912,6 +1912,53 @@ source build against its `-src` control.
 - A trial at the 900 s limit is a failure, counted separately; a trial lost before the agent ran is
   re-run once. Expected spend ≈ $5.4 (48 luna at ≈ $0.019, 48 terra at ≈ $0.09, 12 guard), against the
   card's $4.00; stop and report above $12.
+
+#### T2.5 results
+
+Round `t25`, 108 trials (no infrastructure failure, no timeout), Copilot CLI 1.0.99, pin 2026-11-17, tasks
+`caed1af` (treatments) and `1479041e` (controls), **$5.65** against the card's $4.00 (luna $0.99, terra $4.52,
+guard $0.14). Gates: local fail → repair → pass on all three new images; `gate-t25` 5/5 reward 1.
+
+| Cell (`slow-redis` unless noted) | Pass | `agent_seconds` | Seconds to Redis reply (fired) | Trials that edited `/app/src` |
+|---|---|---|---|---|
+| luna `aspire-lean-traced` / `aspire-lean` | **6/6** / 5/6 | 84.8 / 128.3 (0.66×, p = 0.31) | **22.1 / 38.7** (0.57×, p = 0.10; 6 / 6) | 1 / 1 |
+| luna `aspire-lean-mcp-all-traced` / `aspire-lean-mcp-all` | **3/6** / 6/6 (Fisher p = 0.18) | 160.4 / 116.2 (1.38×) | **47.7 / 34.9** (1.37×; 3 / 6) | 4 / 0 |
+| luna `aspire-cli-traced` / `aspire-cli` | 2/6 / 1/6 | 134.6 / 123.8 | 27.6 / 48.8 (3 / 2) | 4 / 5 |
+| luna `raw-otel` / `raw` | **0/6** / 3/6 (Fisher p = 0.18) | 127.3 / 217.7 (0.58×) | 50.5 / 27.6 (1 / 5) | 6 / 3 |
+| terra `aspire-lean-traced` / `aspire-lean` | 6/6 / 6/6 | 101.2 / 66.9 (1.51×, p = 0.94) | 15.4 / 15.4 | 0 / 0 |
+| terra `aspire-lean-mcp-all-traced` / `aspire-lean-mcp-all` | 6/6 / 6/6 | 48.0 / 59.0 (0.81×) | 15.8 / 17.6 | 0 / 0 |
+| terra `aspire-cli-traced` / `aspire-cli` | 6/6 / 6/6 | 131.3 / 141.6 | 16.2 / 15.8 | 0 / 0 |
+| terra `raw-otel` / `raw` | 6/6 / 6/6 | 164.6 / 172.1 | 8.4 / 7.7 | 0 / 0 |
+| guard `slow-sql` luna `aspire-lean-traced` / `aspire-lean` | 6/6 / 6/6 | 92.2 / 88.7 (1.04×) | – | 3 / 3 |
+
+**Verdict: `revise`**, by the rule as computed. (a) fails: luna `aspire-lean-mcp-all-traced` passed 3/6 (bar 5/6).
+(b) fails on one of the two lean arms: seconds to Redis reply dropped on `aspire-lean` (22.1 vs 38.7 s) and rose
+on `aspire-lean-mcp-all` (47.7 s over the 3 trials that reached Redis, vs 34.9 s over 6). (c) holds. Not `drop`,
+because (b) holds on `aspire-lean`.
+
+**Mechanism.** The client spans change what the slow request looks like: a status trace now holds about 45
+`HMGET` spans of 120–280 ms, which is the skill's "many near-identical child spans → N+1 or a chatty loop in the
+caller" row. The three luna MCP failures read the trace (65,854 bytes through `list_traces`, 44 KB through the
+CLI's JSON, both over F31's 20 KB preview limit, so the model saw a preview), went to `BingoService.cs`, batched
+the cache reads, rebuilt `boardadmin`, and stopped with status at 0.6 s and the exporter still running. Every
+luna `raw-otel` trial did the same from `traces.jsonl` (6/6 read it, 6/6 edited the source, 0/6 passed). The
+luna `aspire-lean-traced` arm, on the CLI, followed step 3 to the cache in 6/6 and passed 6/6, faster. Terra is
+unaffected (all 6/6, no source edit in any traced arm). Health stayed `Healthy` under the fault in the local
+gate, so the integration's health check added nothing.
+
+**Companion readings** (REPORT §12.4): neither pre-registered reading holds. `raw-otel` closed 68 % of the luna
+`raw` → `aspire-lean-traced` time gap, but only by failing faster (0/6 against the ≥ 5/6 the "traces carry it"
+reading needs), so on the cheapest model traces without the CLI and skill made the outcome worse than no traces
+(0/6 vs 3/6, p = 0.18). On terra traces add nothing either way (164.6 vs 172.1 s).
+
+**What to revise.** The template change helps the lean CLI route and hurts the MCP route and the raw app on luna,
+so it should not ship alone. Two revisions are open: the skill's span table needs a row for "many near-identical
+client spans to one dependency, each slow" → the dependency is slow, go to step 3 (one sentence in
+`aspire-diagnose`), and the trace detail for a request with ~45 spans exceeds the harness's preview limit through
+both the CLI JSON and MCP (T2.1/T2.3 lanes). A re-run of the four luna `slow-redis` lean cells with that row is
+the next measurement (≈ $0.50). Upstream: the issue draft
+[`skills-aspireify-redis-client-tracing.md`](../upstream-issues/skills-aspireify-redis-client-tracing.md) is
+updated with this result and stays unfiled; [FINDINGS F47](../FINDINGS.md#f47-cache-client-spans-make-a-blocked-cache-look-like-an-n1-and-the-cheapest-model-patches-the-caller).
 
 ### T2.6 A "reach this resource" surface
 
