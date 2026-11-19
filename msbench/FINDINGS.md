@@ -230,9 +230,9 @@ make skills/MCP workflows usable from a fresh conversation against an already
 running application. Once supported, evaluate whether retained context avoids
 repeated discovery and health-assessment work.
 
-**Re-check 2026-11-19 (telemetry PLAN T4.4, runner probe):** the same pinned
-package (`github-copilot-cli-pkg-main-20261014-215627`, CLI 1.0.99-0) under
-msbench-cli 0.3.70 still does not carry the conversation. In one luna trial of a
+**Re-check 2026-11-19 (telemetry PLAN T4.4, runner probe):** the package every
+telemetry-suite trial pins (`github-copilot-cli-pkg-main-20261014-215627`, CLI
+1.0.99-0), under msbench-cli 0.3.70, does not carry the conversation either. In one luna trial of a
 two-step task with `--harbor-resume-trajectory`
 ([2026111976653508](https://msbenchapp.azurewebsites.net/run-analysis/2026111976653508)),
 step 1 ran in the runner's `harbor-multistep-resume` mode. That mode creates a
@@ -1999,6 +1999,28 @@ before editing. Otherwise a non-interactive caller cannot use the skill for the 
 not exercised: a two-turn harness would measure it, and the card is `no verdict`. The refusal is the skill working
 as written. Whether that is the intended behaviour for an explicit advance approval is the question for upstream.
 Not filed.
+
+## F58: A JavaScript resource gets OTLP settings from the AppHost but sends nothing without an SDK in the app
+
+**Evidence:** At the pin's daily (30326eb8), `AddViteApp` and the other JavaScript hosting methods call
+`WithOtlpExporter()`, so Bingo's Vite frontend process receives the OTLP variables. Its `package.json` has no
+OpenTelemetry SDK, so it sends nothing. Across all 2,338 telemetry-suite trials in the local run cache (both pins) that ran
+`aspire otel traces`, none listed a frontend trace. The six that print `bingoboard:` at all print its resource
+status. The frontend-to-admin hop, which holds every swallowed proxy
+failure, was invisible to every arm. For T4.2 ([PLAN, T4.2 and T4.3 rule](telemetry/PLAN.md#t42-and-t43-rule-as-computed-written-2026-11-19-before-any-t42-or-t43-trial-or-pilot)),
+an app variant (`common/app-variants/aspire-frontend-traced`) registers
+`@opentelemetry/auto-instrumentations-node` 0.82.0 in the Vite process (`--require …/register`, `http` and `undici`
+only). With Aspire's environment unchanged, the frontend's server span, its client span and the admin's server span
+then appear in one trace in `aspire otel traces`, `aspire otel spans` and MCP `list_traces`.
+
+**Improvement candidate:** Make the gap visible or close it. Options: flag a resource that never sent telemetry
+although OTLP was configured for it (`describe`, dashboard); add the Node SDK step to the aspireify guidance when it
+wires a JavaScript resource; state in the JavaScript hosting docs that the variables are only read by an SDK in the
+app. Draft: [`aspire-js-otlp-without-sdk.md`](upstream-issues/aspire-js-otlp-without-sdk.md).
+
+**Limits / status:** One application (a Vite dev server), Copilot CLI trajectories only (the count covers the trials
+whose runs are in this machine's cache). The variant is the
+suite's change, not shipped Bingo. Independent of T4.2's verdict. Not filed.
 
 ## Recording future findings
 

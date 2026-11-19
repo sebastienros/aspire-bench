@@ -1,0 +1,46 @@
+--- a/src/BingoBoard.Admin/Services/BingoService.cs
++++ b/src/BingoBoard.Admin/Services/BingoService.cs
+@@ -3,6 +3,8 @@
+ using BingoBoard.Data;
+ using Microsoft.EntityFrameworkCore;
+ using Microsoft.Extensions.Caching.Distributed;
++using Npgsql;
++using System.Data;
+ using System.Text.Json;
+ 
+ namespace BingoBoard.Admin.Services;
+@@ -455,7 +457,21 @@
+         {
+             logger.LogError(ex, "Error updating square for admin {AdminId}", adminClientId);
+             return false;
++        }
++    }
++
++    private async Task<bool> IsSquareActiveAsync(string squareId)
++    {
++        var connection = (NpgsqlConnection)dbContext.Database.GetDbConnection();
++        if (connection.State != ConnectionState.Open)
++        {
++            await connection.OpenAsync();
+         }
++
++        await using var command = new NpgsqlCommand(
++            "SELECT \"IsActive\" FROM \"BingoSquares\" WHERE lower(\"Id\") = lower($1)", connection);
++        command.Parameters.AddWithValue(squareId);
++        return await command.ExecuteScalarAsync() is true;
+     }
+ 
+     public async Task<List<string>> GetGloballyCheckedSquaresAsync()
+@@ -467,6 +483,12 @@
+ 
+             foreach (var square in allSquares)
+             {
++                // A square retired while the status was being built must not be reported as called.
++                if (!await IsSquareActiveAsync(square.Id))
++                {
++                    continue;
++                }
++
+                 var globalKey = $"global_square_{square.Id}";
+                 var isCheckedStr = await cache.GetStringAsync(globalKey);
+ 

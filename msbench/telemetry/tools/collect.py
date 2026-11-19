@@ -77,9 +77,124 @@ PHASES = {
     # the database restarted (by any means; the verifier and the write-up judge which).
     "stuck-db": (re.compile(r"board-snapshot|idle in transaction|AccessExclusiveLock", re.I),
                  re.compile(r"pg_terminate_backend|pg_cancel_backend|aspire\s+resource\s+\S+\s+restart|docker\s+(restart|rm|kill|stop)\b|aspire\s+(stop|start)\b", re.I)),
+    # Phase 4 (T4.3, T4.2): the fault's code or config on screen (source, trace, statement); fix: an edit. The
+    # ruling-1 marker is span_pattern below, not these.
+    "grown-catalog": (re.compile(r"IsSquareActiveAsync|IsActive\\*\"? FROM \\*\"?BingoSquares\\*\"? WHERE lower"),
+                      re.compile(r"\"(?:old_str|new_str|file_text)\"|\*\*\* (?:Update|Add) File: /app/src/BingoBoard\.Admin/Services/BingoService\.cs|sed\s+-i[^\n]*BingoService")),
+    "footer-version": (re.compile(r"versionInfoPath|/api/version(?!-info)"),
+                       re.compile(r"\"(?:old_str|new_str|file_text)\"|\*\*\* Update File: /app/src/bingo-board/vite\.config\.js|sed\s+-i[^\n]*vite\.config")),
     "heldout-cache": (re.compile(r"products:\{customer\}"),
                       re.compile(r"GetOrCreate(Async)?\(\s*\\?\"[A-Za-z]")),
 }
+# PLAN T4.2/T4.3 (ruling 1): whether the agent read the span-table row's pattern in trace output before its first
+# edit of the application. Trace output = the result of a shell command running `aspire otel traces|spans`, of an
+# Aspire MCP trace tool, or of any later call that names a file such a result was written to (a `>`/`tee` target
+# of the command, or the file Copilot CLI saved an oversized result to; the spill notice's preview counts as the
+# result itself). The pattern, per scenario, is searched in that result's content:
+#   grown-catalog (row "many near-identical child spans"): at least 10 child spans of the per-square statement
+#     in one result: rows naming a `postgresql` span with the same trace id (the trace tree of `traces -t`, or
+#     `otel spans` rows), or JSON/text occurrences of the statement `IsActive FROM BingoSquares WHERE lower(Id)`
+#     (quotes and escapes removed). Copilot CLI's spill preview holds 500 characters, so a spilled trace counts
+#     when the agent reads the saved file.
+#   footer-version (row "error on a client span but the request returned 200"): the frontend's 200 server span over
+#     its failed client span, in any of the three forms the CLI and MCP print it: JSON with the client span's
+#     `url.full`/`url.path` at `/api/version` (not `/api/version-info`) and its 404 or Error status; the trace tree's
+#     `bingoboard` row `GET OK` with a child row `GET ERR` under it; or `otel spans` rows of one trace id with a
+#     `bingoboard: GET` span OK and one ERR (a 4xx is an error on a client span under the OpenTelemetry HTTP
+#     conventions, while the server span that returned 200 is OK).
+# First edit = the first apply_patch/edit/create/str_replace/write call, or shell command with `sed -i`,
+# `perl -i`, or a `>`/`>>`/`tee` into /app/src, on a path under /app. A raw arm has no trace output: 0 by construction.
+TRACE_CMD = re.compile(r"\baspire\s+otel\s+(?:traces|spans)\b")
+MCP_TRACE_TOOL = re.compile(r"^aspire-.*trace", re.I)
+SPILL_PATH = re.compile(r"Saved to: (/tmp/\S+?\.txt)")
+REDIRECT_PATH = re.compile(r"(?:>>?|\btee\s+(?:-a\s+)?)\s*(/(?!dev/)[^\s;|&)]+)")
+EDIT_TOOLS = {"apply_patch", "edit", "create", "str_replace", "str_replace_editor", "write", "write_file"}
+EDIT_CMD = re.compile(r"\bsed\s+(?:-\w*\s+)*-i|\bperl\s+-\w*i|(?:>>?|\btee\s+(?:-a\s+)?)\s*/app/src/")
+PATTERN_SCENARIOS = {"grown-catalog", "footer-version"}
+
+
+def _pattern_shown(scenario, text):
+    if scenario == "grown-catalog":
+        flat = re.sub(r'[\\"]', "", text)
+        # Tree rows (`traces -t`) and span rows (`otel spans`) carry their trace id in the dashboard link.
+        rows = collections.Counter(m.group(1) for line in flat.splitlines() if re.search(r"\bpostgresql\b", line)
+                                   for m in [re.search(r"traces/detail/([0-9a-f]{32})", line)] if m)
+        return max(max(rows.values(), default=0),
+                   len(re.findall(r"IsActive FROM BingoSquares WHERE lower\(Id\)", flat))) >= 10
+    if scenario == "footer-version":
+        flat = re.sub(r'[\\"]', "", text)
+        # JSON (CLI --format Json, MCP list_traces): the client span to the misconfigured path with its 404/Error.
+        if any(re.search(r"404|status:\s*Error", flat[max(0, m.start() - 600):m.end() + 600])
+               for m in re.finditer(r"url\.(?:full|path):\s*[^,}]*/api/version(?!-info)", flat)):
+            return True
+        # Tree (`traces -t`): a frontend server row `GET OK` with a child row `GET ERR` right under it.
+        if re.search(r"bingoboard\s*\n\s*└─[^\n]*\bGET OK\b[^\n]*\n\s*[└├]─[^\n]*\bGET ERR\b", flat):
+            return True
+        # Span rows (`otel spans`): one trace id with a frontend span OK and a frontend span ERR.
+        status = collections.defaultdict(set)
+        for line in flat.splitlines():
+            m = re.search(r"\b(OK|ERR)\b[^\n]*\bbingoboard: GET\b[^\n]*traces/detail/([0-9a-f]{32})", line)
+            if m:
+                status[m.group(2)].add(m.group(1))
+        return any(v == {"OK", "ERR"} for v in status.values())
+    return False
+
+
+def _pattern_hint(scenario, text):
+    """A weaker sign of the row, reported beside the marker and never used by the verdict: grown-catalog, a status
+    trace with 100 or more spans (trace list or tree header); footer-version, a frontend trace marked ERR or Error."""
+    flat = re.sub(r'[\\"]', "", text)
+    if scenario == "grown-catalog":
+        return bool(re.search(r"/api/demo/producer/status", flat)) and any(
+            int(n) >= 100 for n in re.findall(r"(?:│\s*|Spans:\s*)(\d{3,6})\b", flat))
+    if scenario == "footer-version":
+        return bool(re.search(r"bingoboard: GET[^\n]*\bERR\b|source:\s*bingoboard[^}]*status:\s*Error"
+                              r"|status:\s*Error[^}]*source:\s*bingoboard", flat))
+    return False
+
+
+def span_pattern(events, scenario, started):
+    """seconds_to_pattern_read, seconds_to_first_edit, pattern_read_before_edit (PLAN T4.2/T4.3)."""
+    out = {"seconds_to_pattern_read": None, "seconds_to_first_edit": None, "pattern_read_before_edit": False,
+           "pattern_hint_before_edit": False, "trace_output_results": 0}
+    if scenario not in PATTERN_SCENARIOS or not started:
+        return out
+    starts, trace_files, first_read, first_edit, first_hint = {}, set(), None, None, None
+    for e in events:
+        data = e.get("data", {})
+        when = parse_time(e["timestamp"]) if e.get("timestamp") else None
+        if e.get("type") == "tool.execution_start":
+            name, arguments = data.get("toolName", ""), data.get("arguments", {})
+            text = json.dumps(arguments)
+            command = _command(arguments)
+            trace = bool(MCP_TRACE_TOOL.match(name)) or bool(TRACE_CMD.search(command)) \
+                or any(path in text for path in trace_files)
+            if TRACE_CMD.search(command):
+                trace_files.update(REDIRECT_PATH.findall(command))
+            starts[data.get("toolCallId")] = trace
+            edit = (name in EDIT_TOOLS and "/app/" in text) or (name in ("bash", "write_bash") and bool(EDIT_CMD.search(command)))
+            if edit and first_edit is None and when:
+                first_edit = when
+            continue
+        if e.get("type") != "tool.execution_complete" or not starts.get(data.get("toolCallId")):
+            continue
+        result = data.get("result", "")
+        text = atif_text(result.get("content")) if isinstance(result, dict) else str(result)
+        trace_files.update(SPILL_PATH.findall(text))
+        out["trace_output_results"] += 1
+        if first_read is None and when and _pattern_shown(scenario, text):
+            first_read = when
+        if first_hint is None and when and (_pattern_hint(scenario, text) or _pattern_shown(scenario, text)):
+            first_hint = when
+    if first_read:
+        out["seconds_to_pattern_read"] = round((first_read - started).total_seconds(), 1)
+    if first_edit:
+        out["seconds_to_first_edit"] = round((first_edit - started).total_seconds(), 1)
+    out["pattern_read_before_edit"] = bool(first_read and (first_edit is None or first_read < first_edit))
+    out["pattern_hint_before_edit"] = bool(first_hint and (first_edit is None or first_hint < first_edit))
+    return out
+
+
 ASPIRE_COMMAND = re.compile(
     r"\baspire\s+(otel\s+(?:traces|spans|logs)|describe|logs|resource|export|ps|wait|start|stop|run|docs|doctor|mcp|agent)\b")
 
@@ -362,6 +477,8 @@ def analyze_trial(result_path, entry):
     row.update(trace_detail_reads(events))
     if entry["scenario"] == "slow-redis" and started:
         row.update(redis_reply(events, started))
+    if entry["scenario"] in PATTERN_SCENARIOS:
+        row.update(span_pattern(events, entry["scenario"], started))
     # Bytes returned to the model by tools: the context the agent had to read.
     row["tool_result_chars"] = sum(len(json.dumps(e["data"].get("result", "")))
                                    for e in events if e.get("type") == "tool.execution_complete")

@@ -4341,8 +4341,10 @@ the next (F05). The probe is one excluded luna trial of a two-step Harbor task.
   conversation; without it Harbor resets `OUTPUT_DIR` and the adapter calls `run`, not `resume`, for every step),
   the pinned package `github-copilot-cli-pkg-main-20261014-215627` and CLI 1.0.99, `gpt-6-luna`, round
   `p4-probe-t44`, ledger `results/multistep-ledger.jsonl` with an `excluded` reason (outside every table; collect.py
-  does not read multi-step trials). This is the package that, with the flag, hit `/output/.runner-lock` in run
-  `2026101503460490` (msbench-cli 0.3.67 then, 0.3.70 now, whose adapter has a separate `resume` entry point).
+  does not read multi-step trials). With the flag, run `2026101503460490` (2026-10-15)
+  hit `/output/.runner-lock`; that run's package is not recorded. The submission CLI is 0.3.70 now, and its
+  adapter has a separate `resume` entry point. *(Corrected 2026-11-19 after the probe: the first wording said
+  "the package that hit the lock", an inference from dates.)*
 - **Oracle gate first**, without the flag (oracle does not support resume): round `gate-t44-probe`, reward 1
   required.
 - **Outcome, read in this order from the trial's per-step logs:**
@@ -4480,9 +4482,155 @@ the window is the cell's last five earlier runs, a run is the round name up to t
   the session it created (`session_action=resume`, same `COPILOT_HOME`) with the step's instruction as the next
   user message. Removing the lock by hand from the task is not a fix: the rule block's runnable test also needs the
   conversation to be carried, and only the runner can do that.
-- Same failure as F05's run `2026101503460490` a month earlier, on the same package. The submission CLI (0.3.67 →
-  0.3.70) and the adapter's new `resume` entry point did not change it.
+- The same lock refusal F05 recorded for run `2026101503460490` a month earlier. That run's package is not recorded;
+  this probe's package, the pin's, is the one the four-variant comparison of 2026-10-21 used without resumption.
 - Cost: $0.0014 (one luna call); gate model-free. Card estimate $0.70.
+
+### T4.2 and T4.3 Span-table rows
+
+#### T4.2 and T4.3 rule, as computed (written 2026-11-19, before any T4.2 or T4.3 trial or pilot)
+
+Ruling 1, with the coordinating session's two clarifications (precedence and denominators, 2026-11-19) and the
+T4.2 design ruling (A). Both cards test one row of the span table in `aspire-diagnose` ("What the spans show",
+`common/skills/new/aspire-diagnose/SKILL.md`), confirmed in the skill text before fixture work:
+
+- **T4.2, scenario `footer-version`**: the row *Error on a client span but the request returned 200* ("A swallowed
+  failure or silent fallback").
+- **T4.3, scenario `grown-catalog`**: the row *Many near-identical child spans* ("N+1 or a chatty loop in the
+  caller"). The row *Time not covered by any child span* is not what an N+1 exercises and stays unexercised (a lock
+  or CPU fault would exercise it); the results block says so.
+
+**Cells.** `raw`, `aspire-cli`, `aspire-skills-mcp`, `aspire-lean` × `gpt-6-luna`, `gpt-6.1-terra` × 6 per
+scenario, all in one round per scenario (`t42`, `t43`), submitted interleaved. An infrastructure failure (no grade:
+setup, image build or model-service failure, as collect.py marks it) is re-run once in `<round>-rerun`; n = 6
+graded trials per cell.
+
+**Marker** (`tools/collect.py` `span_pattern`, added before any trial; computed on every arm and on the pilots).
+`pattern_read_before_edit` is true when a tool result from **trace output** shows the row's pattern before the
+trial's **first edit**:
+
+- *Trace output* is the result of a shell command running `aspire otel traces` or `aspire otel spans`, of an Aspire
+  MCP tool whose name contains `trace`, or of any later call that names a file such a result went to: a `>`, `>>` or
+  `tee` target of that command, or the file Copilot CLI saved an oversized result to. The spill notice's
+  500-character preview counts as the result itself. A raw arm has no trace output, so its marker is 0 by
+  construction.
+- *Pattern, `grown-catalog`*: at least 10 child spans of the per-square statement in one result. That means rows
+  naming a `postgresql` span under the same trace id (the tree of `aspire otel traces -t`, or rows of
+  `aspire otel spans`), or occurrences of the statement `IsActive FROM BingoSquares WHERE lower(Id)` in JSON or
+  text (quotes and escapes removed).
+- *Pattern, `footer-version`*: the frontend's client span to the misconfigured admin path `/api/version` (not
+  `/api/version-info`), shown with its 404 or Error status in the same result. Under the OpenTelemetry HTTP
+  conventions a 4xx is an error on a client span, while the frontend's server span returns 200.
+- *First edit*: the first `apply_patch`, `edit`, `create`, `str_replace` or `write` call on a path under `/app`, or
+  a shell command with `sed -i`, `perl -i`, or a `>`, `>>` or `tee` into `/app/src/`. A trial with no edit counts
+  any pattern read. Redirects to `/dev/…` do not make a command trace output.
+- *Descriptive only* (`pattern_hint_before_edit`, never used by the verdict, reported for every arm): a weaker
+  sign read before the first edit. For `grown-catalog`, a status trace with 100 or more spans, from the trace
+  list's Spans column or the tree header, including the spill preview. For `footer-version`, a frontend trace
+  marked ERR or Error, as the trace list shows it. These are registered now so that a `row not confirmed`
+  can be told apart from a reader that missed a shorter path to the same evidence.
+- *Reader check before the round*: run on existing `slow-sql`, `restart-change`, `heldout-cache`, `read-only` and
+  `slow-redis` trajectories, `trace_output_results` equals the number of `aspire otel traces|spans` and MCP trace
+  calls, and `seconds_to_first_edit` equals the first `apply_patch`/`edit` call on an `/app` path.
+
+**Verdict**, on luna, in this order. *L* is `aspire-lean`, *C* is `aspire-cli`; "reads" counts trials with
+`pattern_read_before_edit`.
+
+1. **`row not confirmed`**: L passes ≤ 3/6, or L's reads among its passing trials ≤ 3.
+2. **`row confirmed`**: L passes ≥ 5/6, L's reads among its passing trials ≥ 4, and L's reads over all 6 trials
+   minus C's reads over all 6 ≥ 2.
+3. **`row not attributable`**: L passes ≥ 5/6 and |L's reads over 6 − C's reads over 6| ≤ 1.
+4. **`no verdict`** otherwise.
+
+Both counts, reads among passing trials and reads over all 6, are reported for every arm and both models. Terra is
+reported beside the verdict and does not decide it.
+
+**Product comparison**, reported as Phase 1 did (`tools/stats.py --rounds <round>`): each Aspire arm's time ratio
+to `raw` (median `agent_seconds`) with the exact Mann-Whitney p and the 90 % bootstrap interval, pass counts, and
+`seconds_to_root_cause_seen`, per model. No ship word is attached to the product comparison.
+
+**Pilots and gates.**
+
+- The local gate runs fail→repair→pass on `raw` and `aspire`. It also checks that the raw app's logs carry nothing
+  for the fault (`/app/.script-state/*.log`).
+- Remote oracle gates (`gate-t42`, `gate-t43`), one per arm, need reward 1.
+- Pilots `p4-pilot-<scenario>` run `raw` and `aspire-cli` × luna × 2, excluded. If all four fail (a floor), report
+  and ask before the round. Otherwise the round goes ahead.
+- Restated estimate $2.10 per card; stop and ask before any submission that would take a card past $6.30.
+
+#### T4.3 fixture, as computed (scenario `grown-catalog`, seed 78; written before any trial)
+
+- **Code fault**: `common/faults/grown-catalog.patch`, applied to the business code of both kinds at image build
+  (template `Dockerfile`, final stage: `faults/$FAULT.patch` if present, then the admin is rebuilt). The patch
+  file stays out of the image. `BingoService.GetGloballyCheckedSquaresAsync`, behind
+  `GET /api/demo/producer/status`, re-checks every active square with its own
+  `SELECT "IsActive" FROM "BingoSquares" WHERE lower("Id") = lower($1)`, sent as plain Npgsql commands on the
+  DbContext's connection. EF Core therefore logs no line for them (it logs `Executed DbCommand` at Information for
+  its own commands), while the overlay's `AddNpgsql()` tracing records each one as a span.
+- **Data growth step** (setup): squares are imported 200 at a time until the median of three status requests is at
+  least 1,500 ms, then the setup asserts at least one SQL statement per two active squares per request. Locally
+  (arm64 Mac): raw 2,200 squares, 1,544 ms, 2,758 statements per request; aspire 2,000 squares, 1,535 ms, 2,258
+  statements. Prompt: `slow-sql`'s (same symptom, "some operations take several seconds").
+- **Baseline, not the repair target**: the shipped status code also reads the cache once per square (the loop
+  `slow-redis` exploits). After the SQL repair that loop remains: raw 311 ms, aspire 490 ms median locally.
+- **Verifier** (traffic stopped):
+  - active squares are kept (≥ the grown count);
+  - SQL statements per status request ≤ 20, from `pg_stat_database.xact_commit` deltas over 8 requests (one
+    autocommit transaction per statement, whatever client sent it; read 11 s later, after backends flush their
+    counters);
+  - median status time below 50 % of the incident's own median measured at setup on the same machine;
+  - the common checks (squares preserved, player page, admin login) and call/clear/status work.
+
+  An index alone leaves the per-square statements and fails the count.
+- **Reference repair**: drop the per-square re-check (the catalogue query already returns active squares only)
+  and rebuild the admin (`aspire resource boardadmin rebuild`; raw: rebuild and relaunch the admin as
+  restart-change's repair does).
+- **Local gate (2026-11-19, arm64 Mac, `LOCAL_SUFFIX=p4s`)**:
+  - raw: fail (1,386 ms, 2,328 statements per request) → repair → pass (311 ms, 2.5 statements; limit 772 ms);
+  - aspire: fail (1,778 ms, 2,162 statements) → repair → pass (490 ms, 2.25 statements; limit 768 ms);
+  - raw logs: no statement of the fault in `admin.log` (5,216 lines, 0 matches for `lower(`), nothing in
+    `frontend.log`.
+- **What the agent can see in Aspire.** The status trace lists about 2,000 spans ("Spans 3645" in a 3,600-square
+  build). `aspire otel traces -t` prints a 280–500 KB tree of `postgresql` rows (spilled by Copilot CLI; the
+  preview holds 500 characters), and `--format Json` 1.2–2 MB with the statement per span. The Aspire MCP server's
+  `list_traces` returns **no trace**: "Returned latest 0 traces. Earlier 123 traces not returned because of size
+  limits". So `aspire-skills-mcp` sees the pattern only through the CLI.
+
+#### T4.2 fixture, as computed (scenario `footer-version`, seed 79; written before any trial)
+
+- **Fault** (`common/faults/footer-version.patch`, both kinds, applied at image build):
+  - The frontend's `vite.config.js` no longer proxies `/api/version-info`. A dev-server middleware fetches the
+    admin at `versionInfoPath = '/api/version'`, a misconfigured upstream path. On any failure it answers 200
+    with placeholders (`commitHash: 'dev'`, `dotNetVersion: 'dev'`).
+  - The admin's `appsettings.json` gains `COMMIT_SHA` (the build a pipeline would stamp), so the admin reports
+    `baacba3` and the symptom is true.
+  - The admin answers 404 for `/api/version` (re-executed to `/not-found`) and logs nothing for it at
+    `Microsoft.AspNetCore: Warning`. The frontend logs nothing.
+  - Live traffic calls the frontend's `/api/version-info` every cycle, as page loads would.
+- **Symptom is cosmetic** (design ruling A). Every board read goes through SignalR, and no other HTTP route passes
+  through the proxy without new app code. The prompt describes the footer showing `dev` instead of the deployed
+  build. This limits what the card measures to whether the agent finds a swallowed failure, not whether it treats
+  one as important.
+- **Aspire arms' instrumentation** (app variant `common/app-variants/aspire-frontend-traced`, T2.5's pattern, not in
+  shipped Bingo, F58): `@opentelemetry/api` 1.10.0 and `@opentelemetry/auto-instrumentations-node` 0.82.0 in the
+  frontend's `package.json`/lock. The `dev` script runs Vite under `--require
+  @opentelemetry/auto-instrumentations-node/register` with `OTEL_NODE_ENABLED_INSTRUMENTATIONS=http,undici`; Aspire's
+  OTLP environment is unchanged. The raw arm has no OpenTelemetry, by the card's design.
+- **What the agent can see in Aspire** (local):
+  - `aspire otel traces bingoboard` lists `bingoboard: GET … 3 spans … ERR`.
+  - `aspire otel traces -t <id>` prints `bingoboard` → `GET OK` (server, 200) → `GET ERR` (client, 404 at
+    `/api/version`) → `boardadmin` `GET /not-found OK`. The URL is only in `--format Json` and MCP.
+  - `aspire otel spans bingoboard` prints OK/ERR rows per trace.
+  - MCP `list_traces` returns the traces with `url.full`, the 404 and `status: Error`.
+- **Verifier**:
+  - the common checks;
+  - the frontend's `/api/version-info` answers 200 and deep-equals the admin's own `/api/version-info`;
+  - no frontend file outside `node_modules`, `dist` and `package-lock.json` holds the admin's commit hash (the
+    middleware still fetches the upstream; restoring the proxy entry also passes).
+- **Reference repair**: set `versionInfoPath` to `/api/version-info`; Vite restarts its server on the config change.
+- **Local gate (2026-11-19, arm64 Mac)**: raw and aspire both fail (placeholders served) → repair → pass (the
+  admin's `baacba3` served). Raw logs: 0 matches for `/api/version` in `admin.log`, `frontend.log` and
+  `startup.log`.
 
 ### T4.7 Claude Code adapter (proposed)
 

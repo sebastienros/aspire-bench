@@ -1677,8 +1677,8 @@ two-step task (step 1 gives a code word, step 2 asks for it without any tool cal
 `--harbor-resume-trajectory` after an oracle gate with reward 1, gave the answer. The pinned runner ran step 1 in its
 `harbor-multistep-resume` mode, with a session derived from the trial id. On step 2 it found the `.runner-lock` that
 step 1 had left in the preserved `/output` and exited with code 0 before any model call. The instruction was never
-delivered and the step scored 0, with no exception recorded. This is the lock refusal F05 recorded a month earlier on
-the same package. The runner would need to accept its own lock on a resumed step and resume the session it created.
+delivered and the step scored 0, with no exception recorded. This is the lock refusal F05 recorded a month earlier (that run's
+package is not recorded). The runner would need to accept its own lock on a resumed step and resume the session it created.
 No T4.4 trial was submitted; cost $0.0014 against $0.70. The multi-turn questions stay open (T3.7's approval step, a
 skill's reuse of earlier discovery), and so does the README's default of a fresh conversation per step.
 [PLAN.md, T4.4 results](PLAN.md#t44-results).

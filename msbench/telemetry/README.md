@@ -135,6 +135,16 @@ held-out cell runs the unchanged app.
 |---|---|---|
 | `heldout-cache` (log-visible) | The catalogue shows each product's units sold and shoppers over the last seven days and member prices for loyalty members, and its in-memory cache is keyed per shopper. Live traffic comes from 50,000 shoppers, so almost every page view ranks the week's orders again (`SUM` and `COUNT(DISTINCT Customer)` over the order history). Setup grows the week's orders until a new shopper's catalogue costs at least 700 ms after a checkpoint, then measures again under live traffic and rejects the fixture below 500 ms. Nothing fails. | Aspire: a SQL span with the ranking statement on every `GET /api/products`. Standard app: EF Core's `Executed DbCommand (NNN ms)` line with the statement in `api.log` (setup asserts it is there). Neither shows the cache; the key is in the source. |
 
+**Phase 4 span-table scenarios (PLAN T4.2, T4.3).** Two faults that each exercise one row of `aspire-diagnose`'s span
+table. Both use the arms `raw`, `aspire-cli`, `aspire-skills-mcp` and `aspire-lean`. The fault is a patch to the business
+code or configuration of both kinds (`common/faults/<scenario>.patch`), applied and compiled at image build and kept
+out of the image.
+
+| Scenario | Fault | Where the evidence is |
+|---|---|---|
+| `grown-catalog` (T4.3, row "many near-identical child spans") | The status endpoint re-checks every active square with its own SQL statement (plain Npgsql, so EF Core logs nothing). A data growth step (squares imported 200 at a time) makes a status request take at least 1.5 s. Same prompt as `slow-sql`. | Aspire: about 2,000 identical `postgresql` child spans under one status trace (the MCP server's `list_traces` drops the oversized trace). Standard app: **nothing**; the per-square statements leave no log line. |
+| `footer-version` (T4.2, row "error on a client span but the request returned 200") | The player frontend's dev server serves the footer's build information from the admin at a misconfigured path, gets a 404 and answers 200 with placeholders (`dev`). The admin reports the deployed build (`COMMIT_SHA` in its appsettings). | Aspire arms (app variant `aspire-frontend-traced`: Node OpenTelemetry registered in the Vite process, which shipped Bingo lacks, F58): the frontend's `GET` server span OK over its client span ERR at `/api/version` (404). Standard app: **nothing**; the admin logs no 404 at `Microsoft.AspNetCore: Warning`, and the frontend logs nothing. |
+
 **Multi-step probe (PLAN T4.4).** `t44-probe` (`aspire-cli` only) is a two-step Harbor task on the `slow-sql` image:
 step 1 gives a code word, step 2 asks for it with no tool call, so it passes only if the runner carries the
 conversation (`BENCH_RESUME_TRAJECTORY=1`). Its runs are in `results/multistep-ledger.jsonl`, outside every table.

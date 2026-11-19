@@ -134,6 +134,13 @@ ARG FAULT=none
 ARG ASPIRE_VERSION=17.1.0-preview.1.26567.3
 RUN --mount=type=bind,from=suite,source=authoring,target=/mnt/authoring \
     if [ "$FAULT" = migration ]; then bash /mnt/authoring/vendor.sh "$ASPIRE_VERSION"; fi
+# PLAN T4.3: a code fault (common/faults/<FAULT>.patch) applied to the business code of either kind and
+# compiled in; the patch stays outside the image. Every other fault has no patch and skips this.
+RUN --mount=type=bind,from=suite,source=.,target=/mnt/suite \
+    if [ -f "/mnt/suite/faults/$FAULT.patch" ]; then \
+        cd /app && git apply --verbose "/mnt/suite/faults/$FAULT.patch" \
+        && dotnet build src/BingoBoard.Admin/BingoBoard.Admin.csproj --nologo -v q; \
+    fi
 COPY --from=suite bench/ /opt/benchmark/
 # Host-side operations tooling, visible to the agent like any installed script.
 COPY --from=suite ops/ /usr/local/lib/bingo-ops/

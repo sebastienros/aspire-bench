@@ -657,6 +657,111 @@ async function verifyPortConflict(state, endpoints, details) {
     assert.equal(failures.length, 0, failures.join(" | "));
 }
 
+// grown-catalog (PLAN T4.3): a code fault (common/faults/grown-catalog.patch, compiled into the image) makes the
+// status endpoint run one SQL query per active square, through plain Npgsql commands, so EF Core logs no
+// line for them in either kind. It is harmless on the seeded catalogue; the setup then grows the catalogue
+// (a data growth step: squares imported for a season's events) until a status request takes seconds.
+// Nothing fails and nothing is logged; the Aspire trace shows the near-identical query spans.
+const nPlusOneFile = "src/BingoBoard.Admin/Services/BingoService.cs";
+const nPlusOneCall = "if (!await IsSquareActiveAsync(square.Id))";
+async function statusMs(endpoints, n) {
+    const samples = [];
+    for (let i = 0; i < n; i++) {
+        const status = await http(endpoints.admin, "/api/demo/producer/status");
+        assert.equal(status.status, 200, `Status: HTTP ${status.status}`);
+        samples.push(status.ms);
+    }
+    return samples;
+}
+// Statements the database executed while `n` status requests ran (traffic stopped): one autocommit
+// transaction per statement, so xact_commit counts them whatever client or ORM sent them.
+async function statusQueries(endpoints, n) {
+    const commits = async () => Number(await sql(`SELECT xact_commit FROM pg_stat_database WHERE datname = '${dbName}';`));
+    await sql("SELECT pg_stat_clear_snapshot();");
+    const before = await commits();
+    const ms = await statusMs(endpoints, n);
+    // A backend flushes its counters at most once a second while busy and within 10 s once idle.
+    await sleep(11_000);
+    const after = await commits();
+    // The two counter reads are transactions of their own.
+    return { perRequest: Math.max(0, after - before - 1) / n, ms };
+}
+async function injectNPlusOne(endpoints) {
+    const source = await readFile(`/app/${nPlusOneFile}`, "utf8");
+    assert(source.includes(nPlusOneCall), "The grown-catalog code fault is not in the image");
+    const step = 200;
+    let grown = 0, ms = 0;
+    for (let round = 0; round < 30 && ms < 1_500; round++) {
+        const batch = Array.from({ length: step }, (_, i) => ({
+            ...square(`season-${String(grown + i + 1).padStart(5, "0")}`, `Season square ${grown + i + 1}`), type: "season" }));
+        const added = await importSquares(endpoints.admin, batch);
+        assert.equal(added.status, 200, `Growing the catalogue failed: HTTP ${added.status}`);
+        grown += step;
+        ms = median(await statusMs(endpoints, 3));
+        console.log(`calibration: ${grown} added squares -> ${ms.toFixed(0)} ms per status request`);
+    }
+    assert(ms >= 1_500, `Could not reproduce a slow status request (${ms.toFixed(0)} ms)`);
+    const queries = await statusQueries(endpoints, 3);
+    const active = Number(await sql(`SELECT count(*) FROM "BingoSquares" WHERE "IsActive";`));
+    console.log(`fault: ${queries.perRequest.toFixed(0)} statements per status request, ${active} active squares`);
+    assert(queries.perRequest >= active / 2, `The status request does not query per square (${queries.perRequest})`);
+    return { grown, active, statusMs: ms, queriesPerStatus: queries.perRequest };
+}
+async function verifyNPlusOne(state, endpoints, details) {
+    const active = Number(await sql(`SELECT count(*) FROM "BingoSquares" WHERE "IsActive";`));
+    assert(active >= state.nPlusOne.active, `Active squares must be kept (${active} < ${state.nPlusOne.active})`);
+    const { perRequest, ms } = await statusQueries(endpoints, 8);
+    details.statusMs = ms.map(Math.round);
+    details.queriesPerStatus = perRequest;
+    details.baseline = state.nPlusOne;
+    // The status request also reads the cache once per square (the shipped code, as in slow-redis); that loop
+    // is the baseline, not the repair target, so the time limit is relative to the incident on this machine.
+    const limit = { ms: Math.round(state.nPlusOne.statusMs * 0.5), queries: 20 };
+    details.limit = limit;
+    assert(median(ms) < limit.ms, `Status still takes ${median(ms).toFixed(0)} ms (limit ${limit.ms})`);
+    assert(perRequest <= limit.queries, `Status still runs ${perRequest} statements per request (limit ${limit.queries})`);
+    await verifyFunctional(endpoints, state.live[0]);
+}
+
+// footer-version (PLAN T4.2): the player frontend's dev server serves /api/version-info through its own
+// middleware (common/faults/footer-version.patch), which fetches the admin at a misconfigured path and,
+// on the admin's 404, silently answers 200 with placeholders. The admin logs nothing for a 404 and the
+// frontend logs nothing at all; the page footer shows "dev". Aspire arms run the frontend with Node
+// OpenTelemetry (app variant aspire-frontend-traced), so its trace holds a 200 server span over a client
+// span that ended in 404.
+const footerFile = "src/bingo-board/vite.config.js";
+const footerBroken = "const versionInfoPath = '/api/version'";
+async function versionInfoPair(endpoints) {
+    const admin = await http(endpoints.admin, "/api/version-info");
+    assert.equal(admin.status, 200, `Admin version info: HTTP ${admin.status}`);
+    const frontend = await http(endpoints.frontend, "/api/version-info");
+    return { admin: JSON.parse(admin.body), frontendStatus: frontend.status, frontend: frontend.body };
+}
+async function injectFooterVersion(endpoints) {
+    const source = await readFile(`/app/${footerFile}`, "utf8");
+    assert(source.includes(footerBroken), "The footer-version fault is not in the image");
+    const pair = await versionInfoPair(endpoints);
+    assert.equal(pair.frontendStatus, 200, `Frontend version info: HTTP ${pair.frontendStatus}`);
+    const served = JSON.parse(pair.frontend);
+    assert.notDeepEqual(served, pair.admin, "The frontend already serves the admin's version info");
+    assert.equal(served.commitHash, "dev", "The frontend must serve the placeholders");
+    assert.notEqual(pair.admin.commitHash, "dev", "The admin must report the deployed build (appsettings COMMIT_SHA)");
+    return { admin: pair.admin };
+}
+async function verifyFooterVersion(state, endpoints, details) {
+    const pair = await versionInfoPair(endpoints);
+    details.frontendStatus = pair.frontendStatus;
+    details.frontend = pair.frontend.slice(0, 400);
+    assert.equal(pair.frontendStatus, 200, `Frontend version info: HTTP ${pair.frontendStatus}`);
+    assert.deepEqual(JSON.parse(pair.frontend), pair.admin, "The player frontend does not serve the admin's version info");
+    // Served from the admin, not a copy: no frontend file outside node_modules holds the admin's values.
+    const values = [pair.admin.commitHash].filter(v => v && v !== "dev" && v.length >= 7);
+    const copies = values.length ? await sh("bash", ["-c",
+        `grep -rlF ${values.map(v => `-e '${v}'`).join(" ")} /app/src/bingo-board --exclude-dir=node_modules --exclude-dir=dist --exclude=package-lock.json || true`]) : "";
+    details.copies = copies;
+    assert.equal(copies, "", `The admin's version info is copied into the frontend: ${copies}`);
+}
+
 async function setup() {
     if (fault === "port-conflict") return setupPortConflict();
     const endpoints = await resolveEndpoints();
@@ -675,6 +780,8 @@ async function setup() {
     else if (fault === "migration") state.migration = await injectMigration();
     else if (fault === "restart-change") state.change = await injectRestartAfterChange(endpoints);
     else if (fault === "two-app") state.twoApp = await injectTwoApp(endpoints);
+    else if (fault === "grown-catalog") state.nPlusOne = await injectNPlusOne(endpoints);
+    else if (fault === "footer-version") state.footer = await injectFooterVersion(endpoints);
     else assert(["none", "export"].includes(fault), `Unknown fault ${fault}`);
     await writeFile(statePath, JSON.stringify(state), { mode: 0o600 });
 
@@ -690,7 +797,7 @@ async function setup() {
         state.incident = await injectExportIncident();
         await writeFile(statePath, JSON.stringify(state), { mode: 0o600 });
     }
-    console.log(`setup complete: ${JSON.stringify(state.audit ?? state.cache ?? state.incident ?? state.migration ?? {})}`);
+    console.log(`setup complete: ${JSON.stringify(state.audit ?? state.cache ?? state.incident ?? state.migration ?? state.nPlusOne ?? {})}`);
 }
 
 async function stopTraffic() {
@@ -1054,6 +1161,8 @@ async function verify() {
         if (state.fault === "slow-sql") await verifySlowSql(state, endpoints, details);
         else if (state.fault === "read-only") await verifyReadOnly(state, endpoints, details);
         else if (state.fault === "slow-redis") await verifySlowRedis(state, endpoints, details);
+        else if (state.fault === "grown-catalog") await verifyNPlusOne(state, endpoints, details);
+        else if (state.fault === "footer-version") await verifyFooterVersion(state, endpoints, details);
         else if (state.fault.startsWith("cold-start")) await verifyColdStart(endpoints, details);
         details.passed = true;
     } catch (error) {
@@ -1099,6 +1208,30 @@ async function solve() {
         await migrateAppHost();
     } else if (state.fault === "restart-change") {
         await solveRestartAfterChange();
+    } else if (state.fault === "footer-version") {
+        // The admin's route. Vite restarts its dev server when its config file changes.
+        const path = `/app/${footerFile}`;
+        await writeFile(path, (await readFile(path, "utf8")).replace(footerBroken, "const versionInfoPath = '/api/version-info'"));
+        const endpoints = await resolveEndpoints();
+        for (let i = 0; i < 60; i++) {
+            const pair = await versionInfoPair(endpoints).catch(() => null);
+            if (pair?.frontendStatus === 200 && pair.frontend.includes(`"commitHash":"${pair.admin.commitHash}"`)) return;
+            await sleep(1_000);
+        }
+        throw new Error("The frontend did not pick up the corrected path");
+    } else if (state.fault === "grown-catalog") {
+        // The catalogue query already returns active squares only: drop the per-square re-check, rebuild.
+        const path = `/app/${nPlusOneFile}`;
+        const source = await readFile(path, "utf8");
+        const check = `                // A square retired while the status was being built must not be reported as called.
+                ${nPlusOneCall}
+                {
+                    continue;
+                }
+
+`;
+        if (source.includes(check)) await writeFile(path, source.replace(check, ""));
+        await rebuildAdmin();
     } else if (state.fault === "two-app") {
         // Restart only the target's admin. Aspire: the resource command on the exact AppHost. Raw: end the
         // hung process (the target's supervisor then stops the target), then start the target again.
@@ -1130,6 +1263,11 @@ async function solveRestartAfterChange() {
     if (!source.includes("CalledCount")) {
         await writeFile(path, source.replace(anchor, `${anchor}\n            CalledCount = calledSquares.Count(),`));
     }
+    await rebuildAdmin();
+}
+
+// Only the admin rebuilt and restarted, as restart-change's repair does it (T4.3 reuses it).
+async function rebuildAdmin() {
     if (kind === "aspire") {
         await sh("aspire", ["resource", "boardadmin", "rebuild", "--apphost", "/app/apphost.cs", "--non-interactive", "--nologo"], { timeout: 600_000 });
         await sh("aspire", ["wait", "boardadmin", "--apphost", "/app/apphost.cs", "--non-interactive", "--timeout", "300", "--nologo"], { timeout: 330_000 });

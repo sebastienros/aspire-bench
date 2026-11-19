@@ -323,6 +323,30 @@ for (const { id } of selectionPrompts.filter(({ id }) => /^(router|orch)-/.test(
 scenarios["slow-redis"].arms.push("aspire-skills-mcp-cc", "aspire-lean-cc", "aspire-cli-agents");
 
 // Applications: the image template and the build contexts each one needs.
+// T4.3 (ruling 1): an application-code fault, an N+1 in the status endpoint that a data growth step makes
+// slow (common/faults/grown-catalog.patch, see grown-catalog in common/bench/bench.mjs). Same symptom and prompt
+// as slow-sql and slow-redis; the raw app's log shows nothing for it.
+scenarios["grown-catalog"] = { seed: 78, arms: ["raw", "aspire-cli", "aspire-skills-mcp", "aspire-lean"], instruction: sluggish };
+
+// T4.2 (ruling 1, design ruling A): a swallowed cross-service failure. The player frontend's dev server serves
+// the footer's build information from the admin at a misconfigured path and answers 200 with placeholders
+// (common/faults/footer-version.patch). The Aspire arms run the frontend with Node OpenTelemetry (app variant
+// aspire-frontend-traced; the shipped app has none), so the trace shows the failed client span under a 200.
+scenarios["footer-version"] = {
+    seed: 79, arms: ["raw", "aspire-cli", "aspire-skills-mcp", "aspire-lean"],
+    variant: { aspire: "aspire-frontend-traced" },
+    instruction: `The Bingo application in /app is running and is serving live producer and player traffic.
+
+Players report that the build information at the bottom of the player page shows
+placeholder values ("dev") instead of the build that is deployed, although the admin
+application runs that build. Nothing fails and no error is shown.
+
+Find the root cause and fix it so that the player page shows the deployed build's
+information again. Keep all existing data and all existing functionality, and leave the
+application running. README.md describes this workspace. No report is required.
+`,
+};
+
 // T4.4's runner probe (PLAN "T4.4 runner probe, as computed", ruling 2): two prompts in one Harbor multi-step
 // task on the slow-sql image. Step 2 can be answered only from step 1's message in the same conversation; its
 // verifier compares a hash, so the word appears in no file the agent can reach except Harbor's own logs.

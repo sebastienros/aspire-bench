@@ -1,0 +1,75 @@
+--- a/src/BingoBoard.Admin/appsettings.json
++++ b/src/BingoBoard.Admin/appsettings.json
+@@ -5,5 +5,6 @@
+       "Microsoft.AspNetCore": "Warning"
+     }
+   },
+-  "AllowedHosts": "*"
++  "AllowedHosts": "*",
++  "COMMIT_SHA": "baacba3e17181491c9a4d419db7d0e6763c3d363"
+ }
+--- a/src/bingo-board/vite.config.js
++++ b/src/bingo-board/vite.config.js
+@@ -6,6 +6,41 @@
+ const packageJson = JSON.parse(readFileSync('./package.json', 'utf-8'))
+ const viteVersion = packageJson.devDependencies.vite.replace('^', '')
+ 
++// Build information shown in the player page footer, served by the dev server from the admin's
++// version endpoint. The page keeps rendering if the admin cannot answer, so fall back to placeholders.
++const versionInfoPath = '/api/version'
++const versionInfoFallback = {
++  commitSha: '',
++  commitHash: 'dev',
++  commitUrl: 'https://github.com/maddymontaquila/aspirifridays',
++  dotNetVersion: 'dev',
++  aspireVersion: 'not configured',
++  viteVersion
++}
++
++function versionInfo(adminUrl) {
++  return {
++    name: 'version-info',
++    configureServer(server) {
++      server.middlewares.use('/api/version-info', async (req, res) => {
++        let info = versionInfoFallback
++        try {
++          const response = await fetch(new URL(versionInfoPath, adminUrl), {
++            headers: { Accept: 'application/json' }
++          })
++          if (response.ok) {
++            info = await response.json()
++          }
++        } catch {
++          // Keep the placeholders.
++        }
++        res.setHeader('Content-Type', 'application/json')
++        res.end(JSON.stringify(info))
++      })
++    }
++  }
++}
++
+ export default defineConfig(({ mode, command }) => {
+   const env = loadEnv(mode, process.cwd(), '')
+   const adminUrl = env.BINGO_ADMIN_URL
+@@ -15,7 +50,7 @@
+   }
+ 
+   return {
+-    plugins: [vue()],
++    plugins: [vue(), versionInfo(adminUrl)],
+     define: {
+       // Make version info available at build time
+       'import.meta.env.VITE_COMMIT_SHA': JSON.stringify(env.VITE_COMMIT_SHA || env.COMMIT_SHA || 'dev'),
+@@ -27,11 +62,6 @@
+       port: 5173,
+       strictPort: true,
+       proxy: {
+-        '/api/version-info': {
+-          target: adminUrl,
+-          changeOrigin: true,
+-          secure: false
+-        },
+         // Proxy SignalR hub to the admin service
+         '/bingohub': {
+           target: adminUrl,
