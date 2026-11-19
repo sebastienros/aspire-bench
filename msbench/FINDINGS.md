@@ -1364,6 +1364,32 @@ T4.8 (parity: limit, MCP listing) and T4.9 (which guidance makes luna investigat
 **Limits / status:** One round, n = 6 per cell, one VS Code build; the shell/read counts come from
 `tool_counts`, not from a read of every trajectory. Not reported upstream.
 
+## F33: An instructions file beside the AppHost fixes command selection, but on the cheapest model the time does not follow
+
+**Evidence:** PLAN [T2.10 results](telemetry/PLAN.md#t210-results), round `t210` (Copilot CLI 1.0.99, 102
+trials). A 577–1,129-byte `/app/AGENTS.md` (AppHost path, start/wait, `describe`, console logs,
+`aspire otel traces --search "duration:>500"` for slow, one line per skill) reached every trial's system prompt
+as a 152–289-token `custom_instructions` segment. On `slow-sql` every agent without `aspire-diagnose` then used
+the duration filter (24/24, against 1/27 in the same arms without the file). Time did not follow on
+`gpt-6-luna`: with the lean set 0.93× (p = 0.94; the skill already reached the filter 6/6), with no skills
+0.95×, and with the shipped set 1.70× (p = 0.083), because the file's line for the `aspire` router made all six
+trials load it first and follow its route. On `gpt-6.1-terra` the file alone cut time 26 % (p = 0.065) and
+tokens 28 % (p = 0.002) with no skills. Cold start was 13–14 % faster with either skill set (p ≤ 0.015 on lean),
+against controls from earlier rounds. The `slow-redis` guard passed 2/6 against 14/18: the same failure as
+the control (the agent finds the exporter, then changes the app instead of stopping it), more often (Fisher
+p = 0.13).
+
+**Effect:** The selection failures that motivated the file are real and the file fixes them, but on this
+fixture selecting the right command was not what cost luna time. A pointer to the shipped router is worse than
+no pointer.
+
+**Improvement candidate:** If `aspire new` / `aspire agent init` write an `AGENTS.md`, keep it to the commands
+(it helps terra with no skills) and do not route through `aspire`. Before shipping it, rerun cold start with
+same-round controls, and the guard at n = 12.
+
+**Limits / status:** Copilot CLI only; one round; cold-start controls not same-round. Verdict `drop` by the
+pre-registered rule. Not reported upstream.
+
 ## Recording future findings
 
 Give each finding a stable ID and include evidence links, exact observed

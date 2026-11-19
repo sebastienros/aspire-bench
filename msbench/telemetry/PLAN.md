@@ -1675,7 +1675,7 @@ Added 2026-11-18. Not a source build: the product change is a file that `aspire 
 | Decision rule | `ship` (file an issue for `aspire new` and `aspire agent init` to write it) if `aspire-lean-agents` is ≥ 20% faster than `aspire-lean` on luna in `slow-sql` or `cold-start` (p < 0.10), terra does not regress by more than 10%, total tokens do not rise by more than 10%, and the guard holds (`slow-redis` luna passes ≥ `aspire-lean` minus one). If `aspire-cli-agents` matches `aspire-lean` within 10%, report that the commands, not the skills, carry the gain: the file then replaces the diagnosis skills for Phase 3 to weigh. If `aspire-skills-agents` closes the shipped set's gap to `aspire-lean`, the file is the cheaper fix than the Phase 3 rewrite. `drop` if no luna cell moves |
 | Caveat | The workspace README in every image already says the app is Aspire and gives the start commands (prompts end with "README.md describes this workspace"), so the benchmark measures injected context, not discovery of Aspire. In the field, where a README may say nothing, the effect is larger, not smaller. Copilot CLI first; VS Code reads `AGENTS.md` too and follows in the T1.9 lane; Claude Code waits for T4.7 and would read `CLAUDE.md` |
 | Trials / cost | 3 arms × 2 scenarios × 2 models × 6 = 72 + 6 held-out + 6 guard = 84 ≈ $3.50, plus controls not on the pin |
-| Results | pending |
+| Results | **drop** (2026-11-19, round `t210`, 102 trials, $3.47): no luna cell reached ≤ 0.80 (`slow-sql` 0.93, p = 0.94; `cold-start` 0.86, p = 0.002), and the `slow-redis` guard failed (2/6). The file reaches the prompt (289 tokens) and fixes command selection: every `-agents` trial on `slow-sql` used the `duration:>` filter, against 1 of 27 in the cli and shipped-set controls. Speed did not follow on luna. [Results](#t210-results) |
 
 #### T2.10 rule, as computed (written 2026-11-18, before any `t210` result was read)
 
@@ -1729,6 +1729,75 @@ Added 2026-11-18. Not a source build: the product change is a file that `aspire 
 - A trial at the 900 s limit is graded as a failure and counted separately; a trial lost before the agent ran
   is re-run once. Expected spend about $7 (103 trials), twice the card's $3.50, at the cost per trial
   luna and terra have shown this pin.
+
+#### T2.10 results
+
+**Verdict: `drop`**, by the rule as computed. Condition (a) fails in both luna cells: `aspire-lean-agents` ÷
+`aspire-lean` is 0.93 on `slow-sql` (p = 0.94) and 0.86 on `cold-start` (p = 0.002, significant but short of
+≤ 0.80). The guard (d) fails: `slow-redis` luna passed 2/6 against a threshold of 4 (control 14/18). Token
+condition (c) fails by a hair on luna `slow-sql` (1.101). Terra (b) holds (1.07, 0.87).
+
+Round `t210` (Copilot CLI 1.0.99, suite `a69d80b`, tasks `dbbd74d`, dataset `d58685e`), 102 trials, no
+timeouts, no model-service 5xx, no infrastructure losses. Gates: local `slow-sql/aspire-lean-agents` fail
+(2,430 ms) → repair → pass; `gate-t210` 8/8 reward 1. **Delivery:** in every `-agents` trial Copilot CLI's
+prompt has a `custom_instructions` segment absent from every control: 289 tokens (`lean.md`), 288 (`skills.md`),
+152 (`cli.md`), sent with every model call. Probe `t210-probe` (2026111909228674, excluded) showed the file's
+text in the logged system prompt.
+
+| Scenario | Model | Arm | Pass | Time s | Tokens (M) | vs control: time (p), tokens | `duration:>` used | First skill | Run IDs |
+|---|---|---|---|---:|---:|---|---|---|---|
+| slow-sql | luna | aspire-lean-agents | 6/6 | 117 | 0.44 | lean 0.93 (0.94), 1.10 | 6/6 (control 6/6) | aspire-diagnose 6 | 2026111909884576 – 09887810 |
+| slow-sql | luna | aspire-cli-agents | 6/6 | 151 | 0.69 | cli 0.95 (0.94), 0.79 | **6/6** (control 0/6) | none | 2026111909892014 – 09895144 |
+| slow-sql | luna | aspire-skills-agents | 6/6 | 235 | 1.22 | skills 1.70 (0.083), 1.75 | **6/6** (control 1/9) | `aspire` router 6 (control: none 6/9) | 2026111909899466 – 09902596 |
+| slow-sql | terra | aspire-lean-agents | 6/6 | 59 | 0.22 | lean 1.07 (0.026), 1.06 | 6/6 (6/6) | aspire-diagnose 6 | 2026111909884578 – 09887794 |
+| slow-sql | terra | aspire-cli-agents | 6/6 | 59 | 0.26 | cli 0.74 (0.065), 0.72 | **6/6** (0/6) | none | 2026111909892016 – 09895116 |
+| slow-sql | terra | aspire-skills-agents | 6/6 | 63 | 0.35 | skills 0.92 (0.49), 0.82 | **6/6** (0/6) | aspire-monitoring 6 (6) | 2026111909899448 – 09902586 |
+| cold-start | luna | aspire-lean-agents | 6/6 | 53 | 0.13 | lean 0.86 (0.002), 0.92 | | aspire-orchestration 6 | 2026111909884560 – 09887696 |
+| cold-start | luna | aspire-cli-agents | 6/6 | 53 | 0.07 | cli 1.03 (0.95), 0.80 | | none | 2026111909892008 – 09895142 |
+| cold-start | luna | aspire-skills-agents | 6/6 | 52 | 0.16 | skills 0.87 (0.011), 0.96 | | `aspire` 6 (control 4) | 2026111909899432 – 09902594 |
+| cold-start | terra | aspire-lean-agents | 6/6 | 46 | 0.11 | lean 0.87 (0.015), 1.09 | | aspire-orchestration 6 | 2026111909884574 – 09887766 |
+| cold-start | terra | aspire-cli-agents | 6/6 | 50 | 0.08 | cli 0.91 (0.070), 1.07 | | none | 2026111909892004 – 09895122 |
+| cold-start | terra | aspire-skills-agents | 6/6 | 46 | 0.11 | skills 0.86 (0.17), 0.92 | | aspire-orchestration 6 | 2026111909899440 – 09902604 |
+| heldout-cache | luna | aspire-lean-agents | 6/6 | 192 | 0.83 | lean 0.82 (0.065), 1.10 | 6/6 (6/6) | aspire-diagnose 6 | 2026111909906920 – 09910082 |
+| slow-redis | luna | aspire-lean-agents | **2/6** | 194 | 0.88 | lean 1.43 (0.090), 1.77 (14/18) | 6/6 (18/18) | aspire-diagnose 6 | 2026111909906928 – 09910040 |
+
+Controls (pin 2026-11-17, same skill content; the lean ones are all `lean a14396de6b87`, the revised step 1):
+`slow-sql` lean luna `t17-copilot` (2026111875729204 – 75732400), terra **`t210`** (2026111909906924 – 09910084);
+`slow-sql` cli `t01b`; `slow-sql` skills luna `t01b-plugin` + **`t210`** (9 trials), terra **`t210`**
+(2026111909914356 – 09917480); `cold-start` lean and skills `t16`, cli `t01b` + `t16`; `heldout-cache` lean
+`t02-heldout3`; `slow-redis` lean `t14` + `t14-guard` + `t17-copilot`. Times are `agent_seconds` medians;
+tokens are input + output.
+
+**Secondary readings.** *Commands carry it:* no. `aspire-cli-agents` ÷ `aspire-lean` is 1.20 (luna
+`slow-sql`), 1.07, 0.87 and 0.94, not within 0.90–1.10 in all four cells. But the file alone taught the
+command: every `aspire-cli-agents` slow-sql trial used the duration filter (0/12 in the control), terra got
+faster (0.74, p = 0.065; tokens 0.72, p = 0.002), and luna read less (111 k characters against 154 k) without
+getting faster. *Cheaper than the rewrite:* no. The one cell where the shipped set is more than 10 % behind
+lean, terra `slow-sql` (1.24), narrows to 1.14. On luna the file made the shipped set slower (1.70×, p = 0.083;
+tokens 1.75×): its skill line names `aspire` as the entry point, and all six trials loaded the router first
+(control: no skill in 6 of 9), then took its multi-hop route. *Generalization:* `heldout-cache` luna 0.82
+(p = 0.065), 6/6, with the same bytes on a different stack.
+
+**Mechanisms.**
+- **The file fixes selection, the selection was not what was slow.** On `slow-sql` it put the `duration:>`
+  filter in front of every agent that lacked it: 24/24 cli and shipped-set `-agents` trials against 1/27 in
+  their controls. The lean set already reached it 6/6 through `aspire-diagnose`, so on lean the file is
+  redundant and adds 289 tokens per call. That redundancy is the primary comparison's null.
+- **Cold start is 13–14 % faster with any skill set** (lean 0.86 and 0.87, shipped 0.87 and 0.86; cli
+  1.03 and 0.91), but the mechanism is not identified: every trial in both arms still read `README.md`, and
+  tool calls barely moved (median per trial, with the file against without: luna lean 10 against 11.5, shipped 9 against 9; terra
+  lean 8 against 7.5, shipped 8 against 9).
+  The controls are from `t16` and `t01b`, not this round, so round drift is not excluded; a same-round control
+  would settle it. Tool calls before the first result showing the front end serving (regex over results,
+  approximate): lean-agents 7.5 against 10 on luna, 7 against 6 on terra.
+- **Guard:** all six `slow-redis` trials named the `report-exporter`'s `KEYS` scans (control 17/18). The four
+  failures made the status handler's 43 Redis reads concurrent and left the exporter running; the two passes
+  stopped it. The control fails the same way (4 of 18 edited the app instead), so the file did not introduce
+  the failure mode. 4/6 against 4/18 is two-sided Fisher p = 0.13, so the rule's guard fails on a split that
+  could be chance.
+
+**Cost** $3.47 (102 trials $3.46, gates and probe $0.01), the card's $3.50 and half the $7 expected: the
+`-agents` cells cost the same per trial as their controls, and only 18 controls had to be re-run.
 
 ---
 

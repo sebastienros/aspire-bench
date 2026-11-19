@@ -23,7 +23,10 @@ PAIRS = [("raw", "raw-check"), ("aspire-lean", "raw"), ("aspire-skills-mcp", "ra
 LATER_PIN_PAIRS = [("aspire-cli", "raw"), ("aspire-skills-plugin", "aspire-skills"),
                    # Phase 1 skills lane: one change each against the shipped set (T1.2, T1.3, T3.8).
                    ("aspire-skills-mon", "aspire-skills"), ("aspire-skills-norouter", "aspire-skills"),
-                   ("aspire-lean", "aspire-skills")]
+                   ("aspire-lean", "aspire-skills"),
+                   # T2.10: the instructions file against each control arm.
+                   ("aspire-lean-agents", "aspire-lean"), ("aspire-cli-agents", "aspire-cli"),
+                   ("aspire-skills-agents", "aspire-skills")]
 FIRST_PIN = "2026-11-09"
 DEFAULT_AGENT = "github-copilot-cli"
 METRICS = [("agent_seconds", "s"), ("input_tokens", "tok"), ("cost_usd", "$")]

@@ -198,10 +198,13 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 | Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
 | aspire-cli | 12/12 | 52 | - | - | 88,566 | 850 | 0.003 | 8 | - | 0 | 21,950 |
+| aspire-cli-agents | 6/6 | 53 | - | - | 71,086 | 694 | 0.003 | 6 | - | 0 | 32,032 |
 | aspire-lean (tasks 1479041e) | 6/6 | 61 | - | - | 146,040 | 1,311 | 0.005 | 12 | aspire-orchestrationx6 | 0 | 71,983 |
 | aspire-lean (tasks 916a57ce) | 6/6 | 63 | - | - | 153,198 | 1,216 | 0.005 | 12 | aspire-orchestrationx6 | 0 | 73,522 |
+| aspire-lean-agents | 6/6 | 53 | - | - | 133,974 | 972 | 0.005 | 10 | aspire-orchestrationx6 | 0 | 54,257 |
 | aspire-lean-start | 6/6 | 53 | - | - | 115,482 | 717 | 0.003 | 10 | aspire-startx6 | 0 | 29,725 |
 | aspire-skills | 6/6 | 60 | - | - | 166,060 | 1,080 | 0.005 | 9 | aspirex4, aspire-orchestrationx6 | 0 | 24,592 |
+| aspire-skills-agents | 6/6 | 52 | - | - | 158,850 | 743 | 0.005 | 9 | aspirex6, aspire-orchestrationx6 | 0 | 32,379 |
 | aspire-skills-mcp | 6/6 | 57 | - | - | 151,693 | 1,008 | 0.005 | 8 | aspirex5, aspire-orchestrationx6 | 1 | 22,150 |
 | raw | 12/12 | 44 | - | - | 64,248 | 826 | 0.003 | 7 | - | 0 | 22,428 |
 
@@ -210,10 +213,13 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 | Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
 | aspire-cli | 12/12 | 55 | - | - | 71,970 | 455 | 0.021 | 8 | - | 0 | 21,753 |
+| aspire-cli-agents | 6/6 | 50 | - | - | 77,354 | 422 | 0.023 | 8 | - | 0 | 32,375 |
 | aspire-lean (tasks 1479041e) | 6/6 | 53 | - | - | 104,002 | 376 | 0.031 | 8 | aspire-orchestrationx6 | 0 | 21,794 |
 | aspire-lean (tasks 916a57ce) | 6/6 | 58 | - | - | 124,017 | 453 | 0.033 | 9 | aspire-orchestrationx6 | 0 | 22,043 |
+| aspire-lean-agents | 6/6 | 46 | - | - | 113,873 | 332 | 0.033 | 8 | aspire-orchestrationx6 | 0 | 32,388 |
 | aspire-lean-start | 6/6 | 56 | - | - | 108,804 | 464 | 0.027 | 9 | aspire-startx6 | 0 | 30,979 |
 | aspire-skills | 6/6 | 54 | - | - | 124,444 | 460 | 0.033 | 9 | aspire-orchestrationx6 | 0 | 24,109 |
+| aspire-skills-agents | 6/6 | 46 | - | - | 114,166 | 332 | 0.033 | 8 | aspire-orchestrationx6 | 0 | 32,285 |
 | aspire-skills-mcp | 6/6 | 52 | - | - | 123,183 | 406 | 0.034 | 8 | aspire-orchestrationx6 | 0 | 21,792 |
 | raw | 12/12 | 41 | - | - | 50,470 | 339 | 0.021 | 4 | - | 0 | 18,732 |
 
@@ -246,6 +252,7 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
 | aspire-cli | 6/6 | 214 | 8 | 93 | 564,093 | 15,253 | 0.018 | 41 | - | 0 | 144,355 |
 | aspire-lean | 6/6 | 235 | 21 | 176 | 735,674 | 16,328 | 0.022 | 35 | aspire-diagnosex6, aspire-orchestrationx3 | 0 | 131,478 |
+| aspire-lean-agents | 6/6 | 192 | 14 | 111 | 819,930 | 12,762 | 0.021 | 37 | aspire-diagnosex6, aspire-orchestrationx6 | 0 | 139,116 |
 | aspire-skills-mcp | 6/6 | 176 | 14 | 74 | 1,125,182 | 11,666 | 0.026 | 40 | aspirex6, aspire-monitoringx6, aspire-orchestrationx4 | 12 | 437,240 |
 | raw | 5/6 | 288 | 8 | 82 | 764,658 | 19,122 | 0.022 | 44 | - | 0 | 114,703 |
 
@@ -362,6 +369,7 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 | aspire-cli | 0/6 | 141 | 7 | - | 524,780 | 9,000 | 0.015 | 38 | - | 0 | 263,177 |
 | aspire-lean (tasks 1479041e) | 14/18 | 136 | 40 | 72 | 490,140 | 6,954 | 0.014 | 35 | aspire-diagnosex18, aspire-orchestrationx2 | 0 | 180,972 |
 | aspire-lean (tasks 916a57ce) | 4/6 | 150 | 37 | 66 | 555,040 | 8,366 | 0.015 | 40 | aspire-diagnosex6 | 0 | 193,064 |
+| aspire-lean-agents | 2/6 | 194 | 30 | 64 | 865,599 | 14,711 | 0.022 | 48 | aspire-diagnosex6, aspire-orchestrationx2 | 0 | 210,112 |
 | aspire-lean-mcp-all | 6/6 | 179 | 56 | 104 | 714,554 | 10,448 | 0.019 | 46 | aspire-diagnosex6 | 5 | 230,710 |
 | aspire-lean-mcp-compact | 5/6 | 173 | 55 | 90 | 754,900 | 8,220 | 0.019 | 43 | aspire-diagnosex6 | 12 | 308,030 |
 | aspire-lean-mcp-src | 4/6 | 191 | 60 | 88 | 667,951 | 8,432 | 0.018 | 40 | aspire-diagnosex6 | 4 | 247,579 |
@@ -398,13 +406,16 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 | Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
 | aspire-cli | 6/6 | 159 | 70 | 117 | 871,645 | 10,686 | 0.021 | 52 | - | 0 | 324,530 |
+| aspire-cli-agents | 6/6 | 151 | 50 | 73 | 680,115 | 11,274 | 0.018 | 46 | - | 0 | 230,654 |
 | aspire-lean (tasks 1479041e) | 6/6 | 125 | 24 | 61 | 395,327 | 8,832 | 0.013 | 33 | aspire-diagnosex6 | 0 | 142,695 |
 | aspire-lean (tasks 916a57ce) | 6/6 | 112 | 26 | 59 | 383,232 | 7,168 | 0.012 | 30 | aspire-diagnosex6 | 0 | 164,680 |
+| aspire-lean-agents | 6/6 | 117 | 18 | 64 | 433,843 | 7,924 | 0.013 | 34 | aspire-diagnosex6 | 0 | 146,593 |
 | aspire-lean-mcp-compact | 6/6 | 122 | 26 | 56 | 474,092 | 8,324 | 0.015 | 34 | aspire-diagnosex6 | 8 | 257,455 |
 | aspire-lean-mcp-src | 6/6 | 94 | 34 | 52 | 382,320 | 5,091 | 0.012 | 30 | aspire-diagnosex6 | 4 | 245,135 |
 | aspire-mcp-compact | 6/6 | 151 | 42 | 97 | 607,760 | 11,064 | 0.019 | 41 | - | 10 | 315,722 |
 | aspire-mcp-src | 6/6 | 171 | 49 | 90 | 769,480 | 11,788 | 0.020 | 49 | - | 8 | 475,556 |
-| aspire-skills | 3/3 | 102 | 49 | 68 | 449,201 | 6,673 | 0.013 | 42 | aspire-monitoringx1 | 0 | 213,774 |
+| aspire-skills | 8/9 | 138 | 51 | 78 | 687,657 | 9,528 | 0.018 | 45 | aspire-monitoringx2, aspire-orchestrationx1 | 0 | 222,474 |
+| aspire-skills-agents | 6/6 | 235 | 77 | 135 | 1,202,770 | 17,634 | 0.031 | 53 | aspirex6, aspire-monitoringx6 | 0 | 194,531 |
 | aspire-skills-mcp | 11/12 | 198 | 77 | 112 | 1,252,184 | 14,204 | 0.029 | 54 | aspirex8, aspire-monitoringx11, aspire-orchestrationx1 | 10 | 524,502 |
 | aspire-skills-plugin | 3/3 | 146 | 49 | 77 | 688,677 | 10,198 | 0.019 | 48 | - | 0 | 260,578 |
 | raw | 17/18 | 107 | 26 | 47 | 407,581 | 6,718 | 0.014 | 30 | - | 0 | 181,778 |
@@ -421,11 +432,16 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 | Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
 | aspire-cli | 6/6 | 80 | 28 | 46 | 359,980 | 2,812 | 0.075 | 30 | - | 0 | 170,627 |
-| aspire-lean | 6/6 | 68 | 25 | 37 | 217,600 | 1,998 | 0.057 | 20 | aspire-diagnosex6 | 0 | 130,897 |
+| aspire-cli-agents | 6/6 | 59 | 25 | 36 | 259,972 | 2,436 | 0.068 | 28 | - | 0 | 209,866 |
+| aspire-lean (tasks 1479041e) | 6/6 | 55 | 17 | 31 | 207,038 | 1,968 | 0.051 | 18 | aspire-diagnosex6 | 0 | 112,681 |
+| aspire-lean (tasks 916a57ce) | 6/6 | 68 | 25 | 37 | 217,600 | 1,998 | 0.057 | 20 | aspire-diagnosex6 | 0 | 130,897 |
+| aspire-lean-agents | 6/6 | 59 | 20 | 33 | 219,862 | 2,202 | 0.057 | 22 | aspire-diagnosex6 | 0 | 136,758 |
 | aspire-lean-mcp-compact | 6/6 | 67 | 27 | 40 | 259,740 | 1,958 | 0.065 | 22 | aspire-diagnosex6 | 6 | 196,094 |
 | aspire-lean-mcp-src | 6/6 | 69 | 26 | 33 | 240,363 | 2,078 | 0.062 | 20 | aspire-diagnosex6 | 3 | 198,504 |
 | aspire-mcp-compact | 6/6 | 67 | 22 | 42 | 287,848 | 2,108 | 0.079 | 26 | - | 6 | 252,295 |
 | aspire-mcp-src | 6/6 | 94 | 40 | 58 | 414,001 | 3,178 | 0.087 | 36 | - | 8 | 341,868 |
+| aspire-skills | 6/6 | 69 | 28 | 38 | 416,986 | 2,662 | 0.089 | 32 | aspire-monitoringx6 | 0 | 162,521 |
+| aspire-skills-agents | 6/6 | 63 | 26 | 40 | 343,328 | 2,621 | 0.079 | 32 | aspire-monitoringx6 | 0 | 204,161 |
 | aspire-skills-mcp | 6/6 | 87 | 31 | 46 | 473,744 | 2,679 | 0.095 | 32 | aspire-monitoringx6 | 7 | 376,008 |
 | raw | 12/12 | 65 | 15 | 31 | 195,573 | 2,008 | 0.059 | 20 | - | 0 | 130,246 |
 

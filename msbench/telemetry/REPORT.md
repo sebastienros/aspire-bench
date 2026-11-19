@@ -1247,3 +1247,14 @@ its `aspire-skills-mcp` trials mostly ran without MCP. (3) VS Code's own 720 s l
 four `aspire-skills-mcp` trials reached it. Proposed cards T4.8 (parity) and T4.9 (what makes luna investigate
 under VS Code), [FINDINGS F32](../FINDINGS.md#f32-under-vs-code-the-cheapest-model-edits-code-instead-of-investigating-unless-a-skill-gives-it-commands).
 [PLAN.md, T1.9 results](PLAN.md#t19-results).
+
+**Phase 2, T2.10: agent instructions file beside the AppHost.** `/app/AGENTS.md` in the `-agents` arms (round
+`t210`, Copilot CLI, 102 trials, $3.47; the file reached every prompt as a 152–289-token segment). Verdict
+**drop** by the rule written before the run. On luna the lean set gained nothing measurable on `slow-sql`
+(0.93×, p = 0.94) and 14 % on cold start (0.86×, p = 0.002, short of the 20 % bar), and the `slow-redis` guard
+fell to 2/6 (control 14/18, same failure mode, Fisher p = 0.13). The file did fix selection: every agent without
+`aspire-diagnose` used the duration filter (24/24 against 1/27). Terra with no skills got 26 % faster (p =
+0.065), while luna with the shipped set got 70 % slower, because the file pointed it at the router. The commands
+help; routing through the router does not
+([FINDINGS F33](../FINDINGS.md#f33-an-instructions-file-beside-the-apphost-fixes-command-selection-but-on-the-cheapest-model-the-time-does-not-follow)).
+[PLAN.md, T2.10 results](PLAN.md#t210-results).

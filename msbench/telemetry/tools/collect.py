@@ -688,7 +688,8 @@ ARM_ORDER = ["raw", "aspire-cli", "aspire-skills", "aspire-mcp", "aspire-skills-
              "aspire-lean", "aspire-lean-mcp", "aspire-mcp-src", "aspire-mcp-compact", "aspire-lean-mcp-src",
              "aspire-lean-mcp-compact", "aspire-lean-src", "aspire-lean-plain", "aspire-lean-mcp-all",
              # Listed so their order is fixed (it used to follow set iteration order).
-             "raw-check", "aspire-lean-start", "aspire-skills-plugin", "aspire-skills-mon", "aspire-skills-norouter"]
+             "raw-check", "aspire-lean-start", "aspire-skills-plugin", "aspire-skills-mon", "aspire-skills-norouter",
+             "aspire-lean-agents", "aspire-cli-agents", "aspire-skills-agents"]
 
 
 def arm_order(cell_arm):
