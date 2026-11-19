@@ -406,6 +406,26 @@ they are listed in trials.jsonl and excluded from every other column.
 | aspire-lean (tasks 1479041e) | 6 | 6/6 | 6/6 | 113 (-14%) | 301,804 (-10%) | 0.070 (-3%) | 26 | 54 | - |
 | aspire-lean (tasks 916a57ce) | 6 | 6/6 | 6/6 | 90 (-31%) | 310,502 (-8%) | 0.075 (+4%) | 28 | 44 | - |
 
+## publishing / gpt-6-luna
+
+| Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| raw | 6 | 5/6 | 5/6 | 219 (+0%) | 790,710 (+0%) | 0.021 (+0%) | 51 | - | - |
+| aspire-cli | 6 | 6/6 | 6/6 | 259 (+18%) | 975,805 (+23%) | 0.025 (+20%) | 62 | - | - |
+| aspire-skills | 6 | 6/6 | 6/6 | 280 (+28%) | 912,004 (+15%) | 0.027 (+27%) | 54 | - | - |
+| aspire-skill-deployment | 6 | 6/6 | 6/6 | 269 (+22%) | 749,358 (-5%) | 0.024 (+16%) | 50 | - | - |
+| aspire-skills-nodeployment | 6 | 6/6 | 6/6 | 383 (+74%) | 1,191,942 (+51%) | 0.037 (+75%) | 67 | - | - |
+
+## publishing / gpt-6.1-terra
+
+| Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| raw | 6 | 6/6 | 6/6 | 116 (+0%) | 299,453 (+0%) | 0.074 (+0%) | 30 | - | - |
+| aspire-cli | 6 | 6/6 | 6/6 | 159 (+37%) | 397,512 (+33%) | 0.089 (+19%) | 45 | - | - |
+| aspire-skills | 6 | 6/6 | 6/6 | 163 (+40%) | 535,120 (+79%) | 0.107 (+43%) | 42 | - | - |
+| aspire-skill-deployment | 6 | 6/6 | 6/6 | 143 (+23%) | 441,233 (+47%) | 0.093 (+25%) | 42 | - | - |
+| aspire-skills-nodeployment | 6 | 6/6 | 6/6 | 170 (+46%) | 552,215 (+84%) | 0.109 (+46%) | 44 | - | - |
+
 ## read-only / claude-opus-5.5
 
 | Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
@@ -739,6 +759,11 @@ tool calls' arguments; search results are not reads). Later pins only; cells whe
 | heldout-slow-sql | gpt-6.1-terra | aspire-skills-mcp | 12 | 1/12 | 0 | `aspire-monitoring/references/monitoring.md` 1 |
 | heldout-slow-sql | gpt-6.1-terra | aspire-lean (tasks 916a57ce) | 6 | 1/6 | 0 | `aspire-orchestration/references/resource-management.md` 1 |
 | heldout-stuck-orders | gpt-6-luna | aspire-skills-mcp | 12 | 1/12 | 0 | `aspire-monitoring/references/monitoring.md` 1 |
+| publishing | gpt-6-luna | aspire-skills | 6 | 6/6 | 1 | `aspire-deployment/references/docker-compose.md` 6, `aspire-deployment/references/javascript.md` 1, `aspire-deployment/references/preflight.md` 1 |
+| publishing | gpt-6-luna | aspire-skill-deployment | 6 | 6/6 | 1 | `aspire-deployment/references/docker-compose.md` 6, `aspire-deployment/references/preflight.md` 2 |
+| publishing | gpt-6-luna | aspire-skills-nodeployment | 6 | 5/6 | 1 | `aspireify/references/docker-compose.md` 5 |
+| publishing | gpt-6.1-terra | aspire-skills | 6 | 6/6 | 1 | `aspire-deployment/references/docker-compose.md` 6 |
+| publishing | gpt-6.1-terra | aspire-skill-deployment | 6 | 6/6 | 1 | `aspire-deployment/references/docker-compose.md` 6 |
 | read-only | gpt-6-luna | aspire-skills | 12 | 1/12 | 0 | `aspire-monitoring/references/monitoring.md` 1, `aspire-orchestration/references/resource-management.md` 1 |
 | read-only | gpt-6-luna | aspire-skills-mon | 6 | 1/6 | 0 | `aspire-orchestration/references/app-commands.md` 1, `aspire-orchestration/references/resource-management.md` 1 |
 | read-only | gpt-6-luna | aspire-skills-norouter | 6 | 1/6 | 0 | `aspire-orchestration/references/resource-management.md` 1, `aspire-orchestration/references/safety-guardrails.md` 1 |

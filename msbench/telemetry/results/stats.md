@@ -211,6 +211,12 @@ Each pin (toolchain) has its own table; trials of different pins are never compa
 | heldout-stuck-orders | gpt-6.1-terra | aspire-lean (tasks 1479041e) vs aspire-skills-mcp | 6 vs 12 | -5% (p=0.397) | 0.95x [0.70-1.17] | -32% (p=0.007) | -27% (p=0.000) |
 | heldout-stuck-orders | gpt-6.1-terra | aspire-lean (tasks 916a57ce) vs aspire-skills-mcp | 6 vs 12 | -24% (p=0.010) | 0.76x [0.58-0.91] | -30% (p=0.018) | -23% (p=0.013) |
 | heldout-stuck-orders | gpt-6.1-terra | aspire-cli vs raw | 12 vs 12 | -28% (p=0.052) | 0.72x [0.60-0.94] | -34% (p=0.266) | -13% (p=0.319) |
+| publishing | gpt-6-luna | aspire-cli vs raw | 6 vs 6 | +18% (p=0.180) | 1.18x [0.90-1.69] | +23% (p=0.485) | +20% (p=0.394) |
+| publishing | gpt-6-luna | aspire-skill-deployment vs aspire-cli | 6 vs 6 | +4% (p=0.937) | 1.04x [0.78-1.16] | -23% (p=0.180) | -3% (p=0.310) |
+| publishing | gpt-6-luna | aspire-skills-nodeployment vs aspire-skills | 6 vs 6 | +37% (p=0.240) | 1.37x [0.91-1.71] | +31% (p=0.394) | +38% (p=0.240) |
+| publishing | gpt-6.1-terra | aspire-cli vs raw | 6 vs 6 | +37% (p=0.004) | 1.37x [1.18-1.60] | +33% (p=0.132) | +19% (p=0.093) |
+| publishing | gpt-6.1-terra | aspire-skill-deployment vs aspire-cli | 6 vs 6 | -10% (p=0.310) | 0.90x [0.80-1.04] | +11% (p=0.394) | +5% (p=0.065) |
+| publishing | gpt-6.1-terra | aspire-skills-nodeployment vs aspire-skills | 6 vs 6 | +4% (p=0.937) | 1.04x [0.83-1.21] | +3% (p=0.699) | +2% (p=0.485) |
 | read-only | claude-opus-5.5 | aspire-lean vs raw | 6 vs 6 | +35% (p=0.065) | 1.35x [1.00-2.30] | +4% (p=0.699) | +6% (p=0.589) |
 | read-only | claude-opus-5.5 | aspire-skills-mcp vs raw | 6 vs 6 | +91% (p=0.002) | 1.91x [1.29-2.81] | +83% (p=0.004) | +47% (p=0.004) |
 | read-only | claude-opus-5.5 | aspire-lean vs aspire-skills-mcp | 6 vs 6 | -29% (p=0.180) | 0.71x [0.48-1.26] | -43% (p=0.004) | -28% (p=0.004) |

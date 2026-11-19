@@ -404,6 +404,26 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 | aspire-skills-mcp | 12/12 | 119 | 43 | 81 | 443,659 | 3,310 | 0.097 | 29 | aspirex1, aspire-monitoringx12 | 7 | 255,727 |
 | raw | 12/12 | 131 | 8 | 88 | 336,867 | 3,468 | 0.072 | 24 | - | 0 | 100,020 |
 
+## publishing / gpt-6-luna
+
+| Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
+| aspire-cli | 6/6 | 259 | - | - | 975,805 | 16,868 | 0.025 | 62 | - | 0 | 240,341 |
+| aspire-skill-deployment | 6/6 | 269 | - | - | 749,358 | 19,233 | 0.024 | 50 | aspire-deploymentx6 | 0 | 212,348 |
+| aspire-skills | 6/6 | 280 | - | - | 912,004 | 17,382 | 0.027 | 54 | aspirex1, aspire-deploymentx6 | 0 | 228,336 |
+| aspire-skills-nodeployment | 6/6 | 383 | - | - | 1,191,942 | 29,932 | 0.037 | 67 | aspirex6, aspire-deploymentx3, aspire-orchestrationx1 | 0 | 244,254 |
+| raw | 5/6 | 219 | - | - | 790,710 | 15,030 | 0.021 | 51 | - | 0 | 217,094 |
+
+## publishing / gpt-6.1-terra
+
+| Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
+| aspire-cli | 6/6 | 159 | - | - | 397,512 | 4,768 | 0.089 | 45 | - | 0 | 170,911 |
+| aspire-skill-deployment | 6/6 | 143 | - | - | 441,233 | 4,388 | 0.093 | 42 | aspire-deploymentx6 | 0 | 194,022 |
+| aspire-skills | 6/6 | 163 | - | - | 535,120 | 4,796 | 0.107 | 42 | aspire-deploymentx6 | 0 | 211,537 |
+| aspire-skills-nodeployment | 6/6 | 170 | - | - | 552,215 | 5,246 | 0.109 | 44 | aspirex6 | 0 | 164,722 |
+| raw | 6/6 | 116 | - | - | 299,453 | 3,762 | 0.074 | 30 | - | 0 | 138,944 |
+
 ## read-only / claude-opus-5.5
 
 | Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |

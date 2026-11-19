@@ -36,6 +36,7 @@ infrastructure failures are left out.
 | github-copilot-cli | t32 | 20261119 | 2026-11-17 | t32 | 17.1.0-preview.1.26567.3+30326eb8 | v0.0.6 | T3.2 |
 | github-copilot-cli | t33 | 20261119 | 2026-11-17 | t33 | 17.1.0-preview.1.26567.3+30326eb8 | v0.0.6 | T3.3 |
 | github-copilot-cli | t35 | 20261119 | 2026-11-17 | t35, t35-topup | 17.1.0-preview.1.26567.3+30326eb8 | v0.0.6 | T3.5 |
+| github-copilot-cli | t34 | 20261119 | 2026-11-17 | t34, t34-rerun | 17.1.0-preview.1.26567.3+30326eb8 | v0.0.6 | T3.4 |
 
 ## add-dependency / gpt-6-luna
 
@@ -300,6 +301,26 @@ infrastructure failures are left out.
 | aspire-skills-mcp | t02 | 12 | 12/12 | 119 (22) | 443,659 | 0.91× | – | 1.32× | – | 100% | 7 | 255,727 |  | ▄ |
 | aspire-lean | t02 (tasks 916a57ce) | 6 | 6/6 | 90 (6) | 310,502 | 0.69× | – | 0.92× | – | 100% | 0 | 140,733 |  | ▄ |
 | aspire-lean | t02 (tasks 1479041e) | 6 | 6/6 | 113 (14) | 301,804 | 0.86× | 0.69× | 0.90× | 0.92× | 100% | 0 | 140,766 | regress-time | ▁█ |
+
+## publishing / gpt-6-luna
+
+| Arm | Run | n | Pass | Agent s (MAD) | Input tok | Time × raw | trail | Tokens × raw | trail | Skill sel. | MCP calls | Chars read | Flags | Time ratio |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---|
+| raw | t34 | 6 | 5/6 | 219 (41) | 790,710 | – | – | – | – | 0% | 0 | 217,094 |  |  |
+| aspire-cli | t34 | 6 | 6/6 | 259 (24) | 975,805 | 1.18× | – | 1.23× | – | 0% | 0 | 240,341 |  | ▄ |
+| aspire-skills | t34 | 6 | 6/6 | 280 (57) | 912,004 | 1.28× | – | 1.15× | – | 100% | 0 | 228,336 |  | ▄ |
+| aspire-skill-deployment | t34 | 6 | 6/6 | 269 (14) | 749,358 | 1.22× | – | 0.95× | – | 100% | 0 | 212,348 |  | ▄ |
+| aspire-skills-nodeployment | t34 | 6 | 6/6 | 383 (61) | 1,191,942 | 1.74× | – | 1.51× | – | 100% | 0 | 244,254 |  | ▄ |
+
+## publishing / gpt-6.1-terra
+
+| Arm | Run | n | Pass | Agent s (MAD) | Input tok | Time × raw | trail | Tokens × raw | trail | Skill sel. | MCP calls | Chars read | Flags | Time ratio |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---|
+| raw | t34 | 6 | 6/6 | 116 (9) | 299,453 | – | – | – | – | 0% | 0 | 138,944 |  |  |
+| aspire-cli | t34 | 6 | 6/6 | 159 (14) | 397,512 | 1.37× | – | 1.33× | – | 0% | 0 | 170,911 |  | ▄ |
+| aspire-skills | t34 | 6 | 6/6 | 163 (8) | 535,120 | 1.40× | – | 1.79× | – | 100% | 0 | 211,537 |  | ▄ |
+| aspire-skill-deployment | t34 | 6 | 6/6 | 143 (5) | 441,233 | 1.23× | – | 1.47× | – | 100% | 0 | 194,022 |  | ▄ |
+| aspire-skills-nodeployment | t34 | 6 | 6/6 | 170 (21) | 552,215 | 1.46× | – | 1.84× | – | 100% | 0 | 164,722 |  | ▄ |
 
 ## read-only / claude-opus-5.5
 

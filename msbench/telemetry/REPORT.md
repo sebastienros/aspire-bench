@@ -1564,3 +1564,14 @@ floated to a newer daily on the day of the run
     ([FINDINGS F53](../FINDINGS.md#f53-without-aspire-init-agents-start-a-new-apphost-with-dotnet-run-in-a-session-bound-shell)).
 - **Cost:** T3.2 $11.78 against $4.30 (2.7×; terra's skill arms carry it), T3.3 $2.48 against $1.90.
   [PLAN.md, T3.2 results](PLAN.md#t32-results), [T3.3 results](PLAN.md#t33-results).
+
+**Phase 3, T3.4: `aspire-deployment`, preconfigured publishing.** Port of the P01 preconfigured pair without its
+deployment script: a complete production model (`compose.yaml` for raw, a Docker Compose environment AppHost for
+Aspire), environment-owned PostgreSQL and Redis, "publish and run the production build locally" on 18080/18081
+(grader: the two services built during the trial, Production, the reference Vue bundle, login, SignalR, Redis
+boards, nothing supplied changed). **`no verdict` (row 4)**, stopped by the coordinating session: every Aspire cell 6/6;
+luna `skill-only` 1.04× `aspire-cli` (p 0.94), terra 0.899× (just outside the ±10 % band); without the skill the
+router went first in 5 of 6 luna trials and the bundle was 1.37× slower (p 0.24, the T1.3 pattern on a new job, F17).
+The CLI alone reached `aspire deploy` in 6/6 luna trials. Aspire against raw: 1.18× on luna, 1.37× on terra
+(p 0.004); raw ran `docker compose up --build` in 12/12. Two terra setups failed on a `pg_isready` race in the fixture,
+excluded and re-run. $3.82 against $2.40. [PLAN.md, T3.4 results](PLAN.md#t34-results).

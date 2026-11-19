@@ -868,6 +868,13 @@ without the router, the shipped set and the lean set all passed 6/6 on both mode
 destructive command; `aspire-orchestration` carried the job with or without the router
 ([PLAN.md, T1.3 results](telemetry/PLAN.md#t13-results), [T3.8 results](telemetry/PLAN.md#t38-results)).
 
+**On a new job (Task T3.4, pin 2026-11-17, round `t34`, n = 6):** "publish and run the production build locally" on
+a preconfigured Docker Compose AppHost. With `aspire-deployment` removed from v0.0.6, the router was loaded first in
+5 of 6 luna trials and the bundle took 1.37× the shipped set's time (382.6 against 279.9 s, interval 0.91–1.71,
+p 0.24; all 12 passed); terra's router went first 6/6 at 1.04×. Same direction as the diagnosis cells: wherever the
+router is the first skill on luna, the trial is slower
+([PLAN.md, T3.4 results](telemetry/PLAN.md#t34-results)).
+
 **Improvement candidate:** Ship `aspire-diagnose`; remove or drastically shrink the
 router; give each skill a symptom-based trigger that excludes its neighbours.
 

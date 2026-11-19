@@ -3025,7 +3025,7 @@ so the two skills whose removal would change the diagnosis route (`aspire-orches
 | T3.1 | `aspire-orchestration` (22 KB, 5 refs) | start/stop/wait, resource restart, file locks, port conflicts, worktrees, VS Code sessions | `cold-start`; **restart-after-change** (edit one project, restart only it, verify); **two-app isolation** (port of S01: two apps up, repair one); **port conflict** (a stray process holds the app's port) | Yes for the four scenarios; corrected 2026-11-19: file locks cannot occur on this Linux harness (a running assembly is not locked), so file locks, VS Code flows and worktree starts are `no verdict` ([T3.1 rule](#t31-fixtures-and-rule-as-computed-written-2026-11-19-before-any-t31-trial-or-pilot)) | 4 × 5 × 2 × 6 = 240 ≈ $9.70 | pending |
 | T3.2 | `aspireify` (21 KB, 10 refs) | wire an AppHost for an existing repo, add Postgres/Redis/Rabbit/Mongo, ServiceDefaults, TS toolchain repair | **Adoption** (port of A01: raw Bingo, add an AppHost that runs it; grader: live app under Aspire, source unchanged); **add a dependency** (add Redis to an existing AppHost and use it from one project) | Yes; TS toolchain repair: `no verdict` | 2 × 4 × 2 × 6 = 96 ≈ $3.90 | Done 2026-11-19, [T3.2 results](#t32-results): **`shrink`** (`skill-only` slower in every cell, luna `add-dependency` 1.71×, p 0.002, all 6/6; the cost is the body's prescribed reference reading, docs lookups and every-resource validation); TS toolchain repair `no verdict`; $11.78 |
 | T3.3 | `aspire-init` (10 KB, 2 refs) | `aspire new` / `aspire init`, pick a template, hand off to `aspireify` | **Greenfield** (empty folder, "create an Aspire app with an API and Postgres and run it"; grader: `aspire describe` shows the resources healthy and the API answers) | Yes | 1 × 4 × 2 × 6 = 48 ≈ $1.90 | Done 2026-11-19, [T3.3 results](#t33-results): **`no verdict`** (luna 0.33×, p 0.065, 3/6 vs 3/6, mostly `dotnet run` hangs avoided; terra 0.62×, p 0.002; luna selection 4/6 closes `keep`); $2.48 |
-| T3.4 | `aspire-deployment` (18 KB, 7 refs) | publish/deploy to Compose, Kubernetes, Azure, AWS, Radius; teardown | **Preconfigured publishing** (port of the P01 preconfigured pair: complete AppHost and raw Compose, "publish and run the production build locally"); Kubernetes and clouds: `no verdict` | Compose yes; others no | 1 × 5 × 2 × 6 = 60 ≈ $2.40 | pending |
+| T3.4 | `aspire-deployment` (18 KB, 7 refs) | publish/deploy to Compose, Kubernetes, Azure, AWS, Radius; teardown | **Preconfigured publishing** (port of the P01 preconfigured pair: complete AppHost and raw Compose, "publish and run the production build locally"); Kubernetes and clouds: `no verdict` | Compose yes; others no | 1 × 5 × 2 × 6 = 60 ≈ $2.40 | Done 2026-11-19, [T3.4 results](#t34-results): **`no verdict`** (row 4; Aspire cells 6/6; luna skill-only 1.04×, terra 0.899× just outside the band, luna bundle-minus 1.37× with the router first 5/6; top-up cannot reach `remove`, stopped); $3.82 |
 | T3.5 | `aspire-monitoring` (14 KB, 3 refs) | observe logs/traces/metrics, export, standalone dashboard, browser telemetry, deployed-app routing | Its diagnosis claim is already measured (REPORT §4, T1.2). Add its **own** job: **export** ("export the last 10 minutes of traces and logs to files for a bug report"; grader: files exist with the incident's spans) | Export yes; browser telemetry and deployed routing: `no verdict` | 1 × 4 × 2 × 6 = 48 ≈ $1.90 | Done 2026-11-19, [T3.5 results](#t35-results): **`no verdict`** on export (every arm 6/6; luna skill-only 1.07× then 1.19×, rounds not poolable, `aspire-cli` 27 % apart; terra pooled 0.97× [0.83–1.15]); every trial ran `aspire export`; $2.31 |
 | T3.6 | `aspire-terminals` (10 KB, 4 refs) | `WithTerminal`, REPLs, tapes, terminal CLI | No live-outcome scenario fits the harness | **`no verdict`** on outcome; selection only (T3.9) | 0 | Done 2026-11-19, [T3.6 results](#t36-results): `no verdict` on outcome; selection clean on terra (12/12 own, 0/106 other), luna 10/12 own (descriptive) |
 | T3.7 | `aspire-project-v2-migration` (14 KB, 2 refs) | migrate `AddProject` to `DotnetProjectResource` APIs with assessment and approval | **Migration** (an AppHost with three `AddProject` calls; "assess and migrate to the v2 project APIs"; grader: builds, starts, same resources healthy, same endpoints) | Yes, single-turn means the "explicit approval" step is pre-granted in the prompt | 1 × 4 × 2 × 6 = 48 ≈ $1.90 | pending |
@@ -3869,6 +3869,42 @@ $0.05; gates model-free.
   exercised (ruling 9): Kubernetes (a cluster, for example kind inside the trial or a remote one), Azure and AWS
   (a cloud subscription with credentials), Radius (a Radius-enabled cluster), teardown (`aspire destroy` or its
   equivalent against a cloud target; a local Compose teardown is `docker compose down`, not the skill's claim).
+
+#### T3.4 results
+
+**Verdict: `no verdict` (row 4)** (2026-11-19, round `t34` plus `t34-rerun`, rule as computed above, two cells;
+stop ruled by the coordinating session): `keep` fails (luna `skill-only` 1.04× [0.78–1.16], p 0.94); `remove` fails on
+two clauses, terra `skill-only` 0.899× [0.80–1.04] just outside the band, and luna `bundle-minus` 1.37× [0.91–1.71],
+p 0.24; the ruling-6 top-up could move the first clause only, so the card stops.
+
+| Model | `raw` | `aspire-cli` | `skill-only` | `bundle` | `bundle-minus` |
+|---|---|---|---|---|---|
+| luna, passes | 5/6 | 6/6 | 6/6 | 6/6 | 6/6 |
+| luna, median s | 219.4 | 259.1 | 268.5 (1.04×) | 279.9 | 382.6 (1.37× bundle) |
+| terra, passes | 6/6 | 6/6 | 6/6 | 6/6 | 6/6 |
+| terra, median s | 116.2 | 158.8 | 142.8 (0.90×, p 0.31) | 162.8 | 169.5 (1.04×) |
+
+- **Selection would have held**: luna `aspire-skills` loaded `aspire-deployment` first in 5/6 (≥ 5/6, ruling 3), terra
+  6/6 here and 12/12 own / 0/106 other in T3.9. `skill-only` read a median of 1 reference on both models.
+- **The route without the skill** (asked by the coordinating session to be recorded): with `aspire-deployment` absent,
+  the router took the publishing prompt first in 5 of 6 luna trials and the bundle got slower (1.37×), the T1.3
+  pattern (the router costs time wherever it goes first, FINDINGS F17) on a new job; on terra the router went first
+  6/6 and cost nothing measurable (1.04×).
+- **The CLI finds the route.** Counting commands in the trajectories, `aspire deploy` appears in 6/6 luna `aspire-cli`
+  trials (terra 3/6; the rest ran `aspire publish` and `docker compose up` on the generated `aspire-output/`); with
+  the skill, 6/6 on both models. Every Aspire-arm trial passed.
+- **Aspire against raw** (the suite's product pair, not in the verdict): `aspire-cli` ÷ `raw` 1.18× on luna (p 0.18)
+  and 1.37× on terra (p 0.004, [1.18–1.60]); raw ran `docker compose up -d --build` on the supplied file in 12/12
+  trials. Raw's one luna failure: the admin login issued no Identity cookie at verification (`serving`).
+- **Infrastructure.** Two terra setups (`raw`, `aspire-skills`) failed before the agent (`HealthcheckError`); the
+  diagnostics added after `gate-p3ops` showed the cause: setup's `pg_isready` loop accepted PostgreSQL's temporary
+  init server, the next check hit its restart and `set -e` ended setup. Both were excluded and re-run once in
+  `t34-rerun` (both passed); the setup now waits for the init to finish (suite `4cab9e4`, for future tasks; these tasks
+  keep theirs). The two silent `gate-p3ops` failures are most likely the same race.
+- **Not exercised** (ruling 9): Kubernetes, Azure, AWS, Radius, teardown, as listed in the fixture block.
+
+**Cost.** $3.82 against $2.40 (1.6×): `t34` $3.51 (luna $0.027, terra $0.096 per trial), `t34-rerun` $0.19, pilot
+$0.12; gates model-free.
 
 ---
 
