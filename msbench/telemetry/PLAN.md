@@ -947,6 +947,8 @@ larger than the log line.
 only "ship"; the mapping "one luna cell = revise, neither = drop" was added by this lane before the run
 (2c299da). Terra was declared "reported, not decisive" in the same note, and it is the one model on which
 the patch is clearly faster. The user may rule on that, as for T0.2; nothing was re-run.
+**Ruling (user, 2026-11-18): drop stands.** The luna rule decides as pre-registered; the terra gain is
+recorded, not acted on. The patch may return in Phase 2 under a card whose rule names terra.
 
 **Rounds** (Copilot CLI 1.0.99, n = 6 per cell, 2026-11-18): `t14` (138 trials, tasks `1479041`),
 `t14-guard` (24 trials: `raw` and `aspire-lean` on tasks `1479041`, `aspire-lean-mcp-src` and
