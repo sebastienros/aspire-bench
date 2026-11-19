@@ -378,25 +378,31 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 
 | Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
-| aspire-cli | 0/6 | 141 | 7 | - | 524,780 | 9,000 | 0.015 | 38 | - | 0 | 263,177 |
-| aspire-lean (tasks 1479041e) | 14/18 | 136 | 40 | 72 | 490,140 | 6,954 | 0.014 | 35 | aspire-diagnosex18, aspire-orchestrationx2 | 0 | 180,972 |
+| aspire-cli | 1/12 | 134 | 9 | 40 | 544,304 | 9,000 | 0.016 | 40 | - | 0 | 258,076 |
+| aspire-cli-traced | 2/6 | 135 | 6 | 47 | 842,834 | 7,397 | 0.019 | 43 | - | 0 | 234,798 |
+| aspire-lean (tasks 1479041e) | 19/24 | 136 | 40 | 72 | 511,455 | 7,075 | 0.014 | 36 | aspire-diagnosex24, aspire-orchestrationx2 | 0 | 183,042 |
 | aspire-lean (tasks 916a57ce) | 4/6 | 150 | 37 | 66 | 555,040 | 8,366 | 0.015 | 40 | aspire-diagnosex6 | 0 | 193,064 |
 | aspire-lean-agents | 2/6 | 194 | 30 | 64 | 865,599 | 14,711 | 0.022 | 48 | aspire-diagnosex6, aspire-orchestrationx2 | 0 | 210,112 |
-| aspire-lean-mcp-all | 6/6 | 179 | 56 | 104 | 714,554 | 10,448 | 0.019 | 46 | aspire-diagnosex6 | 5 | 230,710 |
+| aspire-lean-mcp-all | 12/12 | 131 | 41 | 65 | 700,838 | 9,283 | 0.018 | 43 | aspire-diagnosex12 | 7 | 249,417 |
+| aspire-lean-mcp-all-traced | 3/6 | 160 | 48 | 68 | 705,259 | 8,550 | 0.018 | 36 | aspire-diagnosex6 | 9 | 337,530 |
 | aspire-lean-mcp-compact | 5/6 | 173 | 55 | 90 | 754,900 | 8,220 | 0.019 | 43 | aspire-diagnosex6 | 12 | 308,030 |
 | aspire-lean-mcp-src | 4/6 | 191 | 60 | 88 | 667,951 | 8,432 | 0.018 | 40 | aspire-diagnosex6 | 4 | 247,579 |
+| aspire-lean-traced | 6/6 | 85 | 22 | 47 | 409,217 | 5,234 | 0.012 | 32 | aspire-diagnosex6 | 0 | 203,758 |
 | aspire-skills | 0/12 | 222 | 60 | - | 784,350 | 11,218 | 0.022 | 46 | aspire-monitoringx6, aspire-orchestrationx3 | 0 | 266,807 |
 | aspire-skills-mcp | 0/12 | 163 | 4 | - | 1,013,608 | 9,532 | 0.023 | 49 | aspirex6, aspire-monitoringx6, aspire-orchestrationx1 | 10 | 430,422 |
 | aspire-skills-mon | 0/6 | 205 | 59 | - | 590,980 | 8,078 | 0.016 | 40 | aspirex2, aspire-monitoringx2, aspire-orchestrationx2 | 0 | 226,285 |
 | aspire-skills-norouter | 0/6 | 202 | 9 | - | 966,487 | 11,128 | 0.023 | 48 | aspire-monitoringx3, aspire-orchestrationx4 | 0 | 302,931 |
-| raw | 3/24 | 286 | 74 | 181 | 723,808 | 15,490 | 0.022 | 43 | - | 0 | 224,676 |
+| raw | 6/30 | 277 | 30 | 175 | 714,041 | 15,490 | 0.022 | 44 | - | 0 | 221,532 |
+| raw-otel | 0/6 | 127 | - | 191 | 401,687 | 7,761 | 0.014 | 30 | - | 0 | 160,528 |
 
 ## slow-redis / gpt-6.1-terra
 
 | Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
 | aspire-cli | 6/6 | 168 | 4 | 95 | 605,583 | 6,737 | 0.122 | 38 | - | 0 | 197,596 |
-| aspire-lean | 6/6 | 56 | 19 | 41 | 207,126 | 1,788 | 0.054 | 20 | aspire-diagnosex6 | 0 | 119,254 |
+| aspire-lean (tasks 1479041e) | 3/3 | 83 | 15 | 55 | 361,690 | 3,740 | 0.076 | 26 | aspire-diagnosex3 | 0 | 141,614 |
+| aspire-lean (tasks 916a57ce) | 6/6 | 56 | 19 | 41 | 207,126 | 1,788 | 0.054 | 20 | aspire-diagnosex6 | 0 | 119,254 |
+| aspire-lean-traced | 6/6 | 101 | 15 | 67 | 485,392 | 4,655 | 0.094 | 30 | aspire-diagnosex6 | 0 | 155,968 |
 | aspire-skills | 6/6 | 235 | 48 | 159 | 767,409 | 6,989 | 0.140 | 41 | aspire-monitoringx6 | 0 | 191,596 |
 | aspire-skills-mcp | 6/6 | 164 | 4 | 113 | 669,446 | 6,023 | 0.128 | 35 | aspire-monitoringx6 | 6 | 328,189 |
 | aspire-skills-mon | 6/6 | 190 | 20 | 122 | 710,991 | 5,405 | 0.130 | 40 | aspirex2, aspire-monitoringx6 | 0 | 195,064 |
