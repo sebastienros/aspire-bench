@@ -1,0 +1,12 @@
+services:
+  main:
+    privileged: true
+    build:
+      args:
+        APP_KIND: aspire
+        SKILLS: current
+        FAULT: port-conflict
+      additional_contexts:
+        suite: ${TELEMETRY_SUITE_CONTEXT:-https://github.com/sebastienros/aspire-bench.git#15f2000e99b115633cb22c709dcda80677399e43:msbench/telemetry/common}
+        raw-app: ${TELEMETRY_RAW_APP_CONTEXT:-https://github.com/sebastienros/aspire-bench.git#baacba3e17181491c9a4d419db7d0e6763c3d363:msbench/bingo/common/raw-app}
+        aspire-app: ${TELEMETRY_ASPIRE_APP_CONTEXT:-https://github.com/sebastienros/aspire-bench.git#baacba3e17181491c9a4d419db7d0e6763c3d363:msbench/bingo/common/aspire-app}
