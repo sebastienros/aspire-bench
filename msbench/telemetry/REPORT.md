@@ -1682,3 +1682,26 @@ package is not recorded). The runner would need to accept its own lock on a resu
 No T4.4 trial was submitted; cost $0.0014 against $0.70. The multi-turn questions stay open (T3.7's approval step, a
 skill's reuse of earlier discovery), and so does the README's default of a fresh conversation per step.
 [PLAN.md, T4.4 results](PLAN.md#t44-results).
+
+**Phase 4, T4.6: cheaper rounds, `keep baked`.** Over 3,138 trials at the 2026-11-17 pin, a model trial's median
+elapsed time is 517 s. Of that, 46 s is CES queue, 130 s image build, 107 s the fault's own setup inside the container
+and 115 s the agent; setup is 71 % of the summed time, agent 26 %. Every trial of a round runs at once, so a round
+takes 0.1 to 0.6 h. The card's premise holds, but the cost is the per-trial build and setup, not the queue. CES builds
+every trial's image from scratch: later builds of a task take 0.97 × its first, and no trial pulled an image. The
+prototype delivered the skill set by a read-only bind mount from the task folder onto a skill-less image. It gave the
+same oracle reward as its baked twin and byte-identical skill files on CES (88 digests, `gate-t46b`; the first pair,
+`gate-t46`, had its digests redacted by MSBench's secret scan). Locally one image served two skill sets. It still
+builds the same image on every CES trial, so the per-arm build does not disappear there. It would pay off only with a
+per-kind image built once and pulled (Harbor's `docker_image`), which needs a registry push: proposed, not done. $0.
+[PLAN.md, T4.6 results](PLAN.md#t46-results).
+
+**Phase 4, T4.5: tracking schedule, delivered.** REPORT §11's core matrix now runs from one local script,
+`tools/track.sh`. It re-pins a new daily or skills tag under `track/` in three commits, so no task, dataset row,
+template or `common/` file of the program moves. Then it gates, submits the 120 trials, waits and collects only its own
+rounds. It runs `series.py` with §11's rule, completed in PLAN: a re-pin does not reset the trailing window, and a luna
+time or token flag is repeated before a draft. Drafts go to `msbench/upstream-issues/tracking/` and are never filed. A
+dry run on `17.1.0-preview.1.26569.1` touched nothing outside a throwaway clone. The 24-trial smoke `t45-smoke`
+($0.94, excluded) went through wait, collect, series and the draft writer in 22 min wall and raised no draft-worthy
+flag. The draft writer was also shown on `t01b`'s flags. Gates on re-pinned tasks and a pushed re-pin are exercised
+only by the first full run, which happens when the user asks.
+[PLAN.md, T4.5 results](PLAN.md#t45-results).
