@@ -269,6 +269,29 @@ ${approval} No report is required.
 // the existing aspire-skills cells of the same round.
 scenarios["slow-redis"].arms.push("aspire-skills-noaspireify");
 
+// T3.1 (aspire-orchestration, §7): the skill's own jobs, on the aspirified/raw Bingo images (common/bench/bench.mjs
+// faults restart-change, two-app, port-conflict). Arms per ruling 1; each scenario has a raw reference repair that
+// passes its verifier, so raw runs. cold-start gains skill-only and bundle-minus (reported, not decisive: ruling 4).
+const orchestrationArms = ["raw", "aspire-cli", "aspire-skill-orchestration", "aspire-skills", "aspire-skills-noorchestration"];
+scenarios["restart-change"] = {
+    seed: 75, arms: orchestrationArms,
+    instruction: `The Bingo application in /app is running and players are in the middle of tonight's game.
+
+The producers want the admin status endpoint (\`GET /api/demo/producer/status\`) to also
+report \`calledCount\`, the number of squares called so far, next to \`calledSquares\`.
+Make that change in the admin backend and put it live now.
+
+Players are connected: keep the player site, the database and the cache running while
+you do it, and restart only what the change needs. Keep all existing data and all
+existing functionality, and leave the application running. README.md describes this
+workspace. No report is required.
+`,
+};
+// two-app and port-conflict: added with their own re-pin once the coordinating session has ruled on their design.
+scenarios["cold-start"].arms.push("aspire-skill-orchestration", "aspire-skills-noorchestration");
+// T3.1's bundle-minus guard (ruling 5), beside the aspire-skills cells of the same round.
+scenarios["slow-redis"].arms.push("aspire-skills-noorchestration");
+
 // Applications: the image template and the build contexts each one needs.
 const apps = {
     bingo: {
@@ -427,6 +450,7 @@ const onlyIn = {
 };
 for (const short of auditedSkills) onlyIn[`aspire-skill-${short}`] = onlyIn[`aspire-skills-no${short}`] = [];
 onlyIn["aspire-skills-noaspireify"] = ["slow-sql"]; // T3.2 guard (slow-redis lists it in its arms)
+onlyIn["aspire-skills-noorchestration"] = ["slow-sql"]; // T3.1 guard (slow-redis lists it in its arms)
 
 // The Aspire MCP server as every harness registers it. Copilot CLI receives it from task.toml
 // through Harbor (MSBENCH_MCP_CONFIG, written to the user-level MCP config); Claude Code should get

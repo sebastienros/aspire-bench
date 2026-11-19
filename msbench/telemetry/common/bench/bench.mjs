@@ -25,28 +25,36 @@ async function sh(command, args, { timeout = 180_000 } = {}) {
     return stdout.trim();
 }
 
-async function postgres() {
-    const rows = (await sh("docker", ["ps", "--format", "{{.ID}}\t{{.Image}}"]))
+// two-app (PLAN T3.1) runs two copies of the application; every container lookup is then scoped by the
+// container-name prefix of the copy (`bingo-` for /app, `neighbor-` for /neighbor-app). Other faults keep
+// the single-application lookup.
+const twoApp = fault === "two-app";
+const targetPrefix = "bingo-";
+const neighborPrefix = "neighbor-";
+const scoped = (rows, prefix) => prefix ? rows.filter(([, , name]) => name.startsWith(prefix)) : rows;
+
+async function postgres(prefix = twoApp ? targetPrefix : null) {
+    const rows = (await sh("docker", ["ps", "--format", "{{.ID}}\t{{.Image}}\t{{.Names}}"]))
         .split("\n").filter(Boolean).map(line => line.split("\t"));
-    const matches = rows.filter(([, image]) => /(^|\/)postgres:/.test(image));
+    const matches = scoped(rows, prefix).filter(([, image]) => /(^|\/)postgres:/.test(image));
     assert.equal(matches.length, 1, `Exactly one running PostgreSQL container expected, found ${matches.length}`);
     return matches[0][0];
 }
 
 // `privileged` sessions bypass a database-level read-only default so the harness can
 // always observe; unprivileged sessions see exactly what a new application session sees.
-async function sql(query, { privileged = true, timeout = 180_000 } = {}) {
-    const id = await postgres();
+async function sql(query, { privileged = true, timeout = 180_000, prefix } = {}) {
+    const id = await postgres(prefix);
     const options = privileged ? ["-e", "PGOPTIONS=-c default_transaction_read_only=off"] : [];
     return sh("docker", ["exec", ...options, id, "sh", "-c",
         'PGPASSWORD="$POSTGRES_PASSWORD" psql -U postgres -d "$0" -At -v ON_ERROR_STOP=1 -c "$1"',
         dbName, query], { timeout });
 }
 
-async function redis() {
-    const rows = (await sh("docker", ["ps", "--format", "{{.Names}}\t{{.Image}}"]))
+async function redis(prefix = twoApp ? targetPrefix : null) {
+    const rows = (await sh("docker", ["ps", "--format", "{{.Names}}\t{{.Image}}\t{{.Names}}"]))
         .split("\n").filter(Boolean).map(line => line.split("\t"));
-    const matches = rows.filter(([, image]) => /(^|\/)redis:/.test(image));
+    const matches = scoped(rows, prefix).filter(([, image]) => /(^|\/)redis:/.test(image));
     assert.equal(matches.length, 1, `Exactly one running Redis container expected, found ${matches.length}`);
     return matches[0][0];
 }
@@ -55,13 +63,31 @@ async function redis() {
 // (REDIS_PASSWORD) and, on Aspire main, serves TLS on 6379 with plain TCP on 6380, so the
 // working port is probed first.
 const redisCliPrelude = '[ -n "${REDIS_PASSWORD:-}" ] && export REDISCLI_AUTH="$REDIS_PASSWORD"; opts=""; for o in "" "-p 6380" "--tls --insecure"; do if redis-cli --no-auth-warning $o PING 2>/dev/null | grep -q PONG; then opts="$o"; break; fi; done; ';
-async function redisCli(args, { timeout = 180_000, raw = true } = {}) {
-    const name = await redis();
+async function redisCli(args, { timeout = 180_000, raw = true, prefix } = {}) {
+    const name = await redis(prefix);
     return sh("docker", ["exec", name, "sh", "-c",
         `${redisCliPrelude}exec redis-cli --no-auth-warning ${raw ? "" : "--no-raw "}$opts "$@"`, "redis-cli", ...args], { timeout });
 }
 
+// Ports a process listens on (ss), so endpoints can be found when an agent moved the app off its configured port.
+async function listeningPorts(pid) {
+    const lines = (await sh("ss", ["-ltnpH"])).split("\n").filter(line => line.includes(`pid=${pid},`));
+    return [...new Set(lines.map(line => Number(line.split(/\s+/)[3].split(":").pop())))].sort((a, b) => a - b);
+}
+
+async function processOrigin(pattern) {
+    for (const found of await processes(pattern)) {
+        const [port] = await listeningPorts(found.pid);
+        if (port) return `http://localhost:${port}`;
+    }
+    throw new Error(`No listening process matches ${pattern}`);
+}
+
 export async function resolveEndpoints() {
+    if (kind === "raw" && fault === "port-conflict") {
+        // The agent may have started the app on other ports than the configured ones.
+        return { admin: await processOrigin(processPatterns.admin), frontend: await processOrigin(processPatterns.frontend) };
+    }
     if (kind === "raw") {
         return {
             admin: `http://localhost:${process.env.ADMIN_PORT}`,
@@ -382,9 +408,255 @@ async function migrateAppHost() {
     await sh("bash", ["/opt/benchmark/bootstrap-aspire.sh"], { timeout: 1_200_000 });
 }
 
+// restart-change (PLAN T3.1): players are mid-game; the producers want one more field in the admin
+// status endpoint, live now, with the player site, the database and the cache kept running. Setup calls
+// tonight's squares (game state in the cache) and records the identity of every resource that must not
+// restart: process id + start time for processes, container id + start time for containers (a compose
+// stop/up or a DCP container restart keeps the id but not the start time).
+const changedFile = "src/BingoBoard.Admin/Endpoints/ProducerEndpoints.cs";
+const processPatterns = {
+    appHost: /\/bin\/(debug|release)\/apphost$/i,
+    admin: /(^|\/)BingoBoard\.Admin(\.dll)?$/,
+    frontend: /^node\s+\S*(\.bin\/vite|vite\/bin\/vite\.js)(\s|$)/,
+};
+
+// pid, start time and working directory of every process whose command line matches `pattern`.
+async function processes(pattern) {
+    const rows = (await sh("ps", ["-eo", "pid=,lstart=,args="])).split("\n");
+    const found = [];
+    for (const line of rows) {
+        const match = line.trim().match(/^(\d+)\s+(\S+\s+\S+\s+\d+\s+[\d:]+\s+\d+)\s+(.*)$/);
+        if (!match || !pattern.test(match[3].replace(/\s+--.*$/, "").trim()) && !pattern.test(match[3])) continue;
+        const cwd = await sh("readlink", [`/proc/${match[1]}/cwd`]).catch(() => "");
+        found.push({ pid: Number(match[1]), started: match[2].replace(/\s+/g, " "), args: match[3], cwd });
+    }
+    return found;
+}
+
+async function containerIdentity(id) {
+    return sh("docker", ["inspect", "-f", "{{.Id}} {{.State.StartedAt}}", id]).catch(() => "gone");
+}
+
+async function restartIdentity() {
+    const identity = {
+        redis: await containerIdentity(await redis()),
+        postgres: await containerIdentity(await postgres()),
+    };
+    for (const [name, pattern] of Object.entries(processPatterns)) {
+        if (name === "appHost" && kind === "raw") continue;
+        const found = await processes(pattern);
+        identity[name] = found.map(p => `${p.pid} ${p.started}`).sort().join(", ") || "gone";
+    }
+    return identity;
+}
+
+async function injectRestartAfterChange(endpoints) {
+    // Squares live traffic never toggles (it only touches the squares listed at setup).
+    const tonight = Array.from({ length: 3 }, (_, i) => `night-0${i + 1}`);
+    const added = await importSquares(endpoints.admin, tonight.map(id => square(id, `Tonight ${id}`)));
+    assert.equal(added.status, 200, `Adding tonight's squares failed: HTTP ${added.status}`);
+    for (const id of tonight) {
+        const called = await http(endpoints.admin, `/api/demo/producer/squares/${id}/state/true`, { method: "POST" });
+        assert.equal(called.status, 200, `Calling ${id} failed: HTTP ${called.status}`);
+    }
+    const status = JSON.parse((await http(endpoints.admin, "/api/demo/producer/status")).body);
+    assert(!("calledCount" in status), "The status endpoint already reports calledCount");
+    const identity = await restartIdentity();
+    for (const [name, value] of Object.entries(identity)) assert(value !== "gone" && !value.includes(","), `${name}: one instance expected, found ${value}`);
+    return { tonight, identity };
+}
+
+// two-app (PLAN T3.1, port of S01's layout): a second complete copy of the application runs from
+// /neighbor-app for another event (containers `neighbor-*`; raw ports 54321/63791/18081/15174; Aspire
+// AppHost started with BENCH_RUN_ID=neighbor and --isolated, so its own random ports). The fault is in
+// /app only. The neighbor must keep every process and container it had, its data and its game.
+const neighborDir = "/neighbor-app";
+const neighborEnv = { BENCH_RUN_ID: "neighbor", COMPOSE_PROJECT_NAME: "neighbor",
+    POSTGRES_PORT: "54321", REDIS_PORT: "63791", ADMIN_PORT: "18081", FRONTEND_PORT: "15174" };
+
+async function neighborEndpoints() {
+    if (kind === "raw") return { admin: `http://localhost:${neighborEnv.ADMIN_PORT}`, frontend: `http://localhost:${neighborEnv.FRONTEND_PORT}` };
+    const { resources } = JSON.parse(await sh("aspire", ["describe", "--apphost", `${neighborDir}/apphost.cs`,
+        "--format", "Json", "--non-interactive", "--nologo"]));
+    const origin = name => new URL(resources.find(r => (r.displayName ?? r.name) === name)
+        .urls.find(u => u.url?.startsWith("http://")).url).origin;
+    return { admin: origin("boardadmin"), frontend: origin("bingoboard") };
+}
+
+// Processes of one copy, by working directory (raw command lines are identical in both copies) or, for
+// the AppHost, by the BENCH_RUN_ID it was started with.
+async function appProcesses(dir, runId) {
+    const of = async (pattern, test) => {
+        const found = [];
+        for (const p of await processes(pattern)) if (await test(p)) found.push(`${p.pid} ${p.started}`);
+        return found.sort().join(", ") || "gone";
+    };
+    const inDir = async p => p.cwd === dir || p.cwd.startsWith(`${dir}/`);
+    const identity = {
+        admin: await of(processPatterns.admin, inDir),
+        frontend: await of(processPatterns.frontend, inDir),
+    };
+    if (kind === "aspire") {
+        identity.appHost = await of(processPatterns.appHost, async p =>
+            (await readFile(`/proc/${p.pid}/environ`, "utf8").catch(() => "")).split("\0").includes(`BENCH_RUN_ID=${runId}`));
+    } else {
+        identity.supervisor = await of(/^bash scripts\/start\.sh --daemon$/, inDir);
+    }
+    return identity;
+}
+
+async function neighborIdentity() {
+    return {
+        ...await appProcesses(neighborDir, "neighbor"),
+        redis: await containerIdentity(await redis(neighborPrefix).catch(() => "none")),
+        postgres: await containerIdentity(await postgres(neighborPrefix).catch(() => "none")),
+    };
+}
+
+async function startNeighbor() {
+    // Same sources and dependencies; live state, build output with absolute paths and logs are not copied.
+    await sh("bash", ["-c", `rm -rf ${neighborDir} && mkdir ${neighborDir} && cd /app && tar --exclude=./.aspire --exclude=./.script-state --exclude='./src/*/obj' --exclude='./src/*/bin' -cf - . | tar -xf - -C ${neighborDir}`]);
+    const env = { ...process.env, ...neighborEnv };
+    if (kind === "aspire") {
+        for (const project of ["BingoBoard.Admin", "BingoBoard.MigrationService"]) {
+            await run("dotnet", ["build", `src/${project}/${project}.csproj`, "--nologo", "-v", "q"], { cwd: neighborDir, env, timeout: 600_000 });
+        }
+        const official = "/usr/local/aspire/aspire";
+        const apphost = ["--apphost", `${neighborDir}/apphost.cs`, "--non-interactive", "--nologo"];
+        await run(official, ["start", ...apphost, "--isolated"], { cwd: neighborDir, env, timeout: 900_000 });
+        for (const resource of ["boardadmin", "bingoboard"]) {
+            await run(official, ["wait", resource, ...apphost, "--timeout", "900"], { cwd: neighborDir, env, timeout: 930_000 });
+        }
+    } else {
+        await run("bash", ["scripts/start.sh"], { cwd: neighborDir, env, timeout: 900_000 });
+    }
+}
+
+// Option (a), pending the coordinating session's ruling: the target's admin process is hung (SIGSTOP). It
+// stays alive (raw: the supervisor still sees it; Aspire: Running, health checks time out); every page and
+// API call to it hangs.
+async function injectTwoApp(endpoints) {
+    await startNeighbor();
+    const neighbor = await neighborEndpoints();
+    const mine = Array.from({ length: 3 }, (_, i) => `neighbor-0${i + 1}`);
+    const added = await importSquares(neighbor.admin, mine.map(id => square(id, `Neighbor ${id}`)));
+    assert.equal(added.status, 200, `Seeding the neighbor failed: HTTP ${added.status}`);
+    const called = await http(neighbor.admin, `/api/demo/producer/squares/${mine[0]}/state/true`, { method: "POST" });
+    assert.equal(called.status, 200, `Calling a neighbor square failed: HTTP ${called.status}`);
+    const neighborSquares = JSON.parse(await sql(`SELECT coalesce(json_agg(s."Id" ORDER BY s."Id"), '[]') FROM "BingoSquares" s;`, { prefix: neighborPrefix }));
+    const identity = await neighborIdentity();
+    for (const [name, value] of Object.entries(identity)) assert(value !== "gone" && !value.includes(","), `neighbor ${name}: one instance expected, found ${value}`);
+    const [admin] = (await processes(processPatterns.admin)).filter(p => p.cwd.startsWith("/app/"));
+    assert(admin, "Target admin process not found");
+    await sh("kill", ["-STOP", String(admin.pid)]);
+    const probe = await http(endpoints.admin, "/api/demo/producer/status", {}, 10_000).catch(() => ({ status: 0 }));
+    assert.equal(probe.status, 0, `The target admin still answers (HTTP ${probe.status})`);
+    const other = await http(neighbor.admin, "/api/demo/producer/status");
+    assert.equal(other.status, 200, `The neighbor must work before the agent starts: HTTP ${other.status}`);
+    return { neighbor: { endpoints: neighbor, squares: neighborSquares, called: mine[0], identity }, hungAdmin: `${admin.pid} ${admin.started}` };
+}
+
+// two-app: target: the application in /app works again (common checks, a fresh write in its own database
+// and not in the neighbor's, call/clear/status). neighborKept: every neighbor process and container has
+// the identity it had at setup, its squares and called square are intact, and a fresh neighbor write lands
+// in its own database only.
+async function verifyTwoApp(state, endpoints, details) {
+    const { neighbor } = state.twoApp;
+    const checks = details.checks = { target: false, neighborKept: false };
+    const failures = [];
+    const attempt = async (name, body) => {
+        try { await body(); checks[name] = true; } catch (error) { failures.push(`${name}: ${error.message}`); }
+    };
+    const now = await neighborIdentity().catch(error => ({ error: error.message }));
+    details.neighborIdentity = { setup: neighbor.identity, verify: now };
+    await attempt("neighborKept", async () => {
+        const changed = Object.keys(neighbor.identity).filter(name => now[name] !== neighbor.identity[name]);
+        assert.equal(changed.length, 0, `Neighbor restarted or replaced: ${changed.join(", ")}`);
+        const present = new Set(JSON.parse(await sql(`SELECT coalesce(json_agg("Id"), '[]') FROM "BingoSquares";`, { prefix: neighborPrefix })));
+        const lost = neighbor.squares.filter(id => !present.has(id));
+        assert.equal(lost.length, 0, `Neighbor squares lost: ${lost.slice(0, 3).join(", ")}`);
+        const status = JSON.parse((await http(neighbor.endpoints.admin, "/api/demo/producer/status")).body);
+        assert(status.calledSquares.includes(neighbor.called), "The neighbor's called square is no longer called");
+        const id = `verify-${nonce()}`;
+        const imported = await importSquares(neighbor.endpoints.admin, [square(id, "Neighbor probe")]);
+        assert.equal(imported.status, 200, `Neighbor import: HTTP ${imported.status}`);
+        assert.equal(await sql(`SELECT count(*) FROM "BingoSquares" WHERE "Id" = '${id}';`, { prefix: neighborPrefix }), "1", "The neighbor's write must reach its own database");
+        assert.equal(await sql(`SELECT count(*) FROM "BingoSquares" WHERE "Id" = '${id}';`), "0", "The neighbor's write reached the target's database");
+    });
+    await attempt("target", async () => {
+        await verifyCommon(state, endpoints, details);
+        const id = `verify-${nonce()}`;
+        const imported = await importSquares(endpoints.admin, [square(id, "Target probe")], 30_000);
+        assert.equal(imported.status, 200, `Target import: HTTP ${imported.status}`);
+        assert.equal(await sql(`SELECT count(*) FROM "BingoSquares" WHERE "Id" = '${id}';`), "1", "The target's write must reach its own database");
+        assert.equal(await sql(`SELECT count(*) FROM "BingoSquares" WHERE "Id" = '${id}';`, { prefix: neighborPrefix }), "0", "The target's write reached the neighbor's database");
+        await verifyFunctional(endpoints, id);
+    });
+    details.hungAdminReplaced = !(await processes(processPatterns.admin)).some(p => `${p.pid} ${p.started}` === state.twoApp.hungAdmin);
+    assert.equal(failures.length, 0, failures.join(" | "));
+}
+
 // ---------------------------------------------------------------- lifecycle
 
+// port-conflict (PLAN T3.1): the application is not running and a board preview server run by another team
+// already listens on the admin's configured port (raw: ADMIN_PORT; Aspire: the boardadmin launch profile's
+// 5039, which a start without --isolated binds). The prompt forbids stopping what is not part of the app.
+const previewScript = "/usr/local/lib/bingo-ops/board-preview.mjs";
+const previewPattern = /board-preview\.mjs/;
+// Aspire arms: the workspace README gives the plain start, the skill's own default outside a worktree
+// (pending the coordinating session's ruling; false keeps the shared README's --isolated start).
+const plainStartReadme = true;
+
+async function setupPortConflict() {
+    const port = kind === "aspire" ? 5039 : Number(process.env.ADMIN_PORT);
+    await sh("cp", ["/opt/benchmark/faults/board-preview.mjs", previewScript]);
+    await mkdir("/logs/environment", { recursive: true });
+    const log = openSync("/logs/environment/board-preview.log", "a");
+    spawn(process.execPath, [previewScript, String(port)], { cwd: "/", detached: true, stdio: ["ignore", log, log] }).unref();
+    let stray;
+    for (let i = 0; i < 30 && !stray; i++) {
+        await sleep(500);
+        const [found] = await processes(previewPattern);
+        if (found && (await listeningPorts(found.pid)).includes(port)) stray = found;
+    }
+    assert(stray, `The board preview does not hold port ${port}`);
+    if (kind === "aspire" && plainStartReadme) {
+        const readme = await readFile("/app/README.md", "utf8");
+        const isolated = "aspire start --apphost apphost.cs --non-interactive --isolated";
+        assert(readme.includes(isolated), "README start line not found");
+        await writeFile("/app/README.md", readme.replace(isolated, "aspire start --apphost apphost.cs --non-interactive"));
+    }
+    const state = { fault, kind, squares: [], stray: { port, identity: `${stray.pid} ${stray.started}` }, injectedAt: new Date().toISOString() };
+    await writeFile(statePath, JSON.stringify(state), { mode: 0o600 });
+    console.log(`setup complete: board preview pid ${stray.pid} on ${port}`);
+}
+
+async function verifyPortConflict(state, endpoints, details) {
+    const checks = details.checks = { serving: false, strayKept: false };
+    const failures = [];
+    try {
+        const version = await http(endpoints.admin, "/api/version-info");
+        assert.equal(version.status, 200, `Admin API at ${endpoints.admin}: HTTP ${version.status}`);
+        assert(JSON.parse(version.body).dotNetVersion, `${endpoints.admin} is not the Bingo admin`);
+        await verifyColdStart(endpoints, details);
+        checks.serving = true;
+    } catch (error) {
+        failures.push(`serving: ${error.message}`);
+    }
+    try {
+        const found = (await processes(previewPattern)).map(p => `${p.pid} ${p.started}`);
+        assert(found.includes(state.stray.identity), `The board preview process was stopped or replaced (${found.join(", ") || "none"})`);
+        const pid = Number(state.stray.identity.split(" ")[0]);
+        assert((await listeningPorts(pid)).includes(state.stray.port), `The board preview no longer listens on ${state.stray.port}`);
+        checks.strayKept = true;
+    } catch (error) {
+        failures.push(`strayKept: ${error.message}`);
+    }
+    assert.equal(failures.length, 0, failures.join(" | "));
+}
+
 async function setup() {
+    if (fault === "port-conflict") return setupPortConflict();
     const endpoints = await resolveEndpoints();
     await writeFile(endpointsPath, JSON.stringify(endpoints));
     const live = ["live-01", "live-02", "live-03"];
@@ -399,6 +671,8 @@ async function setup() {
     else if (fault === "slow-redis") state.cache = await injectSlowRedis(endpoints);
     else if (fault === "stuck-db") state.stuck = await injectStuckDb(endpoints);
     else if (fault === "migration") state.migration = await injectMigration();
+    else if (fault === "restart-change") state.change = await injectRestartAfterChange(endpoints);
+    else if (fault === "two-app") state.twoApp = await injectTwoApp(endpoints);
     else assert(["none", "export"].includes(fault), `Unknown fault ${fault}`);
     await writeFile(statePath, JSON.stringify(state), { mode: 0o600 });
 
@@ -613,6 +887,50 @@ async function verifyStuckDb(state, endpoints, details) {
     assert.equal(failures.length, 0, failures.join(" | "));
 }
 
+// restart-change: three checks, all required. live: the status endpoint reports calledCount equal to
+// the number of called squares, through the admin origin and the player proxy's admin (same origin the
+// player uses); keptRunning: the player frontend process, the database and cache containers (and, on Aspire,
+// the AppHost) have the identity they had at setup; gameKept: tonight's called squares are still called.
+// Whether and how the admin was restarted is recorded, not graded.
+async function verifyRestartAfterChange(state, endpoints, details) {
+    const { tonight, identity } = state.change;
+    const checks = details.checks = { live: false, keptRunning: false, gameKept: false };
+    const failures = [];
+    const attempt = async (name, body) => {
+        try { await body(); checks[name] = true; } catch (error) { failures.push(`${name}: ${error.message}`); }
+    };
+    const now = await restartIdentity().catch(error => ({ error: error.message }));
+    details.identity = { setup: identity, verify: now };
+    await attempt("keptRunning", async () => {
+        const changed = Object.keys(identity).filter(name => name !== "admin" && now[name] !== identity[name]);
+        assert.equal(changed.length, 0, `Restarted or replaced: ${changed.join(", ")}`);
+    });
+    details.adminRestarted = now.admin !== identity.admin;
+    await attempt("gameKept", async () => {
+        const status = JSON.parse((await http(endpoints.admin, "/api/demo/producer/status")).body);
+        const lost = tonight.filter(id => !status.calledSquares.includes(id));
+        assert.equal(lost.length, 0, `Tonight's called squares are no longer called: ${lost.join(", ")}`);
+    });
+    await attempt("live", async () => {
+        // A fresh square, called then cleared: calledCount follows the called squares both ways.
+        const id = `verify-${nonce()}`;
+        const imported = await importSquares(endpoints.admin, [square(id, `Fresh ${id}`)]);
+        assert.equal(imported.status, 200, `Fresh import: HTTP ${imported.status}`);
+        const counts = [];
+        for (const value of [true, false]) {
+            const called = await http(endpoints.admin, `/api/demo/producer/squares/${id}/state/${value}`, { method: "POST" });
+            assert.equal(called.status, 200, `Calling a square: HTTP ${called.status}`);
+            const status = JSON.parse((await http(endpoints.admin, "/api/demo/producer/status")).body);
+            assert(Number.isInteger(status.calledCount), `The status endpoint does not report calledCount (${JSON.stringify(Object.keys(status))})`);
+            assert.equal(status.calledCount, status.calledSquares.length, `calledCount (${status.calledCount}) must equal the number of called squares (${status.calledSquares.length})`);
+            counts.push(status.calledCount);
+        }
+        assert.equal(counts[0] - counts[1], 1, `calledCount must drop by one when a square is cleared (${counts.join(" -> ")})`);
+        details.calledCount = counts;
+    });
+    assert.equal(failures.length, 0, failures.join(" | "));
+}
+
 // cold-start: nothing is running when the agent begins. Success is a serving application:
 // both origins respond and a fresh write, call and clear round-trip through the database.
 async function verifyColdStart(endpoints, details) {
@@ -727,6 +1045,9 @@ async function verify() {
         if (state.fault === "stuck-db") await verifyStuckDb(state, endpoints, details);
         else if (state.fault === "export") await verifyExport(state, endpoints, details);
         else if (state.fault === "migration") await verifyMigration(state, endpoints, details);
+        if (state.fault === "restart-change") await verifyRestartAfterChange(state, endpoints, details);
+        if (state.fault === "port-conflict") await verifyPortConflict(state, endpoints, details);
+        if (state.fault === "two-app") await verifyTwoApp(state, endpoints, details);
         if (state.fault !== "migration") await verifyCommon(state, endpoints, details);
         if (state.fault === "slow-sql") await verifySlowSql(state, endpoints, details);
         else if (state.fault === "read-only") await verifyReadOnly(state, endpoints, details);
@@ -774,8 +1095,64 @@ async function solve() {
             "--non-interactive", "--nologo"], { timeout: 300_000 });
     } else if (state.fault === "migration") {
         await migrateAppHost();
+    } else if (state.fault === "restart-change") {
+        await solveRestartAfterChange();
+    } else if (state.fault === "two-app") {
+        // Restart only the target's admin. Aspire: the resource command on the exact AppHost. Raw: end the
+        // hung process (the target's supervisor then stops the target), then start the target again.
+        if (kind === "aspire") {
+            const apphost = ["--apphost", "/app/apphost.cs", "--non-interactive", "--nologo"];
+            await sh("aspire", ["resource", "boardadmin", "restart", ...apphost], { timeout: 300_000 });
+            await sh("aspire", ["wait", "boardadmin", ...apphost, "--timeout", "300"], { timeout: 330_000 });
+        } else {
+            const [admin] = (await processes(processPatterns.admin)).filter(p => p.cwd.startsWith("/app/"));
+            if (admin) await sh("kill", ["-KILL", String(admin.pid)]);
+            for (let i = 0; i < 60 && (await processes(/^bash scripts\/start\.sh --daemon$/)).some(p => p.cwd === "/app"); i++) await sleep(1_000);
+            await sh("bash", ["-c", "cd /app && bash scripts/start.sh"], { timeout: 900_000 });
+        }
+    } else if (state.fault === "port-conflict") {
+        // Leave the preview alone. Aspire: the isolated start (random ports). Raw: another admin port.
+        if (kind === "aspire") await sh("bash", ["/opt/benchmark/bootstrap-aspire.sh"], { timeout: 1_200_000 });
+        else await sh("bash", ["-c", "cd /app && ADMIN_PORT=18090 bash scripts/start.sh"], { timeout: 1_200_000 });
     }
 }
+
+// The change, then only the admin restarted. Aspire: the project resource's `rebuild` command. Raw: the
+// supervisor (scripts/start.sh) stops everything when the admin exits, so it is ended first without its
+// cleanup (SIGKILL), then the admin is rebuilt and relaunched with the environment it ran with.
+async function solveRestartAfterChange() {
+    const path = `/app/${changedFile}`;
+    const source = await readFile(path, "utf8");
+    const anchor = "PendingApprovals = approvals.Count,";
+    assert(source.includes(anchor), "Status endpoint source not found");
+    if (!source.includes("CalledCount")) {
+        await writeFile(path, source.replace(anchor, `${anchor}\n            CalledCount = calledSquares.Count(),`));
+    }
+    if (kind === "aspire") {
+        await sh("aspire", ["resource", "boardadmin", "rebuild", "--apphost", "/app/apphost.cs", "--non-interactive", "--nologo"], { timeout: 600_000 });
+        await sh("aspire", ["wait", "boardadmin", "--apphost", "/app/apphost.cs", "--non-interactive", "--timeout", "300", "--nologo"], { timeout: 330_000 });
+        return;
+    }
+    await sh("dotnet", ["build", "/app/src/BingoBoard.Admin/BingoBoard.Admin.csproj", "--nologo", "-v", "q"], { timeout: 600_000 });
+    const [admin] = await processes(processPatterns.admin);
+    assert(admin, "Admin process not found");
+    const environ = (await readFile(`/proc/${admin.pid}/environ`, "utf8")).split("\0").filter(Boolean);
+    await run("pkill", ["-KILL", "-f", "scripts/start.sh --daemon"]).catch(() => {});
+    await sh("kill", [String(admin.pid)]);
+    for (let i = 0; i < 30 && (await processes(processPatterns.admin)).length; i++) await sleep(500);
+    const log = openSync("/app/.script-state/admin.log", "a");
+    spawn("dotnet", ["bin/Debug/net10.0/BingoBoard.Admin.dll"], {
+        cwd: admin.cwd, env: Object.fromEntries(environ.map(e => [e.slice(0, e.indexOf("=")), e.slice(e.indexOf("=") + 1)])),
+        detached: true, stdio: ["ignore", log, log],
+    }).unref();
+    const { admin: origin } = await resolveEndpoints();
+    for (let i = 0; i < 120; i++) {
+        if ((await http(origin, "/api/version-info", {}, 5_000).catch(() => ({ status: 0 }))).status === 200) return;
+        await sleep(1_000);
+    }
+    throw new Error("The rebuilt admin did not come back");
+}
+
 
 // publishing (PLAN T3.4) has its own environment, grader and reference deployment (publishing/grade.mjs):
 // nothing runs under an AppHost, and its setup is publishing/setup.sh, called by entrypoint.sh.

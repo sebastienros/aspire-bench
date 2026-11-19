@@ -3110,6 +3110,100 @@ other skills' prompts 0/106, distractors 0; luna, descriptive only, own prompts 
 other prompts 0/108. Nothing in the selection data argues for `split` or `merge`; the body's size (10 KB, 4
 references) is not weighed without an outcome cell. $0.
 
+#### T3.1 fixtures and rule, as computed (written 2026-11-19, before any T3.1 trial or pilot)
+
+**What the pinned daily does, measured locally before the fixtures were written** (official CLI
+`17.1.0-preview.1.26567.3`, the aspirified Bingo image):
+- `boardadmin` (a C# project resource) exposes `rebuild` ("Stop the resource, rebuild the project from source, and
+  restart") and `restart` ("Source code is not recompiled"). `rebuild` applied a source change in 4.4 s; the AppHost,
+  the Vite process and both containers kept their identity.
+- **File locks cannot occur here:** `dotnet build` of the admin project while it runs succeeds on Linux (no
+  MSB3491/CS2012). The skill's file-lock recovery is therefore not exercised by any scenario (row below).
+- `--isolated` randomizes every port, including the launch profile's 5039 and an endpoint pinned in the AppHost
+  (`WithEndpoint("http", e => e.Port = 15173)` came up on 33415). **354 of 354** cold-start Aspire trials at this
+  pin started with `--isolated` (the README says so). Under a plain `aspire start` a process already on 5039 makes
+  DCP fail to bind the admin's proxy with one INFO line ("Could not use the same port for all addresses associated
+  with requested service address"), while `aspire describe` still advertises `boardadmin` at `http://localhost:5039`.
+- Two AppHosts side by side: from `/app` an unscoped `aspire describe` targets `/app`'s AppHost; from `/` it refuses
+  ("Multiple running AppHosts were found … Pass --apphost").
+
+**Arms** (ruling 1): `raw`, `aspire-cli`, `aspire-skill-orchestration` (`skill-only`), `aspire-skills` (`bundle`),
+`aspire-skills-noorchestration` (`bundle-minus`) on every scenario. Each scenario has a raw reference repair that
+passes its verifier, so `raw` runs everywhere (reported; the verdict compares `skill-only` with `aspire-cli`).
+
+**Scenarios** (faults in `common/bench/bench.mjs`; every check recorded in `details.json`; pass = reward 1 = all
+checks):
+- **`cold-start`** (existing): reported as the same-round tie to T2.11, not decisive (ruling 4).
+- **`restart-change`** (the card's restart-after-change, renamed to keep benchmark names ≤ 61 characters): the app
+  is running, tonight's three squares (`night-*`, which live traffic never touches) are called. Prompt: add
+  `calledCount` to `GET /api/demo/producer/status` and put it live now, keeping the player site, database and cache
+  running; restart only what the change needs.
+  - Checks: `live` (a fresh square called then cleared: `calledCount` equals the number of called squares both
+    times and drops by one), `keptRunning` (Vite process pid + start time, the Postgres and Redis containers' id +
+    start time, and on Aspire the AppHost's pid + start time, all as at setup), `gameKept` (tonight's squares still
+    called). Recorded: whether the admin process was replaced.
+  - Reference repairs: Aspire `aspire resource boardadmin rebuild`. Raw: the supervisor (`scripts/start.sh`) stops
+    the frontend and both containers when the admin exits, so it is ended without its cleanup (SIGKILL), then the
+    admin is rebuilt and relaunched with its own environment.
+  - Local gates (both kinds): fail → repair → pass. Negatives: Aspire `restart` without a build fails `live`; a
+    full `aspire stop` + start fails `keptRunning` and `gameKept`; `dotnet build` + `restart` passes. Raw: build,
+    kill the admin, `start.sh` fails `keptRunning` (containers restarted). Restore check: the Aspire repair passes
+    with egress rejected (`iptables … REJECT`): the rebuild never reaches a feed.
+- **`two-app`** and **`port-conflict`**: fixtures gated locally; their fault and README are **pending the
+  coordinating session's ruling** (sent 2026-11-19 before any pilot). They get their own re-pin and their design
+  is written here before their pilots.
+
+**Guard** (ruling 5): `aspire-skills-noorchestration` and `aspire-skills` on luna `slow-sql` and `slow-redis` × 6, same
+round (48 trials: the card's 24 plus the same-round `aspire-skills` control).
+
+**Rounds.** Pilots (ruling 7): `aspire-cli` × luna, terra × 2 per new scenario, rounds `p3-pilot-<scenario>`, ledger
+`excluded`. No agent-timeout multiplier: 900 s for every arm (written now; if a pilot shows a scenario near the
+limit, that is reported before the round, not changed after it). Oracle gates `gate-t31` (every task). Round
+`t31`: 4 scenarios × 5 arms × luna, terra × 6 (240) plus the guard (48), submitted together.
+
+**Rule, applied in this order** (§7 table, rulings 2–6, 9). Decisive cells: `restart-change`, `two-app`,
+`port-conflict` (ruling 4), each × model; `skill-only` = `aspire-skill-orchestration`.
+1. **Floor.** A cell where `skill-only` and `aspire-cli` both pass ≤ 1/6 is reported, not tested. If all three luna
+   cells are floors, the card is `no verdict`.
+2. **`keep`**, luna only (ruling 2):
+   - one decisive scenario where `skill-only` ÷ `aspire-cli` median time ≤ 0.90 with exact Mann-Whitney p < 0.05,
+     or Fisher's exact test on pass counts p < 0.05 (the cell, or the three scenarios pooled);
+   - the same direction (ratio < 1.00, no fewer passes) on the other two;
+   - no decisive luna scenario where `skill-only` is slower by > 10 % (p < 0.10) or passes two fewer;
+   - selection (ruling 3): terra from T3.9 (`aspire-orchestration` 11/11 own; other skills' prompts: see below);
+     luna: the first skill loaded in the luna `aspire-skills` trials is `aspire-orchestration` in ≥ 5/6 per decisive
+     scenario, else the card goes to row 5 and says so;
+   - **`shrink`** instead of `keep` if `skill-only`'s median count of `aspire-orchestration` files read
+     (`references_read_paths` under `aspire-orchestration/`) per trial on the cells that meet the clause is ≥ 2.
+3. **Worse.** A decisive luna scenario where `skill-only` is slower by > 10 % (p < 0.10) or passes two fewer makes
+   the card `shrink` when the trajectories show the cost comes from the body or references on the main path, and
+   `no verdict` otherwise.
+4. **`remove`**, all of: on every decisive cell (both models) `skill-only` ÷ `aspire-cli` median within 0.90–1.10,
+   bootstrap 90 % interval inside 0.75–1.25, pass counts within one; `aspire-skills-noorchestration` ÷
+   `aspire-skills` on every decisive cell not slower by > 10 % and not more than one pass fewer; the guard: luna
+   `slow-sql` not slower by > 10 % (p < 0.10) and passes ≥ bundle − 1, luna `slow-redis` time only. A failing
+   guard or bundle-minus cell makes the card `no verdict` with that cell named.
+5. **`no verdict`** otherwise; at most one top-up (ruling 6).
+6. **`split`**: terra's T3.9 matrix. `aspire-orchestration` was selected on 6 of 107 runs of other skills' prompts,
+   all six on prompts labelled as the router's (`router-3`, `-5`, `-6`, two runs each). Reading (a), pending the
+   coordinating session's ruling: those are run/restart jobs orchestration's own description claims and the
+   router's removal ships (T1.3), so false selection is counted on the seven other skills' prompts (0 of 96) and
+   `split` does not fire; reading (b) counts them (6 ≥ 3 → `split`/narrow, re-run T3.9 only).
+7. **Rows the scenarios do not exercise** (ruling 9), `no verdict`: VS Code lifecycle tools and their stop-result
+   matrix (`aspire_apphost_start`/`_stop`, `notEditorOwned`, `ambiguousSession`: a VS Code session with the Aspire
+   extension's tools, which T0.4's adapter does not load); file-lock recovery (MSB3491/CS2012: a Windows harness,
+   where a running assembly is locked); git-worktree isolated starts (a fixture whose `/app` is a `git worktree`;
+   the trial workspace is a plain checkout); `aspire update --self/--migrate`, integration discovery, default watch.
+
+**Recorded per trial, read from the trajectories, not graded:** `rebuild` / `restart` / `dotnet build` / `aspire
+stop` of the AppHost / `kill` of an app process (`restart-change`); the skill's references read; and, once ruled,
+`--apphost` scoping and commands naming the neighbor (`two-app`), `aspire stop` before a new start (the skill's
+"port already in use → stop, then restart" row), `--isolated`, a launch-profile edit, and any signal sent to the
+preview process (`port-conflict`).
+
+**Cost.** Card 240 + 24 ≈ $10.10; with the same-round guard control 288 trials. At the Phase 2 rates (≈ 2×) the
+expectation is ≈ $20; the 3× stop is $30.30.
+
 #### T3.2 and T3.3 fixtures and rules, as computed (written 2026-11-19, before any T3.2 or T3.3 trial)
 
 **Shared fixture (authoring lane).** Template `tools/templates/Dockerfile.authoring` (same toolchain pins as the

@@ -89,6 +89,17 @@ if [[ "${BENCH_FAULT:-}" == cold-start* ]]; then
     touch /opt/benchmark/ready
     exec "$@"
 fi
+if [[ "${BENCH_FAULT:-}" == port-conflict ]]; then
+    # PLAN T3.1: nothing is running, as in cold-start, and a process that is not part of the application
+    # already holds the admin's configured port.
+    docker pull -q postgres:18.3 >/logs/environment/application-setup.log 2>&1
+    docker pull -q redis:8.6 >>/logs/environment/application-setup.log 2>&1
+    node /opt/benchmark/bench.mjs setup >/logs/environment/fault-setup.log 2>&1 || {
+        cat /logs/environment/fault-setup.log >&2; exit 1;
+    }
+    touch /opt/benchmark/ready
+    exec "$@"
+fi
 bash "/opt/benchmark/bootstrap-${BENCH_APP_KIND}.sh" >/logs/environment/application-setup.log 2>&1 || {
     cat /logs/environment/application-setup.log >&2; exit 1;
 }
