@@ -3716,7 +3716,7 @@ before `t34` (they had no counted trial). Pilots, `aspire-cli`, all reward 1: ex
 ($0.043); migration luna 332 s ($0.027), terra 353 s ($0.215); publishing luna 229 s ($0.017), terra 181 s
 ($0.101). **No timeout multiplier** for any of the three cards (longest pilot 353 s of 900 s). Prices at the pilot
 rates: T3.5 ≈ $1.30 (card $1.90), T3.4 ≈ $3.50 ($2.40, 3× = $7.20), **T3.7 ≈ $5.80 ($1.90, 3× = $5.70)**: T3.7's
-round waits for the coordinating session (the 3× stop).
+round waits for the coordinating session (the 3× stop; accepted, see the T3.7 fixture block).
 
 #### T3.5 fixture, as computed (written 2026-11-19, before any `t35` or pilot trial)
 
@@ -3825,6 +3825,16 @@ $0.05; gates model-free.
 - **Arms** `aspire-cli`, `aspire-skill-migration`, `aspire-skills`, `aspire-skills-nomigration`. Not exercised:
   TypeScript AppHosts and Blazor gateways (a TypeScript AppHost fixture would), the multi-turn approval exchange
   itself (a conversational harness).
+- **Feed vendored (added 2026-11-19, before any `t37` trial).** The daily feed floats under a pinned CLI (FINDINGS
+  F54: `aspire new` resolved 26568.1 on the 26567.3 CLI), and a migration may make the agent run `aspire add` or a
+  restore. The migration image therefore runs the authoring lane's `common/authoring/vendor.sh` at build (all 141
+  Aspire packages at 17.1.0-preview.1.26567.3 in a local folder, the CLI's `.aspire-install.json` `packages`
+  sidecar pointing at it, the NuGet cache warmed; the CLI prints an "emulating identity" notice on stderr in every
+  arm alike). The four migration tasks were regenerated with it (they had gates and an excluded pilot only) and
+  re-gated before the round.
+- **Round submitted at a projected ≈ $5.80 against the card's $1.90 (3.05×); accepted by the coordinating session
+  before submission because the terra price per trial ($0.215, 353 s) was unknown when the card was estimated.** No
+  top-up for T3.7 after this round: if the table lands in the "add 6 trials or stop" row, the card stops.
 
 #### T3.4 fixture, as computed (written 2026-11-19, before any `t34` or pilot trial)
 

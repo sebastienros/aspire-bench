@@ -128,6 +128,12 @@ ENV BENCH_APP_KIND=aspire
 FROM app-${APP_KIND} AS final
 ARG SKILLS=none
 ARG FAULT=none
+# PLAN T3.7 (ruling 7): the migration may make the agent add or restore Aspire packages, and the daily feed
+# floats under a pinned CLI (FINDINGS F54). The authoring lane's vendored feed pins every Aspire package to
+# the pinned daily from disk and warms the NuGet cache (common/authoring/vendor.sh). Every other fault skips it.
+ARG ASPIRE_VERSION=17.1.0-preview.1.26567.3
+RUN --mount=type=bind,from=suite,source=authoring,target=/mnt/authoring \
+    if [ "$FAULT" = migration ]; then bash /mnt/authoring/vendor.sh "$ASPIRE_VERSION"; fi
 COPY --from=suite bench/ /opt/benchmark/
 # Host-side operations tooling, visible to the agent like any installed script.
 COPY --from=suite ops/ /usr/local/lib/bingo-ops/

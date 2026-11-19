@@ -29,6 +29,12 @@ docker run -d --name bingo-db --network bingo-net --label benchmark.owner=enviro
     -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=LocalDatabase1! -e POSTGRES_DB=bingo postgres:18.3
 docker run -d --name bingo-cache --network bingo-net --label benchmark.owner=environment \
     -p 127.0.0.1:6379:6379 redis:8.6
+# The image first runs a temporary server for initdb and restarts it; pg_isready answers during that
+# first server too, so wait for the init to finish before asking (T3.4: 4 of 70 setups failed here).
+for _ in {1..120}; do
+    if docker logs bingo-db 2>&1 | grep -q 'PostgreSQL init process complete'; then break; fi
+    sleep 1
+done
 for _ in {1..60}; do
     if docker exec bingo-db pg_isready -U postgres -d bingo; then break; fi
     sleep 1
