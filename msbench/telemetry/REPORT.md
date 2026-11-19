@@ -1320,3 +1320,36 @@ its 12 own prompts and never on another's, and no distractor loads a skill. The 
 `aspire-orchestration` wins three start/restart/stop prompts labelled as the router's (one upstream case, two written
 here), the job it carried without the router in T1.3 and T3.8 ([FINDINGS F37](../FINDINGS.md#f37-a-static-workspace-selection-run-predicts-the-trials-first-skill-except-that-it-over-predicts-the-router)).
 [PLAN.md, T3.9 results](PLAN.md#t39-results).
+
+**Phase 1 scorecard (closed 2026-11-18).** Eleven cards, all with a verdict; 733 model trials plus 400
+selection runs; **$72.05 against $42 at the cards' estimates and ≈ $60 re-estimated** after the model lane.
+Nothing is filed upstream. Cost is from `trials.jsonl` (`cost_usd`, gates and probes included) and
+`selection.jsonl`.
+
+| Card | Verdict | One line | Trials | Cost (card) |
+|---|---|---|---:|---:|
+| T1.1 `aspire-diagnose` ship gate, strong models | **ship** | lean 0.67× raw on sol, 0.95× on Opus; n = 3 cells, rests on T0.2's open gate | 12 | $4.31 ($2.20) |
+| T1.2 narrowed monitoring trigger alone | **drop** | luna 1.34×/0.95×/0.96×, n.s.; monitoring still loads 6/18 luna, 18/18 terra, half via the router | 76 | $4.49 ($2.90) |
+| T1.3 router removed alone | **ship** | same round luna 0.50× `slow-sql`, 0.67× `read-only`, tokens halved (p = 0.041); both guards held; across rounds holds on `read-only` only | 100 | $3.39 ($3.10) |
+| T1.4 MCP compact telemetry at n = 6 | **drop** (user ruling: luna rule stands) | luna −12 %/−10 % n.s.; terra −29 %/−30 %, p ≤ 0.009, recorded not acted on; guard 5/6 vs 5/6 | 164 | $6.04 ($4.10) |
+| T1.5 CLI plain output | **ship** | by the card's decision: context freed, no speed-up claimed, no agent run | 0 | $0 |
+| T1.6 `aspire-start` | **drop** | luna lean vs lean-start 1.16× (p = 0.004), under the 1.20 bar; v0.0.6 orchestration closed the 11-09 gap | 90 | $5.36 ($4.80) |
+| T1.7 Claude Code harness | **no verdict** | only `/v1/messages`, no task MCP or skills, CLI unpinned; adapter proposed as T4.7; 36 Copilot-only luna cells kept | 36 | $0.74 ($0.60) |
+| T1.8 model lane, sol and Opus | **revise** | Opus `slow-sql` lean 1.45× raw (p = 0.026): Opus waits for fresh telemetry with or without a skill; step-4 edit proposed, needs an Opus `aspire-cli` control | 108 | $35.43 ($19.90) |
+| T1.9 VS Code lane | **harness-dependent** | 7 of 12 Aspire cells outside ±0.15 of Copilot CLI's ratios; same skills load; raw luna edits instead of investigating; T4.8, T4.9 proposed | 108 | $5.31 ($4.40) |
+| T3.8 router's guardrail job | **remove** | every arm 6/6, no destructive command in 48 trials; ceiling, the fixture cannot separate the arms | 39 | $1.14 ($1.50) |
+| T3.9 selection benchmark | **proxy on terra, not luna** | terra matches both diagnosis targets 18/18; luna picks the router 17/18 static against 9/18 live; 15 of 17 pin-wide cells agree | 400 runs | $5.84 ($2) |
+
+**The lean proposal after Phase 1 and T2.10–T2.11:** the router leaves (T1.3, T3.8); the narrowed
+monitoring trigger stays only as part of that set (T1.2); `aspire-start` is not added (T1.6);
+`aspire-orchestration` leaves the start job to an `AGENTS.md` beside the AppHost that orders start,
+`describe`, `wait <resource-name>` (T2.11), with `aspire-diagnose`'s description repointed away from it;
+`aspire-diagnose` step 4 is edited only after an Opus no-skill control (T1.8). Compact MCP telemetry and
+the CLI plain-output patch stand as Phase 2 product work (T1.4 for terra, T1.5 shipped by decision).
+
+**Open after Phase 1:** T1.1 at n = 3 (an n = 6 top-up ≈ $4.50); T1.3's `slow-sql` and cold-start effects
+across rounds (a same-round n = 12 re-run would settle both); T3.8's ceiling fixture; why the selection
+proxy over-picks the router on luna (a run with the app built and started would tell); the Opus
+`aspire-cli` control for T1.8; two stale issue drafts (`skills-remove-router-add-aspire-start.md`,
+`skills-narrow-aspire-monitoring.md`) and the unfiled `aspire-agents-md.md`; the `aspire-diagnose`
+description still naming `aspire-orchestration` (2 of 6 T2.11 trials tried to load it).
