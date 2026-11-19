@@ -4109,8 +4109,8 @@ $0.12; gates model-free.
 | T4.2 | **Cross-service fault** | The span-pattern table's "error on a client span under a 200" row is untested | Bingo's frontend proxy to the admin returns errors the frontend swallows (a misconfigured upstream path); nothing in the admin log; the aspirified trace shows a client span with 5xx under a 200 | `raw`, `aspire-cli`, `aspire-skills-mcp`, `aspire-lean` × luna, terra × 6 = 48 ≈ $1.90 | pending |
 | T4.3 | **Application-code fault** | "Time not covered by any child span" row untested; raw app's log has nothing | An N+1 in the status endpoint (one query per square) after a data growth step; verifier: median status under a limit and query count per request under a limit | Same arms, 48 ≈ $1.90 | pending |
 | T4.4 | **Multi-turn session** | All 461 trials are single turn; a real session reuses context | Two-step task: diagnose, then a follow-up change on the same running app; only if the runner demonstrably keeps the conversation (F05) | 24 ≈ $1.00 after the runner check | [`not runnable`](#t44-results) (2026-11-19): the runner refuses step 2 on its own `.runner-lock`; $0.0014 |
-| T4.5 | **Tracking schedule** (REPORT §11) | Every later product daily and skills release gets the core matrix | Workflow on this repo: re-pin, gate, submit core matrix, collect, series, open an issue on a flag | 120 trials ≈ $5 per run | pending |
-| T4.6 | **Cheaper rounds** | The plan's cost is bounded by queue time more than money | Local gate before every cloud submission; one image per app kind with skill sets mounted at run time instead of baked | none | pending |
+| T4.5 | **Tracking schedule** (REPORT §11) | Every later product daily and skills release gets the core matrix | Workflow on this repo: re-pin, gate, submit core matrix, collect, series, open an issue on a flag | 120 trials ≈ $5 per run | [done 2026-11-19](#t45-results): `tools/track.sh`; smoke 24 trials $0.94, 0 drafts |
+| T4.6 | **Cheaper rounds** | The plan's cost is bounded by queue time more than money | Local gate before every cloud submission; one image per app kind with skill sets mounted at run time instead of baked | none | [`keep baked`](#t46-results): files identical on CES, but CES builds per trial |
 | T4.7 | **Claude Code adapter** (proposed 2026-11-18, not built) | T1.7 found that no skill and no MCP server reach the `claude-code` harness, and that only Claude models run under it | Skills copied to `/app/.claude/skills`, the MCP server registered the way Harbor's `claude_code` agent does it, a real CLI version pin; `claude-haiku-5.5` on both harnesses: [card below](#t47-claude-code-adapter-proposed) | 72 ≈ $5 plus a re-pin and gates | proposed |
 | T4.8 | **VS Code parity settings** (proposed 2026-11-18, from [T1.9](#t19-results)) | Under VS Code the MCP tools sit behind `tool_search` (15 of 18 terra `aspire-skills-mcp` trials never searched for them) and the inner limit (`agentSeconds: 720`) leaves about 534 s of work against Copilot CLI's 900 s; four `aspire-skills-mcp` trials hit it | Raise `agentSeconds` (and Harbor's multiplier with it) so net working time matches 900 s; find whether VS Code can list MCP tools eagerly, and if it can, run that as a separate assets folder. If it cannot, deferred MCP is the product condition under VS Code and is reported as such. Re-run `slow-sql`, `slow-redis` × `aspire-skills-mcp` × luna, terra | 24 ≈ $2.40 | proposed |
 | T4.9 | **What makes luna investigate under VS Code** (proposed 2026-11-18, from [T1.9](#t19-results)) | Under VS Code, raw luna runs 2.5–5 shell commands and patches code (1/6 and 0/6 pass); with `aspire-lean` it runs 14–19.5 and passes 5/6 and 4/6. The time ratio inverts that effect | Under VS Code, `slow-sql`, `slow-redis` × luna × `aspire-cli` (commands, no skill) and `aspire-lean-agents` / `aspire-cli-agents` (T2.10's file, which VS Code also reads) × 6; decide on pass rate and time-to-pass, not the raw ratio | 36 ≈ $2.50 | proposed |
@@ -4362,6 +4362,32 @@ the next (F05). The probe is one excluded luna trial of a two-step Harbor task.
 - `not runnable` closes the card with what the runner would need, and nothing more is submitted. `runnable` opens
   the 12-trial design of ruling 2, whose step-2 fixture and rule are written before any of those trials.
 
+#### T4.4 results
+
+**`not runnable` on this harness (outcome 2 of the rule block), 2026-11-19.** No T4.4 trial was submitted.
+
+- **Gate** `gate-t44-probe` (run `2026111976187152`, oracle, no resume): reward 1 on both steps.
+- **Probe** `p4-probe-t44` (run `2026111976653508`, luna, `--harbor-resume-trajectory`, excluded; ledger
+  `results/multistep-ledger.jsonl`): Harbor and the adapter ran both steps with `resume_trajectory: true` in each
+  step's metadata. **Step 1** ran: the pinned runner (package `github-copilot-cli-pkg-main-20261014-215627`, CLI
+  1.0.99-0) logged `run context mode=harbor-multistep-resume … step=1/2 … session=<id> session_action=create
+  session_source=trial`, started Copilot CLI in a per-trial `COPILOT_HOME`, and luna answered `noted` in one model
+  call (10,942 prompt tokens), reward 1. **Step 2 never reached the model:** `harbor-runner-output.txt` for the step
+  reads "Runner lock file found at /output/.runner-lock. This runner has already been executed (exit code: 0)",
+  the adapter returned `MSBENCH_ADAPTER_RUNNER_EXIT_CODE=0` in 0.7 s, no second `run context` line and no second
+  `user.message` exist, `/app/codeword.txt` was never written, and step 2's verifier gave 0. Harbor recorded no
+  exception: a reward-only reading would call this a model failure.
+- **What the runner would need**: the runner already derives a session from the trial id and has a
+  `harbor-multistep-resume` mode, so the missing piece is narrow. On a resumed step (`harbor_step.current_step` > 1
+  with `resume_trajectory: true`), it must not refuse on the lock its own step 1 left in the preserved `/output`.
+  It should key the lock by step, or clear it on the adapter's `resume` entry. It must then start Copilot CLI on
+  the session it created (`session_action=resume`, same `COPILOT_HOME`) with the step's instruction as the next
+  user message. Removing the lock by hand from the task is not a fix: the rule block's runnable test also needs the
+  conversation to be carried, and only the runner can do that.
+- The same lock refusal F05 recorded for run `2026101503460490` a month earlier. That run's package is not recorded;
+  this probe's package, the pin's, is the one the four-variant comparison of 2026-10-21 used without resumption.
+- Cost: $0.0014 (one luna call); gate model-free. Card estimate $0.70.
+
 ### T4.5 Tracking schedule and T4.6 Cheaper rounds (infrastructure lane)
 
 #### T4.6 measurement of existing rounds, as computed (written 2026-11-19, before any timing was read)
@@ -4470,31 +4496,103 @@ the window is the cell's last five earlier runs, a run is the round name up to t
    unlikely, so the draft writer is also run on a row that already carries a `regress-*` flag in `series.jsonl`,
    with its output kept as evidence, not under `upstream-issues/tracking/`.
 
-#### T4.4 results
+#### T4.6 results
 
-**`not runnable` on this harness (outcome 2 of the rule block), 2026-11-19.** No T4.4 trial was submitted.
+**Verdict: `keep baked`** (ruling 7 as written, read with the addendum): the oracle rewards are equal and the skill
+files are byte-identical on CES, but CES builds the image on every trial, so mounting alone does not remove the
+per-arm build there. The mechanism works; it pays off only with a pre-built image pulled from a registry (proposal
+below), which this card does not do. Cost $0 (no model call).
 
-- **Gate** `gate-t44-probe` (run `2026111976187152`, oracle, no resume): reward 1 on both steps.
-- **Probe** `p4-probe-t44` (run `2026111976653508`, luna, `--harbor-resume-trajectory`, excluded; ledger
-  `results/multistep-ledger.jsonl`): Harbor and the adapter ran both steps with `resume_trajectory: true` in each
-  step's metadata. **Step 1** ran: the pinned runner (package `github-copilot-cli-pkg-main-20261014-215627`, CLI
-  1.0.99-0) logged `run context mode=harbor-multistep-resume … step=1/2 … session=<id> session_action=create
-  session_source=trial`, started Copilot CLI in a per-trial `COPILOT_HOME`, and luna answered `noted` in one model
-  call (10,942 prompt tokens), reward 1. **Step 2 never reached the model:** `harbor-runner-output.txt` for the step
-  reads "Runner lock file found at /output/.runner-lock. This runner has already been executed (exit code: 0)",
-  the adapter returned `MSBENCH_ADAPTER_RUNNER_EXIT_CODE=0` in 0.7 s, no second `run context` line and no second
-  `user.message` exist, `/app/codeword.txt` was never written, and step 2's verifier gave 0. Harbor recorded no
-  exception: a reward-only reading would call this a model failure.
-- **What the runner would need**: the runner already derives a session from the trial id and has a
-  `harbor-multistep-resume` mode, so the missing piece is narrow. On a resumed step (`harbor_step.current_step` > 1
-  with `resume_trajectory: true`), it must not refuse on the lock its own step 1 left in the preserved `/output`.
-  It should key the lock by step, or clear it on the adapter's `resume` entry. It must then start Copilot CLI on
-  the session it created (`session_action=resume`, same `COPILOT_HOME`) with the step's instruction as the next
-  user message. Removing the lock by hand from the task is not a fix: the rule block's runnable test also needs the
-  conversation to be carried, and only the runner can do that.
-- The same lock refusal F05 recorded for run `2026101503460490` a month earlier. That run's package is not recorded;
-  this probe's package, the pin's, is the one the four-variant comparison of 2026-10-21 used without resumption.
-- Cost: $0.0014 (one luna call); gate model-free. Card estimate $0.70.
+**Where a round's time goes** ([`tools/round_time.py`](tools/round_time.py), output
+[`evidence/round-time/2026-11-19/`](evidence/round-time/2026-11-19/round-time.md); 3,138 trials of pin 2026-11-17, every ledger line on
+`main` already extracted, none fetched). Medians per trial, seconds:
+
+| Trials | n | Queue | Pre | Build | Ready (fault setup) | Agent setup | Agent | Verify | Elapsed | Setup share | Agent share |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| Model, all | 2,949 | 46 | 31 | 130 | 107 | 24 | 115 | 3 | 517 | 71 % | 26 % |
+| Model, Aspire arms | 2,444 | 45 | 31 | 135 | 108 | 23 | 114 | 3 | 525 | 71 % | 26 % |
+| Model, `raw` | 505 | 46 | 31 | 97 | 97 | 24 | 119 | 3 | 461 | 72 % | 24 % |
+| Oracle gates | 189 | 43 | 32 | 145 | 112 | 0 | 8 | 3 | 384 | 91 % | 2 % |
+
+- **Premise: supported** by the rule as computed (queue + pre + build + ready + agent setup = 408.9 h against
+  147.3 h of agent time over the model trials), but not in the form the card states it. The CES queue is short at
+  this pin (median 46 s; 1,328 s only in `t01`, the model-service incident, and 295 s in the VS Code round `t19`);
+  the dominant terms are the **image build (≈ 130 s)** and the **fault's own setup in the container (≈ 107 s)**,
+  both paid by every trial. Rounds run all their trials at once (peak concurrency at least 90 % of the trial count in
+  every model round of ≥ 12 trials but `t01` and `t19`), so a round's wall time is about one trial's elapsed: **0.1 to 0.6 h** (t01 1.8 h, t19 1.9 h),
+  not the 1 to 2 h §3 assumed. Ingestion after the result (what `wait.py` also waits for) is not in Harbor's file
+  and not counted.
+- **No image cache on CES.** For 203 tasks with a first run and two or more later runs, the later runs' median build
+  is 0.97 × the first run's (quartiles 0.88–1.06), and `harbor_image_pull_ms` is unset in all 3,138 trials. Each
+  trial builds its image from the git contexts.
+
+**Prototype.**
+
+- **Local (this Mac, arm64).** Cold build of the skill-less `slow-sql` image (`--no-cache`, base images present):
+  92 s. On a warm cache a baked arm adds **1–2 s** (`lean` 2.1 s, `current` 1.0 s) and ≈ 10 MB. One image ID
+  (`4d6a658a…`) served `lean` and `current` mounted read-only onto both skill folders: SHA-256 of every file equal to
+  the baked images' (88 and 92 files, `evidence/t46-mounted/2026-11-19/`). `local.sh` gained `SKILLS_MOUNT=<set>`.
+  The compose-emitted mounted task (relative bind mount `./skills`) passed the local gate (verify fails → repair →
+  verify passes), and its baked twin's files compared equal through compose too.
+- **Tasks.** `aspire-lean-baked` / `aspire-lean-mounted` (suite `6dc54a8`, tasks `2384620`) and
+  `aspire-lean-baked2` / `aspire-lean-mounted2` (suite `12b1d0d`, tasks `f52753d`), each pair from an additive
+  re-pin; every existing task byte-identical. The twins' `skills_content` is `lean a14396de6b87`, equal to
+  `aspire-lean`'s. The mounted tasks' Dockerfile, build args and contexts are the `aspire-cli` recipe at the same
+  suite commit (only `volumes` and `skills_dir` differ), so in the task graph the per-arm build is gone.
+- **`gate-t46` (instrument failure).** Both oracles reward 1 (`2026111977766244` baked, `2026111977769176`
+  mounted); both `skills.sha256` files list the same 88 paths, but MSBench's secret scan replaced every bare 64-hex
+  digest with `***REDACTED***`, so equal digests were not shown (ruled an instrument failure).
+- **`gate-t46b`.** Both oracles reward 1 (`2026111978341584` baked2, `2026111978343848` mounted2); the two
+  `skills.sha256` files are **identical**: 88 `sha256:`-prefixed digests (44 per folder) and `listing
+  sha256:c0107272…dd131`, the same digests as the local runs. CES honours the relative bind mount.
+- **Build time on CES, the pair.** Build 136 / 137 s (`gate-t46`, baked / mounted) and 107 / 126 s (`gate-t46b`),
+  fault setup 118 / 133 s and 132 / 108 s: the mounted task builds the same image as any other trial, in the same
+  time. **Clause 3 is not met on CES**, hence `keep baked`.
+
+**Proposal (not done; nothing pushed to any registry).** The prototype pays off when an image per app kind (and
+fault, which is a build argument) is built once per pin and pulled: Harbor at this pin reads `docker_image` in
+`task.toml` ("a pre-built Docker image … `environment/Dockerfile` is optional"), and the skill set then comes from
+the task folder by the bind mount proven here. That would replace the ≈ 130 s build in every trial by a pull of a
+≈ 5 GB image (pull time not measured) and remove the per-arm image entirely; the ≈ 107 s fault setup stays (it runs
+at container start). It needs a registry the CES runners can pull from and a push per pin, which is a decision for
+the user, not this lane.
+
+#### T4.5 results
+
+**Delivered: a locally runnable tracking schedule, proved by a smoke run through every step but the gates.** Usage
+in [README "Tracking a new daily or skills release"](README.md#tracking-a-new-daily-or-skills-release-plan-t45).
+
+- **Tooling (on `main`).** [`tools/track.sh`](tools/track.sh) (`repin [--dry-run] [--push]`, `gate`, `matrix`,
+  `finish`, `run`, `smoke`), [`tools/track_drafts.py`](tools/track_drafts.py) (drafts only, never filed),
+  `gen-tasks.mjs track-tasks` / `track-dataset` (the 12 core tasks and their rows under `track/`, pins from
+  `track/common/PIN.json`), `submit.sh` `BENCH_DATASET` and `BENCH_DRY_RUN`, `collect.py --rounds` and
+  `task_path`, `series.py --include-excluded --out`. Default outputs of `collect.py` and `series.py` were checked
+  byte-identical before and after. No workflow file: a manual-dispatch workflow with no secrets could not reach
+  CES, so the script stays local (ruling 6's "at most").
+- **Re-pin dry run** ([`evidence/t45-smoke/repin-dry-run.txt`](evidence/t45-smoke/repin-dry-run.txt)) on the newest
+  daily at the time, `17.1.0-preview.1.26569.1` (commit `4ad3cfe6`, read from the package's nuspec; SHA-256s from
+  the downloaded CLI archives): three commits in a throwaway clone, **no file outside `track/`**, the copy of
+  `common/` differing only in the version strings, the 12 tasks' Dockerfile ARGs carrying the new pins; this
+  checkout's HEAD and status unchanged afterwards.
+- **Smoke `t45-smoke`** (24 trials, 1 per cell, ledger `excluded`, on the current core tasks): submitted
+  21:23–21:24Z, all 24 running at once, wall **22 min**, median queue 45 s, build 122 s, fault setup 107 s, agent 79 s.
+  20/24 passed, no infrastructure failure, no model-service 5xx, **$0.94**. `finish` waited, committed the ledger
+  lines first, collected only `t45-smoke` (plus what `trials.jsonl` already held), ran `series.py --include-excluded
+  t45-smoke --out evidence/t45-smoke/series` and the draft writer: run `t45`, 24 cell rows, no draft-worthy flag
+  (`improve-time` and `improve-tokens` on `slow-redis`/luna/`aspire-lean`, listed only), **0 drafts**
+  ([`finish.txt`](evidence/t45-smoke/finish.txt)). At n = 1 these numbers measure nothing; they are not in any table.
+- **Draft writer on a flagged run.** On `t01b` from `results/series.jsonl` it wrote 4 drafts (two terra
+  regressions, two leaks) and held the luna `cold-start`/`aspire-cli` token flag for its repeat
+  ([`evidence/t45-smoke/drafts-sample-t01b/`](evidence/t45-smoke/drafts-sample-t01b/)), each with the two runs'
+  MSBench run IDs and the diff of pins.
+- **Not exercised by the smoke:** the 12 oracle gates on `track/` tasks (none exist on `main`), the pushed three
+  commits, a skills-tag re-pin (including its `aspire-monitoring` stop), and the luna repeat submission. The first
+  full run (`tools/track.sh run --aspire-version latest --push`, ≈ $5, only when the user asks) exercises them.
+  Its tasks are emitted from the current template, which differs from the core tasks' (tasks `1479041`) by no-op
+  steps for other faults, so its first comparison with the trailing runs carries that difference too.
+- **Noted for later (not fixed):** tasks emitted from the current template have two `ARG ASPIRE_VERSION` lines, so
+  `submit.sh` writes a two-line `aspire_build` into the ledger (`collect.pin_of` still reads the pin correctly).
+- Cost: **$0.94** against the $1.20 estimate (3× stop $3.60).
 
 ### T4.2 and T4.3 Span-table rows
 
