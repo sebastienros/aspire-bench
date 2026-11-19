@@ -1476,9 +1476,11 @@ proxy over-picks the router on luna (a run with the app built and started would 
 description still naming `aspire-orchestration` (2 of 6 T2.11 trials tried to load it).
 
 **Phase 2 scorecard (closed 2026-11-19).** Twelve cards, all with a verdict (eleven measured, T4.1 an audit without a
-model); 936 model trials after 10 excluded infrastructure re-runs; **$31.09 against $20.50 at the cards' estimates**
-(luna and terra cost ≈ 2× the cards' per-trial assumptions, as after Phase 1; the CLI lane's three-model cold-start
-rounds and T2.5's second app variant carried most of the overrun). Nothing is filed upstream. Cost and trial counts are
+model); 936 model trials after 10 excluded infrastructure re-runs; **$31.09 against $20.50 at the cards' estimates**.
+The overrun is trial count, not price: 936 trials ran against 522 planned, at $0.033 per trial against the cards'
+$0.039, because every round re-ran its controls in the same round and two cards added a round (T2.5's span-table
+follow-up, T2.8's shipped-set retarget). Five cards carried it: T2.9 (+$2.84), T2.4 (+$2.66), T2.5 (+$2.54), T2.8
+(+$1.55) and T2.1 (+$1.50); T2.2 and T2.10 landed on their estimates and T2.11 under. Nothing is filed upstream. Cost and trial counts are
 from `trials.jsonl` (`cost_usd`; rows tagged to the card, gates and probes included, excluded rows removed from the
 count and kept in the cost, $0.09).
 
@@ -1490,24 +1492,26 @@ count and kept in the cost, $0.09).
 | T2.4 Redis connect hint | **drop** | `slow-sql` guard 4/6 against 6/6, neither miss through the hint; terra first Redis reply 15.5 against 21.6 s by medians only (p = 0.49) | 60 | $3.66 ($1.00) |
 | T2.5 Redis client tracing in the template | **revise** | luna lean on the CLI reaches the cache in 22 s against 38 s when traced, in both rounds; the MCP pass gap (3/6 vs 6/6) reversed one round later (5/6 vs 2/6); span-table row not worth proposing | 180 | $6.54 ($4.00) |
 | T2.6 "reach this resource" surface | **ship** | `connect` object in `describe --format Json`; generic step 3 passes 6/6 and 6/6 at 0.90× and 0.89× the hand-written step; luna only, n = 6 | 26 | $0.32 ($0.40) |
-| T2.7 MCP tool count and schema size | **no verdict** between the bars | the seven unused tools are 889 schema tokens, 1.8–2.2 % of a luna trial's input; tokens moved +32 % and −23 %, n.s. | 39 | $0.83 ($0.60) |
+| T2.7 MCP tool count and schema size | **no verdict** between the bars | the seven unused tools are 889 schema tokens, 1.8–2.2 % of a luna trial's input; median input tokens moved +32 % and −23 % (p = 0.065, 0.093) with pass counts swinging both ways (6/6 vs 3/6, 3/6 vs 5/6): route noise, not the schema | 39 | $0.83 ($0.60) |
 | T2.8 MCP route to the dependency | **no variant ships**; "CLI-only lean for cheap models on silent faults" stands | premise absent on lean + MCP (controls 5–6/6); on the shipped set + MCP controls 0/6 and variants 1/6, 0/6, 0/6: they reach the cache (`redis-cli` + `SLOWLOG` 4/6 each) and every trial still patched the application | 134 | $2.25 ($0.70) |
 | T2.9 cold start through MCP | **the start itself is the gap** (MCP registered, route not taken) | lean-mcp ÷ lean-start 1.02 / 1.09 / 1.04 (luna / terra / sol); no trial called `wait_for_resources` or `list_resources` | 72 | $4.04 ($1.20) |
 | T2.10 `AGENTS.md` beside the AppHost | **drop** | no luna cell at ≤ 0.80 (`slow-sql` 0.93, `cold-start` 0.86); guard 2/6; the file fixes command selection (`duration:>` filter in every trial against 1 of 27), not time | 110 | $3.47 ($3.50) |
 | T2.11 `AGENTS.md` as the start surface, lean without `aspire-orchestration` | **ship** | luna 0.83× lean to a verified-up app (39.0 vs 46.8 s, p = 0.041), tokens 0.59×, `agent_seconds` level with `aspire-cli`; terra 0.92×; guard 6/6 | 57 | $0.73 ($2.00) |
-| T4.1 integration discoverability audit | **done**, feeds T2.6 | 15 integrations at pin: `describe` carries the container ID 15/15, credentials reachable 14/15 (NATS fails), a generic client recipe works 6/15 (TLS on the default port, no client in the image, port mapping); Elasticsearch has no package at pin | 72 local rows | $0 ($0) |
+| T4.1 integration discoverability audit | **done**, feeds T2.6 | 15 integrations at pin, local, no model: `describe` carries `container.id` and an enabled `restart` for 15/15; credential names reachable from `describe` and the container's environment for 14/15 (NATS passes them as container arguments); a generic client recipe works for 6/15, the nine failures from five causes (TLS on the default port, a certificate-store setting that breaks the SQL Server client, no client or shell in the image, Kafka's renamed client and internal listener, HTTPS on Cosmos's documented port); Elasticsearch has no package at pin | 15 rows | $0 ($0) |
 
 **The proposal after Phase 2.** Product: the `connect` object in `aspire describe --format Json` (T2.6; T2.4's
 Redis-only string is the same field and folds into `connect.note`, so it is not proposed on its own); the CLI
-plain-output patch (T1.5) stands. Not proposed: compact MCP telemetry (T1.4, T2.1: terra gains recorded twice, the
-luna rule and the guard fail), a blocking `aspire start` (T2.2: the lever is the AppHost's 15–20 s launch, not the
+plain-output patch (T1.5) stands. Not proposed now: compact MCP telemetry, where patch 0001 stays open for a card whose
+rule names terra (the T1.4 ruling) and T2.1's additions on top of it are dropped (the luna rule and the guard fail,
+terra gains recorded under both cards), a blocking `aspire start` (T2.2: the lever is the AppHost's 15–20 s launch, not the
 command), SQL text in the trace table (T2.3) and trimming the tool list (T2.7), neither of which moves a trial.
 Skills and files: `AGENTS.md` v2 (start, `describe`, `wait <resource-name>`) replaces `aspire-orchestration` for the
 start job (T2.11), with `aspire-diagnose`'s description repointed; the file alone is not a speed lever on luna
 (T2.10). Template: Redis client tracing in the aspirified template is a revise (T2.5) whose robust effect is time to
-the cache on the CLI route. Cheap models on silent faults, pin-wide on luna's `slow-redis`: lean on the CLI passes
-45/54 (rounds 4/6 to 6/6), lean + MCP 27/36 (2/6 to 6/6), the shipped set 0/42, raw and `aspire-cli` 8/66; "CLI-only
-lean" stands (T2.8) and no MCP-side change in Phase 2 moved it.
+the cache on the CLI route. Cheap models on silent faults, pin-wide on luna's `slow-redis` under Copilot CLI (official
+and unpatched-source control arms, excluded rows removed): lean on the CLI passes 41/48 (rounds 4/6 to 6/6), lean +
+MCP 27/36 (2/6 to 6/6), the shipped set 0/36, raw and `aspire-cli` 8/60; "CLI-only lean" stands (T2.8) and no
+MCP-side change in Phase 2 moved it.
 
 **Open after Phase 2:** T2.6 at luna n = 6 only (terra and sol cells before anything is filed); the terra gains of
 T1.4 and T2.1, recorded under luna-ruled cards; T2.5's MCP pass rate, unstable at n = 6 (pooled 8/12 either way);
@@ -1516,7 +1520,7 @@ T2.8's ceiling on the shipped set (half of its MCP trials load no skill); the is
 `skills-aspireify-redis-client-tracing.md`), none filed; and the Phase 1 open items (T1.1 top-up, T1.3 same-round
 re-run, the Opus `aspire-cli` control, two stale drafts, the `aspire-diagnose` description).
 
-**Infrastructure in Phase 2.** CES image builds degraded to ≈ 1,800 s around 23:30 PST on 2026-11-19 (6 of 8 T2.8
+**Infrastructure in Phase 2.** CES image builds degraded to ≈ 1,800 s around 23:30 PST on 2026-11-18 (6 of 8 T2.8
 gates timed out, 6 trials failed in `apt-get`; all re-run once, excluded rows marked). Docker Desktop crashed on
 2026-11-18 when this Mac's data volume filled with gate containers' writable layers, pilot images and anonymous
 volumes; gate artifacts are now removed as soon as a round closes. Two coordinator rulings (T2.1's metric, T2.8's
