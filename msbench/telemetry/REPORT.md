@@ -1575,3 +1575,30 @@ router went first in 5 of 6 luna trials and the bundle was 1.37× slower (p 0.24
 The CLI alone reached `aspire deploy` in 6/6 luna trials. Aspire against raw: 1.18× on luna, 1.37× on terra
 (p 0.004); raw ran `docker compose up --build` in 12/12. Two terra setups failed on a `pg_isready` race in the fixture,
 excluded and re-run. $3.82 against $2.40. [PLAN.md, T3.4 results](PLAN.md#t34-results).
+
+**Phase 3, T3.1: `aspire-orchestration`, lifecycle jobs.** Three new scenarios on the Bingo images, each with a raw
+reference repair: `restart-change` (add a field to the admin's status endpoint and put it live, keeping the player
+site, database and cache running; graded on process and container identity), `two-app` (a second copy of the app runs
+from `/neighbor-app`; the target's admin is hung; the neighbor must keep every process, container and row) and
+`port-conflict` (another team's server holds the admin's port; the app must serve and the server must survive; this
+scenario's README gives a plain `aspire start`, since under the usual `--isolated` no Aspire start can meet the
+server). Arms: raw, `aspire-cli`, the skill alone, the v0.0.6 bundle and the bundle without it, luna and terra × 6,
+plus `cold-start` (reported) and the luna `slow-sql`/`slow-redis` guard.
+- **`shrink` (body), by the coordinating session's reading of row 3.** On luna the skill alone was worse than the
+  CLI in all three cells: 2.13× (restart-change, p 0.002), 2.36× (two-app, p 0.009) and 3/6 against 5/6
+  (port-conflict); on terra 1.00–1.08×, every cell 6/6. Restart-change's cost is the body's verification after the
+  restart (`aspire wait` 10 times and the status command 7 times after the fix across six luna trials, against none
+  for the CLI arm); port-conflict's three failures follow its "port in use → stop, then restart" row into a product
+  race ([FINDINGS F56](../FINDINGS.md#f56-a-start-right-after-aspire-stop-adopts-containers-the-old-instance-is-still-removing));
+  two-app is not charged to the body (4 of 6 trials never loaded it). The `no verdict` reading (main path = the way
+  to the fix) is recorded beside it.
+- **Selection:** the `split` row fires on v0.0.6 (orchestration takes the router's run/restart prompts on terra) and
+  is discharged by the router's removal: `t31-sel` under `norouter` gave those prompts to orchestration or to no
+  skill, never to another, with orchestration's own prompts 12/12.
+- **Product:** with a plain start, a port held by another process is logged at INFO while `describe` advertises the
+  other process's URL; raw's start script names the port and the raw arm served in about a quarter of the CLI arm's
+  time ([FINDINGS F55](../FINDINGS.md#f55-under-a-plain-aspire-start-a-port-held-by-another-process-is-silent-and-describe-advertises-it)).
+  In `two-app` 56 of 59 trials resumed the stopped process with `kill -CONT`, and no trial touched the neighbor.
+  File locks cannot occur on this Linux harness (`no verdict`, a Windows harness would exercise them).
+- **Cold start (tie to T2.11):** the bundle without orchestration was 0.84× the bundle on luna (p 0.039); the skill
+  alone 1.37× the CLI (p 0.093). $9.09 against $10.10. [PLAN.md, T3.1 results](PLAN.md#t31-results).

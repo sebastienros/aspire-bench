@@ -35,6 +35,7 @@ infrastructure failures are left out.
 | github-copilot-cli | t26 | 20261119 | 2026-11-17 | t26 | 17.1.0-preview.1.26567.3+30326eb8 | v0.0.6 | T2.6 |
 | github-copilot-cli | t32 | 20261119 | 2026-11-17 | t32 | 17.1.0-preview.1.26567.3+30326eb8 | v0.0.6 | T3.2 |
 | github-copilot-cli | t33 | 20261119 | 2026-11-17 | t33 | 17.1.0-preview.1.26567.3+30326eb8 | v0.0.6 | T3.3 |
+| github-copilot-cli | t31 | 20261119 | 2026-11-17 | t31, t31-infra | 17.1.0-preview.1.26567.3+30326eb8 | v0.0.6 | T3.1 |
 | github-copilot-cli | t35 | 20261119 | 2026-11-17 | t35, t35-topup | 17.1.0-preview.1.26567.3+30326eb8 | v0.0.6 | T3.5 |
 | github-copilot-cli | t34 | 20261119 | 2026-11-17 | t34, t34-rerun | 17.1.0-preview.1.26567.3+30326eb8 | v0.0.6 | T3.4 |
 
@@ -89,14 +90,17 @@ infrastructure failures are left out.
 | raw | t16 | 6 | 6/6 | 45 (4) | 64,248 | – | – | – | – | 0% | 0 | 22,428 |  |  |
 | raw | t211 | 6 | 6/6 | 37 (2) | 56,823 | – | – | – | – | 0% | 0 | 18,642 |  |  |
 | raw | t22 | 6 | 6/6 | 39 (2) | 55,633 | – | – | – | – | 0% | 0 | 17,144 |  |  |
+| raw | t31 | 6 | 6/6 | 39 (4) | 49,080 | – | – | – | – | 0% | 0 | 14,417 |  |  |
 | aspire-cli | 2026-11-09 | 3 | 3/3 | 49 (1) | 72,301 | 1.16× | – | 0.94× | – | 0% | 0 | 19,277 |  | ▄ |
 | aspire-cli | t01b | 6 | 6/6 | 53 (3) | 98,311 | 1.26× | 1.16× | 1.69× | 0.94× | 0% | 0 | 21,950 | regress-tokens | ▁█ |
 | aspire-cli | t16 | 6 | 6/6 | 51 (2) | 54,000 | 1.12× | 1.21× | 0.84× | 1.32× | 0% | 0 | 23,650 |  | ▃█▁ |
 | aspire-cli | t211 | 6 | 6/6 | 47 (2) | 69,058 | 1.29× | 1.16× | 1.22× | 0.94× | 0% | 0 | 21,449 |  | ▃▇▁█ |
 | aspire-cli | t22 | 6 | 6/6 | 50 (2) | 90,263 | 1.26× | 1.21× | 1.62× | 1.08× | 0% | 0 | 24,321 |  | ▃▇▁█▇ |
+| aspire-cli | t31 | 6 | 6/6 | 47 (2) | 76,514 | 1.22× | 1.26× | 1.56× | 1.22× | 0% | 0 | 21,715 |  | ▃▇▁█▇▅ |
 | aspire-skills | 2026-11-09 | 3 | 3/3 | 52 (3) | 125,998 | 1.22× | – | 1.64× | – | 100% | 0 | 18,469 |  | ▄ |
 | aspire-skills | t16 | 6 | 6/6 | 60 (4) | 166,060 | 1.32× | 1.22× | 2.58× | 1.64× | 100% | 0 | 24,592 | regress-tokens | ▁█ |
 | aspire-skills | t13 | 6 | 6/6 | 73 (10) | 169,688 | – | 1.27× | – | 2.11× | 100% | 0 | 50,013 | no-raw | ▁█ |
+| aspire-skills | t31 | 6 | 6/6 | 60 (3) | 166,073 | 1.56× | 1.27× | 3.38× | 2.11× | 100% | 0 | 22,153 | regress-tokens | ▁▃█ |
 | aspire-skills-mcp | t01b | 6 | 6/6 | 57 (4) | 151,693 | 1.36× | – | 2.61× | – | 100% | 1 | 22,150 |  | ▄ |
 | aspire-lean | 2026-11-09 | 3 | 3/3 | 82 (1) | 249,128 | 1.94× | – | 3.23× | – | 100% | 0 | 48,223 |  | ▄ |
 | aspire-lean | t01b (tasks 916a57ce) | 6 | 6/6 | 63 (3) | 153,198 | 1.51× | 1.94× | 2.64× | 3.23× | 100% | 0 | 73,522 |  | █▁ |
@@ -120,6 +124,8 @@ infrastructure failures are left out.
 | aspire-lean-noorch-agents | t22 | 6 | 6/6 | 50 (1) | 89,499 | 1.27× | 1.31× | 1.61× | 1.56× | 0% | 0 | 40,339 | selection-low | █▁ |
 | aspire-lean-noorch-agents-src | t22 | 6 | 6/6 | 46 (3) | 88,640 | 1.18× | – | 1.59× | – | 17% | 0 | 40,648 | selection-low | ▄ |
 | aspire-lean-noorch-agents-v3 | t22 | 6 | 6/6 | 52 (0) | 57,344 | 1.32× | – | 1.03× | – | 33% | 0 | 18,233 | selection-low | ▄ |
+| aspire-skill-orchestration | t31 | 6 | 6/6 | 65 (11) | 183,098 | 1.68× | – | 3.73× | – | 100% | 0 | 60,432 |  | ▄ |
+| aspire-skills-noorchestration | t31 | 6 | 6/6 | 51 (2) | 115,625 | 1.31× | – | 2.36× | – | 83% | 0 | 26,158 |  | ▄ |
 
 ## cold-start / gpt-6.1-sol
 
@@ -140,13 +146,16 @@ infrastructure failures are left out.
 | raw | t01b | 6 | 6/6 | 43 (4) | 50,458 | – | – | – | – | 0% | 0 | 18,684 |  |  |
 | raw | t16 | 6 | 6/6 | 40 (2) | 57,024 | – | – | – | – | 0% | 0 | 20,364 |  |  |
 | raw | t22 | 6 | 6/6 | 35 (1) | 50,416 | – | – | – | – | 0% | 0 | 18,714 |  |  |
+| raw | t31 | 6 | 6/6 | 35 (2) | 50,377 | – | – | – | – | 0% | 0 | 18,696 |  |  |
 | aspire-cli | 2026-11-09 | 3 | 3/3 | 51 (3) | 75,025 | 1.42× | – | 1.20× | – | 0% | 0 | 23,741 |  | ▄ |
 | aspire-cli | t01b | 6 | 6/6 | 56 (2) | 71,930 | 1.29× | 1.42× | 1.43× | 1.20× | 0% | 0 | 21,731 |  | █▁ |
 | aspire-cli | t16 | 6 | 6/6 | 54 (1) | 74,295 | 1.37× | 1.35× | 1.30× | 1.31× | 0% | 0 | 26,043 |  | █▁▅ |
 | aspire-cli | t22 | 6 | 6/6 | 51 (0) | 73,503 | 1.45× | 1.37× | 1.46× | 1.30× | 0% | 0 | 23,810 |  | ▇▁▄█ |
+| aspire-cli | t31 | 6 | 6/6 | 52 (2) | 71,906 | 1.49× | 1.39× | 1.43× | 1.36× | 0% | 0 | 21,709 |  | ▆▁▄▇█ |
 | aspire-skills | 2026-11-09 | 3 | 3/3 | 53 (2) | 83,054 | 1.45× | – | 1.33× | – | 100% | 0 | 7,341 |  | ▄ |
 | aspire-skills | t16 | 6 | 6/6 | 54 (2) | 124,444 | 1.34× | 1.45× | 2.18× | 1.33× | 100% | 0 | 24,109 |  | █▁ |
 | aspire-skills | t13 | 6 | 6/6 | 59 (4) | 104,308 | – | 1.40× | – | 1.75× | 100% | 0 | 21,793 | no-raw | █▁ |
+| aspire-skills | t31 | 6 | 6/6 | 55 (3) | 105,828 | 1.58× | 1.40× | 2.10× | 1.75× | 100% | 0 | 24,075 |  | ▄▁█ |
 | aspire-skills-mcp | t01b | 6 | 6/6 | 52 (1) | 123,183 | 1.20× | – | 2.44× | – | 100% | 0 | 21,792 |  | ▄ |
 | aspire-lean | 2026-11-09 | 3 | 3/3 | 51 (2) | 122,122 | 1.41× | – | 1.95× | – | 100% | 0 | 19,607 |  | ▄ |
 | aspire-lean | t01b (tasks 916a57ce) | 6 | 6/6 | 58 (2) | 124,017 | 1.35× | 1.41× | 2.46× | 1.95× | 100% | 0 | 22,043 | regress-tokens | █▁ |
@@ -167,6 +176,8 @@ infrastructure failures are left out.
 | aspire-cli-src | t22 | 6 | 6/6 | 51 (1) | 71,918 | 1.46× | – | 1.43× | – | 0% | 0 | 21,711 |  | ▄ |
 | aspire-cli-wait | t22 | 6 | 6/6 | 55 (1) | 48,986 | 1.57× | – | 0.97× | – | 0% | 0 | 24,815 |  | ▄ |
 | aspire-lean-start-wait | t22 | 6 | 6/6 | 50 (2) | 69,880 | 1.42× | – | 1.39× | – | 100% | 0 | 8,088 |  | ▄ |
+| aspire-skill-orchestration | t31 | 6 | 6/6 | 53 (2) | 96,228 | 1.52× | – | 1.91× | – | 100% | 0 | 21,894 |  | ▄ |
+| aspire-skills-noorchestration | t31 | 6 | 6/6 | 49 (2) | 95,272 | 1.42× | – | 1.89× | – | 100% | 0 | 16,743 |  | ▄ |
 
 ## cold-start / gpt-6.2-sol
 
@@ -302,6 +313,26 @@ infrastructure failures are left out.
 | aspire-lean | t02 (tasks 916a57ce) | 6 | 6/6 | 90 (6) | 310,502 | 0.69× | – | 0.92× | – | 100% | 0 | 140,733 |  | ▄ |
 | aspire-lean | t02 (tasks 1479041e) | 6 | 6/6 | 113 (14) | 301,804 | 0.86× | 0.69× | 0.90× | 0.92× | 100% | 0 | 140,766 | regress-time | ▁█ |
 
+## port-conflict / gpt-6-luna
+
+| Arm | Run | n | Pass | Agent s (MAD) | Input tok | Time × raw | trail | Tokens × raw | trail | Skill sel. | MCP calls | Chars read | Flags | Time ratio |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---|
+| raw | t31 | 6 | 6/6 | 62 (3) | 124,762 | – | – | – | – | 0% | 0 | 46,274 |  |  |
+| aspire-cli | t31 | 6 | 5/6 | 277 (19) | 535,662 | 4.46× | – | 4.29× | – | 0% | 0 | 149,616 |  | ▄ |
+| aspire-skills | t31 | 6 | 3/6 | 550 (143) | 1,555,186 | 8.85× | – | 12.46× | – | 100% | 0 | 208,894 |  | ▄ |
+| aspire-skill-orchestration | t31 | 6 | 3/6 | 456 (138) | 1,353,094 | 7.33× | – | 10.85× | – | 100% | 0 | 241,894 |  | ▄ |
+| aspire-skills-noorchestration | t31 | 6 | 4/6 | 382 (222) | 791,499 | 6.14× | – | 6.34× | – | 83% | 0 | 200,974 |  | ▄ |
+
+## port-conflict / gpt-6.1-terra
+
+| Arm | Run | n | Pass | Agent s (MAD) | Input tok | Time × raw | trail | Tokens × raw | trail | Skill sel. | MCP calls | Chars read | Flags | Time ratio |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---|
+| raw | t31 | 6 | 6/6 | 56 (3) | 114,618 | – | – | – | – | 0% | 0 | 38,810 |  |  |
+| aspire-cli | t31 | 6 | 6/6 | 219 (11) | 310,104 | 3.90× | – | 2.71× | – | 0% | 0 | 137,428 |  | ▄ |
+| aspire-skills | t31 | 6 | 6/6 | 246 (18) | 549,253 | 4.38× | – | 4.79× | – | 100% | 0 | 155,454 |  | ▄ |
+| aspire-skill-orchestration | t31 | 6 | 6/6 | 231 (7) | 412,363 | 4.11× | – | 3.60× | – | 100% | 0 | 122,832 |  | ▄ |
+| aspire-skills-noorchestration | t31 | 6 | 5/6 | 57 (6) | 122,360 | 1.02× | – | 1.07× | – | 100% | 0 | 43,918 |  | ▄ |
+
 ## publishing / gpt-6-luna
 
 | Arm | Run | n | Pass | Agent s (MAD) | Input tok | Time × raw | trail | Tokens × raw | trail | Skill sel. | MCP calls | Chars read | Flags | Time ratio |
@@ -427,6 +458,26 @@ infrastructure failures are left out.
 | aspire-skills-mcp | t18 | 6 | 6/6 | 52 (2) | 359,164 | 1.44× | – | 2.72× | – | 100% | 0 | 108,878 |  | ▄ |
 | aspire-lean | t18 | 6 | 6/6 | 44 (2) | 220,663 | 1.21× | – | 1.67× | – | 100% | 0 | 100,093 |  | ▄ |
 
+## restart-change / gpt-6-luna
+
+| Arm | Run | n | Pass | Agent s (MAD) | Input tok | Time × raw | trail | Tokens × raw | trail | Skill sel. | MCP calls | Chars read | Flags | Time ratio |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---|
+| raw | t31 | 6 | 6/6 | 139 (19) | 270,520 | – | – | – | – | 0% | 0 | 62,832 |  |  |
+| aspire-cli | t31 | 6 | 6/6 | 47 (4) | 130,103 | 0.34× | – | 0.48× | – | 0% | 0 | 84,974 |  | ▄ |
+| aspire-skills | t31 | 6 | 6/6 | 72 (8) | 354,501 | 0.52× | – | 1.31× | – | 100% | 0 | 89,884 |  | ▄ |
+| aspire-skill-orchestration | t31 | 6 | 6/6 | 100 (4) | 342,500 | 0.72× | – | 1.27× | – | 100% | 0 | 90,588 |  | ▄ |
+| aspire-skills-noorchestration | t31 | 6 | 6/6 | 86 (13) | 347,279 | 0.62× | – | 1.28× | – | 100% | 0 | 85,442 |  | ▄ |
+
+## restart-change / gpt-6.1-terra
+
+| Arm | Run | n | Pass | Agent s (MAD) | Input tok | Time × raw | trail | Tokens × raw | trail | Skill sel. | MCP calls | Chars read | Flags | Time ratio |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---|
+| raw | t31 | 6 | 6/6 | 155 (30) | 326,487 | – | – | – | – | 0% | 0 | 92,176 |  |  |
+| aspire-cli | t31 | 6 | 6/6 | 52 (6) | 180,744 | 0.33× | – | 0.55× | – | 0% | 0 | 104,566 |  | ▄ |
+| aspire-skills | t31 | 6 | 6/6 | 60 (9) | 253,445 | 0.39× | – | 0.78× | – | 100% | 0 | 62,666 |  | ▄ |
+| aspire-skill-orchestration | t31 | 6 | 6/6 | 56 (3) | 232,980 | 0.36× | – | 0.71× | – | 100% | 0 | 81,826 |  | ▄ |
+| aspire-skills-noorchestration | t31 | 6 | 6/6 | 60 (3) | 228,736 | 0.39× | – | 0.70× | – | 100% | 0 | 82,102 |  | ▄ |
+
 ## slow-redis / claude-opus-5.5
 
 | Arm | Run | n | Pass | Agent s (MAD) | Input tok | Time × raw | trail | Tokens × raw | trail | Skill sel. | MCP calls | Chars read | Flags | Time ratio |
@@ -453,6 +504,7 @@ infrastructure failures are left out.
 | aspire-skills | t12 | 6 | 0/6 | 215 (61) | 784,350 | – | – | – | – | 17% | 0 | 239,185 | no-raw, selection-low |  |
 | aspire-skills | t13 | 6 | 0/6 | 222 (71) | 819,433 | – | – | – | – | 83% | 0 | 276,628 | no-raw |  |
 | aspire-skills | t32 | 6 | 1/6 | 154 (17) | 986,892 | – | – | – | – | 67% | 0 | 291,436 | no-raw, selection-low |  |
+| aspire-skills | t31 | 6 | 0/6 | 183 (29) | 792,550 | – | – | – | – | 33% | 0 | 258,116 | no-raw, selection-low |  |
 | aspire-skills-mcp | 2026-11-09 | 6 | 0/6 | 161 (6) | 1,085,766 | 0.78× | – | 1.57× | – | 83% | 13 | 502,166 |  | ▄ |
 | aspire-skills-mcp | t01b | 6 | 0/6 | 143 (23) | 655,522 | 0.39× | 0.78× | 0.63× | 1.57× | 33% | 12 | 433,614 | selection-low, improve-time, improve-tokens | █▁ |
 | aspire-skills-mcp | t17 | 6 | 0/6 | 170 (23) | 1,177,976 | 0.77× | 0.58× | 1.66× | 1.10× | 67% | 10 | 420,986 | selection-low | █▁█ |
@@ -499,6 +551,7 @@ infrastructure failures are left out.
 | aspire-lean-tracetable | t23 | 6 | 4/6 | 119 (17) | 692,303 | 0.53× | – | 1.07× | – | 100% | 0 | 211,418 |  | ▄ |
 | aspire-lean-connect | t26 | 6 | 6/6 | 100 (5) | 497,937 | – | – | – | – | 100% | 0 | 233,321 | no-raw |  |
 | aspire-skills-noaspireify | t32 | 6 | 0/6 | 169 (22) | 749,225 | – | – | – | – | 67% | 0 | 261,194 | no-raw, selection-low |  |
+| aspire-skills-noorchestration | t31 | 6 | 0/6 | 153 (27) | 718,209 | – | – | – | – | 33% | 0 | 230,504 | no-raw, selection-low |  |
 
 ## slow-redis / gpt-6.1-sol
 
@@ -574,6 +627,7 @@ infrastructure failures are left out.
 | aspire-skills | t13 | 6 | 6/6 | 271 (70) | 1,127,812 | – | 1.68× | – | 1.82× | 83% | 0 | 359,054 | no-raw | █▁ |
 | aspire-skills | t210 | 6 | 5/6 | 147 (37) | 753,726 | – | 1.68× | – | 1.82× | 33% | 0 | 224,036 | no-raw, selection-low | █▁ |
 | aspire-skills | t32 | 6 | 4/6 | 213 (99) | 1,073,240 | – | 1.68× | – | 1.82× | 33% | 0 | 273,265 | no-raw, leak, selection-low | █▁ |
+| aspire-skills | t31 | 6 | 5/6 | 215 (30) | 952,628 | – | 1.26× | – | 1.42× | 33% | 0 | 290,024 | no-raw, selection-low | █▁ |
 | aspire-skills-plugin | t01b | 3 | 3/3 | 146 (7) | 688,677 | 1.81× | – | 2.18× | – | 0% | 0 | 260,578 | selection-low | ▄ |
 | aspire-mcp | 2026-11-09 | 3 | 3/3 | 150 (5) | 697,755 | 1.77× | – | 2.04× | – | 0% | 9 | 492,089 |  | ▄ |
 | aspire-skills-mcp | 2026-11-09 | 6 | 6/6 | 262 (17) | 1,493,192 | 3.10× | – | 4.36× | – | 100% | 12 | 628,702 |  | ▄ |
@@ -624,6 +678,7 @@ infrastructure failures are left out.
 | aspire-cli-redishint | t23 | 6 | 4/6 | 118 (24) | 644,350 | 1.13× | – | 1.55× | – | 0% | 0 | 253,891 |  | ▄ |
 | aspire-lean-connect | t26 | 6 | 6/6 | 79 (12) | 271,195 | – | – | – | – | 100% | 0 | 129,794 | no-raw |  |
 | aspire-skills-noaspireify | t32 | 6 | 6/6 | 180 (46) | 878,636 | – | – | – | – | 67% | 0 | 310,896 | no-raw, selection-low |  |
+| aspire-skills-noorchestration | t31 | 6 | 5/6 | 155 (29) | 685,162 | – | – | – | – | 33% | 0 | 228,235 | no-raw, selection-low |  |
 
 ## slow-sql / gpt-6.1-sol
 
@@ -712,6 +767,26 @@ infrastructure failures are left out.
 | aspire-skills | t38 | 6 | 6/6 | 97 (5) | 257,825 | – | – | – | – | 100% | 0 | 72,092 | no-raw |  |
 | aspire-lean | t38 | 6 | 6/6 | 76 (5) | 202,229 | – | – | – | – | 100% | 0 | 95,555 | no-raw |  |
 | aspire-skills-norouter | t38 | 6 | 6/6 | 96 (13) | 279,253 | – | – | – | – | 100% | 0 | 86,848 | no-raw |  |
+
+## two-app / gpt-6-luna
+
+| Arm | Run | n | Pass | Agent s (MAD) | Input tok | Time × raw | trail | Tokens × raw | trail | Skill sel. | MCP calls | Chars read | Flags | Time ratio |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---|
+| raw | t31 | 6 | 6/6 | 43 (6) | 106,241 | – | – | – | – | 0% | 0 | 57,927 |  |  |
+| aspire-cli | t31 | 6 | 6/6 | 41 (3) | 143,178 | 0.96× | – | 1.35× | – | 0% | 0 | 94,881 |  | ▄ |
+| aspire-skills | t31 | 6 | 6/6 | 79 (43) | 265,762 | 1.86× | – | 2.50× | – | 50% | 0 | 138,432 | selection-low | ▄ |
+| aspire-skill-orchestration | t31 | 6 | 6/6 | 97 (12) | 324,206 | 2.27× | – | 3.05× | – | 33% | 0 | 146,065 | selection-low | ▄ |
+| aspire-skills-noorchestration | t31 | 6 | 6/6 | 59 (28) | 224,752 | 1.38× | – | 2.12× | – | 17% | 0 | 165,790 | selection-low | ▄ |
+
+## two-app / gpt-6.1-terra
+
+| Arm | Run | n | Pass | Agent s (MAD) | Input tok | Time × raw | trail | Tokens × raw | trail | Skill sel. | MCP calls | Chars read | Flags | Time ratio |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---|
+| raw | t31 | 6 | 6/6 | 28 (3) | 78,726 | – | – | – | – | 0% | 0 | 42,730 |  |  |
+| aspire-cli | t31 | 6 | 6/6 | 31 (4) | 138,414 | 1.12× | – | 1.76× | – | 0% | 0 | 68,946 |  | ▄ |
+| aspire-skills | t31 | 6 | 6/6 | 42 (5) | 204,251 | 1.52× | – | 2.59× | – | 100% | 0 | 83,181 |  | ▄ |
+| aspire-skill-orchestration | t31 | 6 | 6/6 | 31 (8) | 135,685 | 1.13× | – | 1.72× | – | 33% | 0 | 63,584 | selection-low | ▄ |
+| aspire-skills-noorchestration | t31 | 6 | 6/6 | 41 (3) | 206,057 | 1.48× | – | 2.62× | – | 100% | 0 | 83,181 |  | ▄ |
 
 ## cold-start / gpt-6-luna / vscode
 

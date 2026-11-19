@@ -53,6 +53,8 @@ The two Aspire product patches are in [upstream/](upstream/).
 | `aspire-skills-nomonitoring`, `aspire-skills-nomigration`, `aspire-skills-nodeployment` | Same | `no<short>` = v0.0.6 without that skill (Phase 3 `bundle-minus`) | no |
 | `aspire-skill-aspireify`, `aspire-skill-init` | Authoring image ([`tools/templates/Dockerfile.authoring`](tools/templates/Dockerfile.authoring): the pinned daily's `Aspire*` packages vendored behind the CLI's install sidecar; `adoption`, `add-dependency`, `greenfield`; PLAN T3.2, T3.3) | `skill-aspireify` / `skill-init` = that shipped skill alone | no |
 | `aspire-skills-noaspireify`, `aspire-skills-noinit` | Same (`noaspireify` also on `slow-sql` and `slow-redis`, the T3.2 guard) | `noaspireify` / `noinit` = v0.0.6 without it | no |
+| `aspire-skill-orchestration` | Aspirified app (`restart-change`, `two-app`, `port-conflict`, `cold-start`; PLAN T3.1) | `skill-orchestration` = the shipped `aspire-orchestration` alone | no |
+| `aspire-skills-noorchestration` | Same (also on `slow-sql` and `slow-redis`, the T3.1 guard) | `noorchestration` = v0.0.6 without `aspire-orchestration` | no |
 
 `raw` versus any Aspire arm is the product comparison. The Aspire arms share one
 application, one AppHost and one toolchain, so differences between them isolate
@@ -157,6 +159,16 @@ AppHost with a Docker Compose environment) and production Dockerfiles, no deploy
 PostgreSQL and Redis on an external network; the prompt asks to publish and run the production build locally on
 18080/18081. Its private Docker daemon gets P01's DNS plan (a relay on its bridge on CES, whose resolver is loopback).
 No `raw` arm for `export` and `migration`.
+
+**Phase 3 orchestration scenarios (PLAN T3.1)**, each with a `raw` arm. `restart-change`: the app runs with
+tonight's squares called; the prompt asks for a `calledCount` field in the admin status endpoint, live now, keeping
+the player site, database and cache running; graded on the field and on process (pid + start time) and container
+(id + start time) identity. `two-app`: a second copy of the app runs from `/neighbor-app` (containers `neighbor-*`,
+raw ports 54321/63791/18081/15174) for another event; the target's admin process is stopped with SIGSTOP; the
+neighbor must keep every process, container and row. `port-conflict`: nothing runs, and another team's board preview
+(`/usr/local/lib/bingo-ops/board-preview.mjs`) holds the admin's port (5039 on Aspire, 18080 on raw); the app must
+serve and the preview must survive. Only this scenario's README gives a plain `aspire start` (no `--isolated`), so
+the start can meet the preview.
 
 **Phase 3 authoring scenarios (PLAN T3.2, T3.3).** One image template,
 [`Dockerfile.authoring`](tools/templates/Dockerfile.authoring) (stage by fault), vendors every `Aspire*` package

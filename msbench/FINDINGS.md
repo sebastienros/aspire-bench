@@ -1914,6 +1914,52 @@ trial used the default limit for its export). Not upstreamed.
 - The float was seen on one day; the NU1008 break was measured locally and in trajectories.
 - Not upstreamed.
 
+## F55: Under a plain `aspire start`, a port held by another process is silent and `describe` advertises it
+
+**Evidence:** Task T3.1 ([PLAN.md, T3.1 fixtures and results](telemetry/PLAN.md#t31-results)), measured locally on
+the pin before the fixture, then scenario `port-conflict`, round `t31`, 60 trials, pin 2026-11-17. With a process of
+another team on the admin's launch-profile port (5039), a plain `aspire start` (no `--isolated`) succeeds; DCP cannot
+bind the admin's proxy and logs one INFO line ("Could not use the same port for all addresses associated with
+requested service address"); `aspire describe` (table and JSON) still lists `boardadmin` at `http://localhost:5039`,
+which is the other process. If that process answers 200 everywhere the resource reads Running/Healthy; if it answers
+404 (the fixture) it reads Unhealthy and `bingoboard`, which waits for it, stays Waiting, with nothing that names the
+port. `--isolated` randomizes every port, including the launch profile's and an endpoint pinned in the AppHost
+(`WithEndpoint("http", e => e.Port = 15173)` came up elsewhere), and **354 of 354 cold-start Aspire trials at this pin
+started with `--isolated`** (the workspace README says so): on the realistic path Aspire never meets a port conflict.
+On the scenario's plain-start README, `aspire-cli` took 277 s (luna) and 219 s (terra) to a serving app against raw's
+62 s and 56 s, whose `start.sh` refuses with "Port 18080 is already in use"; no trial of any arm stopped the other
+process.
+
+**Improvement candidate:** treat a proxy that cannot bind its requested port as a resource error (state or health
+naming the port and the holder), logged above INFO, and never advertise an endpoint the proxy did not bind
+(`describe`, dashboard, MCP `list_resources`).
+
+**Limits / status:** one application, Linux, one port; n = 6 per cell. Not upstreamed (draft
+[`aspire-proxy-port-conflict-describe.md`](upstream-issues/aspire-proxy-port-conflict-describe.md)).
+
+## F56: A start right after `aspire stop` adopts containers the old instance is still removing
+
+**Evidence:** Task T3.1 ([PLAN.md, T3.1 results](telemetry/PLAN.md#t31-results)), scenario `port-conflict`, round
+`t31`, pin 2026-11-17; reproduced locally. The AppHost names its containers (`WithContainerName`, `bingo-redis`,
+`bingo-postgres`). `aspire stop` returns while the stopped instance's teardown is still running: the containers are
+still up. An `aspire start --isolated` issued within seconds adopts the running `bingo-redis`; about 60 s later the
+old teardown removes it, `describe` shows `cache` Exited, and every call that touches the cache returns HTTP 500. All
+three failures of luna `aspire-skill-orchestration` (3/6) are this sequence, following the skill's "Port already in
+use → stop, then restart" row (0–6 s between stop and start); the same failure hit 1/6 of luna `aspire-skills` and
+1/6 of terra `aspire-skills-noorchestration`, 0/12 `aspire-cli`. Trials that issued the start a little later, or
+started again after noticing, passed. `cold-start-warm`'s setup had already met the collision on the fixed names
+(`bingo-redis` exits 137) and waits for the containers to be gone.
+
+**Bearing on start guidance (T2.11's `AGENTS.md` v2, the orchestration skill):** a restart after `aspire stop` must
+not start before the old instance's teardown has finished (its containers gone), whatever surface gives the advice.
+
+**Improvement candidate:** `aspire stop` returns only when the instance's resources are removed (or offers a
+`--wait`), and a start refuses to adopt a container that an instance still being torn down owns.
+
+**Limits / status:** containers with fixed names only (the default, unnamed containers do not collide); one
+application; the delay is timing-dependent (the local reproduction failed at 60 s, not at once). Not upstreamed
+(draft [`aspire-stop-teardown-race.md`](upstream-issues/aspire-stop-teardown-race.md)).
+
 ## Recording future findings
 
 Give each finding a stable ID and include evidence links, exact observed

@@ -1,6 +1,6 @@
 # Plan: improving agentic performance with Aspire (CLI, MCP, skills)
 
-Status: proposal, 2026-11-17. **Phase 2 closed 2026-11-19: twelve cards with verdicts, $31.09 against ≈ $20.50 (REPORT §14, Phase 2 scorecard). Phase 3 started 2026-11-19 (three lanes: orchestration T3.1; authoring T3.2, T3.3; ops T3.4, T3.5, T3.7; rulings in §7 "Phase 3 rulings"; T3.6 recorded from T3.9).** Authoring lane: T3.2 `shrink` (`aspireify` slower than the CLI alone in every cell, every arm at 6/6; the cost is the body's reference reading, docs lookups and every-resource validation), T3.3 `no verdict` (`aspire-init`: terra 0.62×, p 0.002; luna mostly `dotnet run` hangs avoided; luna selection 4/6 closes `keep`). T0.1 (re-pin and re-baseline), T0.2 (held-out application; ship gate open on the reserved third fault after one skill revision), T0.3 (series tooling) and T0.4 (harness adapters) done 2026-11-18. Phase 1 model lane closed 2026-11-18: T1.1 ship, T1.6 drop (`aspire-start`), T1.7 no verdict (Claude Code harness gaps; adapter proposed as T4.7), T1.8 revise (step-4 edit proposed). Product lane: T1.5 ship (CLI plain output), T1.4 drop (compact MCP telemetry; terra gain recorded), T1.9 harness-dependent (VS Code; T4.8, T4.9 proposed), T2.10 drop (`AGENTS.md`; it fixes command selection, not luna's time), T2.11 ship (file v2 replaces `aspire-orchestration` for the start job). Skills lane: T3.8 remove (the router's guardrail job; ceiling on every arm), T1.2 drop (narrowed trigger alone), T1.3 ship (router removal; its cost holds across rounds on `read-only`, not on `slow-sql`; cold start open), T3.9 selection benchmark usable on terra, not on luna (it over-predicts the router). Phase 2 CLI lane: T2.2 drop (a blocking start closes none of the cold-start gap; the gap is the AppHost's launch and resource start-up), T2.9 the start itself is the gap, for MCP registered only (the MCP route was not taken), T2.3 revise by the rule with no revision proposed (agents left JSON, nothing improved), T2.4 drop (guard). Phase 2 MCP lane: T2.1 drop (compact `list_resources`/`list_console_logs`; revise on one cell under the later MCP-only metric ruling, guard fails under both), T2.7 no verdict between the bars (the seven unused tools are 1.8–2.2 % of input; no change for tokens), T2.8 no variant ships (lean + MCP already passes, premise not reproduced; on the shipped set + MCP the variants reach the cache but not the cause, so "CLI-only lean for cheap models on silent faults" stands). Integrations lane: T4.1 audit done (15 integrations; generic client recipe 6/15, so T2.6 took the `connect` block), T2.5 revise (traced app: lean on the CLI reaches the cache 22 vs 38 s, both rounds; the MCP pass gap did not replicate; span-table row not worth proposing), T2.6 ship (`connect` object in `describe --format Json`; generic step 3 matches the hand-written step, luna n = 6). No issue has been filed.
+Status: proposal, 2026-11-17. **Phase 2 closed 2026-11-19: twelve cards with verdicts, $31.09 against ≈ $20.50 (REPORT §14, Phase 2 scorecard). Phase 3 started 2026-11-19 (three lanes: orchestration T3.1; authoring T3.2, T3.3; ops T3.4, T3.5, T3.7; rulings in §7 "Phase 3 rulings"; T3.6 recorded from T3.9).** Orchestration lane: shared Phase 3 tooling (ruling 8), T3.1 `shrink` (body; luna `aspire-orchestration` alone worse than the CLI in all three lifecycle scenarios, terra equivalent; the cost is its post-restart verification and its port-conflict row, which runs into a stop/start teardown race; `split` fires on v0.0.6, discharged by the router's removal). Authoring lane: T3.2 `shrink` (`aspireify` slower than the CLI alone in every cell, every arm at 6/6; the cost is the body's reference reading, docs lookups and every-resource validation), T3.3 `no verdict` (`aspire-init`: terra 0.62×, p 0.002; luna mostly `dotnet run` hangs avoided; luna selection 4/6 closes `keep`). T0.1 (re-pin and re-baseline), T0.2 (held-out application; ship gate open on the reserved third fault after one skill revision), T0.3 (series tooling) and T0.4 (harness adapters) done 2026-11-18. Phase 1 model lane closed 2026-11-18: T1.1 ship, T1.6 drop (`aspire-start`), T1.7 no verdict (Claude Code harness gaps; adapter proposed as T4.7), T1.8 revise (step-4 edit proposed). Product lane: T1.5 ship (CLI plain output), T1.4 drop (compact MCP telemetry; terra gain recorded), T1.9 harness-dependent (VS Code; T4.8, T4.9 proposed), T2.10 drop (`AGENTS.md`; it fixes command selection, not luna's time), T2.11 ship (file v2 replaces `aspire-orchestration` for the start job). Skills lane: T3.8 remove (the router's guardrail job; ceiling on every arm), T1.2 drop (narrowed trigger alone), T1.3 ship (router removal; its cost holds across rounds on `read-only`, not on `slow-sql`; cold start open), T3.9 selection benchmark usable on terra, not on luna (it over-predicts the router). Phase 2 CLI lane: T2.2 drop (a blocking start closes none of the cold-start gap; the gap is the AppHost's launch and resource start-up), T2.9 the start itself is the gap, for MCP registered only (the MCP route was not taken), T2.3 revise by the rule with no revision proposed (agents left JSON, nothing improved), T2.4 drop (guard). Phase 2 MCP lane: T2.1 drop (compact `list_resources`/`list_console_logs`; revise on one cell under the later MCP-only metric ruling, guard fails under both), T2.7 no verdict between the bars (the seven unused tools are 1.8–2.2 % of input; no change for tokens), T2.8 no variant ships (lean + MCP already passes, premise not reproduced; on the shipped set + MCP the variants reach the cache but not the cause, so "CLI-only lean for cheap models on silent faults" stands). Integrations lane: T4.1 audit done (15 integrations; generic client recipe 6/15, so T2.6 took the `connect` block), T2.5 revise (traced app: lean on the CLI reaches the cache 22 vs 38 s, both rounds; the MCP pass gap did not replicate; span-table row not worth proposing), T2.6 ship (`connect` object in `describe --format Json`; generic step 3 matches the hand-written step, luna n = 6). No issue has been filed.
 Each task below is a card with the same fields; a card's **Results** field is either a
 link to measured numbers or `pending`. Nothing in a Results field is predicted.
 
@@ -3022,7 +3022,7 @@ so the two skills whose removal would change the diagnosis route (`aspire-orches
 
 | Card | Skill (v0.0.6 size, references) | Jobs it claims | Scenario(s) and source | Can the harness exercise it? | Trials / cost | Results |
 |---|---|---|---|---|---|---|
-| T3.1 | `aspire-orchestration` (22 KB, 5 refs) | start/stop/wait, resource restart, file locks, port conflicts, worktrees, VS Code sessions | `cold-start`; **restart-after-change** (edit one project, restart only it, verify); **two-app isolation** (port of S01: two apps up, repair one); **port conflict** (a stray process holds the app's port) | Yes for the four scenarios; corrected 2026-11-19: file locks cannot occur on this Linux harness (a running assembly is not locked), so file locks, VS Code flows and worktree starts are `no verdict` ([T3.1 rule](#t31-fixtures-and-rule-as-computed-written-2026-11-19-before-any-t31-trial-or-pilot)) | 4 × 5 × 2 × 6 = 240 ≈ $9.70 | pending |
+| T3.1 | `aspire-orchestration` (22 KB, 5 refs) | start/stop/wait, resource restart, file locks, port conflicts, worktrees, VS Code sessions | `cold-start`; **restart-after-change** (edit one project, restart only it, verify); **two-app isolation** (port of S01: two apps up, repair one); **port conflict** (a stray process holds the app's port) | Yes for the four scenarios; corrected 2026-11-19: file locks cannot occur on this Linux harness (a running assembly is not locked), so file locks, VS Code flows and worktree starts are `no verdict` ([T3.1 rule](#t31-fixtures-and-rule-as-computed-written-2026-11-19-before-any-t31-trial-or-pilot)) | 4 × 5 × 2 × 6 = 240 ≈ $9.70 | Done 2026-11-19, [T3.1 results](#t31-results): **`shrink` (body)**: luna `skill-only` worse than `aspire-cli` in all three decisive cells (2.13×, 2.36×, 3/6 vs 5/6), terra equivalent; the cost is its post-restart verification and its port-conflict row (a product race); `split` fires on v0.0.6, discharged by the router's removal (`t31-sel`); $9.09 |
 | T3.2 | `aspireify` (21 KB, 10 refs) | wire an AppHost for an existing repo, add Postgres/Redis/Rabbit/Mongo, ServiceDefaults, TS toolchain repair | **Adoption** (port of A01: raw Bingo, add an AppHost that runs it; grader: live app under Aspire, source unchanged); **add a dependency** (add Redis to an existing AppHost and use it from one project) | Yes; TS toolchain repair: `no verdict` | 2 × 4 × 2 × 6 = 96 ≈ $3.90 | Done 2026-11-19, [T3.2 results](#t32-results): **`shrink`** (`skill-only` slower in every cell, luna `add-dependency` 1.71×, p 0.002, all 6/6; the cost is the body's prescribed reference reading, docs lookups and every-resource validation); TS toolchain repair `no verdict`; $11.78 |
 | T3.3 | `aspire-init` (10 KB, 2 refs) | `aspire new` / `aspire init`, pick a template, hand off to `aspireify` | **Greenfield** (empty folder, "create an Aspire app with an API and Postgres and run it"; grader: `aspire describe` shows the resources healthy and the API answers) | Yes | 1 × 4 × 2 × 6 = 48 ≈ $1.90 | Done 2026-11-19, [T3.3 results](#t33-results): **`no verdict`** (luna 0.33×, p 0.065, 3/6 vs 3/6, mostly `dotnet run` hangs avoided; terra 0.62×, p 0.002; luna selection 4/6 closes `keep`); $2.48 |
 | T3.4 | `aspire-deployment` (18 KB, 7 refs) | publish/deploy to Compose, Kubernetes, Azure, AWS, Radius; teardown | **Preconfigured publishing** (port of the P01 preconfigured pair: complete AppHost and raw Compose, "publish and run the production build locally"); Kubernetes and clouds: `no verdict` | Compose yes; others no | 1 × 5 × 2 × 6 = 60 ≈ $2.40 | Done 2026-11-19, [T3.4 results](#t34-results): **`no verdict`** (row 4; Aspire cells 6/6; luna skill-only 1.04×, terra 0.899× just outside the band, luna bundle-minus 1.37× with the router first 5/6; top-up cannot reach `remove`, stopped); $3.82 |
@@ -3258,6 +3258,142 @@ preview process (`port-conflict`).
 
 **Cost.** Card 240 + 24 ≈ $10.10; with the same-round guard control 264 trials. At the Phase 2 rates (≈ 2×) the
 expectation is ≈ $20; the 3× stop is $30.30.
+
+#### T3.1 results
+
+**Verdict: `shrink` (body)** (2026-11-19, round `t31`, rule as computed above, row 3; attribution ruled by the
+coordinating session after the round, see below). On luna `skill-only` is worse than `aspire-cli` in all three
+decisive cells (restart-change 2.13×, p 0.002; two-app 2.36×, p 0.009; port-conflict 3/6 against 5/6), equivalent on
+terra (1.00–1.08×, all 6/6); the cost traces to the body's post-restart verification steps and to its port-conflict
+guidance, which runs into a product race; two-app not attributable (skill not loaded in 4/6). **Alternative reading
+recorded:** `no verdict`, on the narrower sense of main path as the way to the fix. **Selection:** the `split` row
+fires on v0.0.6 (terra 6 of 107 runs of other skills' prompts, all the router's; 0 of 96 against the seven other
+skills, descriptive) and is **discharged by the router's removal (T1.3), confirmed by `t31-sel`**. Rows not exercised
+(`no verdict`): VS Code lifecycle tools, file-lock recovery (Windows harness), git-worktree starts, update/migrate.
+
+- **What the shrink is** (coordinating session): drop the every-resource `aspire wait` and status checks after a
+  single-resource restart; replace the "Port already in use → stop, then restart" row with guidance that waits for
+  the old instance's teardown (or runs `aspire stop` and checks its containers are gone) before starting.
+- **Run conditions:** 264 graded trials, tasks `cad9f87` (restart-change, cold-start and guard arms; suite `4b6f5a1`)
+  and `639b7b3` (two-app, port-conflict; suite `15f2000`), controls on their earlier tasks, Copilot CLI 1.0.99, no
+  model-service 5xx, no timeout. One infrastructure failure (`2026111965623860`, raw two-app terra: the image build
+  lost `mcr.microsoft.com`) excluded and re-run once in `t31-infra` (`2026111969290300`, reward 1).
+- **Gates:** restore check `gate-p3o-restore` 6/6, `gate-t31` 19/19, `gate-t31-sel` 1/1, all reward 1. Run IDs:
+  `results/ledger.jsonl`, rounds `t31`, `t31-infra`; selection runs `results/selection-ledger.jsonl`, `t31-sel`.
+- **Ratio column:** `aspire-skill-orchestration` and `aspire-skills` against `aspire-cli`; `aspire-skills-noorchestration`
+  against `aspire-skills` (the guard rows: against the same round's `aspire-skills`). **Refs:** median `references_read`.
+  Decision script: `tools/t31_decide.py --rounds t31,t31-infra`.
+
+| Scenario | Model | Arm | Pass | Median s | Ratio | 90 % | p | Median input | Refs | Run IDs |
+|---|---|---|---|---:|---:|---|---:|---:|---:|---|
+| restart-change | 6-luna | `raw` | 6/6 | 139 |  |  |  | 271k | 0 | `2026111965508188`–`…511408` |
+| restart-change | 6-luna | `aspire-cli` | 6/6 | 47 |  |  |  | 130k | 0 | `2026111965515628`–`…518712` |
+| restart-change | 6-luna | `aspire-skill-orchestration` | 6/6 | 100 | 2.13× | 1.41–2.37 | 0.002 | 342k | 2 | `2026111965522896`–`…526000` |
+| restart-change | 6-luna | `aspire-skills` | 6/6 | 72 | 1.53× | 1.29–1.94 | 0.004 | 355k | 0.5 | `2026111965530424`–`…533668` |
+| restart-change | 6-luna | `aspire-skills-noorchestration` | 6/6 | 86 | 1.20× | 0.90–1.45 | 0.370 | 347k | 0 | `2026111965538368`–`…541512` |
+| restart-change | 6.1-terra | `raw` | 6/6 | 155 |  |  |  | 326k | 0 | `2026111965546136`–`…549316` |
+| restart-change | 6.1-terra | `aspire-cli` | 6/6 | 52 |  |  |  | 181k | 0 | `2026111965553648`–`…556872` |
+| restart-change | 6.1-terra | `aspire-skill-orchestration` | 6/6 | 56 | 1.08× | 0.92–1.26 | 0.485 | 233k | 1 | `2026111965561460`–`…564720` |
+| restart-change | 6.1-terra | `aspire-skills` | 6/6 | 60 | 1.16× | 0.92–1.44 | 0.240 | 253k | 1 | `2026111965569172`–`…572288` |
+| restart-change | 6.1-terra | `aspire-skills-noorchestration` | 6/6 | 60 | 1.00× | 0.80–1.18 | 0.818 | 229k | 0 | `2026111965576760`–`…579892` |
+| two-app | 6-luna | `raw` | 6/6 | 43 |  |  |  | 106k | 0 | `2026111965584288`–`…587376` |
+| two-app | 6-luna | `aspire-cli` | 6/6 | 41 |  |  |  | 143k | 0 | `2026111965592032`–`…595192` |
+| two-app | 6-luna | `aspire-skill-orchestration` | 6/6 | 97 | 2.36× | 1.33–2.77 | 0.009 | 324k | 0 | `2026111965599960`–`…603232` |
+| two-app | 6-luna | `aspire-skills` | 6/6 | 79 | 1.92× | 0.98–3.44 | 0.180 | 266k | 0 | `2026111965607776`–`…610960` |
+| two-app | 6-luna | `aspire-skills-noorchestration` | 6/6 | 59 | 0.75× | 0.34–1.88 | 0.699 | 225k | 0 | `2026111965615624`–`…618640` |
+| two-app | 6.1-terra | `raw` | 6/6 | 28 |  |  |  | 79k | 0 | `2026111965623220`–`…290300` |
+| two-app | 6.1-terra | `aspire-cli` | 6/6 | 31 |  |  |  | 138k | 0 | `2026111965630888`–`…634116` |
+| two-app | 6.1-terra | `aspire-skill-orchestration` | 6/6 | 31 | 1.00× | 0.69–1.66 | 1.000 | 136k | 0 | `2026111965638980`–`…642080` |
+| two-app | 6.1-terra | `aspire-skills` | 6/6 | 42 | 1.36× | 0.96–1.71 | 0.093 | 204k | 0 | `2026111965646452`–`…649496` |
+| two-app | 6.1-terra | `aspire-skills-noorchestration` | 6/6 | 41 | 0.97× | 0.77–1.08 | 0.485 | 206k | 0 | `2026111965654088`–`…657192` |
+| port-conflict | 6-luna | `raw` | 6/6 | 62 |  |  |  | 125k | 0 | `2026111965661504`–`…664676` |
+| port-conflict | 6-luna | `aspire-cli` | 5/6 | 277 |  |  |  | 536k | 0 | `2026111965669000`–`…672088` |
+| port-conflict | 6-luna | `aspire-skill-orchestration` | 3/6 | 456 | 1.65× | 0.96–2.10 | 0.180 | 1353k | 2.5 | `2026111965676624`–`…679704` |
+| port-conflict | 6-luna | `aspire-skills` | 3/6 | 550 | 1.99× | 1.39–2.80 | 0.026 | 1555k | 1.5 | `2026111965684104`–`…687184` |
+| port-conflict | 6-luna | `aspire-skills-noorchestration` | 4/6 | 382 | 0.69× | 0.35–1.37 | 0.310 | 791k | 0 | `2026111965691580`–`…694672` |
+| port-conflict | 6.1-terra | `raw` | 6/6 | 56 |  |  |  | 115k | 0 | `2026111965698960`–`…702080` |
+| port-conflict | 6.1-terra | `aspire-cli` | 6/6 | 219 |  |  |  | 310k | 0 | `2026111965706640`–`…709752` |
+| port-conflict | 6.1-terra | `aspire-skill-orchestration` | 6/6 | 231 | 1.05× | 0.85–1.64 | 0.240 | 412k | 0 | `2026111965714044`–`…717192` |
+| port-conflict | 6.1-terra | `aspire-skills` | 6/6 | 246 | 1.12× | 0.93–1.70 | 0.180 | 549k | 0 | `2026111965721588`–`…724668` |
+| port-conflict | 6.1-terra | `aspire-skills-noorchestration` | 5/6 | 57 | 0.23× | 0.20–0.52 | 0.002 | 122k | 0 | `2026111965728968`–`…732140` |
+| cold-start | 6-luna | `raw` | 6/6 | 39 |  |  |  | 49k | 0 | `2026111965736660`–`…739820` |
+| cold-start | 6-luna | `aspire-cli` | 6/6 | 47 |  |  |  | 77k | 0 | `2026111965744348`–`…747424` |
+| cold-start | 6-luna | `aspire-skill-orchestration` | 6/6 | 65 | 1.37× | 1.02–1.63 | 0.093 | 183k | 2 | `2026111965751852`–`…755008` |
+| cold-start | 6-luna | `aspire-skills` | 6/6 | 60 | 1.28× | 1.05–1.42 | 0.065 | 166k | 0 | `2026111965759400`–`…762832` |
+| cold-start | 6-luna | `aspire-skills-noorchestration` | 6/6 | 51 | 0.84× | 0.75–0.94 | 0.039 | 116k | 0 | `2026111965767256`–`…770436` |
+| cold-start | 6.1-terra | `raw` | 6/6 | 35 |  |  |  | 50k | 0 | `2026111965774648`–`…777792` |
+| cold-start | 6.1-terra | `aspire-cli` | 6/6 | 52 |  |  |  | 72k | 0 | `2026111965782184`–`…785336` |
+| cold-start | 6.1-terra | `aspire-skill-orchestration` | 6/6 | 53 | 1.02× | 0.93–1.10 | 0.818 | 96k | 0 | `2026111965789688`–`…792696` |
+| cold-start | 6.1-terra | `aspire-skills` | 6/6 | 55 | 1.06× | 0.98–1.59 | 0.180 | 106k | 0 | `2026111965796956`–`…800128` |
+| cold-start | 6.1-terra | `aspire-skills-noorchestration` | 6/6 | 49 | 0.90× | 0.60–1.02 | 0.145 | 95k | 0 | `2026111965804472`–`…807664` |
+| slow-sql | 6-luna | `aspire-skills` | 5/6 | 215 |  |  |  | 953k | 0 | `2026111965812072`–`…815256` |
+| slow-sql | 6-luna | `aspire-skills-noorchestration` | 5/6 | 155 | 0.72× | 0.53–1.02 | 0.240 | 685k | 0 | `2026111965819688`–`…822820` |
+| slow-redis | 6-luna | `aspire-skills` | 0/6 | 183 |  |  |  | 793k | 0 | `2026111965827244`–`…830500` |
+| slow-redis | 6-luna | `aspire-skills-noorchestration` | 0/6 | 153 | 0.83× | 0.61–1.11 | 0.132 | 718k | 0 | `2026111965834992`–`…838208` |
+
+- **By the rule.**
+  - Row 1, floor: no cell. Three decisive luna cells tested.
+  - Row 2, `keep`: no clause met (no luna ratio ≤ 0.90; pooled passes 15/18 against 17/18). Selection, ruling 3: the
+    luna `aspire-skills` trials loaded `aspire-orchestration` first in 2/6 (restart-change), 1/6 (two-app), 3/6
+    (port-conflict); the router took the rest of restart-change and port-conflict, and two-app's bundle loaded no
+    skill in 3/6. Below 5/6 on every scenario, so `keep` was closed regardless.
+  - Row 3 fires on all three luna cells: restart-change and two-app > 10 % slower with p < 0.10, port-conflict two
+    passes fewer.
+  - Rows 4–5 not reached. Recorded: `bundle-minus` ÷ bundle on the decisive cells 0.69–1.20× luna (p ≥ 0.31),
+    0.23–1.00× terra (port-conflict terra 0.23×, p 0.002, 5/6 against 6/6); the guard holds (luna `slow-sql` 0.72×,
+    5/6 against 5/6; `slow-redis` 0.83×, time-only, 0/6 against 0/6).
+- **Row 3's attribution** (the rule's own words: `shrink` "when the trajectories show the cost comes from the body or
+  references read on the main path", else `no verdict`). Read from every luna trial of the decisive cells and put to
+  the coordinating session with a proposed `no verdict`. **Coordinating session's ruling (2026-11-19, after the
+  round):** the main path is the sequence of steps the body prescribes for the job, before and after the fix,
+  verification included; under it the cost is the body's in two of three cells → `shrink` (body).
+
+  | Luna, median of six | Start → repair command | Repair → last call | Loaded the skill | Skill files read |
+  |---|---|---|---|---|
+  | restart-change `aspire-cli` | 28 s | 16 s | – | 0 |
+  | restart-change `skill-only` | 35 s | 51 s | 6/6 | 2 |
+  | two-app `aspire-cli` | 28 s | 10 s | – | 0 |
+  | two-app `skill-only` | 60 s | 16 s | 2/6 | 0 |
+
+  - **restart-change:** both arms apply the same patch at the same point; `skill-only` restarts with `rebuild` (4/6
+    luna, 6/6 terra; luna `aspire-cli`: `rebuild` in 3, `dotnet build` + `restart` in 3). After the repair, luna `skill-only`
+    ran `aspire wait` 10 times and the `check-status` resource command 7 times across six trials, the CLI arm 0 and 0
+    (`curl` 8 against 2): the body's "`aspire wait <resource>` before interacting … never `curl`" route. Input
+    tokens 342k against 130k.
+  - **two-app:** 4 of 6 `skill-only` trials never loaded the skill and read the admin's code before finding the
+    stopped process; the 2.36× is reported with the arm, not charged to the body. 56 of 59 two-app trials (every arm)
+    resumed the process with `kill -CONT`; one ran `aspire resource boardadmin restart`; every trial passed
+    `neighborKept` (no command reached `/neighbor-app`'s processes or containers).
+  - **port-conflict:** the skill's rows for this symptom are "Port already in use | Previous instance running | Stop,
+    then restart" and, in `agent-workflows.md`, `--isolated` "to avoid port conflicts" in worktrees. All three luna
+    `skill-only` failures ran `aspire stop`, then `aspire start --isolated` 0–6 s later, and failed on a square call
+    (HTTP 500). Reproduced locally: `aspire stop` returns while the old instance's teardown is still running; the new
+    start adopts the shared-name `bingo-redis` container, which the teardown removes about 60 s later, leaving `cache`
+    Exited ([FINDINGS F56](../FINDINGS.md#f56-a-start-right-after-aspire-stop-adopts-containers-the-old-instance-is-still-removing)).
+    The same failure: luna bundle 1/6, terra `bundle-minus` 1/6, `aspire-cli` 0/12. No trial of any arm signalled
+    the preview process; luna `aspire-cli` ran `aspire stop` before a new start in 5/6 and `--isolated` in 2/6,
+    `skill-only` 4/6 and 2/6.
+- **Cold start (reported, ruling 4; the same-round tie to T2.11):** luna `skill-only` 1.37× `aspire-cli` (p 0.093,
+  2 references read per trial), the bundle without orchestration 0.84× the bundle (p 0.039); terra 1.02× and 0.90×.
+  Every Aspire cold start used `--isolated`. Consistent with T2.11 (the start job without the skill).
+- **Selection re-run `t31-sel`** (terra, 48 runs, $1.21; rule as computed above, row 6):
+
+  | Arm | Router's prompts (12 runs) | Orchestration's prompts (12 runs) |
+  |---|---|---|
+  | `aspire-skills` (same-round control) | router 6, `aspire-orchestration` 6 (`router-3`, `-5`, `-6`) | `aspire-orchestration` 12 |
+  | `aspire-skills-norouter` | `aspire-orchestration` 6 (`router-3`, `-5`, `-6`), none 6 | `aspire-orchestration` 12 |
+
+  No other skill took the router's prompts and orchestration's own rate stayed 12/12 → discharged. The control
+  reproduces T3.9's matrix run for run.
+- **Raw against `aspire-cli`** (the product comparison, reported): restart-change raw 6/6 at 3.0× luna and terra
+  (`scripts/start.sh`'s supervisor stops everything when the admin exits; every raw trial kept it from doing so,
+  most by ending it from a Python or Node script and relaunching the admin with its environment);
+  two-app equal (raw resumed the process too); port-conflict raw 0.22× luna, 0.26× terra (raw's `start.sh` names the
+  port and exits; the Aspire start advertises the preview's URL and leaves the admin Unhealthy,
+  [FINDINGS F55](../FINDINGS.md#f55-under-a-plain-aspire-start-a-port-held-by-another-process-is-silent-and-describe-advertises-it)).
+- **Cost.** `t31` $7.52 for 264 trials (luna $1.78 for 144, terra $5.70 for 120), pilots $0.33, `t31-sel` $1.21,
+  re-run $0.03: **$9.09 against the card's $10.10**, about half the ≈ 2× expectation (the new scenarios ran shorter
+  than the diagnosis scenarios the expectation was taken from).
 
 #### T3.2 and T3.3 fixtures and rules, as computed (written 2026-11-19, before any T3.2 or T3.3 trial)
 

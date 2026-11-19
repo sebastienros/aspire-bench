@@ -7,7 +7,7 @@ Intervals are exact binomial (Clopper-Pearson) 90 %. These runs are not trials a
 other results file. The hook probes (rounds `t39-probe`, `t39-probe2`) are counted in the run line
 and excluded from every table.
 
-Runs: 404 (4 without a usable trajectory or with a runner exception); the hook fired in 387 of the 389 runs that asked for a tool (the others answered without one); cost $5.84.
+Runs: 452 (4 without a usable trajectory or with a runner exception); the hook fired in 433 of the 435 runs that asked for a tool (the others answered without one); cost $7.05.
 
 ## Calibration against the full trials (same pin, bundle and prompts; the static copy has no build output or AppHost state)
 
@@ -28,16 +28,16 @@ skill is the trials' most frequent first choice. Not part of the pre-registered 
 
 | Arm | Model | Prompts | Trials: first skill (rounds) | Selection runs | Trials' top choice: trial rate, runs' 90 % interval | Inside |
 |---|---|---|---|---|---|---|
-| `aspire-lean` | gpt-6-luna | cold start | aspire-orchestration 18 (t01b, t16, t211) | aspire-orchestration 6 | aspire-orchestration: 18/18, runs 6/6 (0.61–1.00) | yes |
-| `aspire-lean` | gpt-6-luna | diagnosis | aspire-diagnose 42 (t01b, t14, t14-guard, t17-copilot) | aspire-diagnose 18 | aspire-diagnose: 42/42, runs 18/18 (0.85–1.00) | yes |
-| `aspire-lean` | gpt-6.1-terra | cold start | aspire-orchestration 18 (t01b, t16, t211) | aspire-orchestration 6 | aspire-orchestration: 18/18, runs 6/6 (0.61–1.00) | yes |
-| `aspire-lean` | gpt-6.1-terra | diagnosis | aspire-diagnose 24 (t01b, t210) | aspire-diagnose 18 | aspire-diagnose: 24/24, runs 18/18 (0.85–1.00) | yes |
-| `aspire-skills` | gpt-6-luna | cold start | aspire 7, aspire-orchestration 5 (t13, t16) | aspire 2 | aspire: 7/12, runs 2/2 (0.22–1.00) | yes |
-| `aspire-skills` | gpt-6-luna | diagnosis | none 32, aspire-monitoring 9, aspire 4 (t01b-plugin, t12, t13, t210) | none 3, aspire 1, aspire-monitoring 1 | none: 32/45, runs 3/5 (0.19–0.92) | yes |
-| `aspire-skills` | gpt-6.1-terra | cold start | aspire-orchestration 12 (t13, t16) | aspire-orchestration 2 | aspire-orchestration: 12/12, runs 2/2 (0.22–1.00) | yes |
+| `aspire-lean` | gpt-6-luna | cold start | aspire-orchestration 24 (t01b, t16, t211, t22) | aspire-orchestration 6 | aspire-orchestration: 24/24, runs 6/6 (0.61–1.00) | yes |
+| `aspire-lean` | gpt-6-luna | diagnosis | aspire-diagnose 66 (t01b, t14, t14-guard, t17-copilot, t25, t25-span) | aspire-diagnose 18 | aspire-diagnose: 66/66, runs 18/18 (0.85–1.00) | yes |
+| `aspire-lean` | gpt-6.1-terra | cold start | aspire-orchestration 24 (t01b, t16, t211, t22) | aspire-orchestration 6 | aspire-orchestration: 24/24, runs 6/6 (0.61–1.00) | yes |
+| `aspire-lean` | gpt-6.1-terra | diagnosis | aspire-diagnose 30 (t01b, t210, t25) | aspire-diagnose 18 | aspire-diagnose: 30/30, runs 18/18 (0.85–1.00) | yes |
+| `aspire-skills` | gpt-6-luna | cold start | aspire 11, aspire-orchestration 7 (t13, t16, t31) | aspire 2 | aspire: 11/18, runs 2/2 (0.22–1.00) | yes |
+| `aspire-skills` | gpt-6-luna | diagnosis | none 52, aspire-monitoring 12, aspire 5 (t01b-plugin, t12, t13, t210, t31, t32) | none 3, aspire 1, aspire-monitoring 1 | none: 52/69, runs 3/5 (0.19–0.92) | yes |
+| `aspire-skills` | gpt-6.1-terra | cold start | aspire-orchestration 18 (t13, t16, t31) | aspire-orchestration 2 | aspire-orchestration: 18/18, runs 2/2 (0.22–1.00) | yes |
 | `aspire-skills` | gpt-6.1-terra | diagnosis | aspire-monitoring 36 (t12, t13, t210) | aspire-monitoring 6 | aspire-monitoring: 36/36, runs 6/6 (0.61–1.00) | yes |
 | `aspire-skills-mcp` | gpt-6-luna | cold start | aspire 5, aspire-orchestration 1 (t01b) | aspire 5, aspire-orchestration 1 | aspire: 5/6, runs 5/6 (0.42–0.99) | yes |
-| `aspire-skills-mcp` | gpt-6-luna | diagnosis | aspire 16, none 12, aspire-monitoring 2 (t01b, t17-copilot) | aspire 17, none 1 | aspire: 16/30, runs 17/18 (0.76–1.00) | **no** |
+| `aspire-skills-mcp` | gpt-6-luna | diagnosis | aspire 20, none 13, aspire-monitoring 3 (t01b, t17-copilot, t28-skills) | aspire 17, none 1 | aspire: 20/36, runs 17/18 (0.76–1.00) | **no** |
 | `aspire-skills-mcp` | gpt-6.1-terra | cold start | aspire-orchestration 6 (t01b) | aspire-orchestration 6 | aspire-orchestration: 6/6, runs 6/6 (0.61–1.00) | yes |
 | `aspire-skills-mcp` | gpt-6.1-terra | diagnosis | aspire-monitoring 18 (t01b) | aspire-monitoring 18 | aspire-monitoring: 18/18, runs 18/18 (0.85–1.00) | yes |
 | `aspire-skills-mon` | gpt-6-luna | diagnosis | none 15, aspire 3 (t12) | none 5, aspire 3 | none: 15/18, runs 5/8 (0.29–0.89) | yes |
@@ -98,6 +98,21 @@ own and ≤ 2/12 elsewhere; ≥ 3 elsewhere means split or narrow the trigger.
 | `aspire-skills-norouter` | gpt-6.1-terra | sel-suite-readonly | 4 | aspire-monitoring 4 |
 | `aspire-skills-norouter` | gpt-6.1-terra | sel-suite-sluggish | 4 | aspire-monitoring 4 |
 
+## T3.1 selection re-run (`t31-sel`)
+
+The router's and `aspire-orchestration`'s six prompts each, on the bundle without the router (T1.3's
+proposal) and the shipped bundle in the same round. Rule (PLAN T3.1, row 6): under `norouter` no skill
+other than `aspire-orchestration` on the router's prompts, and orchestration's own rate ≥ 10/12.
+
+| Arm | Model | Prompts | Runs | First skill |
+|---|---|---|---:|---|
+| `aspire-skills` | gpt-6.1-terra | aspire's | 12 | aspire 6, aspire-orchestration 6 |
+| `aspire-skills` | gpt-6.1-terra | aspire-orchestration's | 12 | aspire-orchestration 12 |
+| `aspire-skills-norouter` | gpt-6.1-terra | aspire's | 12 | none 6, aspire-orchestration 6 |
+| `aspire-skills-norouter` | gpt-6.1-terra | aspire-orchestration's | 12 | aspire-orchestration 12 |
+
+gpt-6.1-terra, `norouter`: other skills on the router's prompts 0; orchestration own 12/12 → **discharged**.
+
 ## Per prompt
 
 | Prompt | Owner | Arm | Model | Selected (runs) |
@@ -151,17 +166,23 @@ own and ≤ 2/12 elsewhere; ≥ 3 elsewhere means split or narrow the trigger.
 | sel-mon-6 | aspire-monitoring | `aspire-skills` | gpt-6-luna | aspire-monitoring 2 |
 | sel-mon-6 | aspire-monitoring | `aspire-skills` | gpt-6.1-terra | aspire-monitoring 2 |
 | sel-orch-1 | aspire-orchestration | `aspire-skills` | gpt-6-luna | aspire-orchestration 1, aspire 1 |
-| sel-orch-1 | aspire-orchestration | `aspire-skills` | gpt-6.1-terra | aspire-orchestration 2 |
+| sel-orch-1 | aspire-orchestration | `aspire-skills` | gpt-6.1-terra | aspire-orchestration 4 |
+| sel-orch-1 | aspire-orchestration | `aspire-skills-norouter` | gpt-6.1-terra | aspire-orchestration 2 |
 | sel-orch-2 | aspire-orchestration | `aspire-skills` | gpt-6-luna | aspire 2 |
-| sel-orch-2 | aspire-orchestration | `aspire-skills` | gpt-6.1-terra | aspire-orchestration 2 |
+| sel-orch-2 | aspire-orchestration | `aspire-skills` | gpt-6.1-terra | aspire-orchestration 4 |
+| sel-orch-2 | aspire-orchestration | `aspire-skills-norouter` | gpt-6.1-terra | aspire-orchestration 2 |
 | sel-orch-3 | aspire-orchestration | `aspire-skills` | gpt-6-luna | aspire-orchestration 2 |
-| sel-orch-3 | aspire-orchestration | `aspire-skills` | gpt-6.1-terra | aspire-orchestration 1 |
+| sel-orch-3 | aspire-orchestration | `aspire-skills` | gpt-6.1-terra | aspire-orchestration 3 |
+| sel-orch-3 | aspire-orchestration | `aspire-skills-norouter` | gpt-6.1-terra | aspire-orchestration 2 |
 | sel-orch-4 | aspire-orchestration | `aspire-skills` | gpt-6-luna | aspire 1, aspire-orchestration 1 |
-| sel-orch-4 | aspire-orchestration | `aspire-skills` | gpt-6.1-terra | aspire-orchestration 2 |
+| sel-orch-4 | aspire-orchestration | `aspire-skills` | gpt-6.1-terra | aspire-orchestration 4 |
+| sel-orch-4 | aspire-orchestration | `aspire-skills-norouter` | gpt-6.1-terra | aspire-orchestration 2 |
 | sel-orch-5 | aspire-orchestration | `aspire-skills` | gpt-6-luna | aspire-orchestration 2 |
-| sel-orch-5 | aspire-orchestration | `aspire-skills` | gpt-6.1-terra | aspire-orchestration 2 |
+| sel-orch-5 | aspire-orchestration | `aspire-skills` | gpt-6.1-terra | aspire-orchestration 4 |
+| sel-orch-5 | aspire-orchestration | `aspire-skills-norouter` | gpt-6.1-terra | aspire-orchestration 2 |
 | sel-orch-6 | aspire-orchestration | `aspire-skills` | gpt-6-luna | aspire-orchestration 2 |
-| sel-orch-6 | aspire-orchestration | `aspire-skills` | gpt-6.1-terra | aspire-orchestration 2 |
+| sel-orch-6 | aspire-orchestration | `aspire-skills` | gpt-6.1-terra | aspire-orchestration 4 |
+| sel-orch-6 | aspire-orchestration | `aspire-skills-norouter` | gpt-6.1-terra | aspire-orchestration 2 |
 | sel-other-1 | none | `aspire-skills` | gpt-6-luna | none 2 |
 | sel-other-1 | none | `aspire-skills` | gpt-6.1-terra | none 2 |
 | sel-other-10 | none | `aspire-skills` | gpt-6-luna | none 2 |
@@ -187,17 +208,23 @@ own and ≤ 2/12 elsewhere; ≥ 3 elsewhere means split or narrow the trigger.
 | sel-other-9 | none | `aspire-skills` | gpt-6-luna | none 2 |
 | sel-other-9 | none | `aspire-skills` | gpt-6.1-terra | none 2 |
 | sel-router-1 | aspire | `aspire-skills` | gpt-6-luna | aspire 2 |
-| sel-router-1 | aspire | `aspire-skills` | gpt-6.1-terra | aspire 2 |
+| sel-router-1 | aspire | `aspire-skills` | gpt-6.1-terra | aspire 4 |
+| sel-router-1 | aspire | `aspire-skills-norouter` | gpt-6.1-terra | none 2 |
 | sel-router-2 | aspire | `aspire-skills` | gpt-6-luna | aspire 2 |
-| sel-router-2 | aspire | `aspire-skills` | gpt-6.1-terra | aspire 1 |
+| sel-router-2 | aspire | `aspire-skills` | gpt-6.1-terra | aspire 3 |
+| sel-router-2 | aspire | `aspire-skills-norouter` | gpt-6.1-terra | none 2 |
 | sel-router-3 | aspire | `aspire-skills` | gpt-6-luna | aspire-orchestration 2 |
-| sel-router-3 | aspire | `aspire-skills` | gpt-6.1-terra | aspire-orchestration 2 |
+| sel-router-3 | aspire | `aspire-skills` | gpt-6.1-terra | aspire-orchestration 4 |
+| sel-router-3 | aspire | `aspire-skills-norouter` | gpt-6.1-terra | aspire-orchestration 2 |
 | sel-router-4 | aspire | `aspire-skills` | gpt-6-luna | aspire 2 |
-| sel-router-4 | aspire | `aspire-skills` | gpt-6.1-terra | aspire 2 |
+| sel-router-4 | aspire | `aspire-skills` | gpt-6.1-terra | aspire 4 |
+| sel-router-4 | aspire | `aspire-skills-norouter` | gpt-6.1-terra | none 2 |
 | sel-router-5 | aspire | `aspire-skills` | gpt-6-luna | aspire 1, aspire-orchestration 1 |
-| sel-router-5 | aspire | `aspire-skills` | gpt-6.1-terra | aspire-orchestration 2 |
+| sel-router-5 | aspire | `aspire-skills` | gpt-6.1-terra | aspire-orchestration 4 |
+| sel-router-5 | aspire | `aspire-skills-norouter` | gpt-6.1-terra | aspire-orchestration 2 |
 | sel-router-6 | aspire | `aspire-skills` | gpt-6-luna | aspire-orchestration 2 |
-| sel-router-6 | aspire | `aspire-skills` | gpt-6.1-terra | aspire-orchestration 2 |
+| sel-router-6 | aspire | `aspire-skills` | gpt-6.1-terra | aspire-orchestration 4 |
+| sel-router-6 | aspire | `aspire-skills-norouter` | gpt-6.1-terra | aspire-orchestration 2 |
 | sel-suite-coldstart | suite | `aspire-lean` | gpt-6-luna | aspire-orchestration 6 |
 | sel-suite-coldstart | suite | `aspire-lean` | gpt-6.1-terra | aspire-orchestration 6 |
 | sel-suite-coldstart | suite | `aspire-skills` | gpt-6-luna | aspire 2 |

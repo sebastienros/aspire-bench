@@ -97,65 +97,69 @@ Each pin (toolchain) has its own table; trials of different pins are never compa
 | adoption | gpt-6-luna | aspire-skills-noaspireify vs aspire-skills | 6 vs 6 | +36% (p=0.065) | 1.36x [1.06-1.60] | +12% (p=0.589) | +8% (p=0.485) |
 | adoption | gpt-6.1-terra | aspire-skill-aspireify vs aspire-cli | 6 vs 6 | +23% (p=0.041) | 1.23x [1.04-1.61] | +40% (p=0.132) | +17% (p=0.132) |
 | adoption | gpt-6.1-terra | aspire-skills-noaspireify vs aspire-skills | 6 vs 6 | +13% (p=0.310) | 1.13x [0.96-1.36] | +5% (p=0.818) | +3% (p=0.818) |
-| cold-start | gpt-6-luna | aspire-lean (tasks 1479041e) vs raw | 18 vs 24 | +44% (p=0.000) | 1.44x [1.31-1.55] | +162% (p=0.000) | +106% (p=0.000) |
-| cold-start | gpt-6-luna | aspire-lean (tasks 916a57ce) vs raw | 6 vs 24 | +52% (p=0.000) | 1.52x [1.43-1.63] | +143% (p=0.000) | +93% (p=0.000) |
-| cold-start | gpt-6-luna | aspire-skills-mcp vs raw | 6 vs 24 | +37% (p=0.000) | 1.37x [1.20-1.52] | +140% (p=0.000) | +98% (p=0.000) |
+| cold-start | gpt-6-luna | aspire-lean (tasks 1479041e) vs raw | 18 vs 30 | +47% (p=0.000) | 1.47x [1.32-1.57] | +191% (p=0.000) | +115% (p=0.000) |
+| cold-start | gpt-6-luna | aspire-lean (tasks 916a57ce) vs raw | 6 vs 30 | +54% (p=0.000) | 1.54x [1.43-1.65] | +170% (p=0.000) | +102% (p=0.000) |
+| cold-start | gpt-6-luna | aspire-skills-mcp vs raw | 6 vs 30 | +39% (p=0.000) | 1.39x [1.20-1.53] | +167% (p=0.000) | +107% (p=0.000) |
 | cold-start | gpt-6-luna | aspire-lean (tasks 1479041e) vs aspire-skills-mcp | 18 vs 6 | +6% (p=0.310) | 1.06x [0.92-1.22] | +9% (p=0.454) | +4% (p=0.494) |
 | cold-start | gpt-6-luna | aspire-lean (tasks 916a57ce) vs aspire-skills-mcp | 6 vs 6 | +11% (p=0.041) | 1.11x [1.01-1.29] | +1% (p=0.818) | -2% (p=0.818) |
 | cold-start | gpt-6-luna | aspire-lean-start vs aspire-lean (tasks 1479041e) | 12 vs 18 | -13% (p=0.011) | 0.87x [0.83-0.98] | -29% (p=0.003) | -38% (p=0.000) |
 | cold-start | gpt-6-luna | aspire-lean-start vs aspire-lean (tasks 916a57ce) | 12 vs 6 | -17% (p=0.001) | 0.83x [0.79-0.90] | -24% (p=0.007) | -33% (p=0.000) |
-| cold-start | gpt-6-luna | aspire-lean-start vs aspire-skills | 12 vs 12 | -17% (p=0.000) | 0.83x [0.67-0.89] | -30% (p=0.000) | -38% (p=0.000) |
-| cold-start | gpt-6-luna | aspire-lean-start vs raw | 12 vs 24 | +26% (p=0.000) | 1.26x [1.22-1.36] | +85% (p=0.000) | +28% (p=0.000) |
-| cold-start | gpt-6-luna | aspire-cli vs raw | 24 vs 24 | +20% (p=0.000) | 1.20x [1.17-1.29] | +28% (p=0.016) | +18% (p=0.093) |
-| cold-start | gpt-6-luna | aspire-skills-norouter vs aspire-skills | 6 vs 12 | +24% (p=0.102) | 1.24x [0.94-1.58] | +55% (p=0.750) | +26% (p=0.820) |
-| cold-start | gpt-6-luna | aspire-lean (tasks 1479041e) vs aspire-skills | 18 vs 12 | -5% (p=0.079) | 0.95x [0.75-1.02] | -1% (p=0.415) | -0% (p=0.491) |
-| cold-start | gpt-6-luna | aspire-lean (tasks 916a57ce) vs aspire-skills | 6 vs 12 | +0% (p=0.682) | 1.00x [0.80-1.07] | -9% (p=0.250) | -6% (p=0.964) |
+| cold-start | gpt-6-luna | aspire-lean-start vs aspire-skills | 12 vs 18 | -14% (p=0.000) | 0.86x [0.77-0.90] | -30% (p=0.000) | -38% (p=0.000) |
+| cold-start | gpt-6-luna | aspire-lean-start vs raw | 12 vs 30 | +28% (p=0.000) | 1.28x [1.22-1.37] | +106% (p=0.000) | +34% (p=0.000) |
+| cold-start | gpt-6-luna | aspire-cli vs raw | 30 vs 30 | +22% (p=0.000) | 1.22x [1.16-1.29] | +40% (p=0.004) | +21% (p=0.063) |
+| cold-start | gpt-6-luna | aspire-skills-norouter vs aspire-skills | 6 vs 18 | +28% (p=0.038) | 1.28x [1.01-1.67] | +55% (p=0.673) | +26% (p=0.770) |
+| cold-start | gpt-6-luna | aspire-lean (tasks 1479041e) vs aspire-skills | 18 vs 18 | -1% (p=0.116) | 0.99x [0.85-1.03] | -1% (p=0.389) | -0% (p=0.481) |
+| cold-start | gpt-6-luna | aspire-lean (tasks 916a57ce) vs aspire-skills | 6 vs 18 | +3% (p=0.912) | 1.03x [0.91-1.08] | -8% (p=0.177) | -6% (p=0.770) |
 | cold-start | gpt-6-luna | aspire-lean-agents vs aspire-lean (tasks 1479041e) | 6 vs 18 | -12% (p=0.022) | 0.88x [0.78-0.98] | -19% (p=0.251) | -9% (p=0.280) |
 | cold-start | gpt-6-luna | aspire-lean-agents vs aspire-lean (tasks 916a57ce) | 6 vs 6 | -16% (p=0.004) | 0.84x [0.74-0.90] | -13% (p=0.818) | -3% (p=0.589) |
-| cold-start | gpt-6-luna | aspire-cli-agents vs aspire-cli | 6 vs 24 | +7% (p=0.677) | 1.07x [0.90-1.12] | -12% (p=0.820) | -14% (p=0.494) |
-| cold-start | gpt-6-luna | aspire-skills-agents vs aspire-skills | 6 vs 12 | -17% (p=0.000) | 0.83x [0.65-0.87] | -5% (p=0.553) | -8% (p=0.151) |
+| cold-start | gpt-6-luna | aspire-cli-agents vs aspire-cli | 6 vs 30 | +7% (p=0.733) | 1.07x [0.91-1.12] | -11% (p=0.756) | -12% (p=0.520) |
+| cold-start | gpt-6-luna | aspire-skills-agents vs aspire-skills | 6 vs 18 | -15% (p=0.000) | 0.85x [0.72-0.87] | -5% (p=0.581) | -8% (p=0.104) |
 | cold-start | gpt-6-luna | aspire-lean-agents-v2 vs aspire-lean (tasks 1479041e) | 6 vs 18 | -3% (p=0.820) | 0.97x [0.92-1.09] | +9% (p=0.974) | +8% (p=1.000) |
 | cold-start | gpt-6-luna | aspire-lean-agents-v2 vs aspire-lean (tasks 916a57ce) | 6 vs 6 | -7% (p=0.180) | 0.93x [0.85-1.01] | +18% (p=0.485) | +15% (p=0.818) |
 | cold-start | gpt-6-luna | aspire-lean-noorch-agents vs aspire-lean (tasks 1479041e) | 12 vs 18 | -17% (p=0.000) | 0.83x [0.76-0.92] | -46% (p=0.000) | -43% (p=0.000) |
 | cold-start | gpt-6-luna | aspire-lean-noorch-agents vs aspire-lean (tasks 916a57ce) | 12 vs 6 | -21% (p=0.000) | 0.79x [0.71-0.84] | -42% (p=0.000) | -39% (p=0.000) |
-| cold-start | gpt-6-luna | aspire-lean-noorch-agents vs aspire-cli | 12 vs 24 | +0% (p=0.276) | 1.00x [0.91-1.03] | +10% (p=0.237) | -1% (p=0.779) |
+| cold-start | gpt-6-luna | aspire-lean-noorch-agents vs aspire-cli | 12 vs 30 | +1% (p=0.338) | 1.01x [0.91-1.04] | +11% (p=0.117) | +1% (p=0.650) |
 | cold-start | gpt-6-luna | aspire-cli-wait vs aspire-cli-src | 6 vs 6 | +0% (p=0.619) | 1.00x [0.91-1.13] | -3% (p=0.589) | -6% (p=0.699) |
-| cold-start | gpt-6-luna | aspire-cli-src vs raw | 6 vs 24 | +23% (p=0.000) | 1.23x [1.13-1.32] | +17% (p=0.210) | +1% (p=0.980) |
+| cold-start | gpt-6-luna | aspire-cli-src vs raw | 6 vs 30 | +25% (p=0.000) | 1.25x [1.14-1.33] | +30% (p=0.184) | +6% (p=0.918) |
 | cold-start | gpt-6-luna | aspire-lean-start-wait vs aspire-cli-wait | 6 vs 6 | +1% (p=0.786) | 1.01x [0.90-1.15] | +18% (p=0.132) | +15% (p=0.132) |
 | cold-start | gpt-6-luna | aspire-lean-start-wait vs aspire-lean-start | 6 vs 12 | -1% (p=0.538) | 0.99x [0.90-1.07] | -28% (p=0.000) | -15% (p=0.001) |
 | cold-start | gpt-6-luna | aspire-lean-noorch-agents-v3 vs aspire-lean-noorch-agents-src | 6 vs 6 | +12% (p=0.065) | 1.12x [1.03-1.24] | -35% (p=0.002) | -12% (p=0.002) |
 | cold-start | gpt-6-luna | aspire-lean-mcp vs aspire-lean-start | 6 vs 12 | -5% (p=0.494) | 0.95x [0.90-1.16] | +16% (p=0.032) | +42% (p=0.000) |
 | cold-start | gpt-6-luna | aspire-lean-mcp vs aspire-lean (tasks 1479041e) | 6 vs 18 | -17% (p=0.090) | 0.83x [0.79-1.03] | -18% (p=0.974) | -11% (p=0.770) |
 | cold-start | gpt-6-luna | aspire-lean-mcp vs aspire-lean (tasks 916a57ce) | 6 vs 6 | -21% (p=0.026) | 0.79x [0.75-0.97] | -12% (p=1.000) | -5% (p=0.394) |
-| cold-start | gpt-6.1-terra | aspire-lean (tasks 1479041e) vs raw | 18 vs 18 | +34% (p=0.000) | 1.34x [1.22-1.41] | +126% (p=0.000) | +55% (p=0.000) |
-| cold-start | gpt-6.1-terra | aspire-lean (tasks 916a57ce) vs raw | 6 vs 18 | +53% (p=0.000) | 1.53x [1.31-1.62] | +146% (p=0.000) | +58% (p=0.000) |
-| cold-start | gpt-6.1-terra | aspire-skills-mcp vs raw | 6 vs 18 | +36% (p=0.000) | 1.36x [1.25-1.56] | +144% (p=0.000) | +65% (p=0.000) |
+| cold-start | gpt-6-luna | aspire-skill-orchestration vs aspire-cli | 6 vs 30 | +30% (p=0.010) | 1.30x [1.08-1.56] | +130% (p=0.001) | +92% (p=0.000) |
+| cold-start | gpt-6-luna | aspire-skills-noorchestration vs aspire-skills | 6 vs 18 | -17% (p=0.004) | 0.83x [0.75-0.90] | -31% (p=0.000) | -27% (p=0.000) |
+| cold-start | gpt-6.1-terra | aspire-lean (tasks 1479041e) vs raw | 18 vs 24 | +39% (p=0.000) | 1.39x [1.29-1.44] | +126% (p=0.000) | +56% (p=0.000) |
+| cold-start | gpt-6.1-terra | aspire-lean (tasks 916a57ce) vs raw | 6 vs 24 | +58% (p=0.000) | 1.58x [1.36-1.65] | +146% (p=0.000) | +59% (p=0.000) |
+| cold-start | gpt-6.1-terra | aspire-skills-mcp vs raw | 6 vs 24 | +40% (p=0.000) | 1.40x [1.32-1.60] | +144% (p=0.000) | +66% (p=0.000) |
 | cold-start | gpt-6.1-terra | aspire-lean (tasks 1479041e) vs aspire-skills-mcp | 18 vs 6 | -1% (p=0.204) | 0.99x [0.86-1.02] | -7% (p=0.415) | -6% (p=0.027) |
 | cold-start | gpt-6.1-terra | aspire-lean (tasks 916a57ce) vs aspire-skills-mcp | 6 vs 6 | +13% (p=0.669) | 1.13x [0.93-1.17] | +1% (p=0.937) | -4% (p=0.180) |
 | cold-start | gpt-6.1-terra | aspire-lean-start vs aspire-lean (tasks 1479041e) | 12 vs 18 | -1% (p=0.908) | 0.99x [0.93-1.10] | -18% (p=0.005) | -19% (p=0.000) |
 | cold-start | gpt-6.1-terra | aspire-lean-start vs aspire-lean (tasks 916a57ce) | 12 vs 6 | -13% (p=0.049) | 0.87x [0.82-1.02] | -24% (p=0.007) | -21% (p=0.000) |
-| cold-start | gpt-6.1-terra | aspire-lean-start vs aspire-skills | 12 vs 12 | -9% (p=0.081) | 0.91x [0.85-1.01] | -19% (p=0.020) | -20% (p=0.000) |
-| cold-start | gpt-6.1-terra | aspire-lean-start vs raw | 12 vs 18 | +33% (p=0.000) | 1.33x [1.21-1.46] | +87% (p=0.000) | +25% (p=0.000) |
-| cold-start | gpt-6.1-terra | aspire-cli vs raw | 18 vs 18 | +42% (p=0.000) | 1.42x [1.28-1.50] | +43% (p=0.000) | +5% (p=0.192) |
-| cold-start | gpt-6.1-terra | aspire-skills-norouter vs aspire-skills | 6 vs 12 | +5% (p=0.537) | 1.05x [0.95-1.10] | -12% (p=0.083) | -5% (p=0.083) |
-| cold-start | gpt-6.1-terra | aspire-lean (tasks 1479041e) vs aspire-skills | 18 vs 12 | -8% (p=0.003) | 0.92x [0.86-0.95] | -2% (p=0.158) | -2% (p=0.391) |
-| cold-start | gpt-6.1-terra | aspire-lean (tasks 916a57ce) vs aspire-skills | 6 vs 12 | +5% (p=0.873) | 1.05x [0.90-1.09] | +7% (p=0.964) | +1% (p=0.892) |
+| cold-start | gpt-6.1-terra | aspire-lean-start vs aspire-skills | 12 vs 18 | -9% (p=0.073) | 0.91x [0.85-1.01] | -13% (p=0.035) | -20% (p=0.000) |
+| cold-start | gpt-6.1-terra | aspire-lean-start vs raw | 12 vs 24 | +38% (p=0.000) | 1.38x [1.28-1.52] | +87% (p=0.000) | +26% (p=0.000) |
+| cold-start | gpt-6.1-terra | aspire-cli vs raw | 24 vs 24 | +44% (p=0.000) | 1.44x [1.35-1.50] | +43% (p=0.000) | +5% (p=0.009) |
+| cold-start | gpt-6.1-terra | aspire-skills-norouter vs aspire-skills | 6 vs 18 | +5% (p=0.405) | 1.05x [0.96-1.10] | -5% (p=0.104) | -4% (p=0.077) |
+| cold-start | gpt-6.1-terra | aspire-lean (tasks 1479041e) vs aspire-skills | 18 vs 18 | -8% (p=0.002) | 0.92x [0.87-0.96] | +6% (p=0.308) | -1% (p=0.501) |
+| cold-start | gpt-6.1-terra | aspire-lean (tasks 916a57ce) vs aspire-skills | 6 vs 18 | +5% (p=0.709) | 1.05x [0.90-1.10] | +15% (p=0.820) | +1% (p=0.721) |
 | cold-start | gpt-6.1-terra | aspire-lean-agents vs aspire-lean (tasks 1479041e) | 6 vs 18 | -9% (p=0.090) | 0.91x [0.86-1.01] | -0% (p=0.378) | +3% (p=0.820) |
 | cold-start | gpt-6.1-terra | aspire-lean-agents vs aspire-lean (tasks 916a57ce) | 6 vs 6 | -20% (p=0.013) | 0.80x [0.75-0.95] | -8% (p=0.132) | +0% (p=0.937) |
-| cold-start | gpt-6.1-terra | aspire-cli-agents vs aspire-cli | 6 vs 18 | -8% (p=0.160) | 0.92x [0.87-1.01] | +7% (p=0.012) | +5% (p=0.015) |
-| cold-start | gpt-6.1-terra | aspire-skills-agents vs aspire-skills | 6 vs 12 | -17% (p=0.013) | 0.83x [0.78-0.96] | -2% (p=0.385) | +1% (p=0.892) |
+| cold-start | gpt-6.1-terra | aspire-cli-agents vs aspire-cli | 6 vs 24 | -6% (p=0.195) | 0.94x [0.89-1.02] | +7% (p=0.021) | +5% (p=0.011) |
+| cold-start | gpt-6.1-terra | aspire-skills-agents vs aspire-skills | 6 vs 18 | -17% (p=0.007) | 0.83x [0.78-0.96] | +6% (p=0.626) | +2% (p=0.974) |
 | cold-start | gpt-6.1-terra | aspire-lean-agents-v2 vs aspire-lean (tasks 1479041e) | 6 vs 18 | -13% (p=0.000) | 0.87x [0.81-0.92] | +0% (p=0.494) | +2% (p=0.581) |
 | cold-start | gpt-6.1-terra | aspire-lean-agents-v2 vs aspire-lean (tasks 916a57ce) | 6 vs 6 | -24% (p=0.002) | 0.76x [0.71-0.88] | -8% (p=0.818) | -0% (p=0.818) |
 | cold-start | gpt-6.1-terra | aspire-lean-noorch-agents vs aspire-lean (tasks 1479041e) | 6 vs 18 | -7% (p=0.023) | 0.93x [0.88-0.98] | -27% (p=0.001) | -23% (p=0.000) |
 | cold-start | gpt-6.1-terra | aspire-lean-noorch-agents vs aspire-lean (tasks 916a57ce) | 6 vs 6 | -18% (p=0.009) | 0.82x [0.76-0.95] | -33% (p=0.004) | -24% (p=0.002) |
-| cold-start | gpt-6.1-terra | aspire-lean-noorch-agents vs aspire-cli | 6 vs 18 | -12% (p=0.001) | 0.88x [0.83-0.94] | +16% (p=0.006) | +14% (p=0.000) |
+| cold-start | gpt-6.1-terra | aspire-lean-noorch-agents vs aspire-cli | 6 vs 24 | -10% (p=0.002) | 0.90x [0.84-0.94] | +16% (p=0.004) | +15% (p=0.000) |
 | cold-start | gpt-6.1-terra | aspire-cli-wait vs aspire-cli-src | 6 vs 6 | +8% (p=0.026) | 1.08x [1.04-1.17] | -32% (p=0.002) | -5% (p=0.002) |
-| cold-start | gpt-6.1-terra | aspire-cli-src vs raw | 6 vs 18 | +34% (p=0.001) | 1.34x [1.20-1.41] | +43% (p=0.000) | +3% (p=0.224) |
+| cold-start | gpt-6.1-terra | aspire-cli-src vs raw | 6 vs 24 | +38% (p=0.000) | 1.38x [1.26-1.43] | +43% (p=0.000) | +4% (p=0.057) |
 | cold-start | gpt-6.1-terra | aspire-lean-start-wait vs aspire-cli-wait | 6 vs 6 | -9% (p=0.015) | 0.91x [0.84-0.96] | +43% (p=0.002) | +15% (p=0.002) |
 | cold-start | gpt-6.1-terra | aspire-lean-start-wait vs aspire-lean-start | 6 vs 12 | -2% (p=0.281) | 0.98x [0.88-1.05] | -26% (p=0.000) | -11% (p=0.000) |
 | cold-start | gpt-6.1-terra | aspire-lean-mcp vs aspire-lean-start | 6 vs 12 | -1% (p=0.872) | 0.99x [0.90-1.08] | +19% (p=0.151) | +27% (p=0.000) |
 | cold-start | gpt-6.1-terra | aspire-lean-mcp vs aspire-lean (tasks 1479041e) | 6 vs 18 | -1% (p=0.758) | 0.99x [0.94-1.08] | -2% (p=0.820) | +3% (p=0.251) |
 | cold-start | gpt-6.1-terra | aspire-lean-mcp vs aspire-lean (tasks 916a57ce) | 6 vs 6 | -14% (p=0.294) | 0.86x [0.82-1.01] | -10% (p=0.699) | +1% (p=0.485) |
+| cold-start | gpt-6.1-terra | aspire-skill-orchestration vs aspire-cli | 6 vs 24 | -1% (p=0.625) | 0.99x [0.91-1.04] | +34% (p=0.000) | +36% (p=0.000) |
+| cold-start | gpt-6.1-terra | aspire-skills-noorchestration vs aspire-skills | 6 vs 18 | -11% (p=0.031) | 0.89x [0.84-0.97] | -12% (p=0.224) | -4% (p=0.224) |
 | cold-start | gpt-6.2-sol | aspire-lean vs raw | 12 vs 12 | +4% (p=0.854) | 1.04x [0.87-1.22] | +12% (p=0.630) | +14% (p=0.443) |
 | cold-start | gpt-6.2-sol | aspire-lean-start vs aspire-lean | 12 vs 12 | +4% (p=0.139) | 1.04x [0.98-1.10] | +0% (p=0.843) | +12% (p=0.039) |
 | cold-start | gpt-6.2-sol | aspire-lean-start vs aspire-skills | 12 vs 6 | -1% (p=0.892) | 0.99x [0.90-1.13] | -6% (p=0.437) | +5% (p=0.494) |
@@ -211,6 +215,12 @@ Each pin (toolchain) has its own table; trials of different pins are never compa
 | heldout-stuck-orders | gpt-6.1-terra | aspire-lean (tasks 1479041e) vs aspire-skills-mcp | 6 vs 12 | -5% (p=0.397) | 0.95x [0.70-1.17] | -32% (p=0.007) | -27% (p=0.000) |
 | heldout-stuck-orders | gpt-6.1-terra | aspire-lean (tasks 916a57ce) vs aspire-skills-mcp | 6 vs 12 | -24% (p=0.010) | 0.76x [0.58-0.91] | -30% (p=0.018) | -23% (p=0.013) |
 | heldout-stuck-orders | gpt-6.1-terra | aspire-cli vs raw | 12 vs 12 | -28% (p=0.052) | 0.72x [0.60-0.94] | -34% (p=0.266) | -13% (p=0.319) |
+| port-conflict | gpt-6-luna | aspire-cli vs raw | 6 vs 6 | +346% (p=0.002) | 4.46x [3.99-5.77] | +329% (p=0.002) | +203% (p=0.002) |
+| port-conflict | gpt-6-luna | aspire-skill-orchestration vs aspire-cli | 6 vs 6 | +65% (p=0.180) | 1.65x [0.96-2.10] | +153% (p=0.132) | +94% (p=0.093) |
+| port-conflict | gpt-6-luna | aspire-skills-noorchestration vs aspire-skills | 6 vs 6 | -31% (p=0.310) | 0.69x [0.35-1.37] | -49% (p=0.132) | -40% (p=0.310) |
+| port-conflict | gpt-6.1-terra | aspire-cli vs raw | 6 vs 6 | +290% (p=0.002) | 3.90x [2.53-4.90] | +171% (p=0.065) | +80% (p=0.065) |
+| port-conflict | gpt-6.1-terra | aspire-skill-orchestration vs aspire-cli | 6 vs 6 | +5% (p=0.240) | 1.05x [0.85-1.64] | +33% (p=0.026) | +18% (p=0.065) |
+| port-conflict | gpt-6.1-terra | aspire-skills-noorchestration vs aspire-skills | 6 vs 6 | -77% (p=0.002) | 0.23x [0.20-0.52] | -78% (p=0.002) | -58% (p=0.002) |
 | publishing | gpt-6-luna | aspire-cli vs raw | 6 vs 6 | +18% (p=0.180) | 1.18x [0.90-1.69] | +23% (p=0.485) | +20% (p=0.394) |
 | publishing | gpt-6-luna | aspire-skill-deployment vs aspire-cli | 6 vs 6 | +4% (p=0.937) | 1.04x [0.78-1.16] | -23% (p=0.180) | -3% (p=0.310) |
 | publishing | gpt-6-luna | aspire-skills-nodeployment vs aspire-skills | 6 vs 6 | +37% (p=0.240) | 1.37x [0.91-1.71] | +31% (p=0.394) | +38% (p=0.240) |
@@ -244,6 +254,12 @@ Each pin (toolchain) has its own table; trials of different pins are never compa
 | read-only | gpt-6.2-sol | aspire-lean vs raw | 6 vs 6 | +21% (p=0.093) | 1.21x [1.01-1.37] | +67% (p=0.002) | +62% (p=0.002) |
 | read-only | gpt-6.2-sol | aspire-skills-mcp vs raw | 6 vs 6 | +44% (p=0.002) | 1.44x [1.21-1.62] | +172% (p=0.002) | +108% (p=0.002) |
 | read-only | gpt-6.2-sol | aspire-lean vs aspire-skills-mcp | 6 vs 6 | -16% (p=0.065) | 0.84x [0.78-0.95] | -39% (p=0.002) | -22% (p=0.002) |
+| restart-change | gpt-6-luna | aspire-cli vs raw | 6 vs 6 | -66% (p=0.002) | 0.34x [0.26-0.41] | -52% (p=0.002) | -63% (p=0.002) |
+| restart-change | gpt-6-luna | aspire-skill-orchestration vs aspire-cli | 6 vs 6 | +113% (p=0.002) | 2.13x [1.41-2.37] | +163% (p=0.002) | +116% (p=0.002) |
+| restart-change | gpt-6-luna | aspire-skills-noorchestration vs aspire-skills | 6 vs 6 | +20% (p=0.370) | 1.20x [0.90-1.45] | -2% (p=0.937) | -10% (p=0.589) |
+| restart-change | gpt-6.1-terra | aspire-cli vs raw | 6 vs 6 | -67% (p=0.002) | 0.33x [0.25-0.43] | -45% (p=0.002) | -49% (p=0.002) |
+| restart-change | gpt-6.1-terra | aspire-skill-orchestration vs aspire-cli | 6 vs 6 | +8% (p=0.485) | 1.08x [0.92-1.26] | +29% (p=0.065) | +19% (p=0.065) |
+| restart-change | gpt-6.1-terra | aspire-skills-noorchestration vs aspire-skills | 6 vs 6 | -0% (p=0.818) | 1.00x [0.80-1.18] | -10% (p=0.699) | -5% (p=0.699) |
 | slow-redis | claude-opus-5.5 | aspire-lean vs raw | 6 vs 6 | -58% (p=0.065) | 0.42x [0.25-0.82] | -24% (p=0.093) | -21% (p=0.009) |
 | slow-redis | claude-opus-5.5 | aspire-skills-mcp vs raw | 6 vs 6 | +2% (p=0.818) | 1.02x [0.55-2.12] | +135% (p=0.002) | +85% (p=0.002) |
 | slow-redis | claude-opus-5.5 | aspire-lean vs aspire-skills-mcp | 6 vs 6 | -58% (p=0.015) | 0.42x [0.24-0.76] | -68% (p=0.002) | -57% (p=0.002) |
@@ -256,10 +272,10 @@ Each pin (toolchain) has its own table; trials of different pins are never compa
 | slow-redis | gpt-6-luna | aspire-lean-mcp-all vs aspire-lean-mcp-src | 24 vs 12 | -34% (p=0.327) | 0.66x [0.50-1.05] | -5% (p=0.679) | -5% (p=0.856) |
 | slow-redis | gpt-6-luna | aspire-lean-mcp-all vs raw | 24 vs 48 | -51% (p=0.000) | 0.49x [0.44-0.68] | +3% (p=0.473) | -13% (p=0.430) |
 | slow-redis | gpt-6-luna | aspire-cli vs raw | 12 vs 48 | -48% (p=0.000) | 0.52x [0.43-0.72] | -16% (p=0.629) | -21% (p=0.119) |
-| slow-redis | gpt-6-luna | aspire-skills-mon vs aspire-skills | 6 vs 18 | +8% (p=0.923) | 1.08x [0.73-1.56] | -32% (p=0.280) | -27% (p=0.137) |
-| slow-redis | gpt-6-luna | aspire-skills-norouter vs aspire-skills | 6 vs 18 | +6% (p=0.770) | 1.06x [0.79-1.35] | +11% (p=0.673) | +5% (p=0.871) |
-| slow-redis | gpt-6-luna | aspire-lean (tasks 1479041e) vs aspire-skills | 30 vs 18 | -37% (p=0.001) | 0.63x [0.46-0.85] | -42% (p=0.000) | -37% (p=0.000) |
-| slow-redis | gpt-6-luna | aspire-lean (tasks 916a57ce) vs aspire-skills | 6 vs 18 | -21% (p=0.251) | 0.79x [0.54-2.19] | -36% (p=0.007) | -33% (p=0.003) |
+| slow-redis | gpt-6-luna | aspire-skills-mon vs aspire-skills | 6 vs 24 | +11% (p=0.705) | 1.11x [0.81-1.57] | -31% (p=0.251) | -25% (p=0.143) |
+| slow-redis | gpt-6-luna | aspire-skills-norouter vs aspire-skills | 6 vs 24 | +9% (p=0.980) | 1.09x [0.85-1.32] | +13% (p=0.667) | +9% (p=0.781) |
+| slow-redis | gpt-6-luna | aspire-lean (tasks 1479041e) vs aspire-skills | 30 vs 24 | -35% (p=0.000) | 0.65x [0.52-0.82] | -41% (p=0.000) | -35% (p=0.000) |
+| slow-redis | gpt-6-luna | aspire-lean (tasks 916a57ce) vs aspire-skills | 6 vs 24 | -19% (p=0.296) | 0.81x [0.62-2.47] | -35% (p=0.003) | -30% (p=0.002) |
 | slow-redis | gpt-6-luna | aspire-lean-agents vs aspire-lean (tasks 1479041e) | 6 vs 30 | +61% (p=0.071) | 1.61x [1.07-2.22] | +71% (p=0.010) | +56% (p=0.005) |
 | slow-redis | gpt-6-luna | aspire-lean-agents vs aspire-lean (tasks 916a57ce) | 6 vs 6 | +29% (p=0.699) | 1.29x [0.49-1.85] | +56% (p=0.065) | +45% (p=0.041) |
 | slow-redis | gpt-6-luna | aspire-lean-mcp-compact2 vs aspire-lean-mcp-compact | 6 vs 12 | +34% (p=0.335) | 1.34x [0.83-3.10] | +20% (p=0.125) | +10% (p=0.250) |
@@ -287,7 +303,8 @@ Each pin (toolchain) has its own table; trials of different pins are never compa
 | slow-redis | gpt-6-luna | aspire-lean-tracetable vs aspire-lean-src | 6 vs 12 | +8% (p=0.480) | 1.08x [0.78-1.63] | +39% (p=0.125) | +17% (p=0.437) |
 | slow-redis | gpt-6-luna | aspire-cli-redishint vs aspire-cli-src | 6 vs 6 | -26% (p=0.310) | 0.74x [0.56-2.04] | -9% (p=0.589) | -5% (p=0.818) |
 | slow-redis | gpt-6-luna | aspire-skills-redishint vs aspire-skills-src | 6 vs 6 | +10% (p=1.000) | 1.10x [0.46-1.50] | -3% (p=0.937) | -0% (p=0.937) |
-| slow-redis | gpt-6-luna | aspire-skills-noaspireify vs aspire-skills | 6 vs 18 | -11% (p=0.923) | 0.89x [0.64-1.36] | -14% (p=0.626) | -10% (p=0.626) |
+| slow-redis | gpt-6-luna | aspire-skills-noorchestration vs aspire-skills | 6 vs 24 | -17% (p=0.065) | 0.83x [0.58-1.03] | -16% (p=0.296) | -18% (p=0.296) |
+| slow-redis | gpt-6-luna | aspire-skills-noaspireify vs aspire-skills | 6 vs 24 | -8% (p=0.980) | 0.92x [0.73-1.48] | -12% (p=0.631) | -7% (p=0.743) |
 | slow-redis | gpt-6.1-terra | aspire-lean (tasks 1479041e) vs raw | 6 vs 18 | -60% (p=0.000) | 0.40x [0.26-0.63] | -34% (p=0.003) | -34% (p=0.000) |
 | slow-redis | gpt-6.1-terra | aspire-lean (tasks 916a57ce) vs raw | 6 vs 18 | -67% (p=0.000) | 0.33x [0.28-0.60] | -56% (p=0.000) | -48% (p=0.000) |
 | slow-redis | gpt-6.1-terra | aspire-skills-mcp vs raw | 6 vs 18 | -3% (p=0.454) | 0.97x [0.75-1.08] | +44% (p=0.004) | +23% (p=0.004) |
@@ -323,15 +340,15 @@ Each pin (toolchain) has its own table; trials of different pins are never compa
 | slow-sql | gpt-6-luna | aspire-lean-mcp-all vs aspire-lean-mcp-src | 6 vs 6 | +6% (p=0.818) | 1.06x [0.78-1.32] | +12% (p=0.699) | +13% (p=0.394) |
 | slow-sql | gpt-6-luna | aspire-lean-mcp-all vs raw | 6 vs 36 | -13% (p=0.687) | 0.87x [0.74-1.17] | -2% (p=0.820) | -5% (p=0.516) |
 | slow-sql | gpt-6-luna | aspire-cli vs raw | 6 vs 36 | +40% (p=0.007) | 1.40x [1.16-2.54] | +99% (p=0.001) | +50% (p=0.002) |
-| slow-sql | gpt-6-luna | aspire-skills-plugin vs aspire-skills | 3 vs 27 | -22% (p=0.153) | 0.78x [0.58-0.87] | -19% (p=0.600) | -14% (p=0.509) |
-| slow-sql | gpt-6-luna | aspire-skills-mon vs aspire-skills | 6 vs 27 | +57% (p=0.035) | 1.57x [1.09-2.58] | +15% (p=0.600) | +3% (p=0.633) |
-| slow-sql | gpt-6-luna | aspire-skills-norouter vs aspire-skills | 6 vs 27 | -28% (p=0.344) | 0.72x [0.56-1.35] | -34% (p=0.158) | -28% (p=0.145) |
-| slow-sql | gpt-6-luna | aspire-lean (tasks 1479041e) vs aspire-skills | 18 vs 27 | -50% (p=0.000) | 0.50x [0.39-0.65] | -59% (p=0.000) | -48% (p=0.000) |
-| slow-sql | gpt-6-luna | aspire-lean (tasks 916a57ce) vs aspire-skills | 6 vs 27 | -40% (p=0.007) | 0.60x [0.43-0.85] | -55% (p=0.000) | -46% (p=0.001) |
+| slow-sql | gpt-6-luna | aspire-skills-plugin vs aspire-skills | 3 vs 33 | -24% (p=0.127) | 0.76x [0.56-0.83] | -19% (p=0.512) | -16% (p=0.377) |
+| slow-sql | gpt-6-luna | aspire-skills-mon vs aspire-skills | 6 vs 33 | +53% (p=0.031) | 1.53x [1.05-2.55] | +15% (p=0.662) | -0% (p=0.718) |
+| slow-sql | gpt-6-luna | aspire-skills-norouter vs aspire-skills | 6 vs 33 | -30% (p=0.273) | 0.70x [0.57-1.33] | -34% (p=0.137) | -30% (p=0.108) |
+| slow-sql | gpt-6-luna | aspire-lean (tasks 1479041e) vs aspire-skills | 18 vs 33 | -51% (p=0.000) | 0.49x [0.40-0.62] | -59% (p=0.000) | -49% (p=0.000) |
+| slow-sql | gpt-6-luna | aspire-lean (tasks 916a57ce) vs aspire-skills | 6 vs 33 | -42% (p=0.004) | 0.58x [0.42-0.81] | -55% (p=0.000) | -48% (p=0.001) |
 | slow-sql | gpt-6-luna | aspire-lean-agents vs aspire-lean (tasks 1479041e) | 6 vs 18 | +24% (p=0.415) | 1.24x [0.89-1.55] | +25% (p=0.280) | +13% (p=0.343) |
 | slow-sql | gpt-6-luna | aspire-lean-agents vs aspire-lean (tasks 916a57ce) | 6 vs 6 | +4% (p=0.937) | 1.04x [0.69-1.44] | +13% (p=0.589) | +11% (p=0.937) |
 | slow-sql | gpt-6-luna | aspire-cli-agents vs aspire-cli | 6 vs 6 | -5% (p=0.937) | 0.95x [0.57-1.68] | -22% (p=0.310) | -13% (p=0.485) |
-| slow-sql | gpt-6-luna | aspire-skills-agents vs aspire-skills | 6 vs 27 | +25% (p=0.728) | 1.25x [0.77-1.59] | +41% (p=0.132) | +41% (p=0.158) |
+| slow-sql | gpt-6-luna | aspire-skills-agents vs aspire-skills | 6 vs 33 | +21% (p=0.659) | 1.21x [0.74-1.53] | +41% (p=0.137) | +37% (p=0.184) |
 | slow-sql | gpt-6-luna | aspire-mcp-compact2 vs aspire-mcp-compact | 6 vs 12 | +26% (p=0.666) | 1.26x [0.71-1.56] | +57% (p=0.494) | +35% (p=0.553) |
 | slow-sql | gpt-6-luna | aspire-mcp-tools8 vs aspire-mcp-src | 6 vs 12 | +21% (p=0.067) | 1.21x [1.01-1.43] | +32% (p=0.018) | +19% (p=0.024) |
 | slow-sql | gpt-6-luna | aspire-lean-mcp-all-conn vs aspire-lean-mcp-all | 6 vs 6 | -27% (p=0.065) | 0.73x [0.59-1.01] | -20% (p=0.132) | -21% (p=0.240) |
@@ -352,7 +369,8 @@ Each pin (toolchain) has its own table; trials of different pins are never compa
 | slow-sql | gpt-6-luna | aspire-cli-src vs raw | 6 vs 36 | +20% (p=0.058) | 1.20x [1.02-1.67] | +76% (p=0.001) | +33% (p=0.012) |
 | slow-sql | gpt-6-luna | aspire-lean-tracetable vs aspire-lean-src | 6 vs 12 | +12% (p=0.616) | 1.12x [0.81-1.60] | +23% (p=0.250) | +15% (p=0.616) |
 | slow-sql | gpt-6-luna | aspire-cli-redishint vs aspire-cli-src | 6 vs 6 | -13% (p=0.589) | 0.87x [0.66-1.34] | -17% (p=0.589) | -11% (p=0.589) |
-| slow-sql | gpt-6-luna | aspire-skills-noaspireify vs aspire-skills | 6 vs 27 | -4% (p=0.832) | 0.96x [0.71-1.38] | +3% (p=0.768) | +7% (p=0.699) |
+| slow-sql | gpt-6-luna | aspire-skills-noorchestration vs aspire-skills | 6 vs 33 | -20% (p=0.182) | 0.80x [0.59-1.04] | -20% (p=0.556) | -12% (p=0.481) |
+| slow-sql | gpt-6-luna | aspire-skills-noaspireify vs aspire-skills | 6 vs 33 | -7% (p=0.772) | 0.93x [0.70-1.33] | +3% (p=0.894) | +5% (p=0.835) |
 | slow-sql | gpt-6.1-sol | aspire-lean vs raw | 3 vs 3 | -2% (p=1.000) | 0.98x [0.78-1.17] | +21% (p=0.100) | -9% (p=0.700) |
 | slow-sql | gpt-6.1-terra | aspire-lean (tasks 1479041e) vs raw | 6 vs 24 | -0% (p=0.637) | 1.00x [0.92-1.04] | +9% (p=0.116) | -10% (p=0.011) |
 | slow-sql | gpt-6.1-terra | aspire-lean (tasks 916a57ce) vs raw | 6 vs 24 | +23% (p=0.016) | 1.23x [1.10-1.29] | +15% (p=0.038) | +0% (p=0.980) |
@@ -381,6 +399,12 @@ Each pin (toolchain) has its own table; trials of different pins are never compa
 | stuck-db | gpt-6-luna | aspire-lean vs aspire-skills | 6 vs 12 | -8% (p=0.820) | 0.92x [0.71-1.32] | +8% (p=0.437) | +12% (p=0.616) |
 | stuck-db | gpt-6.1-terra | aspire-skills-norouter vs aspire-skills | 6 vs 6 | -1% (p=1.000) | 0.99x [0.81-1.30] | +8% (p=0.485) | +7% (p=0.485) |
 | stuck-db | gpt-6.1-terra | aspire-lean vs aspire-skills | 6 vs 6 | -22% (p=0.223) | 0.78x [0.70-1.36] | -22% (p=0.589) | +1% (p=0.937) |
+| two-app | gpt-6-luna | aspire-cli vs raw | 6 vs 6 | -4% (p=1.000) | 0.96x [0.82-1.37] | +35% (p=0.093) | +18% (p=0.180) |
+| two-app | gpt-6-luna | aspire-skill-orchestration vs aspire-cli | 6 vs 6 | +136% (p=0.009) | 2.36x [1.33-2.77] | +126% (p=0.009) | +91% (p=0.026) |
+| two-app | gpt-6-luna | aspire-skills-noorchestration vs aspire-skills | 6 vs 6 | -25% (p=0.699) | 0.75x [0.34-1.88] | -15% (p=0.485) | -9% (p=0.818) |
+| two-app | gpt-6.1-terra | aspire-cli vs raw | 6 vs 6 | +12% (p=0.485) | 1.12x [0.85-1.53] | +76% (p=0.009) | +25% (p=0.093) |
+| two-app | gpt-6.1-terra | aspire-skill-orchestration vs aspire-cli | 6 vs 6 | +0% (p=1.000) | 1.00x [0.69-1.66] | -2% (p=0.937) | +2% (p=0.818) |
+| two-app | gpt-6.1-terra | aspire-skills-noorchestration vs aspire-skills | 6 vs 6 | -3% (p=0.485) | 0.97x [0.77-1.08] | +1% (p=0.937) | +0% (p=0.937) |
 
 ## Pin 2026-11-17, harness vscode
 
