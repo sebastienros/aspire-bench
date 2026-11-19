@@ -1306,3 +1306,16 @@ T1.6's shipped-set cell, in rounds where the shipped set itself moved 1.24×; th
 `aspire-orchestration` owns starting and restarting without the router (12/12 cold starts, 15/18 `stuck-db`).
 [PLAN.md, T1.3 results](PLAN.md#t13-results); [FINDINGS F17](../FINDINGS.md#f17-a-focused-diagnosis-skill-removes-the-penalty-removing-the-router-makes-it-reliable),
 [F21](../FINDINGS.md#f21-cold-start-is-slower-with-aspire-whatever-the-skills-removing-the-router-needs-an-owner-for-each-former-job).
+
+**Phase 1, T3.9: selection benchmark.** Each run is a static copy of the aspirified workspace with nothing
+running, stopped by a Copilot CLI policy hook at the first skill load (repository hooks are not loaded under the
+eval driver, so the hook lives in `/etc/github-copilot/policy.d/`). 400 runs, $5.84, median 17 s each. Calibrated
+against the trials of the same pin and bundle, it is **usable as a proxy on terra and not on luna**. Terra
+reproduced both diagnosis targets (`aspire-monitoring` 18/18 with the shipped set and MCP, `aspire-diagnose` 18/18
+with the lean set), but luna chose the router first in 17 of 18 runs against 9 of 18 trials. Against every trial of
+the pin, 15 of 17 cells agree, and both misses are the router winning where the trials split, so the proxy
+over-predicts the router. On terra the v0.0.6 matrix is clean: every skill but the router is selected on 11–12 of
+its 12 own prompts and never on another's, and no distractor loads a skill. The one overlap is that
+`aspire-orchestration` takes the router's run-and-restart prompts, the same job it carried without the router in T1.3
+and T3.8 ([FINDINGS F37](../FINDINGS.md#f37-a-static-workspace-selection-run-predicts-the-trials-first-skill-except-that-it-over-predicts-the-router)).
+[PLAN.md, T3.9 results](PLAN.md#t39-results).

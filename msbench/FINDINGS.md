@@ -1480,6 +1480,31 @@ T2.2) for the rest.
 **Limits / status:** One app, one harness, n = 6; the README also names the start command. The orchestration
 skill's other jobs (ports, file locks, restarts, `stuck-db`) were not measured here. Draft, not filed.
 
+## F37: A static-workspace selection run predicts the trials' first skill, except that it over-predicts the router
+
+**Evidence:** Task T3.9 ([PLAN.md, T3.9 results](telemetry/PLAN.md#t39-results)), pin 2026-11-17, Copilot CLI 1.0.99,
+400 runs (rounds `t39-cal`, `t39-mat`, `t39-arm`) on a static copy of the aspirified workspace, stopped by a Copilot
+CLI policy hook at the first skill load. Repository hooks (`.github/hooks`) are not loaded under the MSBench eval
+driver; `/etc/github-copilot/policy.d/*.json` is, with no folder trust. On the pre-registered targets (round `t01b`)
+terra matched both (`aspire-monitoring` 18/18 with the shipped set and MCP, `aspire-diagnose` 18/18 with the lean set),
+and luna matched `aspire-diagnose` (18/18) but picked the router first in 17 of 18 runs against 9 of 18 trials (16 of
+30 over two rounds). Against every trial of the pin, 15 of 17 suite-prompt cells agree; both misses are the router
+winning where the trials split (terra with the narrowed monitoring trigger: 8/8 runs against 9/18 trials). The
+openings are identical (`git status`, `glob`, `view`, same output); trial agents that skipped the router turned to
+`aspire-list_apphosts` or more reads instead. On terra the v0.0.6 matrix is clean: every skill but the router is picked
+on 11–12 of its 12 own-prompt runs and never on another's, no distractor loads a skill (0/24), and
+`aspire-orchestration` takes the router's run-and-restart prompts (6 of 11). Runs cost $0.003 (luna) to $0.028 (terra)
+and take a median 17 s.
+
+**Improvement candidate:** Use the static selection run as the selection column for skill changes on terra-class
+models, re-calibrated (six targets, about $1.50) after each skill-set change; confirm any router rate on luna with
+trials. For the skills: the router and `aspire-orchestration` both claim "how do I run / restart / stop this app",
+and orchestration wins those prompts on terra; that job belongs to one of them.
+
+**Limits / status:** Two models, one workspace, one CLI version. The mechanism of the router over-prediction is not
+determined; a run with the app started under the same hook would separate it from the static workspace. Not
+upstreamed.
+
 ## Recording future findings
 
 Give each finding a stable ID and include evidence links, exact observed
