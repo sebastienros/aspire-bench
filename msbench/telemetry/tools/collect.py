@@ -348,6 +348,11 @@ PORT_STATUS = re.compile(r"\b(\d{4,5})\b\D{0,24}?\b([1-5]\d\d)\b")
 TABLE_ROW = re.compile(r"│\s*([A-Za-z][\w-]*)[^│\n]*│[^│\n]*│\s*(?:Running|Starting|Finished|Exited|Waiting|NotStarted|Unknown|FailedToStart)")
 
 
+def _command(arguments):
+    """A shell tool's command; some tools pass their arguments as a plain string."""
+    return arguments.get("command") or "" if isinstance(arguments, dict) else ""
+
+
 def describe_evidence(text, name):
     """(running and healthy, ports) for one resource in a describe table or JSON."""
     healthy, ports = False, set()
@@ -376,7 +381,7 @@ def verified_up(events, scenario, kind="aspire"):
     for e in events:
         if e.get("type") == "tool.execution_start":
             data = e.get("data", {})
-            command = (data.get("arguments") or {}).get("command") or ""
+            command = _command(data.get("arguments")) or ""
             starts[data.get("toolCallId")] = command
             order.append((data.get("toolCallId"), command))
     evidence, listed = {}, set()
@@ -392,7 +397,7 @@ def verified_up(events, scenario, kind="aspire"):
     for e in events:
         if e.get("type") == "tool.execution_start":
             seen_ids.append(e.get("data", {}).get("toolCallId"))
-            command = (e.get("data", {}).get("arguments") or {}).get("command") or ""
+            command = _command(e.get("data", {}).get("arguments")) or ""
             match = WAIT_CMD.search(command)
             if match:
                 wait_named_listed.append(match.group(1) in listed)
