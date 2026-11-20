@@ -4654,10 +4654,11 @@ rule 2.** Evidence in [`evidence/trk20261119/`](evidence/trk20261119/).
   2026-11-09 and 2026-11-17 (rule 1: a re-pin does not reset the window)):
   - **`leak`** on `slow-redis`/luna/`aspire-cli` (one trial of five, `2026112009190348`): **draft written**,
     [`upstream-issues/tracking/trk20261119-slow-redis-gpt-6-luna-aspire-cli-leak.md`](../upstream-issues/tracking/trk20261119-slow-redis-gpt-6-luna-aspire-cli-leak.md),
-    never filed. As read after the flag: the access is the agent's 45th of 46 tool calls, a `ps -eo … | grep`
-    whose pattern names `node /opt/benchmark/traffic.mjs` (the load generator it had seen running) to confirm the
-    processes, not a read of the file. The reader counts any command naming a protected path, so the flag stands
-    as computed; whether a process-list match should count is a question for the reader's rule, not changed here.
+    never filed. As read after the flag: the path first reached the agent in the `ps` output of its 4th tool call; the only
+    tool call naming it is the 45th of 46, a `ps -eo … | grep` whose pattern includes `node /opt/benchmark/traffic.mjs`
+    to confirm the processes were up. No call opened the file (in F26's leaks the agent read it). `collect.py` counts
+    a trial as protected-path access when any tool call's arguments match `/opt/benchmark…`, so the flag stands as
+    computed; whether a process-list match should count is a question for the reader's rule, not changed here.
   - Listed, no draft: `improve-time` on `slow-sql`/luna/`aspire-lean`; `improve-tokens` on `slow-sql` and
     `cold-start` luna/`aspire-lean`; `selection-low` on `slow-redis`/luna/`aspire-skills-mcp` (3/5 loaded a skill).
   - No `regress-*` flag, so no luna repeat round was submitted.

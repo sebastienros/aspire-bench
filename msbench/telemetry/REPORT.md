@@ -1713,7 +1713,7 @@ byte-identical. Then it gated 12/12, ran the 120 trials in 0.3 h wall, and colle
 drafts. One trial was lost to a `docker compose` failure in environment setup and re-run once, so 120 of 121
 submitted were graded, 102 passed (luna 42/60, terra 60/60), with no model-service 5xx, for $4.92. The series
 raised one draft-worthy flag: a harness `leak` on `slow-redis`/luna/`aspire-cli`, from one trial whose process-list
-`grep` named the load generator's path. That wrote one draft, never filed, and marks the run failed by the rule.
+`grep` named the load generator's path (the file itself was never opened, unlike F26's leaks). That wrote one draft, never filed, and marks the run failed by the rule.
 Listed only: luna `aspire-lean` improved time on `slow-sql` and tokens on `slow-sql` and `cold-start`, and
 `aspire-skills-mcp` loaded a skill in 3/5 luna `slow-redis` trials. No regression flag, so no luna repeat.
 [PLAN.md, T4.5 first full run results](PLAN.md#t45-first-full-run-results-trk20261119).
