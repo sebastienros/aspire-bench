@@ -24,9 +24,15 @@ def rows(rounds):
     for line in (SUITE / "results/trials.jsonl").read_text().splitlines():
         r = json.loads(line)
         if r.get("round") in rounds and r["model_requested"] != "oracle" and not r.get("excluded") \
-                and not r.get("infrastructure_failure"):
+                and (not r.get("infrastructure_failure") or at_limit(r)):
             out[(r.get("agent") or COPILOT, r["scenario"], r["model_requested"], r["arm"])].append(r)
     return out
+
+
+def at_limit(r):
+    """T1.9: a VS Code trial that ran to its own agentSeconds limit is a time-limit failure of the agent, counted in
+    the pass column (not a pass) and left out of the medians; collect.py marks it as infrastructure."""
+    return r.get("agent") == VSCODE and r.get("infrastructure_failure") and (r.get("agent_loop_seconds") or 0) >= 1080
 
 
 def time_of(r):
@@ -39,8 +45,9 @@ def time_of(r):
 
 def cell(cells, key):
     trials = cells.get(key, [])
-    times = [t for t in map(time_of, trials) if t is not None]
+    times = [time_of(t) for t in trials if time_of(t) is not None and not at_limit(t)]
     return {"n": len(trials), "pass": sum(t.get("reward") == 1 for t in trials), "times": times,
+            "limit": sum(map(at_limit, trials)),
             "median": statistics.median(times) if times else None, "trials": trials}
 
 
@@ -61,7 +68,8 @@ def fmt(c, raw=None):
     p = ""
     if raw and len(c["times"]) > 1 and len(raw["times"]) > 1:
         p = f" p={mann_whitney(c['times'], raw['times']):.3f}"
-    return f"{c['pass']}/{c['n']} pass, median {c['median']:.1f} s{ratio}{p}" if c["median"] is not None else f"{c['pass']}/{c['n']} pass"
+    lim = f" ({c['limit']} at limit)" if c["limit"] else ""
+    return f"{c['pass']}/{c['n']} pass{lim}, median {c['median']:.1f} s{ratio}{p}" if c["median"] is not None else f"{c['pass']}/{c['n']} pass{lim}"
 
 
 def t47(rounds):
@@ -125,7 +133,8 @@ def t48(rounds):
             shell = statistics.median([(t.get("tool_counts") or {}).get("run_in_terminal", 0) for t in c["trials"]]) if c["trials"] else None
             passing = [time_of(t) for t in c["trials"] if t.get("reward") == 1 and time_of(t) is not None]
             ttp = f"{statistics.median(passing):.1f} s (n={len(passing)})" if passing else "—"
-            print(f"  {s:10} {a:20} {c['pass']}/{c['n']} pass; shell commands median {shell}; time to pass {ttp}")
+            lim = f" ({c['limit']} at limit)" if c["limit"] else ""
+            print(f"  {s:10} {a:20} {c['pass']}/{c['n']} pass{lim}; shell commands median {shell}; time to pass {ttp}")
     within = lambda a: all(abs(got[s][a]["pass"] - got[s]["aspire-lean"]["pass"]) <= 1 for s in got)
     if not all(got[s]["aspire-lean"]["pass"] >= got[s]["raw"]["pass"] + 2 for s in got):
         verdict = "no verdict (precondition: aspire-lean ≥ raw + 2 on both faults not met)"
