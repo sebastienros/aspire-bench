@@ -1726,12 +1726,12 @@ $5.69 against $5.
 `agentSeconds` went from 720 to 1,087 so that, after its 186.5 s transport fallback, the agent has Copilot CLI's
 900 s; no trial did sustained work to the new limit. Round `t48` (154 trials with the re-runs of 10 infrastructure
 losses) ran `slow-sql` and `slow-redis` × `raw` and the shipped set with MCP × luna and terra under both harnesses.
-All four Aspire cells differ by more than ±0.15 in ratio (0.34–0.78). On `slow-sql` the arm adds a similar number
-of seconds under both harnesses (terra +34 against +42 s); the ratios differ because VS Code's `raw` is about twice
-as slow. Terra under VS Code reached the MCP tools in 3/12 trials, against 12/12 under Copilot CLI, because VS Code
+All four Aspire cells differ by more than ±0.15 in ratio (0.34–0.78). On `slow-sql` terra the arm adds a similar
+number of seconds under both harnesses (+34 against +42 s); the ratios differ because VS Code's `raw` is about twice
+as slow (92 against 48 s). Terra under VS Code reached the MCP tools in 3/12 trials, against 12/12 under Copilot CLI, because VS Code
 defers them behind `tool_search`. No public setting turns that off (by inspection), so deferred MCP is the product
-condition under VS Code. Luna searched and used them in 10/12, and its cells are mostly failures on both
-harnesses. T4.9 asked which part of `aspire-lean` makes luna investigate under VS Code. Its precondition (lean
+condition under VS Code. Luna searched and used them in 10/12; under VS Code half its `slow-sql` trials fail on both
+arms (Copilot CLI 6/6), and `slow-redis` fails under both harnesses. T4.9 asked which part of `aspire-lean` makes luna investigate under VS Code. Its precondition (lean
 ≥ `raw` + 2 on both faults) held on `slow-sql` (6/6 against 3/6) and failed on `slow-redis` (2/6 each). There the
 lean arms mostly fix part of the fault (status under 1 s, each call still about 600 ms); `raw` and the CLI alone
 mostly fix nothing. Three luna runs were one model call that hung until the limit; they were re-run once by ruling,

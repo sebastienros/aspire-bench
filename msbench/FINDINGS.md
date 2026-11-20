@@ -1467,7 +1467,7 @@ T4.8 (parity: limit, MCP listing) and T4.9 (which guidance makes luna investigat
 **Update (T4.8, T4.9, round `t48`, 2026-11-20):** with `agentSeconds` 1,087 (net 900 s, as Copilot CLI), no trial
 did sustained work to the limit, and the time ratios still differ by harness in all four `aspire-skills-mcp` cells
 (T4.8 `harness-dependent`). MCP deferral is confirmed as the product condition: no public setting lists the tools
-eagerly, and in all 14 VS Code trials with an `aspire-*` call `tool_search` came first (terra reached MCP in 3/12).
+eagerly, and in all 13 graded VS Code trials with an `aspire-*` call `tool_search` came first (terra reached MCP in 3/12).
 The luna effect replicated in shell use (`raw` 5.5–8.5 commands, the lean arms 11–17) and on `slow-sql` (`raw` 3/6,
 `aspire-lean` 6/6, `aspire-cli` alone 2/6), but not on `slow-redis` (2/6 each), where the lean arms mostly fix
 part of the fault (status under 1 s, calls still about 600 ms) and `raw` mostly fixes nothing: T4.9 `no verdict`.
