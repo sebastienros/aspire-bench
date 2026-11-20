@@ -3,7 +3,8 @@
 any trial). Reads results/trials.jsonl; graded = not an infrastructure failure and not excluded; pass = reward 1.
 
     tools/p4h_decide.py t47 [--rounds t47,t47-topup]
-    tools/p4h_decide.py t48 [--rounds t48,t48-topup]      T4.8 and T4.9 (one shared round)
+    tools/p4h_decide.py t48 [--rounds t48,t48-topup,t48-topup2] [--as-classified]   T4.8 and T4.9 (one shared round;
+                                                         --as-classified keeps the three stalls as non-passes)
 """
 import json
 import statistics
@@ -24,9 +25,16 @@ def rows(rounds):
     for line in (SUITE / "results/trials.jsonl").read_text().splitlines():
         r = json.loads(line)
         if r.get("round") in rounds and r["model_requested"] != "oracle" and not r.get("excluded") \
-                and (not r.get("infrastructure_failure") or at_limit(r)):
+                and (not r.get("infrastructure_failure") or at_limit(r)) \
+                and (AS_CLASSIFIED or r["run_id"] not in STALLED):
             out[(r.get("agent") or COPILOT, r["scenario"], r["model_requested"], r["arm"])].append(r)
     return out
+
+
+# PLAN "T4.8 and T4.9 results": three t48 limit hits were one luna chat call hung until the limit aborted it, a
+# model-service failure re-run once in t48-topup2 (coordinating session's ruling). Left out unless --as-classified.
+STALLED = {"2026111980910472", "2026111982330040", "2026111981411052"}
+AS_CLASSIFIED = "--as-classified" in sys.argv
 
 
 def at_limit(r):
