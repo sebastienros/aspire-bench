@@ -5018,7 +5018,8 @@ each harness's reported cost; gates model-free.
   store did not record it, so `model_service_5xx` reads 0) are re-run once in `t48-topup`. Three ran to the
   1,087 s limit (`slow-sql` luna: `raw` ×2, `aspire-cli-agents` ×1); as in T1.9 they are time-limit failures of
   the agent, counted in the pass column (pass/6) and left out of the medians, which are over graded trials. The
-  same holds for T4.9.
+  same holds for T4.9. **Re-classified** after reading (the three are model-service stalls, not agent work):
+  [T4.8 and T4.9 results](#t48-and-t49-results).
 - **(b) MCP listing, by inspection** (VS Code 1.146.0-insider, Copilot Chat 0.74.2026110205, inside
   `vscode=0.20261117.7`): see the results block. No trial is spent unless a public setting lists MCP tools eagerly
   (coordinating session, 2026-11-19: a custom agent whose `tools:` list leaves out tool search changes the whole
@@ -5036,6 +5037,19 @@ each harness's reported cost; gates model-free.
   **`skill`**; anything else → **`no verdict`**. Reported beside: shell commands per trial (`run_in_terminal`
   calls, median) and time to pass (VS Code net time, passing trials, with n).
 - Restated estimate $3.00 (≈ $2.40 with the shared `raw` cells), stop at $9.00.
+
+#### T4.8 and T4.9 results
+
+**Re-classification of three limit hits** (recorded 2026-11-20, after `t48` + `t48-topup` were read, before
+`t48-topup2` was submitted; coordinating session's ruling (a)). The three VS Code luna trials at the 1,087 s limit,
+classified above as time-limit failures of the agent "as T1.9", are model-service stalls: in each, one luna chat
+call hung until the limit aborted it (span status "The operation was aborted"): `slow-sql` `raw`
+`2026111980910472` 836 s and `2026111982330040` 820 s, `slow-sql` `aspire-cli-agents` `2026111981411052` 796 s. No
+other `t48` or `t48-topup` VS Code trial has a chat span over 120 s; T1.9's five limit hits were sustained work
+(longest chat span 8.8–34.7 s each). By the `t02`/`t11` convention a model-service failure is re-run once, so the
+three are re-run once in `t48-topup2` and the tables are computed over `t48` + `t48-topup` + `t48-topup2`, with
+the three stalls left out. A re-run that stalls again stays a failure (no third attempt). The as-classified counts
+(the stalls as non-passes) are shown beside the re-run counts.
 
 ---
 
