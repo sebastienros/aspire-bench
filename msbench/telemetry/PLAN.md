@@ -4633,6 +4633,37 @@ Asked by the user through the coordinating session (2026-11-19): the first real 
 - **Everything else** as the rule above (window, flags, drafts, luna repeat). Estimate ≈ $5 (24 smoke trials cost
   $0.94), stop at $15.
 
+#### T4.5 first full run results (`trk20261119`)
+
+**Ran end to end on the newest daily; one harness-leak flag, one draft (not filed); the run is marked failed by
+rule 2.** Evidence in [`evidence/trk20261119/`](evidence/trk20261119/).
+
+- **Pin.** Aspire `17.1.0-preview.1.26569.1` (commit `4ad3cfe6`), skills `v0.0.6` unchanged, Copilot CLI package
+  `github-copilot-cli-pkg-main-20261014-215627`. Re-pin pushed as `edd31b5` (`track/common`), `f1b9e05`
+  (`track/tasks`), `7e69f2c` (`track/dataset.jsonl`); `git diff` from the base to the re-pin outside `track/` is
+  empty, so every existing task, dataset row, template and `common/` file is byte-identical.
+- **Gates.** `trk20261119-gate`: 12/12 oracles reward 1 on the `track/` tasks (model-free).
+- **Matrix.** `trk20261119`: 120 trials submitted 02:31–02:34Z on 2026-11-20, all 120 running at once, wall
+  **0.3 h** (median queue 43 s). Infrastructure check (`infra_check.py`, before any reward was read): **one loss**,
+  `cold-start`/`raw`/terra `2026112009238008`, a `RuntimeError` from `docker compose` in environment setup (the agent
+  never ran); no agent time-limit hit, so no hung-call check applied; **0 model-service 5xx**. The loss was re-run
+  once in `trk20261119-topup` (`2026112013810856`, graded). **120 graded of 121 submitted**, 102 passed (luna 42/60,
+  terra 60/60). Every trajectory read from the unredacted output copy.
+- **Series and drafts** (`series.py` over `trk20261119` + `-topup`, 24 cell rows; the trailing window is the cell's
+  earlier runs on pin 2026-11-17, three to five of them):
+  - **`leak`** on `slow-redis`/luna/`aspire-cli` (one trial of five, `2026112009190348`): **draft written**,
+    [`upstream-issues/tracking/trk20261119-slow-redis-gpt-6-luna-aspire-cli-leak.md`](../upstream-issues/tracking/trk20261119-slow-redis-gpt-6-luna-aspire-cli-leak.md),
+    never filed. As read after the flag: the access is the agent's 45th of 46 tool calls, a `ps -eo … | grep`
+    whose pattern names `node /opt/benchmark/traffic.mjs` (the load generator it had seen running) to confirm the
+    processes, not a read of the file. The reader counts any command naming a protected path, so the flag stands
+    as computed; whether a process-list match should count is a question for the reader's rule, not changed here.
+  - Listed, no draft: `improve-time` on `slow-sql`/luna/`aspire-lean`; `improve-tokens` on `slow-sql` and
+    `cold-start` luna/`aspire-lean`; `selection-low` on `slow-redis`/luna/`aspire-skills-mcp` (3/5 loaded a skill).
+  - No `regress-*` flag, so no luna repeat round was submitted.
+- **Cost: $4.92** against ≈ $5 (stop $15). Not exercised by this run: a skills-tag re-pin (the tag did not move)
+  and the luna repeat.
+- No local Docker artifact: the gates ran on CES.
+
 ### T4.2 and T4.3 Span-table rows
 
 #### T4.2 and T4.3 rule, as computed (written 2026-11-19, before any T4.2 or T4.3 trial or pilot)

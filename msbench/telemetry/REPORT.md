@@ -1707,6 +1707,17 @@ flag. The draft writer was also shown on `t01b`'s flags. Gates on re-pinned task
 only by the first full run, which happens when the user asks.
 [PLAN.md, T4.5 results](PLAN.md#t45-results).
 
+**T4.5 first full run `trk20261119` (2026-11-20).** `tools/track.sh` re-pinned the core matrix to Aspire
+`17.1.0-preview.1.26569.1` (skills `v0.0.6` unchanged) in three pushed commits that left every existing file
+byte-identical. Then it gated 12/12, ran the 120 trials in 0.3 h wall, and collected, computed the series and wrote
+drafts. One trial was lost to a `docker compose` failure in environment setup and re-run once, so 120 of 121
+submitted were graded, 102 passed (luna 42/60, terra 60/60), with no model-service 5xx, for $4.92. The series
+raised one draft-worthy flag: a harness `leak` on `slow-redis`/luna/`aspire-cli`, from one trial whose process-list
+`grep` named the load generator's path. That wrote one draft, never filed, and marks the run failed by the rule.
+Listed only: luna `aspire-lean` improved time on `slow-sql` and tokens on `slow-sql` and `cold-start`, and
+`aspire-skills-mcp` loaded a skill in 3/5 luna `slow-redis` trials. No regression flag, so no luna repeat.
+[PLAN.md, T4.5 first full run results](PLAN.md#t45-first-full-run-results-trk20261119).
+
 **Phase 4, T4.7: Claude Code adapter, `ship` (harness-neutral in direction, not in mechanism).** New `-cc` arms put
 the same skill set in `/app/.claude/skills` and the same `aspire agent mcp` server in the agent user's
 `~/.claude.json`. `submit.sh` allows the server's tools in the runner's permission list. Every existing task stays
