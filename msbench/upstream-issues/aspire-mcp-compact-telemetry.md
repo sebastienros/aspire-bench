@@ -28,8 +28,8 @@ fewer traces, for one trace by id, or for logs of one severity.
 
 What the agent then reads depends on the harness, not on the server. Copilot CLI (1.0.99) writes any tool result
 over about 20 KB to a file and shows the model an 837-character notice with the first 500 characters; in 54
-diagnosis trials against the shipped server that happened 137 times, each followed by `rg`/`view` reads of the spill
-file. VS Code's agent mode defers MCP tools behind `tool_search`, so a model that does not search for them never
+diagnosis trials against the shipped server that happened 137 times, followed by 114 `rg`/`view` reads of the spill
+files. VS Code's agent mode defers MCP tools behind `tool_search`, so a model that does not search for them never
 calls them (one model called no Aspire MCP tool in 12 trials on two scenarios). A size measured at the server is
 therefore not the size an agent reads, but a default response that no common harness passes whole is a response
 that reaches the model as a pointer to a file.
@@ -59,7 +59,7 @@ cell, MSBench models `gpt-6-luna` and `gpt-6.1-terra`.
 
 - Without skills (MCP as the agent's main route): terra −29 % and −30 % agent time (p = 0.009 and 0.002); luna −12 %
   and −10 %, not significant, and one luna cell passed 4 of 6 against 6 of 6.
-- Spills fell from 137 to 28 in 54 trials. Under this harness the gain comes from fewer follow-up file reads, not
+- Spills fell from 137 to 28 in 54 trials and the follow-up file reads from 114 to 10. Under this harness the gain comes from fewer follow-up file reads, not
   from a smaller context: the compact shape puts more trace text in front of the model per call (median 6.4k
   characters per MCP call against 3.9k, where the unpatched figure mixes small results with 837-character notices).
 - With a focused diagnosis skill alongside, the patch moved agents from the CLI onto MCP (median MCP calls per trial

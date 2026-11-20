@@ -1092,9 +1092,9 @@ the revised `aspire-diagnose` step 3 sends MCP agents to the cache the same way 
    (spilled results 20.3 to 70.7 KB, largest result kept 18.2 KB, in these rounds;
    [F31](../FINDINGS.md#f31-copilot-cli-shows-a-500-character-preview-of-any-tool-result-over-about-20-kb)). The
    unpatched `list_traces` (about 30 KB at every call, "Returned latest 21 traces. Earlier 118 traces not
-   returned") and the large `list_structured_logs` calls are all spilled: 168 spills in the 54 src trials,
-   followed by 125 `rg`/`view` reads of the spill files. The compact arms spilled 31 times (54 trials) with
-   12 such reads. So what the patch saves under this harness is the follow-up file reads, not context.
+   returned") and the large `list_structured_logs` calls are all spilled: 137 spills in the 54 src trials,
+   followed by 114 `rg`/`view` reads of the spill files. The compact arms spilled 28 times (54 trials) with
+   10 such reads (re-derived 2026-11-20 with the audited reader, which reads the agent's own trajectory copy; the pre-audit harness copy gave 168 and 125, 31 and 12). So what the patch saves under this harness is the follow-up file reads, not context.
 2. **Compact results go into the context whole, so agents call them more.** A compact `list_traces` returns
    4.0k to 8.5k characters of content per call (mean per cell; `limit`, `search` and `traceId` drill-downs),
    against 837 characters of preview for the unpatched call. Agents made more `list_traces` calls (median 2 to

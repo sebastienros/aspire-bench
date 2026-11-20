@@ -893,7 +893,7 @@ router is the first skill on luna, the trial is slower
 router; give each skill a symptom-based trigger that excludes its neighbours.
 
 **Limits / status:** Measured, not upstreamed. The router's guardrail role was exercised once (T3.8), at
-ceiling on every arm, so it shows the router was not needed there, not that it never helps. The dependency step of the skill names PostgreSQL and Redis only. Draft issues: [skills-add-aspire-diagnose.md](upstream-issues/skills-add-aspire-diagnose.md), [skills-remove-router.md](upstream-issues/skills-remove-router.md), [skills-narrow-aspire-monitoring.md](upstream-issues/skills-narrow-aspire-monitoring.md).
+ceiling on every arm, so it shows the router was not needed there, not that it never helps. The dependency step of the skill names PostgreSQL and Redis only. Draft issues: [skills-add-aspire-diagnose.md](upstream-issues/skills-add-aspire-diagnose.md), [skills-remove-router.md](upstream-issues/skills-remove-router.md) (rewritten 2026-11-20 as the removal alone), [skills-narrow-aspire-monitoring.md](upstream-issues/skills-narrow-aspire-monitoring.md) (folded into the other two the same day; T1.2 `drop` alone).
 
 ## F18: MCP telemetry tools fill an 8k-token budget on every call
 
@@ -1409,8 +1409,8 @@ notice instead: the size, the path, advice to use `rg`/`view`/`jq`, and the firs
 (results spilled in these rounds: 20.3 to 70.7 KB; largest result passed whole: 18.2 KB). The unpatched
 MCP `list_traces` (about 30 KB at every call, "Returned latest 21 traces. Earlier 118 traces not returned
 because of size limits") is spilled every time, and so are the large `list_structured_logs` and
-`list_resources` results: 168 spills in 54 unpatched-server trials, followed by 125 `rg`/`view` reads of the
-spill files. With the compact server (patch 0001) 31 spills in 54 trials and 12 reads. Copilot's
+`list_resources` results: 137 spills in 54 unpatched-server trials, followed by 114 `rg`/`view` reads of the
+spill files. With the compact server (patch 0001) 28 spills in 54 trials and 10 reads (re-derived 2026-11-20 with the audited reader, which reads the agent's own trajectory copy; the pre-audit harness copy gave 168 and 125, 31 and 12). Copilot's
 `detailedContent` keeps the full text, so `tool_result_chars` (which counts it) reports bytes the model never
 saw; `tool_result_content_chars` counts what it saw.
 

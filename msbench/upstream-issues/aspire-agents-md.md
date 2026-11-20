@@ -63,8 +63,9 @@ per cell, same round:
 | Skills without the orchestration skill + this file | **39.0** (p = 0.041) | **89 k** | 36.8 |
 | No skills, no file (`aspire-cli`) | 39.7 | 70 k | |
 
-With the orchestration skill present, the agent followed the skill, not the file (0 of 6 ran `describe` before
-`wait`). Without it, 5 of 6 followed the file. Diagnosis on a running app was unaffected (6/6).
+With the orchestration skill present, `gpt-6-luna` followed the skill, not the file (0 of 6 ran `describe` before
+`wait`); without it, 5 of 6 followed the file. `gpt-6.1-terra` ran `describe` before `wait` in 6 of 6 trials with or
+without the skill (counts re-derived after the trajectory audit). Diagnosis on a running app was unaffected (6/6).
 
 ## Caveats
 

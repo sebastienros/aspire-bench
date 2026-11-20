@@ -10,20 +10,21 @@ issue:
 ## Summary
 
 The 20.7 KB `aspire` router claims every Aspire verb in its description ("…describe/ps/logs/otel…"), so it competes
-with any focused skill for the same prompt. Its cost shows even when it is not loaded: in the lead cell below the
-router was loaded in none of the 12 cheapest-model trials, yet removing it changed which skill the agent loaded and
-how soon the fault reached the screen; the full mechanism is not determinable from those cells. We measured v0.0.6 with the `aspire` folder deleted and nothing else changed
+with any focused skill for the same prompt. Its cost shows even when it is rarely loaded: in the two cheapest-model cells below the router
+itself was loaded in 2 of 6 shipped-set trials on the read-only fault and 0 of 6 on slow SQL, yet removing it
+changed which skill the agent loaded and how soon the fault reached the screen; the full mechanism is not
+determinable from those cells. We measured v0.0.6 with the `aspire` folder deleted and nothing else changed
 (`aspire-skills-norouter`) against v0.0.6 as shipped, in the same rounds, on an aspirified sample application
 with injected faults (aspire-bench telemetry suite; MSBench, Copilot CLI 1.0.99, Aspire daily
 `17.1.0-preview.1.26567.3+30326eb8`, six trials per cell unless stated).
 
 **Diagnosis prompts ("the app is slow, find out why and fix it").** On `gpt-6-luna`, removing the router took 0.50×
-the time on a slow-SQL fault (136 s against 271 s; input tokens 0.50×, p = 0.041) and 0.67× on a read-only database
-fault (157 s against 234 s; tokens 0.65×, p = 0.041), same round. Across the pin's rounds the read-only gain holds
+the time on a slow-SQL fault (136 s against 271 s, p = 0.065; input tokens 0.50×, p = 0.041) and 0.67× on a read-only
+database fault (157 s against 234 s, p = 0.24; tokens 0.65×, p = 0.041), same round. Across the pin's rounds the read-only gain holds
 (0.61×, p = 0.032, 12 baseline trials) and the slow-SQL one is not established (0.74×, p = 0.37): the shipped set's
 own luna median moved between 147 and 271 s over four rounds. `gpt-6.1-terra` moved the same way, less (0.90× and
-0.75×, p = 0.13). The router itself was loaded in none of the 12 luna slow-SQL trials, so its cost is not its body:
-without it `aspire-monitoring` was loaded in 3 of 6 trials instead of 5 of 6, the slow statement reached the screen
+0.75×, p = 0.13). The router itself was loaded in 0 of 6 shipped-set luna slow-SQL trials (2 of 6 on read-only), so its cost is not its
+body: without it `aspire-monitoring` was loaded in 3 of 6 trials instead of 5 of 6, the slow statement reached the screen
 at 53 s instead of 84 s, with 38 tool calls instead of 63.
 
 **Not a cheapest-model effect.** With the shipped set and MCP against the raw app (that round had no router-free
@@ -35,7 +36,7 @@ diagnosis trials, `aspire-monitoring` in 4 and no skill in 5; `gpt-6.2-sol` load
 **On a new job.** "Publish and run the production build locally" on a Docker Compose AppHost, with
 `aspire-deployment` removed from the bundle: the router was loaded first in 5 of 6 luna trials and the bundle took
 1.37× the shipped set's time (382.6 against 279.9 s, interval 0.91–1.71, p 0.24; all 12 passed); on terra the router
-went first 6 of 6 at 1.04×. Wherever the router is the first skill loaded on luna, the trial is slower.
+went first 6 of 6 at 1.04×. Same direction as the diagnosis cells, at p = 0.24.
 
 **The router's guardrail job.** "Restart a stuck database without losing state", 48 trials across both models: the
 bundle without the router passed 6 of 6 in every cell, like the bundle, and no trial on any arm ran a destructive

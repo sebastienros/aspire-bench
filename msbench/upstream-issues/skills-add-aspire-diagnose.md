@@ -10,8 +10,8 @@ issue:
 ## Summary
 
 The shipped skills have no owner for first-line diagnosis of a running local app. On a "the app is slow, find out
-why and fix it" prompt the agent is routed to `aspire-monitoring`, whose body is about telemetry export, and ends up
-reading unbounded `aspire otel` output or source code. Measured on an aspirified sample application with injected faults (aspire-bench
+why and fix it" prompt the agent lands on `aspire-monitoring` (with or without the router first), whose body is about telemetry
+export, and ends up reading unbounded `aspire otel` output or source code. Measured on an aspirified sample application with injected faults (aspire-bench
 telemetry suite; MSBench, Copilot CLI 1.0.99, Aspire daily `17.1.0-preview.1.26567.3+30326eb8`, aspire-skills
 v0.0.6, pooled over the rounds of that pin), the shipped set with MCP against the same app without Aspire:
 
@@ -26,7 +26,8 @@ On a third fault, a cache blocked by another client, whose evidence is not in th
 with MCP passed 0 of 24 luna trials (raw 8 of 54): the agents patched the application instead of the cache.
 
 `aspire-diagnose` was revised once during this pin (the wording of step 1, PLAN T1.1). The lean numbers below use the
-revised text on the slow-SQL and cache faults and the original text on the read-only fault, the only text run there.
+revised text on the slow-SQL and cache faults and, for `gpt-6-luna` and `gpt-6.1-terra`, the original text on the
+read-only fault, the only text run there; `gpt-6.2-sol` and `claude-opus-5.5` ran the revised text everywhere.
 
 ## Proposal
 
@@ -54,13 +55,15 @@ MCP), pooled over the pin's rounds; p from an exact Mann-Whitney test, intervals
 
 - **Selected every time by the models that use skills.** `aspire-diagnose` was loaded in 96 of 96 lean trials with the
   revised text on the three faults across `gpt-6-luna`, `gpt-6.1-terra`, `gpt-6.2-sol` and `claude-opus-5.5` (138 of
-  150 over both texts: the 12 misses are all `claude-haiku-5.5`, which under Copilot CLI never called the skill tool on
+  150 over both texts and six models: the 12 misses are all `claude-haiku-5.5`, which under Copilot CLI never called the skill tool on
   any arm; under Claude Code it loads this skill). Next to the router (`aspire-plus`, first pin) it was selected in
   only 4 of 6 luna trials.
 - **Against the shipped set with MCP:** luna 0.47× the time on slow SQL (18 vs 18, p < 0.001) and 0.47× on read-only
   (p = 0.002); terra 0.61× (p < 0.001) and 0.67× (p = 0.002); sol 0.84× on read-only (p = 0.065) and 0.65× on the
   cache fault (p = 0.041); Opus 0.42× on the cache fault (p = 0.015). Input tokens 32 % to 71 % lower in every one of
-  those cells.
+  those cells. The remaining cells: Opus slow SQL 1.11× [1.00–1.42] (p = 0.13; tokens −42 %) and read-only 0.71×
+  [0.48–1.26] (p = 0.18; tokens −43 %), sol slow SQL 0.87× by medians (53 against 61 s), the one pair the pooled table
+  does not list.
 - **Against the raw app:** parity on the two faults whose evidence is in the app's log. Luna 0.80× on slow SQL
   [0.71–1.05] and 0.85× on read-only [0.56–1.23], terra 1.00× [0.95–1.05] and 0.94× [0.90–0.99], none significant on
   time; tokens −21 % (luna slow SQL, p = 0.041) to +9 %. The original step-1 text was 1.23× on terra slow SQL
