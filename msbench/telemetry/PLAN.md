@@ -5012,6 +5012,13 @@ each harness's reported cost; gates model-free.
   the pass counts of `raw` and of `aspire-skills-mcp` each differ from the same-round Copilot CLI cell by at most
   one; else **`harness-dependent`**, with the count of cells outside and each attributed from its trajectory.
   (Both arms, as T1.9's rule had it: coordinating session's ruling, 2026-11-19, before any trial.)
+- **Infrastructure, as T1.9** (recorded after the round finished, before any reward or time of it was read): of
+  144 `t48` trials `collect.py` marks 10 as infrastructure, all VS Code luna. Six `AgentSetupTimeoutError` (one
+  burst, the agent never ran) and one run ended by `Server error: 504` from the model service at 571 s (the span
+  store did not record it, so `model_service_5xx` reads 0) are re-run once in `t48-topup`. Three ran to the
+  1,087 s limit (`slow-sql` luna: `raw` ×2, `aspire-cli-agents` ×1); as in T1.9 they are time-limit failures of
+  the agent, counted in the pass column (pass/6) and left out of the medians, which are over graded trials. The
+  same holds for T4.9.
 - **(b) MCP listing, by inspection** (VS Code 1.146.0-insider, Copilot Chat 0.74.2026110205, inside
   `vscode=0.20261117.7`): see the results block. No trial is spent unless a public setting lists MCP tools eagerly
   (coordinating session, 2026-11-19: a custom agent whose `tools:` list leaves out tool search changes the whole
