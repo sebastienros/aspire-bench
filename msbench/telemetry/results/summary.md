@@ -865,3 +865,5 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 | aspire-skills-mcp | 11/11 | 362 | 252 | 276 | 521,544 | 3,993 | 0.101 | 33 | aspirex8, aspire-monitoringx11 | 0 | 181,594 |
 | raw | 12/12 | 323 | 223 | 239 | 311,018 | 2,816 | 0.074 | 30 | - | 0 | 81,876 |
 
+# Pin 2026-11-19: Aspire 17.1.0-preview.1.26569.1+4ad3cfe6, aspire-skills v0.0.6 (e529b608)
+

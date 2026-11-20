@@ -867,6 +867,8 @@ they are listed in trials.jsonl and excluded from every other column.
 | aspire-skills-mcp | 11 | 11/11 | 11/11 | 362 (+12%) | 521,544 (+68%) | 0.101 (+36%) | 33 | 252 | 1 |
 | aspire-lean | 6 | 6/6 | 6/6 | 343 (+6%) | 274,744 (-12%) | 0.064 (-14%) | 22 | 231 | - |
 
+# Pin 2026-11-19: Aspire 17.1.0-preview.1.26569.1+4ad3cfe6, aspire-skills v0.0.6 (e529b608)
+
 # Skill references read
 
 Distinct skill files other than `SKILL.md` a trial opened (`references_read` in trials.jsonl, from the
