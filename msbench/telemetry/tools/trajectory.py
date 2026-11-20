@@ -25,7 +25,7 @@ def summary(args):
     return re.sub(r"\s+", " ", str(text))[:width]
 
 
-path = next(root.rglob("copilot-cli.jsonl"), None)
+path = collect.run_trajectory(root)  # the unredacted output copy first (PLAN §9)
 if path is None:
     trial = next(p.parent for p in root.rglob("result.json") if "trial_name" in p.read_text()[:4000])
     spans, _ = collect.load_spans(trial)

@@ -55,7 +55,7 @@ def passes(cell):
 
 
 def events_of(run_id):
-    path = next((collect.DATA / "extracted" / run_id).rglob("copilot-cli.jsonl"), None)
+    path = collect.run_trajectory(collect.DATA / "extracted" / run_id)  # the unredacted output copy first (PLAN §9)
     return collect.load_events(path) if path else []
 
 

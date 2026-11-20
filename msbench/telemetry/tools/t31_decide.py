@@ -51,7 +51,7 @@ def commands(row):
     """Shell commands the agent ran, in order (Copilot CLI trajectory)."""
     root = collect.DATA / "extracted" / row["run_id"]
     found = []
-    for path in root.rglob("copilot-cli.jsonl"):
+    for path in filter(None, [collect.run_trajectory(root)]):  # the unredacted output copy first (PLAN §9)
         for line in path.read_text().splitlines():
             if '"tool.execution_start"' not in line:
                 continue

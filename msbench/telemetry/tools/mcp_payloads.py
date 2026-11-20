@@ -31,7 +31,7 @@ SPILL = re.compile(r"/tmp/\d+-copilot-tool-output-[0-9a-f]+\.txt")
 
 
 def trial_calls(run_id):
-    path = next((DATA / "extracted" / run_id).rglob("copilot-cli.jsonl"), None)
+    path = collect.run_trajectory(DATA / "extracted" / run_id)  # the unredacted output copy first (PLAN §9)
     if path is None:
         return None
     events = collect.load_events(path)

@@ -6,6 +6,7 @@
     tools/collect.py --rounds a,b   the runs already in results/trials.jsonl (from disk) plus every run of
                                     rounds a and b (fetched): a lane adds its own rounds without fetching,
                                     or publishing, another lane's rounds still in flight (PLAN T4.5)
+    tools/collect.py --no-fetch --skip-rounds t48   every ledger round but those (a round still in flight)
 
 Outputs (committed): results/trials.jsonl (one row per trial) and results/summary.md.
 Raw artifacts stay outside the repository in $TELEMETRY_DATA_DIR; each row records the
@@ -373,6 +374,39 @@ def pin_label(rows, pin):
     return f"Aspire {', '.join(b[:b.index('+') + 9] if '+' in b else b for b in builds)}, aspire-skills {', '.join(skills)}"
 
 
+# MSBench's secret scan rewrites the harness's copies under harbor_logs/jobs/<job>/<trial>/agent/: bare hex strings
+# become ***REDACTED*** (Copilot CLI tool call ids `call_<hex>` and trace ids among them), so tool calls whose ids were
+# hex share one id and a join of tool.execution_start to tool.execution_complete on toolCallId pairs a result with the
+# wrong call. The run's output folder (`<run>/<task>-output/output/`, the harbor_logs folder's parent) holds the copy
+# the agent wrote, unredacted (PLAN §9 "Reader redaction audit"). Every reader prefers it; the harness copy is the
+# fallback. Only one trial runs per MSBench run; with more than one, the output copy is not attributable to a trial.
+REDACTED = "***REDACTED***"
+
+
+def output_copy(trial_dir, relative):
+    """The run output folder's copy of an agent file (relative to that folder), when it belongs to this trial."""
+    harbor = next((p for p in trial_dir.parents if p.name == "harbor_logs"), None)
+    if harbor is None or len(list(harbor.glob("jobs/*/*/result.json"))) != 1:
+        return None
+    path = harbor.parent / relative
+    return path if path.exists() else None
+
+
+def copilot_trajectory(trial_dir):
+    """(path, source): the unredacted output copy of copilot-cli.jsonl, else the harness copy in the trial folder."""
+    path = output_copy(trial_dir, "copilot-cli.jsonl")
+    if path:
+        return path, "output"
+    path = next(iter(sorted(trial_dir.rglob("copilot-cli.jsonl"))), None)
+    return path, "harbor" if path else None
+
+
+def run_trajectory(root):
+    """A run folder's Copilot CLI trajectory for the decide scripts: the output copy (outside harbor_logs) first."""
+    found = sorted(root.rglob("copilot-cli.jsonl"), key=lambda p: ("harbor_logs" in p.parts, str(p)))
+    return found[0] if found else None
+
+
 def by_pin(rows):
     """Rows per pin for the tables. Rows whose ledger entry carries `excluded` (a reason) stay in
     trials.jsonl and are left out of every table."""
@@ -430,12 +464,14 @@ def analyze_trial(result_path, entry):
         return analyze_vscode(trial_dir, entry, row)
     if row["agent"] not in (DEFAULT_AGENT, "oracle"):
         return analyze_atif(trial_dir, entry, row)
-    trajectory = next((p for p in trial_dir.rglob("copilot-cli.jsonl")), None)
+    trajectory, row["trajectory_source"] = copilot_trajectory(trial_dir)
     if trajectory is None:
         row["trajectory"] = None
         return row
     row["trajectory_sha256"] = sha256(trajectory)
     events = load_events(trajectory)
+    # Whether the copy read carried redacted tool call ids (true only when the harness copy was the fallback).
+    row["trajectory_ids_redacted"] = any(REDACTED in str(e.get("data", {}).get("toolCallId") or "") for e in events)
     # Model-service health: wall time spent in model calls that ended in a 5xx (a 504 after a
     # 240 s hang on 2026-11-18). A trial that timed out or crashed after such failures says
     # nothing about the arm; it is an infrastructure failure like one that never got a grade.
@@ -505,14 +541,9 @@ def analyze_trial(result_path, entry):
     if entry["scenario"] == "slow-redis" and started:
         row.update(redis_reply(events, started))
     if entry["scenario"] in PATTERN_SCENARIOS:
-        # The harness's copy under harbor_logs/.../agent/ redacts hex strings (tool call ids, trace ids), which merges
-        # tool calls and trace ids; the marker reads the unredacted copy in the run's output folder when it exists
-        # (found after t43: 3 terra trials of 96 differed, no luna trial).
-        output_copy = trial_dir.parents[3] / "copilot-cli.jsonl" if len(trial_dir.parents) > 3 and trial_dir.parents[2].name == "harbor_logs" else None
-        marker_events = load_events(output_copy) if output_copy and output_copy.exists() else events
-        marker_started = next((stamp(e) for e in marker_events if stamp(e)), started)
-        row.update(span_pattern(marker_events, entry["scenario"], marker_started))
-        row["pattern_source"] = "output" if marker_events is not events else "harbor"
+        # Found after t43 (3 terra trials of 96 differed on the harness copy); every reader now reads the output copy.
+        row.update(span_pattern(events, entry["scenario"], started))
+        row["pattern_source"] = row["trajectory_source"]
     # Bytes returned to the model by tools: the context the agent had to read.
     row["tool_result_chars"] = sum(len(json.dumps(e["data"].get("result", "")))
                                    for e in events if e.get("type") == "tool.execution_complete")
@@ -776,13 +807,20 @@ def claude_code_settings(trial_dir, entry, row):
 
 
 def analyze_atif(trial_dir, entry, row):
-    path = next((p for p in sorted(trial_dir.rglob("trajectories/trajectory.json"))
-                 if "harbor_logs" not in p.parts), None) or next(iter(trial_dir.rglob("trajectory.json")), None)
+    # trial_dir is under harbor_logs, so the output folder's copy (unredacted, like Copilot CLI's) is found through
+    # output_copy; the harness copies in the trial folder are the fallback.
+    path = output_copy(trial_dir, "trajectories/trajectory.json")
+    row["trajectory_source"] = "output" if path else None
+    if path is None:
+        path = next(iter(sorted(trial_dir.rglob("trajectories/trajectory.json"))), None) or next(iter(trial_dir.rglob("trajectory.json")), None)
+        row["trajectory_source"] = "harbor" if path else None
     if path is None:
         row["trajectory"] = None
         return row
     row["trajectory_sha256"] = sha256(path)
     trajectory = json.loads(path.read_text())
+    row["trajectory_ids_redacted"] = any(REDACTED in str(call.get("tool_call_id") or "")
+                                         for step in atif_steps(trajectory) for call in step.get("tool_calls") or [])
     steps = atif_steps(trajectory)
     stamps = [parse_time(s["timestamp"]) if s.get("timestamp") else None for s in steps]
     def began(index):
@@ -1240,9 +1278,10 @@ def main():
     if rounds is not None:
         published = {json.loads(line)["run_id"] for line in (SUITE / "results/trials.jsonl").read_text().splitlines() if line.strip()}
         ledger = [e for e in ledger if e["run_id"] in published or e["round"] in rounds]
+    skip = set(sys.argv[sys.argv.index("--skip-rounds") + 1].split(",")) if "--skip-rounds" in sys.argv else set()
     rows = []
     for entry in ledger:
-        if entry.get("cancelled"):
+        if entry.get("cancelled") or entry["round"] in skip:
             continue
         fetch_it = "--no-fetch" not in sys.argv and (rounds is None or entry["round"] in rounds)
         root = fetch(entry["run_id"]) if fetch_it else DATA / "extracted" / entry["run_id"]

@@ -5086,3 +5086,79 @@ Reporting conventions:
   the maintainers see the cells, the n, the p and the guard results, not a summary.
 - REPORT.md is updated per phase, not per card: a "Phase N results" section with the
   same before/after table as §8, on the new baseline.
+
+#### Reader redaction audit (2026-11-19)
+
+**What was wrong.** Each extracted Copilot CLI run holds two copies of the trajectory: `<task>-output/output/copilot-cli.jsonl`,
+written by the agent, and `output/harbor_logs/jobs/<job>/<trial>/agent/copilot-cli.jsonl`, the harness's copy, which MSBench's
+secret scan rewrites: every bare hex string becomes `***REDACTED***`. Over the 3,900 extracted runs that have both copies,
+line counts are equal in all and 3,690 harness copies differ, every difference a redaction (tool call ids `call_<hex>` in
+1,796, trace ids, container ids, dashboard login tokens, certificate thumbprints); the output copy has no redacted call id.
+`collect.analyze_trial` searched the trial folder, which is under `harbor_logs`, so **every Copilot CLI row so far was read
+from the harness copy**. A reader that pairs `tool.execution_start` with `tool.execution_complete` on `toolCallId` then gives a
+redacted call the arguments of the latest redacted start (`verified_up`, `redis_reply`, the MCP per-tool split); one keyed on
+the first position of an id (`commands_to_verified_up`) stops at the first redacted call. The Claude Code reader
+(`analyze_atif`) had the same exposure through a filter that could never match (44 rows; `toolu_` ids are not hex, so only
+content was redacted there). The VS Code reader already took the output `agent-traces.db`. The T4.2/T4.3 marker was moved to
+the output copy in 8753bc5 and is unchanged here.
+
+**Fix (`tools/collect.py`).** `output_copy`/`copilot_trajectory` read the run's output copy (the `harbor_logs` folder's parent)
+when the run has one trial, the harness copy otherwise; `analyze_atif` does the same for `trajectories/trajectory.json`; the
+decide and helper scripts that read trajectories (`mcp_payloads.py`, `p2mcp_decide.py`, `t31_decide.py`, `trajectory.py`,
+`selection.py`) call `run_trajectory`/`copilot_trajectory`. The four scripts that walk the run folder already got the output
+copy first (pathlib lists `output/copilot-cli.jsonl` before descending into `harbor_logs`); `selection.py` read the harness
+copy but uses tool names only (its 452 committed rows recompute identically). Rows gain `trajectory_source` (`output` |
+`harbor`) and `trajectory_ids_redacted`. Regenerated: 3,447 Copilot CLI rows and 42 Claude Code rows read the output copy, 1
+Copilot row (t28 raw, run 2026111920226760) the harness copy (no output copy extracted; its ids are not redacted), 0 rows
+with redacted ids. `--skip-rounds <r>` leaves out a round still in flight (`t48` here).
+
+**Row-by-row diff.** The committed `trials.jsonl` (545def3) and an old-reader regeneration of the same 3,845 ledger rows
+(every round but `t48`) are identical, so the table is the reader change alone. "In tables" counts rows without an
+`excluded` reason. Sizes are new minus old (seconds, commands, spills) or relative (chars).
+
+| Field | Rows changed (in tables / excluded) | Rounds (rows) | Cards | Size of the change |
+|---|---:|---|---|---|
+| `commands_to_verified_up` | 47 (40 / 7) | t31 15, t210 9, t211 8, t16 6, t01 3, t45-smoke 3, t13 2, t01-warm 1 | T0.1, T1.3, T1.6, T2.10, T2.11, T3.1, T4.5 | median +3, range -1 to +17 |
+| `seconds_to_verified_up` | 5 (4 / 1) | t31 3, t210 1, t45-smoke 1 | T2.10, T3.1, T4.5 | median +24.9, range -24.2 to +27.9 |
+| `seconds_to_redis_reply` | 16 (13 / 3) | t01b 4, t18 3, t14-guard 2, t45-smoke 2, r6 1, t01 1, t14 1, t13 1, t32 1 | T0.1, T1.3, T1.4, T1.8, T3.2, T4.5, first pin | median -14.3, range -46 to +136 |
+| `redis_cli_first_failed` | 4 (3 / 1) | t18 1, t32 1, t31 1, t45-smoke 1 | T1.8, T3.1, T3.2, T4.5 | False→True; None→True |
+| `mcp_result_content_chars` | 609 (578 / 31) | t14 95, t21 58, r2 53, t28-skills 48, t28 42, t01b 36, r1 32, t21-t27 28, t01 26, t02 24, t02-insample 23, t25 21, +16 more | T0.1, T0.2, T1.4, T1.7, T1.8, T2.1, T2.5, T2.7, T2.8, T4.2, T4.3, T4.5, T4.7, first pin | median +1.34 %, range -66.6 to +613.1 % |
+| `mcp_spills` | 42 (37 / 5) | t14 14, t01b 7, t02-insample 5, t01 4, t02 3, t43 2, r1 1, r2 1, t02-heldout3 1, t02-insample-topup 1, t17-copilot 1, t14-guard 1, +1 more | T0.1, T0.2, T1.4, T1.7, T4.3, T4.5, first pin | median +1, range -1 to +3 |
+| `tool_result_content_chars` | 3105 (2875 / 230) | t31 217, t01b 177, t22 144, t01 139, t14 134, t32 120, t23 115, t25 108, t210 101, r2 96, t13 90, r1 89, +65 more | T0.1, T0.2, T1.1, T1.2, T1.3, T1.4, T1.6, T1.7, T1.8, T2.1, T2.10, T2.11, T2.2, T2.3, T2.4, T2.5, T2.6, T2.7, T2.8, T2.9, T3.1, T3.2, T3.3, T3.4, T3.5, T3.7, T3.8, T4.2, T4.3, T4.5, T4.7, first pin | median +0.34 %, range +0.0 to +5.0 % |
+| `tool_result_chars` | 3105 (2875 / 230) | t31 217, t01b 177, t22 144, t01 139, t14 134, t32 120, t23 115, t25 108, t210 101, r2 96, t13 90, r1 89, +65 more | T0.1, T0.2, T1.1, T1.2, T1.3, T1.4, T1.6, T1.7, T1.8, T2.1, T2.10, T2.11, T2.2, T2.3, T2.4, T2.5, T2.6, T2.7, T2.8, T2.9, T3.1, T3.2, T3.3, T3.4, T3.5, T3.7, T3.8, T4.2, T4.3, T4.5, T4.7, first pin | median +0.34 %, range +0.0 to +4.9 % |
+| `seconds_to_root_cause_seen` | 0 | - | - | - |
+| `tool_calls_to_root_cause_seen` | 0 | - | - | - |
+| `seconds_to_first_fix` | 0 | - | - | - |
+| `references_read` | 0 | - | - | - |
+| `skills_loaded` | 0 | - | - | - |
+| `tool_counts` | 0 | - | - | - |
+| `mcp_calls` | 0 | - | - | - |
+| `aspire_cli` | 0 | - | - | - |
+| `trace_detail_json` | 0 | - | - | - |
+| `trace_detail_table` | 0 | - | - | - |
+| `pattern_read_before_edit` | 0 | - | - | - |
+| `pattern_read_aggregate` | 0 | - | - | - |
+| `seconds_to_pattern_read` | 0 | - | - | - |
+| `waits` | 0 | - | - | - |
+| `wait_named_listed` | 0 | - | - | - |
+| `agent_loop_seconds` | 0 | - | - | - |
+| `model_service_5xx` | 0 | - | - | - |
+| `trajectory_sha256` | 3324 (3059 / 265) | t31 256, t01b 184, t01 160, t22 144, t14 137, t32 120, t23 116, t25 108, r2 107, t210 102, t18 101, t13 95, +65 more | T0.1, T0.2, T1.1, T1.2, T1.3, T1.4, T1.6, T1.7, T1.8, T2.1, T2.10, T2.11, T2.2, T2.3, T2.4, T2.5, T2.6, T2.7, T2.8, T2.9, T3.1, T3.2, T3.3, T3.4, T3.5, T3.7, T3.8, T4.2, T4.3, T4.5, T4.7, first pin |  |
+
+Reading the table:
+
+- **Join errors** are the first six fields. `commands_to_verified_up` was 1 in most changed rows (the index of the first
+  redacted id); `seconds_to_verified_up` moved in 5 rows only (the time is the completing event's own, so only a curl result
+  paired with the wrong command moves it: three t31 raw trials from 2–3 s to 27–30 s). `seconds_to_redis_reply` moved where a
+  redacted redis-cli start was overwritten by a later call. MCP chars moved where a redacted MCP result was attributed to a
+  non-MCP start or the reverse.
+- **Content length** (`tool_result_content_chars`, `tool_result_chars`): a hex string is longer than `***REDACTED***`, so the
+  regenerated counts are larger in 3,105 rows, by a median 0.34 % (at most 5.0 %); `trajectory_sha256` changed with the file.
+- **Unchanged in every row:** `seconds_to_root_cause_seen`, `tool_calls_to_root_cause_seen`, `seconds_to_first_fix`,
+  `references_read`, `skills_loaded`, tool and MCP call counts, `aspire_cli`, `trace_detail_*`, the T4.2/T4.3 marker fields,
+  waits, loop time. None of them joins on an id.
+- **Rounds whose verdict metric did not move at all:** t22 (T2.2, T2.9: `seconds_to_verified_up`), t23 (T2.3 root cause seen,
+  T2.4 `seconds_to_redis_reply`), t25/t25-span (T2.5 `seconds_to_redis_reply`), t42/t43 (marker).
+- Claude Code rows (T4.7, 42): content length only (39 rows changed, median +0.09 %, at most 1.1 %).
+
+The per-card recomputation follows below.

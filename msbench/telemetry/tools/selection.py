@@ -78,8 +78,10 @@ def first_skill(calls, limit=MAX_COMMANDS):
     return None, commands
 
 
-def trial_events(root):
-    trajectory = next(root.rglob("copilot-cli.jsonl"), None)
+def trial_events(trial_dir):
+    """The trial's Copilot CLI events, from the unredacted output copy when there is one (PLAN §9)."""
+    trajectory, _ = collect.copilot_trajectory(trial_dir)
+    trajectory = trajectory or collect.run_trajectory(trial_dir.parent.parent)
     return collect.load_events(trajectory) if trajectory else None
 
 
@@ -128,7 +130,7 @@ def analyze(entry):
         hook_lines = [json.loads(line) for line in hook.read_text().splitlines() if line.strip()] if hook else []
         row["hook_calls"] = len(hook_lines)
         row["hook_denied"] = sum(line.get("decision") == "deny" for line in hook_lines)
-        events = trial_events(trial_dir.parent.parent if not any(trial_dir.rglob("copilot-cli.jsonl")) else trial_dir)
+        events = trial_events(trial_dir)
         if events is None:
             row["selected"] = None
             rows.append(row)
