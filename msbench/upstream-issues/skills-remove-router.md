@@ -9,7 +9,7 @@ issue:
 
 ## Summary
 
-The 20.7 KB `aspire` router claims every Aspire verb in its description ("…describe/ps/logs/otel…"), so it competes
+The 22 KB `aspire` router claims every Aspire verb in its description ("…describe/ps/logs/otel…"), so it competes
 with any focused skill for the same prompt. Its cost shows even when it is rarely loaded: in the two cheapest-model cells below the router
 itself was loaded in 2 of 6 shipped-set trials on the read-only fault and 0 of 6 on slow SQL, yet removing it
 changed which skill the agent loaded and how soon the fault reached the screen; the full mechanism is not

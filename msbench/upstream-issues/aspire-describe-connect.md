@@ -37,7 +37,8 @@ Add to each resource in `aspire describe --format Json` (and the MCP resource li
 moved from 6380 to 6379 in PR 22350); credentials stay in the container (only variable names are
 printed); `runs` is `host` when the image has no client (the command then uses the published port). Each hosting
 integration should declare its own entry (it knows its ports, TLS setup and credential variables), rather than the
-CLI matching image names.
+CLI matching image names. The container shell execution that #22168 (open) proposes to graduate to stable is the host-side mechanism a
+`runs: container` entry can build on.
 
 ## Evidence
 

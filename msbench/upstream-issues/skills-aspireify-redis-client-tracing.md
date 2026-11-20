@@ -23,7 +23,9 @@ When `aspireify` finds `Microsoft.Extensions.Caching.StackExchangeRedis` (or
 `Microsoft.AspNetCore.SignalR.StackExchangeRedis`) in a project, propose the Aspire
 client integration (`AddRedisDistributedCache("cache")` /
 `AddRedisClient`) so the connection is traced and health-checked, and say why in the
-proposal text. The same applies to the workshop sample that this app came from.
+proposal text. The same applies to the workshop sample that this app came from. Today
+`references/scan-and-propose.md` maps `AddStackExchangeRedisCache` to the hosting side only (`AddRedis("cache")` +
+`WithReference`); the client-side line is what is missing.
 
 ## Evidence
 

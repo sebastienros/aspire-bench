@@ -30,6 +30,10 @@ Keep the plan-first behaviour, but let an approval that is explicit and scoped i
 files. The skill would still print the per-resource plan before editing and stop for anything outside that scope
 (application code, project files). A one-line rule in the approval boundary would do it.
 
+Related: #162 and #173 add an approval gate for the restore bootstrap in a fresh polyglot worktree; this ask
+pulls the other way for the one case where the request already carries the approval, so the two should be read
+together.
+
 ## Evidence
 
 aspire-bench telemetry suite, PLAN T3.7, round `t37`, Aspire daily 17.1.0-preview.1.26567.3, aspire-skills v0.0.6,

@@ -12,8 +12,10 @@ issue:
 `AddViteApp` and the other JavaScript hosting methods call `WithOtlpExporter()`, so a Node process started by the
 AppHost receives `OTEL_EXPORTER_OTLP_ENDPOINT`, `OTEL_SERVICE_NAME` and the rest. A Node app without an
 OpenTelemetry SDK ignores all of it. The resource then shows no trace, no span and no structured log in the
-dashboard, `aspire otel traces` or the MCP server. Nothing in the dashboard, `aspire describe` or the
-aspireify guidance says that this resource is not instrumented.
+dashboard, `aspire otel traces` or the MCP server. The dashboard's resource overview cards say "This resource hasn't
+sent telemetry" (since #21412), which is also what a resource that has not been called yet shows; nothing in
+`aspire describe`, the MCP resource listing or the aspireify main path says that this resource cannot send any.
+#17683 reports the same situation for `addBunApp`, with a misleading `aspire otel` message on top.
 
 In an aspirified sample application (a Vite dev-server frontend proxying API calls to an ASP.NET admin), no trace
 row came from the frontend in any of 2,338 benchmark trials that listed traces. As a result, the hop where a frontend
@@ -26,11 +28,12 @@ the server and client spans unchanged.
 
 One or more of:
 
-1. `aspire describe` and the dashboard's resource details mark a resource that has never sent telemetry while the
-   AppHost configured OTLP for it ("no telemetry received"), so an agent or a person does not read an empty trace
-   list as "nothing happened".
-2. The aspireify guidance (aspire-skills) adds the Node SDK step when it wires a JavaScript resource: the package and
-   the `--require`/`--import` registration, or `NODE_OPTIONS` on the resource.
+1. `aspire describe` and the MCP resource listing mark a resource that has never sent telemetry while the AppHost
+   configured OTLP for it ("no telemetry received"), and the dashboard card distinguishes "OTLP configured, nothing
+   received" from an idle resource, so an agent or a person does not read an empty trace list as "nothing happened".
+2. The aspireify guidance (aspire-skills) puts the Node SDK step on its main path when it wires a JavaScript
+   resource: the package and the `--require`/`--import` registration, or `NODE_OPTIONS` on the resource. Since
+   microsoft/aspire-skills#148 the step exists in `references/opentelemetry.md`, listed as optional wiring.
 3. The JavaScript hosting docs for `AddViteApp`/`AddNodeApp` state that the OTLP variables are only consumed by an SDK
    in the app, with the minimal registration.
 

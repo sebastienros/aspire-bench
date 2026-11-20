@@ -2042,7 +2042,8 @@ only). With Aspire's environment unchanged, the frontend's server span, its clie
 then appear in one trace in `aspire otel traces`, `aspire otel spans` and MCP `list_traces`.
 
 **Improvement candidate:** Make the gap visible or close it. Options: flag a resource that never sent telemetry
-although OTLP was configured for it (`describe`, dashboard); add the Node SDK step to the aspireify guidance when it
+although OTLP was configured for it (`describe`, MCP; the dashboard's resource overview card already says "This resource
+hasn't sent telemetry" since microsoft/aspire#21412, an ancestor of the pin, without distinguishing an idle resource; noted 2026-11-20); add the Node SDK step to the aspireify guidance when it
 wires a JavaScript resource; state in the JavaScript hosting docs that the variables are only read by an SDK in the
 app. Draft: [`aspire-js-otlp-without-sdk.md`](upstream-issues/aspire-js-otlp-without-sdk.md).
 

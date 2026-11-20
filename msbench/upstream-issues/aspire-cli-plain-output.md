@@ -16,7 +16,7 @@ and the trace list, most of it borders and links.
 
 ## Proposal
 
-A 13-line patch (`0002-cli-plain-output.patch` in the aspire-bench repository): when
+A 13-line patch (`cli-plain-output.patch` in the aspire-bench repository): when
 output is redirected, render tables without borders and without the per-row dashboard
 link. Endpoint URLs are kept.
 
@@ -33,7 +33,11 @@ unpatched source build of the same commit, one running app. Since #22054 put the
 State cell, the per-row dashboard link wraps every `describe` row onto a third line, which is what the
 patch removes; on the earlier daily (`4954c76a`) `describe` was 4,244 → 1,086 bytes.
 
-Related: the trace detail table omits the span's SQL text, so an agent that wants the
+Related: #16241 asked for `--no-color` on redirected output; this is the same situation, for the table
+shape rather than the colours. `CliHostEnvironment.SupportsInteractiveOutput` already knows when stdout is redirected,
+so the switch exists; today it drives spinners and markdown only.
+
+Also related: the trace detail table omits the span's SQL text, so an agent that wants the
 statement has to re-run the command with `--format Json` (188 KB unfiltered). Showing
 the statement, truncated, in the table row would remove that hop.
 

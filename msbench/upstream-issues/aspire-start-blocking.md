@@ -51,6 +51,9 @@ because the workspace README named the waits.
   terra used 49k against 72k), but it should not be expected to make agents faster. If it is added, it should
   not be the default under `--non-interactive` without an opt-out, since it changes scripted behaviour.
 
+Related: #22194 (a warm TypeScript AppHost spending 44 s in `npm install` before any resource) and #17250 (warm
+AppHost build cost) are the same phase from other angles.
+
 ## Evidence
 
 aspire-bench telemetry suite, PLAN cards T2.2 and T2.9 (round `t22`, 162 trials), FINDINGS F21. The patch

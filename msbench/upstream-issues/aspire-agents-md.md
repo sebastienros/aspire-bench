@@ -15,6 +15,11 @@ list of resources to wait on, then `aspire wait <resource-name>` for each one ne
 Aspire app as fast as a dedicated start skill does, and faster than the shipped orchestration skill, with fewer
 tokens. We propose that `aspire new` templates and `aspire agent init` write it.
 
+This is not a return to the pre-#13803 `AGENTS.md`: that file carried the Aspire skill content, which #13803 moved into
+skill files and #22080 / #22277 now deliver through plugin sources rather than copies. The file proposed here is about
+15 lines: the start flow for this AppHost, one line for the slow path, and the names of the installed skills with
+their jobs. It is what the measurement below found an agent needs on every turn; the skills stay where they are.
+
 ## Proposed file
 
 The skills section lists only the skills `aspire agent init` installed, one job line each (shown here for a

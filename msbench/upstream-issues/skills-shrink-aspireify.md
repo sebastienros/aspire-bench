@@ -9,7 +9,7 @@ issue:
 
 ## Summary
 
-On a live app, `aspireify` (v0.0.6, 21 KB, 10 references) made agents slower at the job it claims, with no
+On a live app, `aspireify` (v0.0.6, 24 KB, 11 references) made agents slower at the job it claims, with no
 reliability gain. The test asked agents to add Redis to an existing AppHost and move one project's distributed
 cache onto it. With `aspireify` as the only skill, agents took 1.71× the time of the CLI alone on the cheapest model
 (236 s against 138 s, p 0.002, n = 6) and 1.69× on a mid-tier model (349 against 206 s). Every trial of both arms
@@ -46,7 +46,8 @@ reading and checks, not a better route.
    it.
 2. Change "load these references before editing" to "load the reference for the step that failed".
 3. When the repo uses central package management, say so before `aspire init`. Either use `--file-based`, or move
-   the AppHost project's versions to `Directory.Packages.props`.
+   the AppHost project's versions to `Directory.Packages.props`. (microsoft/aspire#22082 detects the file-based
+   CPM case in the CLI; the project-based `aspire init` on a CPM repo is still the agent's problem.)
 
 ## Measured
 

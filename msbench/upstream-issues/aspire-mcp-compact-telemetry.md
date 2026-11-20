@@ -1,6 +1,6 @@
 ---
 repo: microsoft/aspire
-title: "MCP: list_traces / list_structured_logs / list_console_logs fill the 8k-token budget on every call, and `search` does not shrink them"
+title: "MCP: list_traces and list_structured_logs fill the 8k-token budget on every call, and `search` does not shrink them"
 finding: F18, F31
 labels: []
 status: draft
@@ -19,14 +19,16 @@ running app (8 resources, one slow endpoint), captured on the 2026-11-09 daily (
 | `list_traces {}` | 31,797 chars |
 | `list_traces {search: "duration:>500"}` | 29,981 chars |
 | `list_structured_logs {}` | 32,630 chars |
-| `list_console_logs {}` | 34,676 chars (once the app has produced that much output) |
+| `list_console_logs {resourceName: "<app>"}` | 34,676 chars (once the app has produced that much output) |
 | `list_resources {}` | 10,321 chars (mostly command descriptions) |
 
 A `search` filter does not shrink the response, it only changes which traces fill it, and the response ends with
-"Returned latest 21 traces. Earlier 118 traces not returned because of size limits". The three telemetry tools take only `search`; `list_resources`
+"Returned latest 21 traces. Earlier 118 traces not returned because of size limits". The three telemetry tools take only `resourceName` and `search` (`resourceName` required for console logs); `list_resources`
 already pages with `offset` and `limit`, and `list_trace_structured_logs` takes a `traceId` for the logs of one trace,
 but there is no way to ask for fewer traces, for one trace's detail by id, or for logs of one severity. The tools
 are unchanged between the capture and current `main` (no commit under `src/Aspire.Cli/Mcp/Tools` since 2026-11-09).
+Issue #14580 reported the same truncation from the deep-span side; its fix (#17238) raised the item limits
+(`TracesLimit` 200 → 800 and so on) and left `MaximumListTokenLength` at 8192, so the budget still fills.
 
 What the agent then reads depends on the harness, not on the server. Copilot CLI (1.0.99) writes any tool result
 over about 20 KB to a file and shows the model an 837-character notice with the first 500 characters; in 54
@@ -49,7 +51,7 @@ that let an agent ask for less:
 - `list_resources`: move the command descriptions out of the default listing (its `offset`/`limit` paging already
   exists; the size is in the per-resource text, not the count).
 
-A patch for the first two is attached as a starting point (`0001-mcp-compact-telemetry.patch` in the aspire-bench
+A patch for the first two is attached as a starting point (`mcp-compact-telemetry.patch` in the aspire-bench
 repository: 3 files, 25 unit tests passing, 5 new). With it, `list_traces {}` drops from 31,797 to 8,988 characters,
 a filtered call to 2,854 and the summary already names the slow SQL; `list_structured_logs {severity: "Error"}`
 returns 734 characters.

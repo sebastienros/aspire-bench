@@ -31,6 +31,15 @@ sleep 60
 aspire describe --apphost apphost.cs --format Json   # the named container resource: Exited
 ```
 
+## Where it comes from
+
+On `main`, `aspire stop` sends the stop RPC and then waits for the AppHost *process* to exit (10 s), which is when it
+prints "stopped successfully" (`src/Aspire.Cli/Commands/StopCommand.cs`, `ProcessTreeGracefulShutdownService`). On
+the AppHost side the RPC returns at once and stops the application 500 ms later; DCP's container cleanup then runs
+best-effort inside the host's 30 s shutdown budget (#21528). Nothing waits for the containers to be removed, and the
+next start finds them running under their fixed names. Related: #21464 (teardown order at shutdown), #20495 (containers
+surviving shutdown on Windows).
+
 ## Proposal
 
 - `aspire stop` waits until the instance's resources are removed before returning (or `--wait`), or prints that
