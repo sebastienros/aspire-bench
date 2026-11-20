@@ -1222,6 +1222,13 @@ reference repair; it had already killed the exporter one step earlier, and passe
 nine. No rule excludes them, so they stay in the cells and are named in [PLAN.md, T1.8 results](telemetry/PLAN.md#t18-results).
 The improvement candidate (verifier out of the image) stands; strong models find the harness more often.
 
+**Update 2026-11-20 (leak tiers, PLAN T4.5 ruling 9):** the counter now tells a **read** (file content returned, run,
+copied or edited) from a path merely **named** (a search pattern, `ps | grep`, a listing, `grep -l`). Of the 32 trials it
+ever flagged, 26 read a harness file (6 of them the verifier `bench.mjs`) and 6 only named one, among them the first
+tracking run's single flag (`trk20261119`, a `ps | grep` whose pattern held `/opt/benchmark/traffic.mjs`). From runs
+dated 2026-11-21 only a read fails a run; a named path is listed. Earlier runs keep the rule then in force. The fixture
+change above is still the fix: 26 of the 30 flags in tables are on `slow-redis`, where the exporter shows in `ps`.
+
 ## F27: On a held-out app the diagnosis skill carries over for a slow call but not for work that silently stops
 
 **Evidence:** Task T0.2 ([PLAN.md, T0.2 results](telemetry/PLAN.md#t02-results)), round `t02`,

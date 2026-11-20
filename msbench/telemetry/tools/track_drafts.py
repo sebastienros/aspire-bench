@@ -61,6 +61,7 @@ def main():
     out = Path(arg("--out"))
     lines = [f"# Tracking run `{run}`: flags", "",
              f"{len(mine)} cell rows; failed (leak): {'yes' if any('leak' in r['flags'] for r in mine) else 'no'}; "
+             f"harness paths named without a read (touch, listed): {sum(r.get('harness_touches') or 0 for r in mine)}; "
              f"repeat round in the run: {'yes' if repeated else 'no'}.", ""]
     by_cell = {(r["agent"], r["scenario"], r["model"], r["arm"], r["run"]): r for r in rows}
     written = []
@@ -88,7 +89,8 @@ def main():
                 f"{fmt(r.get('change_vs_trailing_input_tokens'))} | p {fmt(r.get('p_vs_trailing_agent_seconds'), '.4f')}, "
                 f"{fmt(r.get('p_vs_trailing_input_tokens'), '.4f')} |",
                 f"| Skill selection | {r['skill_selection']:.0%} | – |",
-                f"| Harness leaks | {r['harness_leaks']} | – |", "",
+                f"| Harness leaks (file read) | {r['harness_leaks']} | – |",
+                f"| Harness paths named only | {r.get('harness_touches') or 0} | – |", "",
                 f"All flags on the row: {', '.join(r['flags'])}.", "",
                 "## The two runs (MSBench run IDs)", "",
                 f"- **`{run}`**: {r['arm']} {', '.join(ids(r, r['arm']))}; raw {', '.join(ids(raw_now, 'raw')) or '–'}",

@@ -27,7 +27,9 @@ the first run of the new window to WINDOW_STARTS. Flags follow REPORT.md §11.2:
   regress-tokens token ratio, same rule
   improve-*      the mirror images
   selection-low  an arm with skills loaded a skill in fewer than 4 of 5 trials (reported, no trailing)
-  leak           a trial touched a harness path (fails the run)
+  leak           a trial read a harness file (fails the run); for runs dated before 2026-11-21 any mention of a
+                 harness path, the rule then in force (PLAN T4.5 ruling 8)
+  touch          a trial named a harness path without reading it (listed, no draft; runs from 2026-11-21)
   no-raw         the run has no `raw` cell to divide by
 
 Rows marked `excluded` in the ledger (model-service incident), oracle gates and infrastructure
@@ -47,6 +49,15 @@ FIRST_PIN = "2026-11-09"
 DEFAULT_AGENT = "github-copilot-cli"
 WINDOW = 5
 WINDOW_STARTS = set()  # run ids that open a new trailing window (suite changes, not re-pins)
+LEAK_READ_RULE_FROM = 20261121  # MSBench run ids dated from this day on: `leak` = a harness file read; earlier, any mention
+
+
+def leak_count(trial):
+    """Harness-path accesses that count as a leak for this trial, under the rule in force on its run date."""
+    dated = str(trial.get("run_id") or "")[:8]
+    if dated.isdigit() and int(dated) >= LEAK_READ_RULE_FROM:
+        return trial.get("protected_path_read") or 0
+    return trial.get("protected_path_access") or 0
 THRESHOLD = 0.25
 SPARK = "▁▂▃▄▅▆▇█"
 SKILL_ARM = re.compile(r"skill|lean|plus")  # arms that ship a skill set (aspire-skill-<short> included) (gen-tasks.mjs `skills` != none)
@@ -153,7 +164,8 @@ def cell_metrics(trials):
         "skills_loaded": dict(sorted(skills.items())),
         "mcp_calls": median([sum((t.get("mcp_calls") or {}).values()) for t in trials]),
         "tool_result_chars": median([t.get("tool_result_chars") for t in trials]),
-        "harness_leaks": sum(bool(t.get("protected_path_access")) for t in trials),
+        "harness_leaks": sum(bool(leak_count(t)) for t in trials),
+        "harness_touches": sum(bool(t.get("protected_path_access")) and not leak_count(t) for t in trials),
     }
 
 
@@ -211,6 +223,8 @@ def flag(rows):
             flags.append("no-raw")
         if row["harness_leaks"]:
             flags.append("leak")
+        if row.get("harness_touches"):
+            flags.append("touch")
         if SKILL_ARM.search(row["arm"]) and row["skill_selection"] < 0.8:
             flags.append("selection-low")
         row["trailing_runs"] = [w["run"] for w in window]

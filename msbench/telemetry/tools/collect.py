@@ -22,6 +22,7 @@ import hashlib
 import json
 import os
 import re
+import shlex
 import shutil
 import sqlite3
 import statistics
@@ -34,6 +35,129 @@ SUITE = Path(__file__).resolve().parent.parent
 DATA = Path(os.environ.get("TELEMETRY_DATA_DIR", Path.home() / ".aspire-bench/telemetry-runs"))
 VENV = Path.home() / "Library/Application Support/pipx/venvs/msbench-cli/bin"
 PROTECTED = re.compile(r"/opt/benchmark[\w./-]*|/solution\b|/tests/test\.sh|/logs/verifier")
+# Leak tiers (PLAN T4.5 ruling 8, user ruling 2026-11-20, in force for runs from 2026-11-21): a tool call that returns a
+# protected file's content (or runs, edits or copies it) is a `read`; a call that only names the path, as a search
+# pattern, in a process table, a directory listing, or a search that returns file names, is `named`. Both are counted
+# (`protected_path_access` counts every call naming a path, `protected_path_read` the subset that read); series.py
+# decides which tier fails a run by the run's date.
+PROTECTED_DIRS = {"/opt/benchmark", "/opt/benchmark/faults"}
+LEAK_READ_TOOLS = {"view", "Read", "read_file", "NotebookRead"}
+LEAK_NAMED_TOOLS = {"glob", "Glob", "LS", "file_search", "list_dir", "semantic_search", "tool_search", "execution_subagent",
+                    "manage_todo_list", "memory", "skill", "Skill", "TaskStop"}
+LEAK_SEARCH_TOOLS = {"rg", "Grep", "grep_search"}
+LEAK_NAME_CMDS = {"ls", "find", "stat", "readlink", "file", "du", "test", "[", "[[", "tree", "which", "realpath", "dirname",
+                  "basename", "ps", "pgrep", "pkill", "kill", "lsof", "fuser", "echo", "printf", "cd", "pushd", "wc", "md5sum",
+                  "sha256sum", "cksum", "mkdir", "ln"}
+LEAK_GREP_CMDS = {"grep", "egrep", "fgrep", "rg", "ag", "zgrep", "ack"}
+LEAK_SKIP_WORDS = {"sudo", "env", "time", "nohup", "exec", "command", "nice", "stdbuf", "xargs", "do", "done", "then", "else",
+                   "elif", "fi", "if", "while", "for", "until", "in", "!", "$", "{", "}"}
+LEAK_GREP_VALUE_OPTS = {"-A", "-B", "-C", "-m", "-g", "-t", "-T", "-d", "--glob", "--type", "--max-count", "--context",
+                        "--after-context", "--before-context", "--include", "--exclude", "--exclude-dir", "--color", "--colour"}
+SHELL_OPERATORS = {"|", "||", "&&", ";", ";;", "&", "(", ")"}
+
+
+def _shell_tokens(command):
+    """Tokens of a shell command with quoted strings kept whole and operators as their own tokens; None if unparsable."""
+    try:
+        lex = shlex.shlex(command, posix=True, punctuation_chars=True)
+        lex.whitespace_split = True
+        return list(lex)
+    except ValueError:
+        return None
+
+
+def _grep_names_only(args, paths):
+    """Of `paths`, those a grep-like command only names: with -l/-L (file names come back) or inside the pattern."""
+    files_only = any(re.match(r"^-[A-Za-z]*[lL][A-Za-z]*$", a) or a in ("--files-with-matches", "--files-without-match")
+                     for a in args)
+    if files_only:
+        return set(paths)
+    pattern, operands, i = None, [], 0
+    while i < len(args):
+        a = args[i]
+        if a == "--":
+            rest = args[i + 1:]
+            if pattern is None and rest:
+                pattern, rest = rest[0], rest[1:]
+            operands.extend(rest)
+            break
+        if a in ("-e", "--regexp", "-f", "--file") and i + 1 < len(args):
+            pattern = pattern if pattern is not None else args[i + 1]
+            i += 2
+            continue
+        if a in LEAK_GREP_VALUE_OPTS and i + 1 < len(args):
+            i += 2
+            continue
+        if a.startswith("-") and a != "-":
+            i += 1
+            continue
+        if pattern is None:
+            pattern = a
+        else:
+            operands.append(a)
+        i += 1
+    return {p for p in paths if pattern is not None and p in pattern and not any(p in o for o in operands)}
+
+
+def _command_reads(command, paths):
+    """Of `paths`, those a shell command reads (content, execution, copy or edit) rather than only names."""
+    tokens = _shell_tokens(command)
+    if tokens is None:  # unbalanced quotes: nothing can be told apart, count every path as read
+        return set(paths)
+    read, segment = set(), []
+    for token in tokens + ["|"]:
+        if token in SHELL_OPERATORS:
+            here = {p for p in paths if any(p in t for t in segment)}
+            if here:
+                words = [t for t in segment if not re.match(r"^[A-Za-z_][A-Za-z0-9_]*=", t)]
+                while words and (os.path.basename(words[0]) in LEAK_SKIP_WORDS or (words[0].startswith("-") and words[0] != "-")):
+                    words = words[1:]
+                cmd = os.path.basename(words[0]) if words else ""
+                if cmd in LEAK_GREP_CMDS:
+                    read |= here - _grep_names_only(words[1:], here)
+                elif cmd not in LEAK_NAME_CMDS:
+                    read |= here
+            segment = []
+        else:
+            segment.append(token)
+    return read
+
+
+def classify_protected(name, arguments):
+    """The protected paths a tool call names and, of those, the ones whose content it returns (the leak tiers)."""
+    if not isinstance(arguments, dict):
+        arguments = {"raw": arguments}
+    named = {m.rstrip("/") for m in PROTECTED.findall(json.dumps(arguments))}
+    if not named:
+        return set(), set()
+    if name in LEAK_READ_TOOLS:
+        return named, {p for p in named if p not in PROTECTED_DIRS}  # viewing a directory lists it
+    if name in LEAK_NAMED_TOOLS:
+        return named, set()
+    if name in LEAK_SEARCH_TOOLS:
+        pattern = str(arguments.get("pattern") or arguments.get("query") or "")
+        mode = str(arguments.get("output_mode") or ("files_with_matches" if name == "Grep" else "content"))
+        if mode != "content" or arguments.get("-l") or arguments.get("files_with_matches"):
+            return named, set()
+        return named, {p for p in named if p not in pattern}
+    command = arguments.get("command")
+    if isinstance(command, str):
+        return named, _command_reads(command, named)
+    return named, set(named)  # edits, writes, unknown tools: content reached or changed; counted as read
+
+
+def leak_fields(calls):
+    """`calls` yields (tool name, arguments). Returns the four leak fields for a trial row."""
+    access = read = 0
+    named_paths, read_paths = set(), set()
+    for name, arguments in calls:
+        named, reads = classify_protected(name, arguments)
+        access += bool(named)
+        read += bool(reads)
+        named_paths |= named
+        read_paths |= reads
+    return {"protected_path_access": access, "protected_path_read": read,
+            "harness_paths_read": sorted(named_paths), "harness_paths_content": sorted(read_paths)}
 # A skill file other than SKILL.md named in a tool call's arguments (PLAN §7 ruling 8, `references_read`):
 # the image copies each set to /app/.github/skills and /opt/agent-skills. Copilot reads them with `view`,
 # VS Code with `read_file`, either may `cat` them. Search tools (grep, glob, rg over the folder) name no file
@@ -498,18 +622,12 @@ def analyze_trial(result_path, entry):
     row["mcp_calls"] = {name: n for name, n in counts.items() if name and name.startswith("aspire-")}
     row["skills_loaded"] = [t.get("arguments", {}).get("skill") for t in tools if t.get("toolName") == "skill"]
     aspire = collections.Counter()
-    protected = 0
-    harness_paths = set()
     for tool in tools:
         text = json.dumps(tool.get("arguments", {}))
-        matches = PROTECTED.findall(text)
-        protected += bool(matches)
-        harness_paths.update(m.rstrip("/") for m in matches)
         if tool.get("toolName") in ("bash", "write_bash"):
             aspire.update(re.sub(r"\s+", " ", m) for m in ASPIRE_COMMAND.findall(text))
     row["aspire_cli"] = dict(aspire)
-    row["protected_path_access"] = protected
-    row["harness_paths_read"] = sorted(harness_paths)
+    row.update(leak_fields((t.get("toolName"), t.get("arguments", {})) for t in tools))
     row["references_read_paths"] = references_read((t.get("toolName"), t.get("arguments", {})) for t in tools)
     row["references_read"] = len(row["references_read_paths"])
     # Phase timing, relative to the first trajectory event.
@@ -859,17 +977,13 @@ def analyze_atif(trial_dir, entry, row):
         # A call the harness refused (tool not allowed) still counts in mcp_calls; this says how many.
         row["mcp_permission_denied"] = sum(bool(c["name"].startswith("aspire-") and CLAUDE_PERMISSION_DENIED.search(c["result"]))
                                            for c in calls if c["name"])
-    aspire, protected, harness_paths = collections.Counter(), 0, set()
+    aspire = collections.Counter()
     for call in calls:
         text = json.dumps(call["arguments"])
-        matches = PROTECTED.findall(text)
-        protected += bool(matches)
-        harness_paths.update(m.rstrip("/") for m in matches)
         if "command" in call["arguments"]:  # a terminal tool: bash, run_in_terminal, ...
             aspire.update(re.sub(r"\s+", " ", m) for m in ASPIRE_COMMAND.findall(text))
     row["aspire_cli"] = dict(aspire)
-    row["protected_path_access"] = protected
-    row["harness_paths_read"] = sorted(harness_paths)
+    row.update(leak_fields((c["name"], c["arguments"]) for c in calls))
     row["references_read_paths"] = references_read((c["name"], c["arguments"]) for c in calls)
     row["references_read"] = len(row["references_read_paths"])
     started = next((began(i) for i in range(len(steps)) if stamps[i]), None)
@@ -1054,17 +1168,13 @@ def analyze_vscode(trial_dir, entry, row):
     row["tool_counts"] = dict(counts)
     row["mcp_calls"] = {name: n for name, n in counts.items() if name and name.startswith("aspire-")}
     row["skills_loaded"] = [skill for skill in map(skill_of, calls) if skill]
-    aspire, protected, harness_paths = collections.Counter(), 0, set()
+    aspire = collections.Counter()
     for call in calls:
         text = json.dumps(call["arguments"])
-        matches = PROTECTED.findall(text)
-        protected += bool(matches)
-        harness_paths.update(m.rstrip("/") for m in matches)
         if "command" in call["arguments"]:  # run_in_terminal, also inside the execution subagent
             aspire.update(re.sub(r"\s+", " ", m) for m in ASPIRE_COMMAND.findall(text))
     row["aspire_cli"] = dict(aspire)
-    row["protected_path_access"] = protected
-    row["harness_paths_read"] = sorted(harness_paths)
+    row.update(leak_fields((c["name"], c["arguments"]) for c in calls))
     row["references_read_paths"] = references_read((c["name"], c["arguments"]) for c in calls)
     row["references_read"] = len(row["references_read_paths"])
     started = at(main["start_time_ms"]) if main else at(spans[0]["start_time_ms"])
