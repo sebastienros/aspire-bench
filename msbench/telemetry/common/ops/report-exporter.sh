@@ -12,9 +12,11 @@ child=""
 trap 'kill "$child" 2>/dev/null; exit 0' TERM INT
 trap 'kill "$child" 2>/dev/null' EXIT
 resolve() {
-    # The cache publishes its plain-text port (6380 when it also serves TLS) on this host
-    # and may require a password.
-    port="$(docker port "$container" 6380/tcp 2>/dev/null | head -1 | sed 's/.*://')"
+    # The cache's plain-text container port is the redis-server --port argument (6380 on Aspire
+    # dailies before 2026-11-20, 6379 after microsoft/aspire#22350; the other one is TLS). Aspire
+    # publishes it on this host, and the cache may require a password.
+    plain="$(docker inspect -f '{{join .Args " "}}' "$container" 2>/dev/null | sed -n 's/.* --port \([0-9]*\).*/\1/p')"
+    port="$(docker port "$container" "${plain:-6379}/tcp" 2>/dev/null | head -1 | sed 's/.*://')"
     [ -n "$port" ] || port="$(docker port "$container" 6379/tcp 2>/dev/null | head -1 | sed 's/.*://')"
     password="$(docker inspect -f '{{range .Config.Env}}{{println .}}{{end}}' "$container" 2>/dev/null | sed -n 's/^REDIS_PASSWORD=//p')"
 }

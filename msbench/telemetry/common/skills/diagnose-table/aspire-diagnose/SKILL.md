@@ -73,11 +73,12 @@ own tool, running it inside the resource's container so no credentials or ports 
 ```bash
 aspire describe <resource> --format Json   # properties."container.id", urls, healthReports
 docker exec <container.id> sh -c 'PGPASSWORD="$POSTGRES_PASSWORD" psql -U postgres -d <database> -c "<sql>"'
-docker exec <container.id> sh -c 'REDISCLI_AUTH="$REDIS_PASSWORD" redis-cli -p 6380 <command>'
+docker exec <container.id> sh -c 'for p in 6379 6380; do REDISCLI_AUTH="$REDIS_PASSWORD" redis-cli -p $p PING >/dev/null 2>&1 && break; done; REDISCLI_AUTH="$REDIS_PASSWORD" redis-cli -p $p <command>'
 ```
 
-Aspire's Redis container serves TLS on 6379 and plain TCP on 6380, so a bare `redis-cli`
-inside it fails with an I/O error; use `-p 6380` (or `--tls --insecure`).
+Aspire's Redis container serves TLS on one of 6379/6380 and plain TCP on the other (which is which
+changed on 2026-11-20), so a bare `redis-cli` can land on the TLS port and fail with an I/O error;
+the loop above finds the plain port with a PING.
 
 For a slow SQL statement run it under `EXPLAIN (ANALYZE, BUFFERS)` in a transaction you
 roll back, and check triggers, indexes, and locks on the table (`\d+ "<table>"`,

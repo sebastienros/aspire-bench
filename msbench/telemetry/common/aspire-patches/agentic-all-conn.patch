@@ -192,14 +192,14 @@ index 0000000000..7c5ccf861b
 +        }
 +        else if (lower.Contains("redis", StringComparison.Ordinal) || lower.Contains("valkey", StringComparison.Ordinal) || lower.Contains("garnet", StringComparison.Ordinal))
 +        {
-+            // Aspire's Redis container serves TLS on 6379 and plain TCP on 6380 when TLS is on.
++            // With TLS on, one of 6379/6380 is TLS and the other plain (swapped by microsoft/aspire#22350), so the command probes for the plain one.
 +            var tls = snapshot.Urls.Any(url => url.Url.StartsWith("rediss://", StringComparison.OrdinalIgnoreCase));
 +            var auth = credentialNames.Contains("REDIS_PASSWORD") ? "REDISCLI_AUTH=\"$REDIS_PASSWORD\" " : string.Empty;
-+            text.AppendLine(CultureInfo.InvariantCulture, $"docker exec {containerId} sh -c '{auth}redis-cli -p {(tls ? 6380 : 6379)} <command>'");
++            text.AppendLine("docker exec " + containerId + " sh -c '" + (tls ? "for p in 6379 6380; do " + auth + "redis-cli -p $p PING >/dev/null 2>&1 && break; done; " + auth + "redis-cli -p $p" : auth + "redis-cli") + " <command>'");
 +            text.AppendLine("For example <command> = SLOWLOG GET 10 (commands that blocked the server, with their client), CLIENT LIST (every connection and its last command), INFO commandstats");
 +            if (tls)
 +            {
-+                text.AppendLine("Port 6379 inside the container is TLS; a bare redis-cli on it fails with an I/O error.");
++                text.AppendLine("One of 6379/6380 inside the container is TLS (which one depends on the Aspire version); a bare redis-cli on it fails with an I/O error, so the command above probes with PING first.");
 +            }
 +        }
 +        else if (lower.Contains("rabbitmq", StringComparison.Ordinal))

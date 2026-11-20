@@ -60,8 +60,9 @@ async function redis(prefix = twoApp ? targetPrefix : null) {
 }
 
 // Runs redis-cli inside the cache container. The container may require a password
-// (REDIS_PASSWORD) and, on Aspire main, serves TLS on 6379 with plain TCP on 6380, so the
-// working port is probed first.
+// (REDIS_PASSWORD) and, on Aspire main, serves TLS on one of 6379/6380 with plain TCP on the
+// other (swapped by microsoft/aspire#22350 on 2026-11-20), so the working port is probed first:
+// the bare default, then -p 6380, then TLS.
 const redisCliPrelude = '[ -n "${REDIS_PASSWORD:-}" ] && export REDISCLI_AUTH="$REDIS_PASSWORD"; opts=""; for o in "" "-p 6380" "--tls --insecure"; do if redis-cli --no-auth-warning $o PING 2>/dev/null | grep -q PONG; then opts="$o"; break; fi; done; ';
 async function redisCli(args, { timeout = 180_000, raw = true, prefix } = {}) {
     const name = await redis(prefix);

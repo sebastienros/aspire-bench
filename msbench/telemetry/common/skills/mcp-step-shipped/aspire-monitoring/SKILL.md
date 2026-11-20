@@ -67,8 +67,9 @@ When something is wrong, investigate before editing code:
    container (no host port or password needed):
    `aspire describe <resource> --format Json` gives `properties."container.id"`; then
    `docker exec <container.id> sh -c 'PGPASSWORD="$POSTGRES_PASSWORD" psql -U postgres -d <database> -c "<sql>"'` or
-   `docker exec <container.id> sh -c 'REDISCLI_AUTH="$REDIS_PASSWORD" redis-cli -p 6380 SLOWLOG GET 10'`
-   (Aspire's Redis serves TLS on 6379; `CLIENT LIST` shows every connection and its last command).
+   `docker exec <container.id> sh -c 'for p in 6379 6380; do REDISCLI_AUTH="$REDIS_PASSWORD" redis-cli -p $p PING >/dev/null 2>&1 && break; done; REDISCLI_AUTH="$REDIS_PASSWORD" redis-cli -p $p SLOWLOG GET 10'`
+   (one of 6379/6380 is TLS inside Aspire's Redis container and the loop finds the plain one; `CLIENT LIST` shows every
+   connection and its last command).
 
 ## Local Commands Reference
 

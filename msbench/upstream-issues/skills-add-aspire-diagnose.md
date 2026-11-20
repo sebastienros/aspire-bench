@@ -27,8 +27,8 @@ version is in the aspire-bench repository under
 2. **Explain one trace** as JSON by ID, with a short table of what span patterns mean
    (one slow child; many similar children; uncovered time; error under a 200).
 3. **Confirm at the dependency**, with the exact commands: `docker exec <container.id>
-   psql …` for PostgreSQL, `docker exec … redis-cli -p 6380 SLOWLOG GET 10` and
-   `CLIENT LIST` for Redis, using `container.id` from `aspire describe`.
+   psql …` for PostgreSQL, `docker exec … redis-cli SLOWLOG GET 10` and
+   `CLIENT LIST` for Redis on its plain port (the skill probes 6379 then 6380 with a PING, since Aspire serves TLS on one of them), using `container.id` from `aspire describe`.
 4. **Fix** the smallest thing that removes the cause; do not restart or flush by default.
 5. **Verify** with the same filter as step 1.
 

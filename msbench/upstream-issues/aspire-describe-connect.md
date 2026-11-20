@@ -25,7 +25,7 @@ Add to each resource in `aspire describe --format Json` (and the MCP resource li
 
 ```json
 "connect": {
-  "command": "docker exec <container> sh -c 'REDISCLI_AUTH=\"$REDIS_PASSWORD\" exec redis-cli -p 6380 \"$@\"' sh",
+  "command": "docker exec <container> sh -c 'REDISCLI_AUTH=\"$REDIS_PASSWORD\" exec redis-cli -p <plain-port> \"$@\"' sh",
   "runs": "container",
   "tool": "redis-cli",
   "append": "<command>, for example INFO",
@@ -33,7 +33,8 @@ Add to each resource in `aspire describe --format Json` (and the MCP resource li
 }
 ```
 
-`command` ends where the client's own arguments go; credentials stay in the container (only variable names are
+`command` ends where the client's own arguments go (the integration fills in literals such as the plain port, which for Redis
+moved from 6380 to 6379 in PR 22350); credentials stay in the container (only variable names are
 printed); `runs` is `host` when the image has no client (the command then uses the published port). Each hosting
 integration should declare its own entry (it knows its ports, TLS setup and credential variables), rather than the
 CLI matching image names.

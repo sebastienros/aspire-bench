@@ -65,7 +65,7 @@ index 4c29321fe6..68c534971e 100644
              Each page reads current state; restart from offset 0 if resource membership changes while paging.
 +            To confirm a diagnosis at a database or cache, leave MCP and use the shell: `aspire describe <resource> --format Json` gives its properties."container.id"; then run the resource's own client inside the container, which needs no host port or password:
 +              docker exec <container.id> sh -c 'PGPASSWORD="$POSTGRES_PASSWORD" psql -U postgres -d <database> -c "<sql>"'
-+              docker exec <container.id> sh -c 'REDISCLI_AUTH="$REDIS_PASSWORD" redis-cli -p 6380 <command>'   (6379 is TLS; SLOWLOG GET 10, CLIENT LIST)
++              docker exec <container.id> sh -c 'for p in 6379 6380; do REDISCLI_AUTH="$REDIS_PASSWORD" redis-cli -p $p PING >/dev/null 2>&1 && break; done; REDISCLI_AUTH="$REDIS_PASSWORD" redis-cli -p $p <command>'   (one of 6379/6380 is TLS, the loop finds the plain one; SLOWLOG GET 10, CLIENT LIST)
  
              # PAGINATION
  

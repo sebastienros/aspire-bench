@@ -9,7 +9,7 @@
     { "row": "redis", "hosting": "Redis", "add": "builder.AddRedis(\"redis\")", "client": "redis", "resource": "redis",
       "tool": "redis-cli", "generic": "REDISCLI_AUTH=\"$REDIS_PASSWORD\" redis-cli PING", "expect": "PONG",
       "alternatives": ["REDISCLI_AUTH=\"$REDIS_PASSWORD\" redis-cli -p 6380 PING", "REDISCLI_AUTH=\"$REDIS_PASSWORD\" redis-cli --tls --insecure PING"],
-      "marker": { "write": "REDISCLI_AUTH=\"$REDIS_PASSWORD\" redis-cli -p 6380 SET audit:marker kept", "read": "REDISCLI_AUTH=\"$REDIS_PASSWORD\" redis-cli -p 6380 GET audit:marker" } },
+      "marker": { "write": "for p in 6379 6380; do REDISCLI_AUTH=\"$REDIS_PASSWORD\" redis-cli -p $p PING >/dev/null 2>&1 && break; done; REDISCLI_AUTH=\"$REDIS_PASSWORD\" redis-cli -p $p SET audit:marker kept", "read": "for p in 6379 6380; do REDISCLI_AUTH=\"$REDIS_PASSWORD\" redis-cli -p $p PING >/dev/null 2>&1 && break; done; REDISCLI_AUTH=\"$REDIS_PASSWORD\" redis-cli -p $p GET audit:marker" } },
     { "row": "sqlserver", "hosting": "SqlServer", "add": "builder.AddSqlServer(\"sqlserver\")", "client": "sqlserver", "resource": "sqlserver", "platform": "linux/amd64",
       "tool": "/opt/mssql-tools18/bin/sqlcmd", "generic": "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$MSSQL_SA_PASSWORD\" -h -1 -Q 'set nocount on; select 1'", "expect": "1",
       "alternatives": ["/opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P \"$MSSQL_SA_PASSWORD\" -h -1 -Q 'set nocount on; select 1'"],
