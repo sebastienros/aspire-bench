@@ -23,13 +23,15 @@ running app (8 resources, one slow endpoint), captured on the 2026-11-09 daily (
 | `list_resources {}` | 10,321 chars (mostly command descriptions) |
 
 A `search` filter does not shrink the response, it only changes which traces fill it, and the response ends with
-"Returned latest 21 traces. Earlier 118 traces not returned because of size limits". There is no way to ask for
-fewer traces, for one trace by id, or for logs of one severity.
+"Returned latest 21 traces. Earlier 118 traces not returned because of size limits". The three telemetry tools take only `search`; `list_resources`
+already pages with `offset` and `limit`, and `list_trace_structured_logs` takes a `traceId` for the logs of one trace,
+but there is no way to ask for fewer traces, for one trace's detail by id, or for logs of one severity. The tools
+are unchanged between the capture and current `main` (no commit under `src/Aspire.Cli/Mcp/Tools` since 2026-11-09).
 
 What the agent then reads depends on the harness, not on the server. Copilot CLI (1.0.99) writes any tool result
 over about 20 KB to a file and shows the model an 837-character notice with the first 500 characters; in 54
-diagnosis trials against the shipped server that happened 137 times, followed by 114 `rg`/`view` reads of the spill
-files. VS Code's agent mode defers MCP tools behind `tool_search`, so a model that does not search for them never
+diagnosis trials against the shipped server that happened 137 times for MCP results (168 counting spilled shell output), followed by 114 `rg`/`view` reads
+of the spill files. VS Code's agent mode defers MCP tools behind `tool_search`, so a model that does not search for them never
 calls them (one model called no Aspire MCP tool in 12 trials on two scenarios). A size measured at the server is
 therefore not the size an agent reads, but a default response that no common harness passes whole is a response
 that reaches the model as a pointer to a file.
@@ -44,7 +46,8 @@ that let an agent ask for less:
   `format: full` option for callers that want it.
 - `list_structured_logs`: `limit` and `severity`.
 - `list_console_logs`: `limit` and a head/tail choice.
-- `list_resources`: move command descriptions out of the default listing.
+- `list_resources`: move the command descriptions out of the default listing (its `offset`/`limit` paging already
+  exists; the size is in the per-resource text, not the count).
 
 A patch for the first two is attached as a starting point (`0001-mcp-compact-telemetry.patch` in the aspire-bench
 repository: 3 files, 25 unit tests passing, 5 new). With it, `list_traces {}` drops from 31,797 to 8,988 characters,

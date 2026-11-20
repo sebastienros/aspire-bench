@@ -67,7 +67,7 @@ MCP), pooled over the pin's rounds; p from an exact Mann-Whitney test, intervals
 - **Against the raw app:** parity on the two faults whose evidence is in the app's log. Luna 0.80× on slow SQL
   [0.71–1.05] and 0.85× on read-only [0.56–1.23], terra 1.00× [0.95–1.05] and 0.94× [0.90–0.99], none significant on
   time; tokens −21 % (luna slow SQL, p = 0.041) to +9 %. The original step-1 text was 1.23× on terra slow SQL
-  (p = 0.006), which is what the revision addressed. The strong models pay for waiting on fresh telemetry before
+  (p = 0.006), a cross-round comparison; the revision was made for another fault (stuck work), not for this cell. The strong models pay for waiting on fresh telemetry before
   confirming a fix: Opus 1.45× on slow SQL (p = 0.026) and 1.35× on read-only (p = 0.065), sol 1.21× on read-only
   (p = 0.093); every trial passed.
 - **Decisive where the log is silent** (the blocked cache): luna passed 25 of 30 (29 of 36 over both texts) against
@@ -87,4 +87,6 @@ MCP), pooled over the pin's rounds; p from an exact Mann-Whitney test, intervals
   wrong skill in 2 of 6 trials on the first pin.
 - Step 4's "confirm on fresh traffic" adds 15–45 s per confirmation on `claude-opus-5.5`, which waits for new
   telemetry; a revision that accepts the first clean trace was proposed (PLAN T1.8) and has not been measured.
-- One application, one harness (Copilot CLI); six trials per cell per round.
+- One application, one harness (Copilot CLI); six trials per cell per round. The pooled ratios mix rounds, and the
+  same shipped-set cell moved from 147 to 271 s between rounds, so ratios near 1 are unresolved; the ratios far from
+  1 (shipped set with MCP against raw, lean against shipped set with MCP, the cache pass rates) are not.

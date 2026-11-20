@@ -27,11 +27,12 @@ own luna median moved between 147 and 271 s over four rounds. `gpt-6.1-terra` mo
 body: without it `aspire-monitoring` was loaded in 3 of 6 trials instead of 5 of 6, the slow statement reached the screen
 at 53 s instead of 84 s, with 38 tool calls instead of 63.
 
-**Not a cheapest-model effect.** With the shipped set and MCP against the raw app (that round had no router-free
-arm), `claude-opus-5.5` loaded the router in 9 of 18
+**The stronger models load the same skills.** With the shipped set and MCP against the raw app (that round had no
+router-free arm, so this is what was loaded, not the router's cost), `claude-opus-5.5` loaded the router in 9 of 18
 diagnosis trials, `aspire-monitoring` in 4 and no skill in 5; `gpt-6.2-sol` loaded `aspire-monitoring` 18 of 18
 (router 6 of 18). The shipped set cost both models time on the faults whose evidence is in the app's own log
-(+20 % to +91 %, p ≤ 0.065).
+(+20 % to +91 %, p ≤ 0.065); a router-free set built around a focused diagnosis skill was 1.11× the shipped set on
+Opus slow SQL and 0.71× on read-only, so on Opus the router is not the whole cost.
 
 **On a new job.** "Publish and run the production build locally" on a Docker Compose AppHost, with
 `aspire-deployment` removed from the bundle: the router was loaded first in 5 of 6 luna trials and the bundle took
@@ -45,7 +46,7 @@ shipped-set trials and those three restarted like the rest. A ceiling result: it
 needed here, not that it never prevents anything.
 
 **Every job the router fronted needs an owner.** Start/restart: on a cold start without the router, every luna and
-terra trial loaded `aspire-orchestration` (12 of 12 per model) and time was level with the shipped set (luna 78 s
+terra trial loaded `aspire-orchestration` (6 of 6 per model, as with the router) and time was level with the shipped set (luna 78 s
 against 73 s, p = 0.49; terra 0.99×). We also measured a dedicated 2 KB `aspire-start` skill: 53 s against 61 s on
 luna (1.16×, p = 0.004), nothing on terra or sol, under the 1.20 bar we had set, so we do not propose it. An
 `AGENTS.md` beside the AppHost did the start job as well (proposed separately on microsoft/aspire). Diagnosis:

@@ -1409,8 +1409,11 @@ notice instead: the size, the path, advice to use `rg`/`view`/`jq`, and the firs
 (results spilled in these rounds: 20.3 to 70.7 KB; largest result passed whole: 18.2 KB). The unpatched
 MCP `list_traces` (about 30 KB at every call, "Returned latest 21 traces. Earlier 118 traces not returned
 because of size limits") is spilled every time, and so are the large `list_structured_logs` and
-`list_resources` results: 137 spills in 54 unpatched-server trials, followed by 114 `rg`/`view` reads of the
-spill files. With the compact server (patch 0001) 28 spills in 54 trials and 10 reads (re-derived 2026-11-20 with the audited reader, which reads the agent's own trajectory copy; the pre-audit harness copy gave 168 and 125, 31 and 12). Copilot's
+`list_resources` results: 168 spill notices in 54 unpatched-server trials, 137 of them MCP results (the rest spilled
+`bash` and `rg` output), followed by 114 `rg`/`view` reads of the spill files. With the compact server (patch 0001) 31
+notices, 28 of them MCP, and 10 reads (re-derived 2026-11-20 with the audited reader: the spill counts are unchanged
+from the first write-up, which did not say that 168 and 31 count every tool; the read counts were first written as
+125 and 12 and do not reproduce). Copilot's
 `detailedContent` keeps the full text, so `tool_result_chars` (which counts it) reports bytes the model never
 saw; `tool_result_content_chars` counts what it saw.
 
