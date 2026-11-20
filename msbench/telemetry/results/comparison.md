@@ -869,6 +869,60 @@ they are listed in trials.jsonl and excluded from every other column.
 
 # Pin 2026-11-19: Aspire 17.1.0-preview.1.26569.1+4ad3cfe6, aspire-skills v0.0.6 (e529b608)
 
+## cold-start / gpt-6-luna
+
+| Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| raw | 5 | 5/5 | 5/5 | 37 (+0%) | 64,246 (+0%) | 0.003 (+0%) | 8 | - | - |
+| aspire-cli | 5 | 5/5 | 5/5 | 47 (+26%) | 96,795 (+51%) | 0.003 (+2%) | 7 | - | - |
+| aspire-skills-mcp | 5 | 5/5 | 5/5 | 48 (+28%) | 137,614 (+114%) | 0.005 (+74%) | 7 | - | - |
+| aspire-lean | 5 | 5/5 | 5/5 | 47 (+26%) | 127,411 (+98%) | 0.005 (+68%) | 10 | - | - |
+
+## cold-start / gpt-6.1-terra
+
+| Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| raw | 4 | 4/4 | 4/4 | 41 (+0%) | 49,517 (+0%) | 0.020 (+0%) | 4 | - | 1 |
+| aspire-cli | 5 | 5/5 | 5/5 | 50 (+21%) | 74,944 (+51%) | 0.022 (+9%) | 8 | - | - |
+| aspire-skills-mcp | 5 | 5/5 | 5/5 | 52 (+27%) | 133,993 (+171%) | 0.035 (+74%) | 9 | - | - |
+| aspire-lean | 5 | 5/5 | 5/5 | 51 (+25%) | 124,143 (+151%) | 0.033 (+62%) | 9 | - | - |
+
+## slow-redis / gpt-6-luna
+
+| Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| raw | 5 | 0/5 | 0/5 | 170 (+0%) | 771,178 (+0%) | 0.022 (+0%) | 41 | 109 | - |
+| aspire-cli | 5 | 0/5 | 0/5 | 148 (-13%) | 770,353 (-0%) | 0.022 (+1%) | 46 | 8 | - |
+| aspire-skills-mcp | 5 | 0/5 | 0/5 | 151 (-11%) | 1,226,518 (+59%) | 0.026 (+20%) | 50 | - | - |
+| aspire-lean | 5 | 4/5 | 4/5 | 76 (-55%) | 497,417 (-35%) | 0.015 (-30%) | 36 | 24 | - |
+
+## slow-redis / gpt-6.1-terra
+
+| Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| raw | 5 | 5/5 | 5/5 | 156 (+0%) | 417,421 (+0%) | 0.105 (+0%) | 26 | 4 | - |
+| aspire-cli | 5 | 5/5 | 5/5 | 146 (-6%) | 607,067 (+45%) | 0.117 (+12%) | 39 | 31 | - |
+| aspire-skills-mcp | 5 | 5/5 | 5/5 | 118 (-24%) | 477,706 (+14%) | 0.105 (+0%) | 29 | 4 | - |
+| aspire-lean | 5 | 5/5 | 5/5 | 48 (-69%) | 231,241 (-45%) | 0.058 (-45%) | 21 | 14 | - |
+
+## slow-sql / gpt-6-luna
+
+| Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| raw | 5 | 5/5 | 5/5 | 95 (+0%) | 487,607 (+0%) | 0.014 (+0%) | 34 | 21 | - |
+| aspire-cli | 5 | 4/5 | 4/5 | 134 (+41%) | 917,134 (+88%) | 0.022 (+56%) | 49 | 32 | - |
+| aspire-skills-mcp | 5 | 4/5 | 4/5 | 166 (+75%) | 1,126,728 (+131%) | 0.027 (+89%) | 58 | 59 | - |
+| aspire-lean | 5 | 5/5 | 5/5 | 55 (-42%) | 302,780 (-38%) | 0.010 (-32%) | 28 | 15 | - |
+
+## slow-sql / gpt-6.1-terra
+
+| Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| raw | 5 | 5/5 | 5/5 | 62 (+0%) | 206,944 (+0%) | 0.058 (+0%) | 19 | 14 | - |
+| aspire-cli | 5 | 5/5 | 5/5 | 73 (+18%) | 372,795 (+80%) | 0.076 (+30%) | 32 | 30 | - |
+| aspire-skills-mcp | 5 | 5/5 | 5/5 | 92 (+49%) | 492,105 (+138%) | 0.103 (+76%) | 32 | 30 | - |
+| aspire-lean | 5 | 5/5 | 5/5 | 57 (-7%) | 203,594 (-2%) | 0.057 (-3%) | 17 | 21 | - |
+
 # Skill references read
 
 Distinct skill files other than `SKILL.md` a trial opened (`references_read` in trials.jsonl, from the
@@ -980,4 +1034,12 @@ tool calls' arguments; search results are not reads). Later pins only; cells whe
 | two-app | gpt-6-luna | aspire-skills-noorchestration | 6 | 1/6 | 0 | `aspire-monitoring/references/monitoring.md` 1 |
 | two-app | gpt-6.1-terra | aspire-skill-orchestration | 6 | 1/6 | 0 | `aspire-orchestration/references/resource-management.md` 1 |
 | slow-sql | gpt-6-luna | aspire-skills-mcp / vscode | 11 | 1/11 | 0 | `aspire-orchestration/references/agent-workflows.md` 1, `aspire-orchestration/references/resource-management.md` 1 |
+
+## Pin 2026-11-19
+
+| Scenario | Model | Arm | n | Trials reading one | Median per trial | Files (trials) |
+|---|---|---|---:|---:|---:|---|
+| cold-start | gpt-6-luna | aspire-lean | 5 | 5/5 | 2 | `aspire-orchestration/references/detection.md` 5, `aspire-orchestration/references/app-commands.md` 4, `aspire-orchestration/references/agent-workflows.md` 1 |
+| slow-redis | gpt-6-luna | aspire-skills-mcp | 5 | 1/5 | 0 | `aspire-monitoring/references/monitoring.md` 1 |
+| slow-sql | gpt-6-luna | aspire-skills-mcp | 5 | 1/5 | 0 | `aspire-monitoring/references/monitoring.md` 1 |
 

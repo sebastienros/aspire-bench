@@ -867,3 +867,57 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 
 # Pin 2026-11-19: Aspire 17.1.0-preview.1.26569.1+4ad3cfe6, aspire-skills v0.0.6 (e529b608)
 
+## cold-start / gpt-6-luna
+
+| Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
+| aspire-cli | 5/5 | 47 | - | - | 96,795 | 678 | 0.003 | 7 | customize-cloud-agentx1 | 0 | 21,653 |
+| aspire-lean | 5/5 | 47 | - | - | 127,411 | 820 | 0.005 | 10 | aspire-orchestrationx5 | 0 | 57,864 |
+| aspire-skills-mcp | 5/5 | 48 | - | - | 137,614 | 611 | 0.005 | 7 | aspirex5, aspire-orchestrationx5 | 1 | 21,236 |
+| raw | 5/5 | 37 | - | - | 64,246 | 798 | 0.003 | 8 | - | 0 | 22,277 |
+
+## cold-start / gpt-6.1-terra
+
+| Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
+| aspire-cli | 5/5 | 50 | - | - | 74,944 | 472 | 0.022 | 8 | - | 0 | 26,043 |
+| aspire-lean | 5/5 | 51 | - | - | 124,143 | 453 | 0.033 | 9 | aspire-orchestrationx5 | 0 | 22,115 |
+| aspire-skills-mcp | 5/5 | 52 | - | - | 133,993 | 463 | 0.035 | 9 | aspire-orchestrationx5 | 0 | 22,127 |
+| raw | 4/4 | 41 | - | - | 49,517 | 310 | 0.020 | 4 | - | 0 | 16,550 |
+
+## slow-redis / gpt-6-luna
+
+| Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
+| aspire-cli | 0/5 | 148 | 8 | - | 770,353 | 11,758 | 0.022 | 46 | - | 0 | 249,299 |
+| aspire-lean | 4/5 | 76 | 24 | 38 | 497,417 | 6,863 | 0.015 | 36 | aspire-diagnosex5 | 0 | 226,956 |
+| aspire-skills-mcp | 0/5 | 151 | - | - | 1,226,518 | 10,377 | 0.026 | 50 | aspirex3, aspire-monitoringx3 | 12 | 452,318 |
+| raw | 0/5 | 170 | 109 | 149 | 771,178 | 13,868 | 0.022 | 41 | - | 0 | 218,071 |
+
+## slow-redis / gpt-6.1-terra
+
+| Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
+| aspire-cli | 5/5 | 146 | 31 | 95 | 607,067 | 5,658 | 0.117 | 39 | - | 0 | 220,286 |
+| aspire-lean | 5/5 | 48 | 14 | 32 | 231,241 | 1,669 | 0.058 | 21 | aspire-diagnosex5 | 0 | 123,008 |
+| aspire-skills-mcp | 5/5 | 118 | 4 | 74 | 477,706 | 4,476 | 0.105 | 29 | aspire-monitoringx5 | 5 | 290,258 |
+| raw | 5/5 | 156 | 4 | 85 | 417,421 | 6,286 | 0.105 | 26 | - | 0 | 114,291 |
+
+## slow-sql / gpt-6-luna
+
+| Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
+| aspire-cli | 4/5 | 134 | 32 | 60 | 917,134 | 11,845 | 0.022 | 49 | - | 0 | 303,815 |
+| aspire-lean | 5/5 | 55 | 15 | 29 | 302,780 | 4,343 | 0.010 | 28 | aspire-diagnosex5 | 0 | 141,661 |
+| aspire-skills-mcp | 4/5 | 166 | 59 | 83 | 1,126,728 | 14,453 | 0.027 | 58 | aspirex2, aspire-monitoringx5, aspire-orchestrationx1 | 11 | 473,495 |
+| raw | 5/5 | 95 | 21 | 44 | 487,607 | 7,063 | 0.014 | 34 | - | 0 | 196,382 |
+
+## slow-sql / gpt-6.1-terra
+
+| Arm | Pass | Agent s | To root cause s | To first fix s | Input tok | Output tok | Cost USD | Tools | Skills loaded | MCP calls | Tool output chars |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
+| aspire-cli | 5/5 | 73 | 30 | 44 | 372,795 | 2,874 | 0.076 | 32 | - | 0 | 161,665 |
+| aspire-lean | 5/5 | 57 | 21 | 34 | 203,594 | 2,029 | 0.057 | 17 | aspire-diagnosex5 | 0 | 145,815 |
+| aspire-skills-mcp | 5/5 | 92 | 30 | 54 | 492,105 | 2,995 | 0.103 | 32 | aspire-monitoringx5 | 6 | 406,360 |
+| raw | 5/5 | 62 | 14 | 32 | 206,944 | 2,258 | 0.058 | 19 | - | 0 | 123,941 |
+

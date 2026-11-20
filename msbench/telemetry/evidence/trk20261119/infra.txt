@@ -1,0 +1,3 @@
+rounds ['trk20261119']: 120 submitted, 120 trials read
+infrastructure losses to re-run once: 1
+  2026112009238008 cold-start raw gpt-6.1-terra: infrastructure_failure (RuntimeError, 5xx None)
