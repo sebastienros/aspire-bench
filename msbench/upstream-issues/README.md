@@ -17,10 +17,16 @@ repo: microsoft/aspire         # owner/name of the target repository
 title: Issue title as it should appear upstream
 finding: F22                   # finding ID in FINDINGS.md
 labels: []                     # optional; only labels the repo already has
-status: draft                  # draft | filed
+status: draft                  # draft | filed | superseded (fixed upstream before filing; issue: holds the PR)
 issue:                         # URL once filed
 ---
 ```
+
+## Wording
+
+Write for the maintainers. The MSBench model ids (`gpt-6-luna`, `gpt-6.1-terra`, `gpt-6.2-sol`, `claude-opus-5.5`) may be
+named in a filed issue when the text says the numbers come from MSBench (decided 2026-11-20); "the cheapest model"
+wording is also fine. Nothing from the VS Code evaluation agent's internals goes in.
 
 ## Filing
 
@@ -35,7 +41,7 @@ finding's **Limits / status** line. Keep the file; it is the record of what was 
 
 | File | Repo | Finding | Ask |
 |---|---|---|---|
-| [aspire-redis-default-ports.md](aspire-redis-default-ports.md) | microsoft/aspire | F22 | Plain Redis on 6379, TLS on 6380; or a hint where the agent looks |
+| [aspire-redis-default-ports.md](aspire-redis-default-ports.md) | microsoft/aspire | F22 | **Superseded** by [PR 22350](https://github.com/microsoft/aspire/pull/22350) (merged 2026-11-20): plain Redis on 6379, TLS on 6380. Not filed |
 | [aspire-mcp-compact-telemetry.md](aspire-mcp-compact-telemetry.md) | microsoft/aspire | F18 | Compact `list_traces` / `list_structured_logs` (patch 0001); same for `list_resources` and `list_console_logs` |
 | [aspire-cli-plain-output.md](aspire-cli-plain-output.md) | microsoft/aspire | F19 | No borders or dashboard links when redirected (patch 0002); SQL text in the trace table |
 | [aspire-start-blocking.md](aspire-start-blocking.md) | microsoft/aspire | F21 | A start that waits for health and prints endpoints |

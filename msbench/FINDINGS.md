@@ -1068,7 +1068,7 @@ close that gap, one of which should be done:
 fallback. Draft: [upstream-issues/aspire-redis-default-ports.md](upstream-issues/aspire-redis-default-ports.md);
 link the filed issue here.
 
-**Limits / status:** Observed on the pinned daily only; not checked on the 13.x line.
+**Limits / status:** Observed on the pinned dailies up to `26569.1` (2026-11-19); not checked on the 13.x line. **Fixed upstream, not filed:** microsoft/aspire PR 22350 (merged 2026-11-20, commit `f6af8fce`) swaps the container ports so the primary TLS endpoint targets 6380 and the non-TLS secondary 6379; the first daily after `26569.1` carries it, and the draft is marked superseded. **What assumes the old layout here** and must change before the next re-pin lands on a daily with the fix: every `aspire-diagnose` variant's step 3 (`redis-cli -p 6380`, `common/skills/*/aspire-diagnose/SKILL.md` and the `track/common` copies), `mcp-step-shipped/aspire-monitoring`, the `agentic-all-conn` and `agentic-all-hint` patches, `common/ops/report-exporter.sh` (`docker port … 6380/tcp`) and `audit/integration/rows.json`. The port-agnostic form is to read the plain port from the container's `--port` argument (as the connect hint already derives it) rather than to swap the literal; the T2.6 `connect` block (F50) removes the literal from skills altogether. The pinned task fixtures under `tasks/` stay as measured.
 `aspire-diagnose` updated with the `-p 6380` note before round 6. Not reported upstream.
 Re-checked 2026-11-19 at pin 2026-11-17 by the integration audit (T4.1, [F38](#f38-the-generic-client-recipe-works-inside-6-of-15-aspire-hosting-integrations-containers)):
 unchanged (`redis-cli PING` → `I/O error … Connection reset by peer`; `-p 6380` → `PONG`). MongoDB has the same

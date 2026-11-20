@@ -3,9 +3,15 @@ repo: microsoft/aspire
 title: "AddRedis: plain port on 6380 breaks the generic `redis-cli` command inside the container"
 finding: F22
 labels: []
-status: draft
-issue:
+status: superseded
+issue: https://github.com/microsoft/aspire/pull/22350
 ---
+
+> **Superseded, not filed.** microsoft/aspire PR 22350 ("Use conventional Redis TLS and non-TLS target ports", merged
+> 2026-11-20, commit `f6af8fce`) does what the primary proposal asks: with TLS enabled the primary endpoint now targets
+> container port 6380 and the secondary non-TLS endpoint 6379. Endpoint names, host ports and connection strings are
+> unchanged. The first daily after `26569.1` carries it. Kept as the record of the measurement; see F22 for what in this
+> repository assumes the old layout.
 
 ## Summary
 

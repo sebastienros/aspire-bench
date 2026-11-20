@@ -14,7 +14,7 @@ port that speaks the plain protocol and the client tool. `aspire describe --form
 the variable names, but whether the vendor's documented client works inside the container depends on the
 integration: an audit of 15 hosting integrations at a recent daily found the generic recipe works for 6
 (PostgreSQL, MySQL, RabbitMQ, Keycloak, Valkey, Seq) and fails for 9 for five different reasons (TLS on the default
-port for Redis and MongoDB, the `SSL_CERT_DIR` list breaking SQL Server's ODBC client, no client in the image for
+port for Redis, fixed on `main` by PR 22350 after the audit, and MongoDB, the `SSL_CERT_DIR` list breaking SQL Server's ODBC client, no client in the image for
 NATS, Azurite, Qdrant and Garnet, Kafka's renamed client and unreachable advertised listener, HTTPS on the Cosmos
 emulator's documented HTTP port). Every skill that tells an agent how to reach a dependency carries a line per
 integration to work around this.
