@@ -2087,6 +2087,46 @@ the round).
 **Limits / status:** One fault, one application, Copilot CLI only, n = 6 per cell. The aggregate reading was found
 after the data and did not change T4.3's word (`row not confirmed` as computed). Not filed; no draft yet.
 
+## F61: MSBench redacts hex ids in the harness's trajectory copy; reading it mis-joined tool calls, and no verdict moved
+
+**Evidence:** [PLAN §9, Reader redaction audit (2026-11-19)](telemetry/PLAN.md#reader-redaction-audit-2026-11-19)
+(census, row-by-row diff, per-card recomputation), covering every extracted run of every round on `main` except `t48`,
+which is still running.
+
+- An extracted Copilot CLI run holds the agent's trajectory twice. `output/copilot-cli.jsonl` is written by the agent;
+  `output/harbor_logs/jobs/<job>/<trial>/agent/copilot-cli.jsonl` is the harness's copy, rewritten by MSBench's secret
+  scan, which turns every bare hex string into `***REDACTED***`.
+- In 3,690 of the 3,900 runs with both copies the harness copy differs, and only by redactions. The redacted strings
+  include tool call ids `call_<hex>` (1,796 runs), trace ids, container ids, dashboard login tokens and certificate
+  thumbprints. The output copy never carries a redacted call id. Claude Code's ATIF copy is redacted the same way, but
+  its `toolu_` ids are not hex, so only content changed there.
+- `tools/collect.py` read the harness copy for every Copilot CLI and Claude Code row. Calls whose ids were hex then
+  shared one id. A reader that pairs a call's start with its result by id gave such a result the latest such start; one
+  that used an id's first position stopped at the first such call.
+- **Measured on 3,845 rows.** First, the committed `trials.jsonl` equals an old-reader regeneration exactly. Against
+  the output copy, rows changed as follows:
+  - `commands_to_verified_up` 47 (median +3);
+  - `seconds_to_verified_up` 5 (three T3.1 raw trials from 2–3 s to 27–30 s);
+  - `seconds_to_redis_reply` 16 (a T3.2 guard cell median 15.5 → 151.5 s);
+  - `redis_cli_first_failed` 4;
+  - `mcp_result_content_chars` 609;
+  - `mcp_spills` 42;
+  - characters read +0.34 % median in 3,105 rows (hex is longer than the mask).
+- Time to root cause, first fix, skill loads, references read, call counts and the T4.2/T4.3 marker did not change; none
+  of them joins on an id.
+- Recomputed by each card's rule with same-round controls, **no verdict word changes**. The decisive measures of T2.2,
+  T2.4, T2.5, T2.9 and T2.11 did not move in a single row of their rounds. T2.1's MCP-only reading on terra `slow-sql`
+  went from −35 to −34 %, and T2.3's chars ratio from 1.054 to 1.052.
+
+**Improvement candidate:** For this suite, read the output copy; `collect.py` does now and records `trajectory_source`
+and `trajectory_ids_redacted` per row. For MSBench, scope the secret scan away from structural ids, or record which copy
+is redacted, so that consumers of Harbor's job folder do not join on masked keys. For any reader, never join on an id
+without checking that it is unique within the trajectory.
+
+**Limits / status:** Fixed in the reader (d124b32); `results/` regenerated without `t48`. The one Copilot row without an
+output copy (t28 raw) reads the harness copy, whose ids are not redacted. Runs with more than one trial would make the
+output copy unattributable; none exist. The MSBench side is not filed.
+
 ## Recording future findings
 
 Give each finding a stable ID and include evidence links, exact observed

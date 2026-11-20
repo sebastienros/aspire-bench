@@ -1755,3 +1755,23 @@ were fixed before any trial.
 Open from this lane: pre-register the aggregate marker; a lock or CPU fault for the uncovered-time row; T4.2's row on
 a symptom whose cause is not one `rg` away; T4.4's runner; MCP traces too large to return.
 [PLAN.md, T4.2 results](PLAN.md#t42-results), [T4.3 results](PLAN.md#t43-results).
+
+**Reader redaction audit (2026-11-19): no verdict word moves.** MSBench's secret scan rewrites every bare hex string in
+the harness's copy of an agent trajectory, under `harbor_logs`, as `***REDACTED***`. That includes Copilot CLI's tool
+call ids and the trace ids. Since the first round, `collect.py` read that copy, not the agent's own copy in the run's
+output folder. A tool call whose id was hex then shared one id with every other such call, so a reader that matched
+results to calls by id could pair a result with the wrong call. The reader now takes the output copy (3,447 Copilot CLI
+rows and 42 Claude Code rows; 1 row has none and falls back) and records which copy it read.
+- **Matching errors corrected:**
+  - `commands_to_verified_up` in 47 rows (median +3).
+  - `seconds_to_verified_up` in 5, among them three T3.1 raw trials at 2–3 s that were really 27–30 s.
+  - The first Redis reply in 16, among them T3.2's guard cell, 15.5 → 151.5 s.
+  - The MCP share of characters read in 609.
+- **Characters read** rise by a median 0.34 % in 3,105 rows, because a hex string is longer than its mask.
+- **Unchanged in every row:** time to root cause, first fix, skill loads, references read, call counts and the T4.2/T4.3
+  marker.
+- **Per card:** recomputed with same-round controls, no card's word changes. The largest move in a decisive or ruled
+  number is T2.1's MCP-only reading on terra `slow-sql`, −35 → −34 %, still past the 30 % gate.
+- **Quoted figures:** the verified-up and Redis-reply figures this report quotes come from rounds where those fields did
+  not move. The per-card list and the row-by-row table are in PLAN §9; the finding is F61.
+[PLAN.md, Reader redaction audit](PLAN.md#reader-redaction-audit-2026-11-19).
