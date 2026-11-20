@@ -1,0 +1,14 @@
+120 finished, 0 still running
+1 finished, 0 still running
+4132 trials from 4132 ledger entries
+618 cell-runs; 38 with a regression or leak flag
+# Tracking run `trk20261119`: flags
+
+24 cell rows; failed (leak): yes; repeat round in the run: no.
+
+Drafts (1): `trk20261119-slow-redis-gpt-6-luna-aspire-cli-leak.md`
+Waiting for the luna repeat (0): none
+Listed, no draft, `improve-time` (1): slow-sql/gpt-6-luna/aspire-lean
+Listed, no draft, `improve-tokens` (2): cold-start/gpt-6-luna/aspire-lean, slow-sql/gpt-6-luna/aspire-lean
+Listed, no draft, `selection-low` (1): slow-redis/gpt-6-luna/aspire-skills-mcp
+exit 0

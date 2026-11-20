@@ -883,7 +883,7 @@ Each pin (toolchain) has its own section; rows of different pins are never poole
 | aspire-cli | 5/5 | 50 | - | - | 74,944 | 472 | 0.022 | 8 | - | 0 | 26,043 |
 | aspire-lean | 5/5 | 51 | - | - | 124,143 | 453 | 0.033 | 9 | aspire-orchestrationx5 | 0 | 22,115 |
 | aspire-skills-mcp | 5/5 | 52 | - | - | 133,993 | 463 | 0.035 | 9 | aspire-orchestrationx5 | 0 | 22,127 |
-| raw | 4/4 | 41 | - | - | 49,517 | 310 | 0.020 | 4 | - | 0 | 16,550 |
+| raw | 5/5 | 42 | - | - | 50,423 | 335 | 0.020 | 4 | - | 0 | 18,696 |
 
 ## slow-redis / gpt-6-luna
 
