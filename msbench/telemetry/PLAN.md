@@ -4116,8 +4116,8 @@ $0.12; gates model-free.
 | T4.5 | **Tracking schedule** (REPORT §11) | Every later product daily and skills release gets the core matrix | Workflow on this repo: re-pin, gate, submit core matrix, collect, series, open an issue on a flag | 120 trials ≈ $5 per run | [done 2026-11-19](#t45-results): `tools/track.sh`; smoke 24 trials $0.94, 0 drafts |
 | T4.6 | **Cheaper rounds** | The plan's cost is bounded by queue time more than money | Local gate before every cloud submission; one image per app kind with skill sets mounted at run time instead of baked | none | [**`adopt`**](#t46-results) by the rule as written (rewards equal, skill files identical on CES, one image serves two sets); `keep baked` under the coordinating session's post-data reading (CES builds per trial, so no saving without a registry-pulled image) |
 | T4.7 | **Claude Code adapter** (proposed 2026-11-18, built 2026-11-19) | T1.7 found that no skill and no MCP server reach the `claude-code` harness, and that only Claude models run under it | Skills copied to `/app/.claude/skills`, the MCP server registered the way Harbor's `claude_code` agent does it, a real CLI version pin; `claude-haiku-5.5` on both harnesses: [card below](#t47-claude-code-adapter-proposed) | 72 ≈ $5 plus a re-pin and gates | [**ship** (harness-neutral in direction, not in mechanism)](#t47-results), $5.69 |
-| T4.8 | **VS Code parity settings** (proposed 2026-11-18, from [T1.9](#t19-results)) | Under VS Code the MCP tools sit behind `tool_search` (15 of 18 terra `aspire-skills-mcp` trials never searched for them) and the inner limit (`agentSeconds: 720`) leaves about 534 s of work against Copilot CLI's 900 s; four `aspire-skills-mcp` trials hit it | Raise `agentSeconds` (and Harbor's multiplier with it) so net working time matches 900 s; find whether VS Code can list MCP tools eagerly, and if it can, run that as a separate assets folder. If it cannot, deferred MCP is the product condition under VS Code and is reported as such. Re-run `slow-sql`, `slow-redis` × `aspire-skills-mcp` × luna, terra | 24 ≈ $2.40 | proposed |
-| T4.9 | **What makes luna investigate under VS Code** (proposed 2026-11-18, from [T1.9](#t19-results)) | Under VS Code, raw luna runs 2.5–5 shell commands and patches code (1/6 and 0/6 pass); with `aspire-lean` it runs 14–19.5 and passes 5/6 and 4/6. The time ratio inverts that effect | Under VS Code, `slow-sql`, `slow-redis` × luna × `aspire-cli` (commands, no skill) and `aspire-lean-agents` / `aspire-cli-agents` (T2.10's file, which VS Code also reads) × 6; decide on pass rate and time-to-pass, not the raw ratio | 36 ≈ $2.50 | proposed |
+| T4.8 | **VS Code parity settings** (proposed 2026-11-18, from [T1.9](#t19-results)) | Under VS Code the MCP tools sit behind `tool_search` (15 of 18 terra `aspire-skills-mcp` trials never searched for them) and the inner limit (`agentSeconds: 720`) leaves about 534 s of work against Copilot CLI's 900 s; four `aspire-skills-mcp` trials hit it | Raise `agentSeconds` (and Harbor's multiplier with it) so net working time matches 900 s; find whether VS Code can list MCP tools eagerly, and if it can, run that as a separate assets folder. If it cannot, deferred MCP is the product condition under VS Code and is reported as such. Re-run `slow-sql`, `slow-redis` × `aspire-skills-mcp` × luna, terra | 24 ≈ $2.40 | [**harness-dependent**](#t48-and-t49-results) (4 of 4 cells outside; slow-sql the raw denominator, terra deferred MCP); (b) no public setting lists MCP eagerly, deferred MCP is the product condition; $6.31 |
+| T4.9 | **What makes luna investigate under VS Code** (proposed 2026-11-18, from [T1.9](#t19-results)) | Under VS Code, raw luna runs 2.5–5 shell commands and patches code (1/6 and 0/6 pass); with `aspire-lean` it runs 14–19.5 and passes 5/6 and 4/6. The time ratio inverts that effect | Under VS Code, `slow-sql`, `slow-redis` × luna × `aspire-cli` (commands, no skill) and `aspire-lean-agents` / `aspire-cli-agents` (T2.10's file, which VS Code also reads) × 6; decide on pass rate and time-to-pass, not the raw ratio | 36 ≈ $2.50 | [**no verdict**](#t48-and-t49-results) (precondition fails on slow-redis: lean 2/6 = raw 2/6; slow-sql lean 6/6 vs raw 3/6); $1.10 |
 
 #### Phase 4 rulings (coordinating session, 2026-11-19, written before any Phase 4 trial)
 
@@ -5002,7 +5002,7 @@ each harness's reported cost; gates model-free.
   ×1.5 (1,350 s) for every VS Code trial, which leaves the inner limit binding (launch ≈ 55 s + 1,087 s + export +
   60 s grace). `submit.sh` now defaults to ×1.5 under `vscode`. The same assets for every arm and model; the ledger's
   `agent_assets_sha256` separates these trials from `t19`'s (720 s), and every table of this card is computed with
-  `stats.py --rounds t48` (pooled cells would mix the two limits).
+  `--rounds t48,t48-topup,t48-topup2` (pooled cells would mix the two limits).
 - **Round `t48`** (shared with T4.9, arms interleaved, all under the setting above): VS Code `slow-sql`,
   `slow-redis` × `raw`, `aspire-skills-mcp` × luna, terra × 6 and the same eight cells under Copilot CLI (96
   trials). The VS Code luna `raw` cells serve both cards (12 trials, charged to T4.8).
@@ -5050,6 +5050,82 @@ other `t48` or `t48-topup` VS Code trial has a chat span over 120 s; T1.9's five
 three are re-run once in `t48-topup2` and the tables are computed over `t48` + `t48-topup` + `t48-topup2`, with
 the three stalls left out. A re-run that stalls again stays a failure (no third attempt). The as-classified counts
 (the stalls as non-passes) are shown beside the re-run counts.
+
+**Rounds.** `t48` (144), `t48-topup` (7: six `AgentSetupTimeoutError` in one burst, one model-service 504; all
+graded), `t48-topup2` (3: both `slow-sql` luna `raw` re-runs graded, both failed; the `aspire-cli-agents` re-run
+`2026112005224740` **stalled again**, one luna chat call of 800 s aborted at the limit, and stays a failure as
+ruled). Two of that cell's seven trials stalled; nothing else in the round stalled, and the cause is not known.
+VS Code 1.146.0-insider, package `vscode=0.20261117.7` (as `t19`), Copilot CLI 1.0.99. No trial did sustained
+work to the 1,087 s limit (in `t19` five did at 720 s), so the setting removed the limit as a factor. Computed with
+`tools/p4h_decide.py t48 --rounds t48,t48-topup,t48-topup2` (as classified: `--rounds t48,t48-topup
+--as-classified`).
+
+**T4.8 (a): `harness-dependent`, 4 of 4 cells outside ±0.15.** Pass clause met (`slow-redis` luna: `raw` 2 vs 1,
+`aspire-skills-mcp` 0 vs 0). Time = VS Code net loop, Copilot CLI loop; medians over graded trials; Δs = arm
+median − `raw` median.
+
+| Scenario | Model | VS Code `raw` | VS Code MCP arm | ratio [95 %] | Δs | Copilot `raw` | Copilot MCP arm | ratio [95 %] | Δs | \|Δratio\| |
+|---|---|---|---|---|---:|---|---|---|---:|---:|
+| slow-sql | luna | 3/6, 158 s | 3/6, 185 s | 1.17 [0.69–1.75] | +27 | 6/6, 131 s | 6/6, 212 s | 1.62 [0.50–2.32] | +81 | 0.45 |
+| slow-sql | terra | 6/6, 92 s | 6/6, 126 s | 1.37 [1.09–1.66] | +34 | 6/6, 48 s | 6/6, 89 s | 1.88 [1.55–2.24] | +42 | 0.51 |
+| slow-redis | luna | 2/6, 176 s | 0/6, 182 s | 1.03 [0.49–1.28] | +6 | 1/6, 201 s | 0/6, 139 s | 0.69 [0.51–1.25] | −62 | 0.34 |
+| slow-redis | terra | 6/6, 183 s | 4/6, 292 s | 1.60 [0.61–2.10] | +110 | 6/6, 156 s | 6/6, 128 s | 0.82 [0.62–1.37] | −28 | 0.78 |
+
+As classified (the two `raw` stalls as non-passes, out of the medians), `slow-sql` luna `raw` is 3/6 with median
+158 s from the four graded trials: the same ratio and the same word. Robustness, written before `t48-topup2`: two
+re-run trials could put that median anywhere in 133.5–248.5 s, so the cell's |Δratio| stays in 0.23–0.87.
+
+Attribution, from the trajectories:
+- **`slow-sql` terra:** every trial passes. The MCP arm adds a similar number of seconds under both harnesses
+  (+34 against +42 s); the ratios differ because VS Code's `raw` is about twice as slow (92 against 48 s). Deferred
+  MCP: under VS Code the arm called an `aspire-*` tool in 2/6 trials (each after `tool_search`), under Copilot CLI
+  in 6/6. Under VS Code the arm is close to skills-only for terra, as in T1.9.
+- **`slow-redis` terra:** VS Code's MCP arm called MCP in 1/6 trials and ran 30–45 shell commands (`raw` 23–38);
+  `aspire-orchestration` was loaded in 4/6, both failures among them. Copilot CLI's arm called MCP in 6/6 and was
+  faster than `raw`.
+- **`slow-sql` luna** and **`slow-redis` luna:** deferral does not explain these. Luna searched for and called MCP
+  in 5/6 trials in each VS Code cell. Under VS Code half of `slow-sql` luna fails on both arms (Copilot CLI 6/6),
+  and fast failures set both medians. On `slow-redis` both MCP cells are 0/6, but VS Code's failures mostly fix
+  nothing (5/6 leave status at 8.8–11.5 s) while Copilot CLI's all fix part of it (status 0.2–0.9 s, each call still
+  0.36–0.70 s). A ratio between two failing cells measures how fast they fail; the intervals overlap widely and the
+  luna cells are left unattributed beyond this.
+
+**T4.8 (b): VS Code cannot list MCP tools eagerly through a public setting**, so deferred MCP is the product
+condition under VS Code. By inspection of VS Code 1.146.0-insider with Copilot Chat 0.74.2026110205: local agent
+mode defers every tool outside a fixed built-in set (terminal tools, subagents, tests, `tool_search` itself, a few
+editor tools, and tools registered as non-deferred) whenever the model endpoint supports tool search. The nearest
+contributed setting, `github.copilot.chat.virtualTools.threshold`, groups tools and does not stop deferral. The
+`chat.agentHost.copilot.toolSearch.*` settings apply only to the agent host, not to local agent mode. Observed in
+`t48`: in all 14 VS Code trials that called an `aspire-*` tool, `tool_search` came before the first such call. A custom agent whose
+`tools:` list leaves out tool search would change the whole tool set; it is a possible later card, not run.
+
+**T4.9: `no verdict`.** The precondition fails on `slow-redis` (`aspire-lean` 2/6 = `raw` 2/6); on `slow-sql` it
+holds (6/6 against 3/6). VS Code, luna, `t48` + top-ups; shell = `run_in_terminal` calls, median; time to pass =
+net time of passing trials.
+
+| Arm | slow-sql pass | shell | time to pass (n) | slow-redis pass | shell | time to pass (n) |
+|---|---|---:|---|---|---:|---|
+| raw | 3/6 | 8.5 | 152 s (3) | 2/6 | 5.5 | 394 s (2) |
+| aspire-cli | 2/6 | 3.5 | 451 s (2) | 0/6 | 5 | — |
+| aspire-cli-agents | 5/6 (1 stall) | 16.5 | 237 s (5) | 0/6 | 18 | — |
+| aspire-lean-agents | 6/6 | 14.5 | 158 s (6) | 1/6 | 16.5 | 581 s (1) |
+| aspire-lean | 6/6 | 11 | 137 s (6) | 2/6 | 17 | 229 s (2) |
+
+As classified, `aspire-cli-agents` on `slow-sql` is 5/6 too (its first stall counted as a non-pass), and `raw`
+3/6. On `slow-redis` failure, by the verifier's numbers, falls into two kinds. In a **partial fix** status drops
+below 1 s while each call still takes about 600 ms against a 300 ms limit. In **no fix** status stays at 7–13 s.
+Failures with a partial fix: `raw` 0/4, `aspire-cli` 1/6, `aspire-cli-agents` 3/6 (one more broke the endpoint),
+`aspire-lean-agents` 5/5, `aspire-lean` 3/4. So the lean skill takes luna to the cache; the commands file does so
+in part; the CLI alone barely does. On `slow-sql` each `raw` and `aspire-cli` failure left adding squares at
+2.3–2.6 s (limit 600 ms). Among `slow-redis` lean-family trials (`aspire-lean`, `aspire-lean-agents`),
+`aspire-orchestration` was also loaded in 8 of 9 failures and 0 of 3 passes (T1.9: 2 of 2 failures, 0 of 4 passes):
+an association, since `skills_loaded` does not give the order and the load may follow the partial fix. Beside
+T1.9 (same VS Code build and package, the 720 s limit; not pooled): `raw` 1/6 and 0/6 then, 3/6 and 2/6 now;
+`aspire-lean` 5/6 and 4/6 then, 6/6 and 2/6 now. Luna's shell use still follows the guidance (`raw` 5.5–8.5,
+the lean arms 11–17), but the pass gain on `slow-redis` that made T4.9's premise did not hold in this round.
+
+**Cost.** T4.8 $6.31 against $4.80 (≈ 1.3×; VS Code $3.50 including the shared luna `raw` cells, Copilot CLI
+$2.81), T4.9 $1.10 against $3.00, at each harness's reported cost; the re-runs are included.
 
 ---
 

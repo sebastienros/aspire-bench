@@ -596,65 +596,65 @@ they are listed in trials.jsonl and excluded from every other column.
 
 | Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| raw | 48 | 7/48 | 7/48 | 257 (+0%) | 648,816 (+0%) | 0.020 (+0%) | 42 | 28 | - |
-| aspire-cli | 12 | 1/12 | 1/12 | 134 (-48%) | 544,304 (-16%) | 0.016 (-21%) | 40 | 9 | - |
-| aspire-skills | 24 | 1/24 | 1/24 | 185 (-28%) | 854,230 (+32%) | 0.021 (+8%) | 46 | 60 | - |
-| aspire-skills-mcp | 18 | 0/18 | 0/18 | 163 (-37%) | 1,013,608 (+56%) | 0.023 (+18%) | 48 | 4 | - |
-| aspire-lean (tasks 1479041e) | 30 | 25/30 | 25/30 | 120 (-53%) | 504,857 (-22%) | 0.014 (-30%) | 36 | 40 | - |
-| aspire-lean (tasks 916a57ce) | 6 | 4/6 | 4/6 | 150 (-42%) | 555,040 (-14%) | 0.015 (-25%) | 40 | 37 | - |
-| aspire-lean-mcp-src | 12 | 8/12 | 8/12 | 191 (-26%) | 701,304 (+8%) | 0.018 (-8%) | 42 | 43 | - |
-| aspire-lean-mcp-compact | 12 | 9/12 | 9/12 | 141 (-45%) | 745,008 (+15%) | 0.020 (-1%) | 43 | 49 | - |
-| aspire-lean-src | 12 | 12/12 | 12/12 | 110 (-57%) | 497,670 (-23%) | 0.015 (-24%) | 38 | 31 | - |
-| aspire-lean-mcp-all | 24 | 19/24 | 19/24 | 127 (-51%) | 669,193 (+3%) | 0.017 (-13%) | 42 | 41 | - |
-| aspire-skills-mon | 6 | 0/6 | 0/6 | 205 (-20%) | 590,980 (-9%) | 0.016 (-19%) | 40 | 59 | - |
-| aspire-skills-norouter | 6 | 0/6 | 0/6 | 202 (-21%) | 966,487 (+49%) | 0.023 (+17%) | 48 | 9 | - |
-| aspire-lean-agents | 6 | 2/6 | 2/6 | 194 (-24%) | 865,599 (+33%) | 0.022 (+9%) | 48 | 30 | - |
-| raw-otel | 6 | 0/6 | 0/6 | 127 (-50%) | 401,687 (-38%) | 0.014 (-31%) | 30 | - | - |
-| aspire-cli-traced | 6 | 2/6 | 2/6 | 135 (-48%) | 842,834 (+30%) | 0.019 (-3%) | 43 | 6 | - |
-| aspire-lean-traced | 12 | 11/12 | 11/12 | 94 (-64%) | 418,824 (-35%) | 0.013 (-37%) | 30 | 22 | - |
-| aspire-lean-mcp-all-traced | 12 | 8/12 | 8/12 | 132 (-49%) | 662,246 (+2%) | 0.017 (-13%) | 36 | 39 | - |
-| aspire-cli-src | 6 | 0/6 | 0/6 | 179 (-30%) | 831,472 (+28%) | 0.020 (+3%) | 47 | 8 | - |
-| aspire-lean-tracetable | 6 | 4/6 | 4/6 | 119 (-54%) | 692,303 (+7%) | 0.018 (-10%) | 44 | 35 | - |
-| aspire-cli-redishint | 6 | 0/6 | 0/6 | 132 (-49%) | 759,700 (+17%) | 0.019 (-2%) | 44 | 7 | - |
-| aspire-skills-src | 6 | 0/6 | 0/6 | 134 (-48%) | 768,760 (+18%) | 0.019 (-5%) | 44 | 11 | - |
-| aspire-skills-redishint | 6 | 0/6 | 0/6 | 148 (-42%) | 749,502 (+16%) | 0.019 (-5%) | 48 | 24 | - |
-| aspire-lean-mcp-compact2 | 6 | 2/6 | 2/6 | 189 (-27%) | 893,484 (+38%) | 0.022 (+8%) | 47 | 44 | - |
-| aspire-lean-mcp-tools8 | 6 | 3/6 | 3/6 | 221 (-14%) | 932,100 (+44%) | 0.025 (+24%) | 48 | 40 | - |
-| aspire-lean-mcp-all-conn | 6 | 6/6 | 6/6 | 90 (-65%) | 652,972 (+1%) | 0.016 (-18%) | 39 | 29 | - |
-| aspire-lean-mcp-all-hint | 6 | 4/6 | 4/6 | 147 (-43%) | 759,810 (+17%) | 0.020 (+2%) | 44 | 38 | - |
-| aspire-lean-mcp-all-step | 6 | 5/6 | 5/6 | 111 (-57%) | 565,804 (-13%) | 0.016 (-18%) | 38 | 32 | - |
-| aspire-skills-mcp-all | 6 | 0/6 | 0/6 | 163 (-36%) | 812,372 (+25%) | 0.020 (-1%) | 42 | - | - |
-| aspire-skills-mcp-all-conn | 6 | 1/6 | 1/6 | 216 (-16%) | 1,198,576 (+85%) | 0.027 (+36%) | 50 | 50 | - |
-| aspire-skills-mcp-all-hint | 6 | 0/6 | 0/6 | 164 (-36%) | 913,775 (+41%) | 0.022 (+8%) | 46 | 56 | - |
-| aspire-skills-mcp-all-step | 6 | 0/6 | 0/6 | 173 (-33%) | 976,304 (+50%) | 0.025 (+23%) | 48 | 54 | - |
-| aspire-lean-connect | 6 | 6/6 | 6/6 | 100 (-61%) | 497,937 (-23%) | 0.014 (-28%) | 38 | 41 | - |
-| aspire-lean-spanrow | 6 | 5/6 | 5/6 | 139 (-46%) | 525,178 (-19%) | 0.014 (-28%) | 39 | 33 | - |
-| aspire-lean-spanrow-traced | 6 | 6/6 | 6/6 | 100 (-61%) | 504,714 (-22%) | 0.015 (-27%) | 30 | 20 | - |
-| aspire-lean-mcp-all-spanrow | 6 | 3/6 | 3/6 | 164 (-36%) | 713,756 (+10%) | 0.019 (-5%) | 40 | 42 | - |
-| aspire-lean-mcp-all-spanrow-traced | 6 | 5/6 | 5/6 | 105 (-59%) | 416,699 (-36%) | 0.013 (-37%) | 26 | 24 | - |
-| aspire-skills-noorchestration | 6 | 0/6 | 0/6 | 153 (-41%) | 718,209 (+11%) | 0.018 (-12%) | 44 | 18 | - |
-| aspire-skills-noaspireify | 6 | 0/6 | 0/6 | 169 (-34%) | 749,225 (+15%) | 0.020 (+0%) | 46 | - | - |
+| raw | 54 | 8/54 | 8/54 | 237 (+0%) | 610,781 (+0%) | 0.019 (+0%) | 42 | 30 | - |
+| aspire-cli | 12 | 1/12 | 1/12 | 134 (-43%) | 544,304 (-11%) | 0.016 (-18%) | 40 | 9 | - |
+| aspire-skills | 24 | 1/24 | 1/24 | 185 (-22%) | 854,230 (+40%) | 0.021 (+12%) | 46 | 60 | - |
+| aspire-skills-mcp | 24 | 0/24 | 0/24 | 154 (-35%) | 1,052,296 (+72%) | 0.024 (+25%) | 47 | 4 | - |
+| aspire-lean (tasks 1479041e) | 30 | 25/30 | 25/30 | 120 (-49%) | 504,857 (-17%) | 0.014 (-27%) | 36 | 40 | - |
+| aspire-lean (tasks 916a57ce) | 6 | 4/6 | 4/6 | 150 (-37%) | 555,040 (-9%) | 0.015 (-22%) | 40 | 37 | - |
+| aspire-lean-mcp-src | 12 | 8/12 | 8/12 | 191 (-20%) | 701,304 (+15%) | 0.018 (-5%) | 42 | 43 | - |
+| aspire-lean-mcp-compact | 12 | 9/12 | 9/12 | 141 (-41%) | 745,008 (+22%) | 0.020 (+2%) | 43 | 49 | - |
+| aspire-lean-src | 12 | 12/12 | 12/12 | 110 (-54%) | 497,670 (-19%) | 0.015 (-21%) | 38 | 31 | - |
+| aspire-lean-mcp-all | 24 | 19/24 | 19/24 | 127 (-47%) | 669,193 (+10%) | 0.017 (-11%) | 42 | 41 | - |
+| aspire-skills-mon | 6 | 0/6 | 0/6 | 205 (-13%) | 590,980 (-3%) | 0.016 (-16%) | 40 | 59 | - |
+| aspire-skills-norouter | 6 | 0/6 | 0/6 | 202 (-15%) | 966,487 (+58%) | 0.023 (+21%) | 48 | 9 | - |
+| aspire-lean-agents | 6 | 2/6 | 2/6 | 194 (-18%) | 865,599 (+42%) | 0.022 (+13%) | 48 | 30 | - |
+| raw-otel | 6 | 0/6 | 0/6 | 127 (-46%) | 401,687 (-34%) | 0.014 (-29%) | 30 | - | - |
+| aspire-cli-traced | 6 | 2/6 | 2/6 | 135 (-43%) | 842,834 (+38%) | 0.019 (-0%) | 43 | 6 | - |
+| aspire-lean-traced | 12 | 11/12 | 11/12 | 94 (-61%) | 418,824 (-31%) | 0.013 (-35%) | 30 | 22 | - |
+| aspire-lean-mcp-all-traced | 12 | 8/12 | 8/12 | 132 (-45%) | 662,246 (+8%) | 0.017 (-10%) | 36 | 39 | - |
+| aspire-cli-src | 6 | 0/6 | 0/6 | 179 (-24%) | 831,472 (+36%) | 0.020 (+6%) | 47 | 8 | - |
+| aspire-lean-tracetable | 6 | 4/6 | 4/6 | 119 (-50%) | 692,303 (+13%) | 0.018 (-8%) | 44 | 35 | - |
+| aspire-cli-redishint | 6 | 0/6 | 0/6 | 132 (-44%) | 759,700 (+24%) | 0.019 (+1%) | 44 | 7 | - |
+| aspire-skills-src | 6 | 0/6 | 0/6 | 134 (-43%) | 768,760 (+26%) | 0.019 (-2%) | 44 | 11 | - |
+| aspire-skills-redishint | 6 | 0/6 | 0/6 | 148 (-38%) | 749,502 (+23%) | 0.019 (-2%) | 48 | 24 | - |
+| aspire-lean-mcp-compact2 | 6 | 2/6 | 2/6 | 189 (-21%) | 893,484 (+46%) | 0.022 (+12%) | 47 | 44 | - |
+| aspire-lean-mcp-tools8 | 6 | 3/6 | 3/6 | 221 (-7%) | 932,100 (+53%) | 0.025 (+28%) | 48 | 40 | - |
+| aspire-lean-mcp-all-conn | 6 | 6/6 | 6/6 | 90 (-62%) | 652,972 (+7%) | 0.016 (-15%) | 39 | 29 | - |
+| aspire-lean-mcp-all-hint | 6 | 4/6 | 4/6 | 147 (-38%) | 759,810 (+24%) | 0.020 (+6%) | 44 | 38 | - |
+| aspire-lean-mcp-all-step | 6 | 5/6 | 5/6 | 111 (-53%) | 565,804 (-7%) | 0.016 (-15%) | 38 | 32 | - |
+| aspire-skills-mcp-all | 6 | 0/6 | 0/6 | 163 (-31%) | 812,372 (+33%) | 0.020 (+3%) | 42 | - | - |
+| aspire-skills-mcp-all-conn | 6 | 1/6 | 1/6 | 216 (-9%) | 1,198,576 (+96%) | 0.027 (+40%) | 50 | 50 | - |
+| aspire-skills-mcp-all-hint | 6 | 0/6 | 0/6 | 164 (-31%) | 913,775 (+50%) | 0.022 (+12%) | 46 | 56 | - |
+| aspire-skills-mcp-all-step | 6 | 0/6 | 0/6 | 173 (-27%) | 976,304 (+60%) | 0.025 (+27%) | 48 | 54 | - |
+| aspire-lean-connect | 6 | 6/6 | 6/6 | 100 (-58%) | 497,937 (-18%) | 0.014 (-26%) | 38 | 41 | - |
+| aspire-lean-spanrow | 6 | 5/6 | 5/6 | 139 (-41%) | 525,178 (-14%) | 0.014 (-26%) | 39 | 33 | - |
+| aspire-lean-spanrow-traced | 6 | 6/6 | 6/6 | 100 (-58%) | 504,714 (-17%) | 0.015 (-24%) | 30 | 20 | - |
+| aspire-lean-mcp-all-spanrow | 6 | 3/6 | 3/6 | 164 (-31%) | 713,756 (+17%) | 0.019 (-2%) | 40 | 42 | - |
+| aspire-lean-mcp-all-spanrow-traced | 6 | 5/6 | 5/6 | 105 (-56%) | 416,699 (-32%) | 0.013 (-35%) | 26 | 24 | - |
+| aspire-skills-noorchestration | 6 | 0/6 | 0/6 | 153 (-36%) | 718,209 (+18%) | 0.018 (-9%) | 44 | 18 | - |
+| aspire-skills-noaspireify | 6 | 0/6 | 0/6 | 169 (-29%) | 749,225 (+23%) | 0.020 (+4%) | 46 | - | - |
 
 ## slow-redis / gpt-6.1-terra
 
 | Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| raw | 18 | 18/18 | 18/18 | 169 (+0%) | 466,217 (+0%) | 0.104 (+0%) | 28 | 3 | - |
-| aspire-cli | 12 | 12/12 | 12/12 | 165 (-2%) | 530,017 (+14%) | 0.109 (+5%) | 32 | 4 | - |
-| aspire-skills | 6 | 6/6 | 6/6 | 235 (+39%) | 767,409 (+65%) | 0.140 (+35%) | 41 | 48 | - |
-| aspire-skills-mcp | 6 | 6/6 | 6/6 | 164 (-3%) | 669,446 (+44%) | 0.128 (+23%) | 35 | 4 | - |
-| aspire-lean (tasks 1479041e) | 6 | 6/6 | 6/6 | 67 (-60%) | 307,060 (-34%) | 0.069 (-34%) | 22 | 15 | - |
-| aspire-lean (tasks 916a57ce) | 6 | 6/6 | 6/6 | 56 (-67%) | 207,126 (-56%) | 0.054 (-48%) | 20 | 19 | - |
-| aspire-lean-mcp-all | 6 | 6/6 | 6/6 | 59 (-65%) | 300,741 (-35%) | 0.074 (-29%) | 28 | 18 | - |
-| aspire-skills-mon | 6 | 6/6 | 6/6 | 190 (+13%) | 710,991 (+53%) | 0.130 (+25%) | 40 | 20 | - |
-| raw-otel | 6 | 6/6 | 6/6 | 165 (-2%) | 460,280 (-1%) | 0.113 (+9%) | 30 | 3 | - |
-| aspire-cli-traced | 6 | 6/6 | 6/6 | 131 (-22%) | 485,836 (+4%) | 0.116 (+11%) | 29 | 3 | - |
-| aspire-lean-traced | 6 | 6/6 | 6/6 | 101 (-40%) | 485,392 (+4%) | 0.094 (-10%) | 30 | 15 | - |
-| aspire-lean-mcp-all-traced | 6 | 6/6 | 6/6 | 48 (-72%) | 287,644 (-38%) | 0.072 (-31%) | 22 | 16 | - |
-| aspire-cli-src | 6 | 6/6 | 6/6 | 168 (-0%) | 578,373 (+24%) | 0.112 (+8%) | 33 | 3 | - |
-| aspire-cli-redishint | 6 | 6/6 | 6/6 | 137 (-19%) | 413,888 (-11%) | 0.095 (-8%) | 30 | 3 | - |
-| aspire-skills-src | 6 | 6/6 | 6/6 | 162 (-4%) | 701,537 (+50%) | 0.139 (+34%) | 38 | 3 | - |
-| aspire-skills-redishint | 6 | 6/6 | 6/6 | 132 (-22%) | 622,943 (+34%) | 0.124 (+19%) | 39 | 16 | - |
+| raw | 24 | 24/24 | 24/24 | 169 (+0%) | 454,245 (+0%) | 0.106 (+0%) | 28 | 3 | - |
+| aspire-cli | 12 | 12/12 | 12/12 | 165 (-2%) | 530,017 (+17%) | 0.109 (+3%) | 32 | 4 | - |
+| aspire-skills | 6 | 6/6 | 6/6 | 235 (+39%) | 767,409 (+69%) | 0.140 (+32%) | 41 | 48 | - |
+| aspire-skills-mcp | 12 | 12/12 | 12/12 | 142 (-16%) | 640,451 (+41%) | 0.125 (+18%) | 37 | 4 | - |
+| aspire-lean (tasks 1479041e) | 6 | 6/6 | 6/6 | 67 (-60%) | 307,060 (-32%) | 0.069 (-35%) | 22 | 15 | - |
+| aspire-lean (tasks 916a57ce) | 6 | 6/6 | 6/6 | 56 (-67%) | 207,126 (-54%) | 0.054 (-49%) | 20 | 19 | - |
+| aspire-lean-mcp-all | 6 | 6/6 | 6/6 | 59 (-65%) | 300,741 (-34%) | 0.074 (-30%) | 28 | 18 | - |
+| aspire-skills-mon | 6 | 6/6 | 6/6 | 190 (+13%) | 710,991 (+57%) | 0.130 (+23%) | 40 | 20 | - |
+| raw-otel | 6 | 6/6 | 6/6 | 165 (-2%) | 460,280 (+1%) | 0.113 (+6%) | 30 | 3 | - |
+| aspire-cli-traced | 6 | 6/6 | 6/6 | 131 (-22%) | 485,836 (+7%) | 0.116 (+9%) | 29 | 3 | - |
+| aspire-lean-traced | 6 | 6/6 | 6/6 | 101 (-40%) | 485,392 (+7%) | 0.094 (-11%) | 30 | 15 | - |
+| aspire-lean-mcp-all-traced | 6 | 6/6 | 6/6 | 48 (-72%) | 287,644 (-37%) | 0.072 (-32%) | 22 | 16 | - |
+| aspire-cli-src | 6 | 6/6 | 6/6 | 168 (-0%) | 578,373 (+27%) | 0.112 (+6%) | 33 | 3 | - |
+| aspire-cli-redishint | 6 | 6/6 | 6/6 | 137 (-19%) | 413,888 (-9%) | 0.095 (-10%) | 30 | 3 | - |
+| aspire-skills-src | 6 | 6/6 | 6/6 | 162 (-4%) | 701,537 (+54%) | 0.139 (+31%) | 38 | 3 | - |
+| aspire-skills-redishint | 6 | 6/6 | 6/6 | 132 (-22%) | 622,943 (+37%) | 0.124 (+17%) | 39 | 16 | - |
 
 ## slow-redis / gpt-6.2-sol
 
@@ -684,42 +684,42 @@ they are listed in trials.jsonl and excluded from every other column.
 
 | Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| raw | 36 | 35/36 | 35/36 | 114 (+0%) | 438,509 (+0%) | 0.014 (+0%) | 34 | 24 | - |
-| aspire-cli | 6 | 6/6 | 6/6 | 159 (+40%) | 871,645 (+99%) | 0.021 (+50%) | 52 | 70 | - |
-| aspire-skills | 33 | 29/33 | 29/33 | 193 (+70%) | 853,122 (+95%) | 0.022 (+59%) | 51 | 69 | - |
-| aspire-skills-mcp | 12 | 11/12 | 11/12 | 198 (+74%) | 1,252,184 (+186%) | 0.029 (+106%) | 54 | 77 | - |
-| aspire-lean (tasks 1479041e) | 18 | 18/18 | 18/18 | 94 (-17%) | 346,814 (-21%) | 0.011 (-19%) | 30 | 21 | - |
-| aspire-lean (tasks 916a57ce) | 6 | 6/6 | 6/6 | 112 (-1%) | 383,232 (-13%) | 0.012 (-17%) | 30 | 26 | - |
-| aspire-mcp-src | 12 | 9/12 | 9/12 | 155 (+37%) | 769,480 (+75%) | 0.021 (+47%) | 49 | 49 | - |
-| aspire-mcp-compact | 12 | 12/12 | 12/12 | 132 (+16%) | 617,858 (+41%) | 0.017 (+23%) | 42 | 42 | - |
-| aspire-lean-mcp-src | 6 | 6/6 | 6/6 | 94 (-17%) | 382,320 (-13%) | 0.012 (-15%) | 30 | 34 | - |
-| aspire-lean-mcp-compact | 6 | 6/6 | 6/6 | 122 (+7%) | 474,092 (+8%) | 0.015 (+3%) | 34 | 26 | - |
-| aspire-lean-src | 12 | 12/12 | 12/12 | 98 (-13%) | 335,904 (-23%) | 0.011 (-24%) | 29 | 21 | - |
-| aspire-lean-mcp-all | 6 | 6/6 | 6/6 | 99 (-13%) | 429,944 (-2%) | 0.013 (-5%) | 32 | 22 | - |
-| aspire-skills-plugin | 3 | 3/3 | 3/3 | 146 (+29%) | 688,677 (+57%) | 0.019 (+33%) | 48 | 49 | - |
-| aspire-skills-mon | 6 | 6/6 | 6/6 | 295 (+160%) | 982,398 (+124%) | 0.022 (+59%) | 48 | 112 | - |
-| aspire-skills-norouter | 6 | 6/6 | 6/6 | 136 (+20%) | 565,650 (+29%) | 0.016 (+11%) | 38 | 53 | - |
-| aspire-lean-agents | 6 | 6/6 | 6/6 | 117 (+3%) | 433,843 (-1%) | 0.013 (-8%) | 34 | 18 | - |
-| aspire-cli-agents | 6 | 6/6 | 6/6 | 151 (+33%) | 680,115 (+55%) | 0.018 (+31%) | 46 | 50 | - |
-| aspire-skills-agents | 6 | 6/6 | 6/6 | 235 (+107%) | 1,202,770 (+174%) | 0.031 (+118%) | 53 | 77 | - |
-| aspire-lean-noorch-agents | 6 | 6/6 | 6/6 | 104 (-9%) | 345,366 (-21%) | 0.011 (-19%) | 33 | 20 | - |
-| aspire-lean-traced | 6 | 6/6 | 6/6 | 92 (-19%) | 374,967 (-14%) | 0.012 (-17%) | 32 | 19 | - |
-| aspire-cli-src | 6 | 6/6 | 6/6 | 136 (+20%) | 772,410 (+76%) | 0.019 (+33%) | 46 | 62 | - |
-| aspire-lean-tracetable | 6 | 6/6 | 6/6 | 111 (-3%) | 413,602 (-6%) | 0.012 (-13%) | 30 | 24 | - |
-| aspire-cli-redishint | 6 | 4/6 | 4/6 | 118 (+4%) | 644,350 (+47%) | 0.017 (+19%) | 50 | 55 | - |
-| aspire-mcp-compact2 | 6 | 6/6 | 6/6 | 166 (+47%) | 968,271 (+121%) | 0.023 (+66%) | 52 | 37 | - |
-| aspire-mcp-tools8 | 6 | 6/6 | 6/6 | 188 (+66%) | 1,013,270 (+131%) | 0.025 (+75%) | 54 | 55 | - |
-| aspire-lean-mcp-all-conn | 6 | 6/6 | 6/6 | 72 (-36%) | 343,385 (-22%) | 0.011 (-25%) | 25 | 19 | - |
-| aspire-lean-mcp-all-hint | 6 | 6/6 | 6/6 | 97 (-14%) | 392,665 (-10%) | 0.012 (-16%) | 32 | 20 | - |
-| aspire-lean-mcp-all-step | 6 | 6/6 | 6/6 | 78 (-31%) | 312,522 (-29%) | 0.011 (-24%) | 24 | 21 | - |
-| aspire-skills-mcp-all | 6 | 6/6 | 6/6 | 186 (+64%) | 806,122 (+84%) | 0.021 (+50%) | 41 | 62 | - |
-| aspire-skills-mcp-all-conn | 6 | 6/6 | 6/6 | 174 (+54%) | 671,415 (+53%) | 0.021 (+47%) | 40 | 31 | - |
-| aspire-skills-mcp-all-hint | 6 | 6/6 | 6/6 | 154 (+35%) | 658,180 (+50%) | 0.018 (+25%) | 38 | 46 | - |
-| aspire-skills-mcp-all-step | 6 | 6/6 | 6/6 | 119 (+5%) | 649,795 (+48%) | 0.018 (+25%) | 35 | 41 | - |
-| aspire-lean-connect | 6 | 6/6 | 6/6 | 79 (-30%) | 271,195 (-38%) | 0.009 (-37%) | 26 | 22 | - |
-| aspire-lean-spanrow | 6 | 6/6 | 6/6 | 86 (-24%) | 271,736 (-38%) | 0.009 (-33%) | 27 | 27 | - |
-| aspire-skills-noorchestration | 6 | 5/6 | 5/6 | 155 (+37%) | 685,162 (+56%) | 0.020 (+40%) | 51 | 66 | - |
-| aspire-skills-noaspireify | 6 | 6/6 | 6/6 | 180 (+58%) | 878,636 (+100%) | 0.023 (+66%) | 52 | 58 | - |
+| raw | 42 | 41/42 | 41/42 | 117 (+0%) | 438,509 (+0%) | 0.014 (+0%) | 35 | 25 | - |
+| aspire-cli | 6 | 6/6 | 6/6 | 159 (+36%) | 871,645 (+99%) | 0.021 (+51%) | 52 | 70 | - |
+| aspire-skills | 33 | 29/33 | 29/33 | 193 (+65%) | 853,122 (+95%) | 0.022 (+60%) | 51 | 69 | - |
+| aspire-skills-mcp | 18 | 17/18 | 17/18 | 200 (+71%) | 1,213,908 (+177%) | 0.029 (+108%) | 56 | 77 | - |
+| aspire-lean (tasks 1479041e) | 18 | 18/18 | 18/18 | 94 (-20%) | 346,814 (-21%) | 0.011 (-18%) | 30 | 21 | - |
+| aspire-lean (tasks 916a57ce) | 6 | 6/6 | 6/6 | 112 (-4%) | 383,232 (-13%) | 0.012 (-16%) | 30 | 26 | - |
+| aspire-mcp-src | 12 | 9/12 | 9/12 | 155 (+33%) | 769,480 (+75%) | 0.021 (+49%) | 49 | 49 | - |
+| aspire-mcp-compact | 12 | 12/12 | 12/12 | 132 (+13%) | 617,858 (+41%) | 0.017 (+24%) | 42 | 42 | - |
+| aspire-lean-mcp-src | 6 | 6/6 | 6/6 | 94 (-20%) | 382,320 (-13%) | 0.012 (-14%) | 30 | 34 | - |
+| aspire-lean-mcp-compact | 6 | 6/6 | 6/6 | 122 (+4%) | 474,092 (+8%) | 0.015 (+4%) | 34 | 26 | - |
+| aspire-lean-src | 12 | 12/12 | 12/12 | 98 (-16%) | 335,904 (-23%) | 0.011 (-23%) | 29 | 21 | - |
+| aspire-lean-mcp-all | 6 | 6/6 | 6/6 | 99 (-15%) | 429,944 (-2%) | 0.013 (-4%) | 32 | 22 | - |
+| aspire-skills-plugin | 3 | 3/3 | 3/3 | 146 (+25%) | 688,677 (+57%) | 0.019 (+35%) | 48 | 49 | - |
+| aspire-skills-mon | 6 | 6/6 | 6/6 | 295 (+152%) | 982,398 (+124%) | 0.022 (+60%) | 48 | 112 | - |
+| aspire-skills-norouter | 6 | 6/6 | 6/6 | 136 (+16%) | 565,650 (+29%) | 0.016 (+12%) | 38 | 53 | - |
+| aspire-lean-agents | 6 | 6/6 | 6/6 | 117 (-0%) | 433,843 (-1%) | 0.013 (-8%) | 34 | 18 | - |
+| aspire-cli-agents | 6 | 6/6 | 6/6 | 151 (+29%) | 680,115 (+55%) | 0.018 (+32%) | 46 | 50 | - |
+| aspire-skills-agents | 6 | 6/6 | 6/6 | 235 (+100%) | 1,202,770 (+174%) | 0.031 (+120%) | 53 | 77 | - |
+| aspire-lean-noorch-agents | 6 | 6/6 | 6/6 | 104 (-11%) | 345,366 (-21%) | 0.011 (-19%) | 33 | 20 | - |
+| aspire-lean-traced | 6 | 6/6 | 6/6 | 92 (-21%) | 374,967 (-14%) | 0.012 (-17%) | 32 | 19 | - |
+| aspire-cli-src | 6 | 6/6 | 6/6 | 136 (+16%) | 772,410 (+76%) | 0.019 (+35%) | 46 | 62 | - |
+| aspire-lean-tracetable | 6 | 6/6 | 6/6 | 111 (-6%) | 413,602 (-6%) | 0.012 (-12%) | 30 | 24 | - |
+| aspire-cli-redishint | 6 | 4/6 | 4/6 | 118 (+1%) | 644,350 (+47%) | 0.017 (+20%) | 50 | 55 | - |
+| aspire-mcp-compact2 | 6 | 6/6 | 6/6 | 166 (+42%) | 968,271 (+121%) | 0.023 (+68%) | 52 | 37 | - |
+| aspire-mcp-tools8 | 6 | 6/6 | 6/6 | 188 (+61%) | 1,013,270 (+131%) | 0.025 (+77%) | 54 | 55 | - |
+| aspire-lean-mcp-all-conn | 6 | 6/6 | 6/6 | 72 (-38%) | 343,385 (-22%) | 0.011 (-24%) | 25 | 19 | - |
+| aspire-lean-mcp-all-hint | 6 | 6/6 | 6/6 | 97 (-17%) | 392,665 (-10%) | 0.012 (-16%) | 32 | 20 | - |
+| aspire-lean-mcp-all-step | 6 | 6/6 | 6/6 | 78 (-33%) | 312,522 (-29%) | 0.011 (-24%) | 24 | 21 | - |
+| aspire-skills-mcp-all | 6 | 6/6 | 6/6 | 186 (+59%) | 806,122 (+84%) | 0.021 (+52%) | 41 | 62 | - |
+| aspire-skills-mcp-all-conn | 6 | 6/6 | 6/6 | 174 (+49%) | 671,415 (+53%) | 0.021 (+48%) | 40 | 31 | - |
+| aspire-skills-mcp-all-hint | 6 | 6/6 | 6/6 | 154 (+31%) | 658,180 (+50%) | 0.018 (+27%) | 38 | 46 | - |
+| aspire-skills-mcp-all-step | 6 | 6/6 | 6/6 | 119 (+2%) | 649,795 (+48%) | 0.018 (+27%) | 35 | 41 | - |
+| aspire-lean-connect | 6 | 6/6 | 6/6 | 79 (-32%) | 271,195 (-38%) | 0.009 (-36%) | 26 | 22 | - |
+| aspire-lean-spanrow | 6 | 6/6 | 6/6 | 86 (-26%) | 271,736 (-38%) | 0.009 (-33%) | 27 | 27 | - |
+| aspire-skills-noorchestration | 6 | 5/6 | 5/6 | 155 (+33%) | 685,162 (+56%) | 0.020 (+41%) | 51 | 66 | - |
+| aspire-skills-noaspireify | 6 | 6/6 | 6/6 | 180 (+54%) | 878,636 (+100%) | 0.023 (+68%) | 52 | 58 | - |
 
 ## slow-sql / gpt-6.1-sol
 
@@ -732,22 +732,22 @@ they are listed in trials.jsonl and excluded from every other column.
 
 | Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| raw | 24 | 24/24 | 24/24 | 56 (+0%) | 189,786 (+0%) | 0.057 (+0%) | 20 | 13 | - |
-| aspire-cli | 6 | 6/6 | 6/6 | 80 (+44%) | 359,980 (+90%) | 0.075 (+32%) | 30 | 28 | - |
+| raw | 30 | 30/30 | 30/30 | 55 (+0%) | 190,218 (+0%) | 0.057 (+0%) | 20 | 13 | - |
+| aspire-cli | 6 | 6/6 | 6/6 | 80 (+45%) | 359,980 (+89%) | 0.075 (+32%) | 30 | 28 | - |
 | aspire-skills | 18 | 18/18 | 18/18 | 97 (+75%) | 435,331 (+129%) | 0.090 (+58%) | 30 | 41 | - |
-| aspire-skills-mcp | 6 | 6/6 | 6/6 | 87 (+57%) | 473,744 (+150%) | 0.095 (+67%) | 32 | 31 | - |
-| aspire-lean (tasks 1479041e) | 6 | 6/6 | 6/6 | 55 (-0%) | 207,038 (+9%) | 0.051 (-10%) | 18 | 17 | - |
-| aspire-lean (tasks 916a57ce) | 6 | 6/6 | 6/6 | 68 (+23%) | 217,600 (+15%) | 0.057 (+0%) | 20 | 25 | - |
-| aspire-mcp-src | 6 | 6/6 | 6/6 | 94 (+70%) | 414,001 (+118%) | 0.087 (+53%) | 36 | 40 | - |
-| aspire-mcp-compact | 12 | 12/12 | 12/12 | 61 (+10%) | 264,566 (+39%) | 0.077 (+35%) | 25 | 19 | - |
-| aspire-lean-mcp-src | 6 | 6/6 | 6/6 | 69 (+23%) | 240,363 (+27%) | 0.062 (+9%) | 20 | 26 | - |
-| aspire-lean-mcp-compact | 6 | 6/6 | 6/6 | 67 (+21%) | 259,740 (+37%) | 0.065 (+15%) | 22 | 27 | - |
+| aspire-skills-mcp | 12 | 12/12 | 12/12 | 90 (+63%) | 492,280 (+159%) | 0.097 (+70%) | 34 | 32 | - |
+| aspire-lean (tasks 1479041e) | 6 | 6/6 | 6/6 | 55 (+0%) | 207,038 (+9%) | 0.051 (-10%) | 18 | 17 | - |
+| aspire-lean (tasks 916a57ce) | 6 | 6/6 | 6/6 | 68 (+23%) | 217,600 (+14%) | 0.057 (+1%) | 20 | 25 | - |
+| aspire-mcp-src | 6 | 6/6 | 6/6 | 94 (+70%) | 414,001 (+118%) | 0.087 (+54%) | 36 | 40 | - |
+| aspire-mcp-compact | 12 | 12/12 | 12/12 | 61 (+11%) | 264,566 (+39%) | 0.077 (+35%) | 25 | 19 | - |
+| aspire-lean-mcp-src | 6 | 6/6 | 6/6 | 69 (+24%) | 240,363 (+26%) | 0.062 (+9%) | 20 | 26 | - |
+| aspire-lean-mcp-compact | 6 | 6/6 | 6/6 | 67 (+22%) | 259,740 (+37%) | 0.065 (+15%) | 22 | 27 | - |
 | aspire-lean-src | 6 | 6/6 | 6/6 | 57 (+2%) | 190,402 (+0%) | 0.052 (-9%) | 18 | 20 | - |
-| aspire-skills-mon | 6 | 6/6 | 6/6 | 99 (+78%) | 464,779 (+145%) | 0.091 (+61%) | 31 | 45 | - |
-| aspire-skills-norouter | 6 | 6/6 | 6/6 | 97 (+74%) | 374,909 (+98%) | 0.085 (+50%) | 32 | 41 | - |
+| aspire-skills-mon | 6 | 6/6 | 6/6 | 99 (+79%) | 464,779 (+144%) | 0.091 (+61%) | 31 | 45 | - |
+| aspire-skills-norouter | 6 | 6/6 | 6/6 | 97 (+74%) | 374,909 (+97%) | 0.085 (+50%) | 32 | 41 | - |
 | aspire-lean-agents | 6 | 6/6 | 6/6 | 59 (+7%) | 219,862 (+16%) | 0.057 (+1%) | 22 | 20 | - |
-| aspire-cli-agents | 6 | 6/6 | 6/6 | 59 (+6%) | 259,972 (+37%) | 0.068 (+20%) | 28 | 25 | - |
-| aspire-skills-agents | 6 | 6/6 | 6/6 | 63 (+14%) | 343,328 (+81%) | 0.079 (+39%) | 32 | 26 | - |
+| aspire-cli-agents | 6 | 6/6 | 6/6 | 59 (+7%) | 259,972 (+37%) | 0.068 (+20%) | 28 | 25 | - |
+| aspire-skills-agents | 6 | 6/6 | 6/6 | 63 (+14%) | 343,328 (+80%) | 0.079 (+39%) | 32 | 26 | - |
 | aspire-lean-tracetable | 6 | 6/6 | 6/6 | 62 (+11%) | 205,842 (+8%) | 0.053 (-8%) | 20 | 23 | - |
 | aspire-mcp-compact2 | 6 | 6/6 | 6/6 | 58 (+4%) | 268,108 (+41%) | 0.070 (+23%) | 27 | 22 | - |
 
@@ -824,17 +824,20 @@ they are listed in trials.jsonl and excluded from every other column.
 
 | Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| raw | 6 | 0/6 | 0/6 | 336 (+0%) | 334,452 (+0%) | 0.011 (+0%) | 25 | - | - |
-| aspire-skills-mcp | 6 | 0/6 | 0/6 | 426 (+27%) | 1,151,959 (+244%) | 0.025 (+116%) | 52 | - | - |
-| aspire-lean | 6 | 4/6 | 4/6 | 514 (+53%) | 742,312 (+122%) | 0.021 (+82%) | 38 | 285 | - |
+| raw | 12 | 2/12 | 2/12 | 387 (+0%) | 396,234 (+0%) | 0.014 (+0%) | 28 | 454 | 1 |
+| aspire-cli | 6 | 0/6 | 0/6 | 382 (-1%) | 469,978 (+19%) | 0.014 (-2%) | 31 | - | - |
+| aspire-skills-mcp | 12 | 0/12 | 0/12 | 419 (+8%) | 1,111,138 (+180%) | 0.025 (+73%) | 47 | - | 1 |
+| aspire-lean | 12 | 6/12 | 6/12 | 514 (+33%) | 802,788 (+103%) | 0.022 (+54%) | 39 | 268 | - |
+| aspire-lean-agents | 6 | 1/6 | 1/6 | 565 (+46%) | 897,276 (+126%) | 0.027 (+88%) | 40 | 268 | - |
+| aspire-cli-agents | 6 | 0/6 | 0/6 | 483 (+25%) | 675,996 (+71%) | 0.018 (+24%) | 37 | 395 | - |
 
 ## slow-redis / gpt-6.1-terra / vscode
 
 | Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| raw | 5 | 5/5 | 5/5 | 426 (+0%) | 611,992 (+0%) | 0.113 (+0%) | 53 | 265 | 1 |
-| aspire-skills-mcp | 5 | 4/5 | 4/5 | 501 (+18%) | 1,271,329 (+108%) | 0.190 (+69%) | 60 | 289 | 1 |
-| aspire-lean | 6 | 6/6 | 6/6 | 409 (-4%) | 516,234 (-16%) | 0.100 (-11%) | 34 | 232 | - |
+| raw | 11 | 11/11 | 11/11 | 426 (+0%) | 611,992 (+0%) | 0.114 (+0%) | 52 | 256 | 1 |
+| aspire-skills-mcp | 11 | 8/11 | 8/11 | 531 (+25%) | 1,286,263 (+110%) | 0.190 (+66%) | 66 | 319 | 1 |
+| aspire-lean | 6 | 6/6 | 6/6 | 409 (-4%) | 516,234 (-16%) | 0.100 (-12%) | 34 | 232 | - |
 
 ## slow-sql / claude-haiku-5.5 / claude-code
 
@@ -848,18 +851,21 @@ they are listed in trials.jsonl and excluded from every other column.
 
 | Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| raw | 6 | 1/6 | 1/6 | 361 (+0%) | 440,768 (+0%) | 0.014 (+0%) | 29 | 207 | - |
-| aspire-skills-mcp | 5 | 4/5 | 4/5 | 622 (+72%) | 1,377,725 (+213%) | 0.031 (+125%) | 59 | 402 | 2 |
-| aspire-lean (tasks 1479041e) | 6 | 5/6 | 5/6 | 466 (+29%) | 624,862 (+42%) | 0.017 (+24%) | 30 | 226 | - |
-| aspire-lean (tasks 916a57ce) | 3 | 3/3 | 3/3 | 373 (+3%) | 482,095 (+9%) | 0.014 (+3%) | 31 | 229 | 1 |
+| raw | 12 | 4/12 | 4/12 | 386 (+0%) | 485,434 (+0%) | 0.015 (+0%) | 32 | 243 | 2 |
+| aspire-cli | 6 | 2/6 | 2/6 | 348 (-10%) | 397,508 (-18%) | 0.012 (-17%) | 26 | 361 | 1 |
+| aspire-skills-mcp | 11 | 7/11 | 7/11 | 503 (+30%) | 1,198,112 (+147%) | 0.026 (+76%) | 51 | 362 | 3 |
+| aspire-lean (tasks 1479041e) | 12 | 11/12 | 11/12 | 389 (+1%) | 486,624 (+0%) | 0.014 (-6%) | 26 | 230 | 1 |
+| aspire-lean (tasks 916a57ce) | 3 | 3/3 | 3/3 | 373 (-3%) | 482,095 (-1%) | 0.014 (-5%) | 31 | 229 | 1 |
+| aspire-lean-agents | 6 | 6/6 | 6/6 | 390 (+1%) | 514,579 (+6%) | 0.015 (+4%) | 28 | 233 | 1 |
+| aspire-cli-agents | 5 | 5/5 | 5/5 | 475 (+23%) | 697,763 (+44%) | 0.020 (+37%) | 36 | 263 | 3 |
 
 ## slow-sql / gpt-6.1-terra / vscode
 
 | Arm | n | Pass | App works | Agent s | Input tokens | Cost USD | Tool calls | To root cause s | Infra |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| raw | 6 | 6/6 | 6/6 | 323 (+0%) | 323,824 (+0%) | 0.076 (+0%) | 30 | 226 | - |
-| aspire-skills-mcp | 5 | 5/5 | 5/5 | 362 (+12%) | 439,695 (+36%) | 0.094 (+24%) | 31 | 247 | 1 |
-| aspire-lean | 6 | 6/6 | 6/6 | 343 (+6%) | 274,744 (-15%) | 0.064 (-16%) | 22 | 231 | - |
+| raw | 12 | 12/12 | 12/12 | 323 (+0%) | 311,018 (+0%) | 0.074 (+0%) | 30 | 223 | - |
+| aspire-skills-mcp | 11 | 11/11 | 11/11 | 362 (+12%) | 521,544 (+68%) | 0.101 (+36%) | 33 | 252 | 1 |
+| aspire-lean | 6 | 6/6 | 6/6 | 343 (+6%) | 274,744 (-12%) | 0.064 (-14%) | 22 | 231 | - |
 
 # Skill references read
 
@@ -937,7 +943,7 @@ tool calls' arguments; search results are not reads). Later pins only; cells whe
 | restart-change | gpt-6.1-terra | aspire-skills | 6 | 6/6 | 1 | `aspire-orchestration/references/resource-management.md` 6 |
 | restart-change | gpt-6.1-terra | aspire-skill-orchestration | 6 | 6/6 | 1 | `aspire-orchestration/references/resource-management.md` 6 |
 | slow-redis | gpt-6-luna | aspire-skills | 24 | 10/24 | 0 | `aspire-orchestration/references/resource-management.md` 7, `aspire-monitoring/references/monitoring.md` 6, `aspire-orchestration/references/agent-workflows.md` 2, `aspire-orchestration/references/safety-guardrails.md` 2, `aspire-orchestration/references/app-commands.md` 1 |
-| slow-redis | gpt-6-luna | aspire-skills-mcp | 18 | 2/18 | 0 | `aspire-monitoring/references/monitoring.md` 2 |
+| slow-redis | gpt-6-luna | aspire-skills-mcp | 24 | 3/24 | 0 | `aspire-monitoring/references/monitoring.md` 3 |
 | slow-redis | gpt-6-luna | aspire-lean (tasks 1479041e) | 30 | 1/30 | 0 | `aspire-orchestration/references/resource-management.md` 1 |
 | slow-redis | gpt-6-luna | aspire-skills-mon | 6 | 1/6 | 0 | `aspire-monitoring/references/monitoring.md` 1 |
 | slow-redis | gpt-6-luna | aspire-skills-norouter | 6 | 4/6 | 1.5 | `aspire-orchestration/references/resource-management.md` 4, `aspire-monitoring/references/monitoring.md` 2, `aspire-orchestration/references/agent-workflows.md` 1, `aspire-orchestration/references/safety-guardrails.md` 1 |
@@ -951,7 +957,7 @@ tool calls' arguments; search results are not reads). Later pins only; cells whe
 | slow-redis | gpt-6.1-terra | aspire-skills-mon | 6 | 1/6 | 0 | `aspire-monitoring/references/monitoring.md` 1 |
 | slow-redis | gpt-6.1-terra | aspire-skills-redishint | 6 | 1/6 | 0 | `aspire-monitoring/references/monitoring.md` 1 |
 | slow-sql | gpt-6-luna | aspire-skills | 33 | 10/33 | 0 | `aspire-monitoring/references/monitoring.md` 8, `aspire-orchestration/references/resource-management.md` 2, `aspire-monitoring/references/diagnostics-bridge.md` 1, `aspire-orchestration/references/agent-workflows.md` 1, `aspire-orchestration/references/app-commands.md` 1, `aspire-orchestration/references/detection.md` 1, `aspire-orchestration/references/safety-guardrails.md` 1 |
-| slow-sql | gpt-6-luna | aspire-skills-mcp | 12 | 4/12 | 0 | `aspire-monitoring/references/monitoring.md` 4 |
+| slow-sql | gpt-6-luna | aspire-skills-mcp | 18 | 6/18 | 0 | `aspire-monitoring/references/monitoring.md` 6 |
 | slow-sql | gpt-6-luna | aspire-skills-mon | 6 | 2/6 | 0 | `aspire-monitoring/references/monitoring.md` 2, `aspire-monitoring/references/diagnostics-bridge.md` 1 |
 | slow-sql | gpt-6-luna | aspire-skills-norouter | 6 | 2/6 | 0 | `aspire-monitoring/references/monitoring.md` 2 |
 | slow-sql | gpt-6-luna | aspire-skills-agents | 6 | 2/6 | 0 | `aspire-monitoring/references/monitoring.md` 2 |
@@ -971,4 +977,5 @@ tool calls' arguments; search results are not reads). Later pins only; cells whe
 | two-app | gpt-6-luna | aspire-skill-orchestration | 6 | 2/6 | 0 | `aspire-orchestration/references/resource-management.md` 2, `aspire-orchestration/references/safety-guardrails.md` 2, `aspire-orchestration/references/app-commands.md` 1 |
 | two-app | gpt-6-luna | aspire-skills-noorchestration | 6 | 1/6 | 0 | `aspire-monitoring/references/monitoring.md` 1 |
 | two-app | gpt-6.1-terra | aspire-skill-orchestration | 6 | 1/6 | 0 | `aspire-orchestration/references/resource-management.md` 1 |
+| slow-sql | gpt-6-luna | aspire-skills-mcp / vscode | 11 | 1/11 | 0 | `aspire-orchestration/references/agent-workflows.md` 1, `aspire-orchestration/references/resource-management.md` 1 |
 
