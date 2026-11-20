@@ -1,0 +1,213 @@
+diff --git a/src/Aspire.Cli/Commands/StartCommand.cs b/src/Aspire.Cli/Commands/StartCommand.cs
+index b9ce0558f1..cdf3a965c2 100644
+--- a/src/Aspire.Cli/Commands/StartCommand.cs
++++ b/src/Aspire.Cli/Commands/StartCommand.cs
+@@ -8,6 +8,7 @@
+ using Aspire.Cli.Resources;
+ using Aspire.Cli.Utils;
+ using Aspire.Hosting;
++using Aspire.Hosting.ApplicationModel;
+ using Microsoft.Extensions.Configuration;
+ 
+ namespace Aspire.Cli.Commands;
+@@ -23,16 +24,35 @@ internal sealed class StartCommand : BaseCommand
+     private readonly AppHostLauncher _appHostLauncher;
+     private readonly IConfiguration _configuration;
+     private readonly ProfileCaptureState _profileCaptureState;
++    private readonly AppHostConnectionResolver _connectionResolver;
++    private readonly ResourceWaitService _resourceWaitService;
+ 
+     private static readonly Option<bool> s_noBuildOption = new("--no-build")
+     {
+         Description = RunCommandStrings.NoBuildArgumentDescription
+     };
+ 
++    // Agentic patch (aspire-bench T2.2): a start that returns when the app is usable.
++    // `--wait` with no names waits for every resource; `--wait a b` waits for the named ones.
++    // Non-interactive starts wait for every resource by default; `--no-wait` keeps the old behavior.
++    private static readonly Option<string[]> s_waitOption = new("--wait")
++    {
++        Description = "Wait until resources are healthy (or have finished successfully) before returning, then print their endpoints. With no names, waits for every resource. The default with --non-interactive.",
++        Arity = ArgumentArity.ZeroOrMore,
++        AllowMultipleArgumentsPerToken = true
++    };
++
++    private static readonly Option<bool> s_noWaitOption = new("--no-wait")
++    {
++        Description = "Return as soon as the AppHost has started, without waiting for resources."
++    };
++
+     public StartCommand(
+         AppHostLauncher appHostLauncher,
+         IConfiguration configuration,
+         ProfileCaptureState profileCaptureState,
++        AppHostConnectionResolver connectionResolver,
++        ResourceWaitService resourceWaitService,
+         CommonCommandServices services)
+         : base("start", StartCommandStrings.Description,
+                services)
+@@ -40,8 +60,12 @@ public StartCommand(
+         _appHostLauncher = appHostLauncher;
+         _configuration = configuration;
+         _profileCaptureState = profileCaptureState;
++        _connectionResolver = connectionResolver;
++        _resourceWaitService = resourceWaitService;
+ 
+         Options.Add(s_noBuildOption);
++        Options.Add(s_waitOption);
++        Options.Add(s_noWaitOption);
+         AppHostLauncher.AddLaunchOptions(this);
+ 
+         TreatUnmatchedTokensAsErrors = false;
+@@ -125,7 +149,17 @@ await extensionInteractionService.StartDebugSessionAsync(
+             return CommandResult.Failure(CliExitCodes.InvalidCommand);
+         }
+ 
+-        return await _appHostLauncher.LaunchDetachedAsync(
++        // Explicit --wait always waits; otherwise a non-interactive, non-JSON start waits for every resource.
++        var waitResult = parseResult.GetResult(s_waitOption);
++        var explicitWait = waitResult is { Implicit: false };
++        var noWait = parseResult.GetValue(s_noWaitOption);
++        var waitForResources = !noWait && (explicitWait || (nonInteractive && format != OutputFormat.Json && stopAfterLaunchDelay is null))
++            ? (parseResult.GetValue(s_waitOption) ?? [])
++                .SelectMany(static value => value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
++                .ToArray()
++            : null;
++
++        var launchResult = await _appHostLauncher.LaunchDetachedAsync(
+             passedAppHostProjectFile,
+             format,
+             explicitIsolated,
+@@ -137,5 +171,132 @@ await extensionInteractionService.StartDebugSessionAsync(
+             additionalArgs,
+             stopAfterLaunchDelay,
+             cancellationToken);
++
++        if (waitForResources is null || launchResult.ExitCode != CliExitCodes.Success)
++        {
++            return launchResult;
++        }
++
++        return CommandResult.FromExitCode(await WaitForResourcesAsync(passedAppHostProjectFile, waitForResources, format, cancellationToken));
++    }
++
++    private async Task<int> WaitForResourcesAsync(FileInfo? appHostFile, string[] requestedNames, OutputFormat? format, CancellationToken cancellationToken)
++    {
++        var connectionResult = await _connectionResolver.ResolveConnectionAsync(
++            appHostFile,
++            SharedCommandStrings.ScanningForRunningAppHosts,
++            string.Format(CultureInfo.CurrentCulture, SharedCommandStrings.SelectAppHost, "wait for"),
++            SharedCommandStrings.AppHostNotRunning,
++            cancellationToken);
++        if (!connectionResult.Success)
++        {
++            return AppHostConnectionResultHandler.DisplayFailureAsError(connectionResult, InteractionService, CliExitCodes.FailedToFindProject);
++        }
++
++        var connection = connectionResult.Connection!;
++        var snapshots = await connection.GetResourceSnapshotsAsync(includeHidden: false, cancellationToken);
++        var visible = snapshots
++            .Where(static s => !ResourceSnapshotMapper.IsHiddenResource(s))
++            .Where(static s => !string.Equals(s.ResourceType, "Parameter", StringComparison.OrdinalIgnoreCase))
++            .ToList();
++        var names = requestedNames.Length > 0
++            ? requestedNames
++            : visible.Select(static s => s.DisplayName ?? s.Name).Distinct(StringComparers.ResourceName).ToArray();
++
++        var timeoutSeconds = WaitCommand.DefaultTimeoutSeconds;
++        var startTimestamp = TimeProvider.System.GetTimestamp();
++        IReadOnlyList<ResourceWaitResult> results = await InteractionService.ShowStatusAsync(
++            requestedNames.Length > 0
++                ? $"Waiting for {string.Join(", ", names)} to be healthy..."
++                : "Waiting for resources to be healthy...",
++            () => _resourceWaitService.WaitForResourcesAsync(connection, names, ResourceWaitTarget.Healthy, timeoutSeconds, cancellationToken));
++
++        // A resource that runs to completion (a migration, an installer) never becomes healthy;
++        // finishing with exit code 0 is its success.
++        snapshots = await connection.GetResourceSnapshotsAsync(includeHidden: false, cancellationToken);
++        var exitCode = CliExitCodes.Success;
++        var lines = new List<string>();
++        foreach (var result in results)
++        {
++            var snapshot = FindSnapshot(snapshots, result.ResourceName);
++            if (snapshot is { ExitCode: 0 } && KnownResourceStates.TerminalStates.Contains(snapshot.State, StringComparers.ResourceState))
++            {
++                lines.Add($"Resource '{result.ResourceName}' finished (exit code 0). ({result.Elapsed.TotalSeconds:F1}s)");
++            }
++            else if (result.Outcome == ResourceWaitOutcome.Success)
++            {
++                lines.Add($"Resource '{result.ResourceName}' is healthy. ({result.Elapsed.TotalSeconds:F1}s)");
++            }
++            else if (result.ResourceNotFound)
++            {
++                lines.Add($"Resource '{result.ResourceName}' was not found.");
++                exitCode = CliExitCodes.WaitResourceFailed;
++            }
++            else if (result.Outcome == ResourceWaitOutcome.Timeout)
++            {
++                lines.Add($"Resource '{result.ResourceName}' is not healthy after {timeoutSeconds}s (state: {snapshot?.State ?? "unknown"}, health: {snapshot?.HealthStatus ?? "-"}).");
++                exitCode = exitCode == CliExitCodes.Success ? CliExitCodes.WaitTimeout : exitCode;
++            }
++            else
++            {
++                lines.Add($"Resource '{result.ResourceName}' failed (state: {snapshot?.State ?? result.State ?? "unknown"}{(snapshot?.ExitCode is { } code ? $", exit code {code}" : "")}). See `aspire logs {result.ResourceName}`.");
++                exitCode = CliExitCodes.WaitResourceFailed;
++            }
++        }
++
++        if (format == OutputFormat.Json)
++        {
++            return exitCode;
++        }
++
++        foreach (var line in lines)
++        {
++            InteractionService.DisplayPlainText(line);
++        }
++
++        // Endpoints of the resources waited on, so a caller does not need `aspire describe` to find them.
++        var endpointLines = new List<string>();
++        foreach (var name in names)
++        {
++            var snapshot = FindSnapshot(snapshots, name);
++            if (snapshot is null)
++            {
++                continue;
++            }
++            foreach (var url in snapshot.Urls.Where(static u => !u.IsInternal).OrderBy(static u => u.DisplayProperties?.SortOrder ?? 0))
++            {
++                var label = url.DisplayProperties?.DisplayName is { Length: > 0 } displayName ? $" ({displayName})" : "";
++                endpointLines.Add($"  {name}: {url.Url}{label}");
++            }
++        }
++
++        if (endpointLines.Count > 0)
++        {
++            InteractionService.DisplayPlainText("");
++            InteractionService.DisplayPlainText("Endpoints:");
++            foreach (var line in endpointLines)
++            {
++                InteractionService.DisplayPlainText(line);
++            }
++        }
++
++        var elapsed = TimeProvider.System.GetElapsedTime(startTimestamp);
++        InteractionService.DisplayPlainText("");
++        if (exitCode == CliExitCodes.Success)
++        {
++            InteractionService.DisplaySuccess($"All {names.Length} resources are ready. ({elapsed.TotalSeconds:F1}s)");
++        }
++        else
++        {
++            InteractionService.DisplayError("Some resources are not ready; the AppHost is still running.");
++        }
++
++        return exitCode;
++    }
++
++    private static ResourceSnapshot? FindSnapshot(IReadOnlyList<ResourceSnapshot> snapshots, string name)
++    {
++        return snapshots.FirstOrDefault(s => StringComparers.ResourceName.Equals(s.DisplayName ?? s.Name, name))
++            ?? snapshots.FirstOrDefault(s => StringComparers.ResourceName.Equals(s.Name, name));
+     }
+ }

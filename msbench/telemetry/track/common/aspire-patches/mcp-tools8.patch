@@ -1,0 +1,19 @@
+diff --git a/src/Aspire.Cli/Commands/AgentMcpCommand.cs b/src/Aspire.Cli/Commands/AgentMcpCommand.cs
+index ef6c489158..4fd2e32b13 100644
+--- a/src/Aspire.Cli/Commands/AgentMcpCommand.cs
++++ b/src/Aspire.Cli/Commands/AgentMcpCommand.cs
+@@ -214,6 +214,14 @@ protected override async Task<CommandResult> ExecuteAsync(ParseResult parseResul
+             _knownTools[KnownMcpTools.ListDocs] = new ListDocsTool(_docsIndexService);
+             _knownTools[KnownMcpTools.SearchDocs] = new SearchDocsTool(_docsSearchService, _docsIndexService);
+             _knownTools[KnownMcpTools.GetDoc] = new GetDocTool(_docsIndexService);
++
++            // Measurement build (aspire-bench PLAN T2.7): register only the eight tools agents called
++            // in 422 MCP-arm trials; these seven were called once or never, or 13 times (select_apphost).
++            foreach (var unused in (string[])[KnownMcpTools.SelectAppHost, KnownMcpTools.ListIntegrations, KnownMcpTools.Doctor,
++                KnownMcpTools.RefreshTools, KnownMcpTools.ListDocs, KnownMcpTools.SearchDocs, KnownMcpTools.GetDoc])
++            {
++                _knownTools.Remove(unused);
++            }
+         }
+ 
+         var icons = McpIconHelper.GetAspireIcons(typeof(AgentMcpCommand).Assembly, "Aspire.Cli.Mcp.Resources");

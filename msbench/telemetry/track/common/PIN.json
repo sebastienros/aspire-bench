@@ -1,0 +1,13 @@
+{
+  "aspire_version": "17.1.0-preview.1.26569.1",
+  "aspire_commit": "4ad3cfe685bcf47d79c8d16d64fc4be6363280dd",
+  "sha256_amd64": "fe6653adab6be9d244a62948679aeaaa24658d9e91eba1ad62ed7053136f28c3",
+  "sha256_arm64": "23ccee12e1084eb99ca37fec779fc124fb88cb50a7eb24b8317daabf52384e73",
+  "skills_tag": "v0.0.6",
+  "skills_sha": "e529b608336cd41c1b1262aa76d00d9e4ef1bff8",
+  "copied_from": "msbench/telemetry/common",
+  "replaced": {
+    "aspire_version": "17.1.0-preview.1.26567.3",
+    "aspire_commit": "30326eb876d6897b1feadc8bc800f78e466b1b52"
+  }
+}

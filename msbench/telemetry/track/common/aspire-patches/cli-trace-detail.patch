@@ -1,0 +1,62 @@
+diff --git a/src/Aspire.Cli/Commands/TelemetryTracesCommand.cs b/src/Aspire.Cli/Commands/TelemetryTracesCommand.cs
+index 26e2c46343..b27989eb57 100644
+--- a/src/Aspire.Cli/Commands/TelemetryTracesCommand.cs
++++ b/src/Aspire.Cli/Commands/TelemetryTracesCommand.cs
+@@ -326,7 +326,7 @@ private void DisplayTraceDetails(string json, string traceId, IReadOnlyList<IOtl
+                     var startNano = (long)(span.StartTimeUnixNano ?? 0);
+                     var hasError = span.Status?.Code == 2; // ERROR status
+ 
+-                    spans.Add(new SpanInfo(spanId, parentSpanId, resourceName, name, duration, startNano, hasError));
++                    spans.Add(new SpanInfo(spanId, parentSpanId, resourceName, name, duration, startNano, hasError, GetSpanDetail(span.Attributes)));
+                 }
+             }
+         }
+@@ -419,6 +419,13 @@ private void DisplaySpanNode(
+ 
+         InteractionService.DisplayMarkupLine($"{indent}{connector} [dim]{spanIdLink}[/] {displayName} [{statusColor}]{statusText}[/] [dim]{durationStr}[/]");
+ 
++        // Agentic patch (aspire-bench T2.3): the statement or URL a client span carries, so one table
++        // read says what the slow or failing call did without fetching the trace as JSON.
++        if (!string.IsNullOrEmpty(span.Detail))
++        {
++            InteractionService.DisplayMarkupLine($"{childIndent}   [dim]{span.Detail.EscapeMarkup()}[/]");
++        }
++
+         // Render children
+         if (childrenByParent.TryGetValue(span.SpanId, out var children))
+         {
+@@ -436,5 +443,33 @@ private sealed record SpanInfo(
+         string Name,
+         TimeSpan Duration,
+         long StartNano,
+-        bool HasError);
++        bool HasError,
++        string? Detail = null);
++
++    private const int MaxSpanDetailLength = 160;
++
++    // The first of these attributes a span carries: database statement, then outgoing URL.
++    private static readonly string[] s_spanDetailAttributes = ["db.query.text", "db.statement", "url.full", "http.url"];
++
++    internal static string? GetSpanDetail(OtlpKeyValueJson[]? attributes)
++    {
++        if (attributes is null)
++        {
++            return null;
++        }
++
++        foreach (var key in s_spanDetailAttributes)
++        {
++            var value = attributes.FirstOrDefault(a => a.Key == key)?.Value?.StringValue;
++            if (string.IsNullOrWhiteSpace(value))
++            {
++                continue;
++            }
++
++            var text = string.Join(' ', value.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries));
++            return text.Length > MaxSpanDetailLength ? text[..(MaxSpanDetailLength - 3)] + "..." : text;
++        }
++
++        return null;
++    }
+ }

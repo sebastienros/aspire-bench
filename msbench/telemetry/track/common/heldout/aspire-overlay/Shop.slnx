@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="src/Shop.Api/Shop.Api.csproj" />
+  <Project Path="src/Shop.Data/Shop.Data.csproj" />
+  <Project Path="src/Shop.ServiceDefaults/Shop.ServiceDefaults.csproj" />
+  <Project Path="src/Shop.Worker/Shop.Worker.csproj" />
+</Solution>

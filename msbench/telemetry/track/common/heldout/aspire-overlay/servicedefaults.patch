@@ -1,0 +1,70 @@
+diff --git a/src/Shop.Api/Program.cs b/src/Shop.Api/Program.cs
+index b543cc5..980c217 100644
+--- a/src/Shop.Api/Program.cs
++++ b/src/Shop.Api/Program.cs
+@@ -6,6 +6,12 @@ using Shop.Api;
+ using Shop.Data;
+ 
+ var builder = WebApplication.CreateBuilder(args);
++var useServiceDefaults = builder.Configuration.GetValue<bool>("Aspire:UseServiceDefaults");
++
++if (useServiceDefaults)
++{
++    builder.AddServiceDefaults();
++}
+ 
+ var databaseConnection = builder.Configuration.GetConnectionString("shopdb")
+     ?? throw new InvalidOperationException("Connection string 'shopdb' is required.");
+@@ -33,6 +39,11 @@ await using (var scope = app.Services.CreateAsyncScope())
+     }
+ }
+ 
++if (useServiceDefaults)
++{
++    app.MapDefaultEndpoints();
++}
++
+ app.UseDefaultFiles();
+ app.UseStaticFiles();
+ 
+diff --git a/src/Shop.Api/Shop.Api.csproj b/src/Shop.Api/Shop.Api.csproj
+index 83d55d6..5f5c67d 100644
+--- a/src/Shop.Api/Shop.Api.csproj
++++ b/src/Shop.Api/Shop.Api.csproj
+@@ -12,6 +12,7 @@
+ 
+   <ItemGroup>
+     <ProjectReference Include="..\Shop.Data\Shop.Data.csproj" />
++    <ProjectReference Include="..\Shop.ServiceDefaults\Shop.ServiceDefaults.csproj" />
+   </ItemGroup>
+ 
+ </Project>
+diff --git a/src/Shop.Worker/Program.cs b/src/Shop.Worker/Program.cs
+index e96b710..86b898f 100644
+--- a/src/Shop.Worker/Program.cs
++++ b/src/Shop.Worker/Program.cs
+@@ -3,6 +3,12 @@ using Shop.Data;
+ using Shop.Worker;
+ 
+ var builder = Host.CreateApplicationBuilder(args);
++var useServiceDefaults = builder.Configuration.GetValue<bool>("Aspire:UseServiceDefaults");
++
++if (useServiceDefaults)
++{
++    builder.AddServiceDefaults();
++}
+ 
+ var databaseConnection = builder.Configuration.GetConnectionString("shopdb")
+     ?? throw new InvalidOperationException("Connection string 'shopdb' is required.");
+diff --git a/src/Shop.Worker/Shop.Worker.csproj b/src/Shop.Worker/Shop.Worker.csproj
+index bf7d869..c26dec1 100644
+--- a/src/Shop.Worker/Shop.Worker.csproj
++++ b/src/Shop.Worker/Shop.Worker.csproj
+@@ -13,6 +13,7 @@
+ 
+   <ItemGroup>
+     <ProjectReference Include="..\Shop.Data\Shop.Data.csproj" />
++    <ProjectReference Include="..\Shop.ServiceDefaults\Shop.ServiceDefaults.csproj" />
+   </ItemGroup>
+ 
+ </Project>
