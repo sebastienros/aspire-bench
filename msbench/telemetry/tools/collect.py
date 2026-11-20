@@ -2,7 +2,8 @@
 """Extracts MSBench runs listed in results/ledger.jsonl and derives per-trial metrics.
 
     tools/collect.py            extract any run not yet extracted, then rebuild results
-    tools/collect.py --no-fetch only re-derive from artifacts already on disk
+    tools/collect.py --no-fetch only re-derive from artifacts already on disk (an excluded run whose folder was
+                                deleted keeps its published rows; a kept run without a folder is dropped and reported)
     tools/collect.py --rounds a,b   the runs already in results/trials.jsonl (from disk) plus every run of
                                     rounds a and b (fetched): a lane adds its own rounds without fetching,
                                     or publishing, another lane's rounds still in flight (PLAN T4.5)
@@ -1402,16 +1403,33 @@ def main():
         ledger = [e for e in ledger if e["run_id"] in published or e["round"] in rounds]
     skip = set(sys.argv[sys.argv.index("--skip-rounds") + 1].split(",")) if "--skip-rounds" in sys.argv else set()
     rows = []
+    # Excluded runs (model-service incident rounds, pilots, probes) may have had their extracted folders deleted
+    # (2026-11-20, 320 runs, 13.9 GB): their published rows are carried over unchanged, so a regeneration without the
+    # folders reproduces trials.jsonl. A kept run with no folder is still reported and dropped, as before.
+    published_rows = collections.defaultdict(list)
+    if (SUITE / "results/trials.jsonl").exists():
+        for line in (SUITE / "results/trials.jsonl").read_text().splitlines():
+            if line.strip():
+                row = json.loads(line)
+                published_rows[row["run_id"]].append(row)
+    carried = 0
     for entry in ledger:
         if entry.get("cancelled") or entry["round"] in skip:
             continue
         fetch_it = "--no-fetch" not in sys.argv and (rounds is None or entry["round"] in rounds)
-        root = fetch(entry["run_id"]) if fetch_it else DATA / "extracted" / entry["run_id"]
+        root = DATA / "extracted" / entry["run_id"]
+        if entry.get("excluded") and not root.exists() and published_rows.get(entry["run_id"]):
+            rows += published_rows[entry["run_id"]]
+            carried += len(published_rows[entry["run_id"]])
+            continue
+        root = fetch(entry["run_id"]) if fetch_it else root
         trials = [p for p in root.rglob("result.json") if "trial_name" in p.read_text()[:4000]]
         if not trials:
             print(f"pending/no result: {entry['run_id']} {entry['scenario']} {entry['arm']} {entry['model']}", file=sys.stderr)
             continue
         rows += [analyze_trial(path, entry) for path in trials]
+    if carried:
+        print(f"{carried} published rows of excluded runs carried over (extracted folder not on disk)", file=sys.stderr)
     label_skill_variants(rows)
     (SUITE / "results/trials.jsonl").write_text("".join(json.dumps(r, sort_keys=True) + "\n" for r in rows))
     (SUITE / "results/summary.md").write_text(summarize(rows) + "\n")
