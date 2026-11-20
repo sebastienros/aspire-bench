@@ -4650,7 +4650,8 @@ rule 2.** Evidence in [`evidence/trk20261119/`](evidence/trk20261119/).
   once in `trk20261119-topup` (`2026112013810856`, graded). **120 graded of 121 submitted**, 102 passed (luna 42/60,
   terra 60/60). Every trajectory read from the unredacted output copy.
 - **Series and drafts** (`series.py` over `trk20261119` + `-topup`, 24 cell rows; the trailing window is the cell's
-  earlier runs on pin 2026-11-17, three to five of them):
+  earlier runs, one to five of them (12 rows with five, 6 with three, 2 each with four, two and one), on pins
+  2026-11-09 and 2026-11-17 (rule 1: a re-pin does not reset the window)):
   - **`leak`** on `slow-redis`/luna/`aspire-cli` (one trial of five, `2026112009190348`): **draft written**,
     [`upstream-issues/tracking/trk20261119-slow-redis-gpt-6-luna-aspire-cli-leak.md`](../upstream-issues/tracking/trk20261119-slow-redis-gpt-6-luna-aspire-cli-leak.md),
     never filed. As read after the flag: the access is the agent's 45th of 46 tool calls, a `ps -eo … | grep`
