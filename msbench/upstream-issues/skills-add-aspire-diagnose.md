@@ -1,7 +1,7 @@
 ---
 repo: microsoft/aspire-skills
 title: "Add an aspire-diagnose skill: a bounded recipe for 'a running app is slow, failing or unhealthy'"
-finding: F17
+finding: F17, F23
 labels: []
 status: draft
 issue:
@@ -9,48 +9,69 @@ issue:
 
 ## Summary
 
-The shipped skills have no owner for first-line diagnosis of a running local app. On a
-"the app is slow, find out why and fix it" prompt the agent gets the router, then
-`aspire-monitoring`, and ends up reading unbounded `aspire otel` output or source code.
-Measured against the same app without Aspire, the shipped skills + MCP make diagnosis
-35% to 228% slower and 96% to 356% more expensive in tokens on three models (p ≤ 0.004
-on tokens in all six cells).
+The shipped skills have no owner for first-line diagnosis of a running local app. On a "the app is slow, find out
+why and fix it" prompt the agent gets the router, then `aspire-monitoring`, and ends up reading unbounded
+`aspire otel` output or source code. Measured on an aspirified sample application with injected faults (aspire-bench
+telemetry suite; MSBench, Copilot CLI 1.0.99, Aspire daily `17.1.0-preview.1.26567.3+30326eb8`, aspire-skills
+v0.0.6, pooled over the rounds of that pin), the shipped set with MCP against the same app without Aspire:
+
+| Fault | Model | Shipped set + MCP ÷ raw, agent time [90 % interval] | Input tokens |
+|---|---|---|---|
+| slow SQL | `gpt-6-luna` | 1.71× [1.60–2.09], p < 0.001 | +177 % |
+| slow SQL | `gpt-6.1-terra` | 1.63× [1.52–1.73], p < 0.001 | +159 % |
+| read-only database | `gpt-6-luna` | 1.83× [1.32–3.44], p = 0.003 | +172 % |
+| read-only database | `gpt-6.1-terra` | 1.40× [1.21–1.56], p < 0.001 | +137 % |
+
+On a third fault, a cache blocked by another client, whose evidence is not in the app's own log, the shipped set
+with MCP passed 0 of 24 luna trials (raw 8 of 54): the agents patched the application instead of the cache.
 
 ## Proposal
 
-Add `aspire-diagnose` (about 5 KB, no reference files on the main path). The measured
-version is in the aspire-bench repository under
-`msbench/telemetry/common/skills/new/aspire-diagnose/SKILL.md`. Its shape:
+Add `aspire-diagnose` (about 6 KB, no reference files on the main path). The measured version is in the
+aspire-bench repository under `msbench/telemetry/common/skills/new/aspire-diagnose/SKILL.md`. Its shape:
 
-1. **Locate** with a bounded filter: `aspire otel traces -n 15 --search "duration:>500"`
-   (or `--search "status:error"`), table output.
-2. **Explain one trace** as JSON by ID, with a short table of what span patterns mean
-   (one slow child; many similar children; uncovered time; error under a 200).
-3. **Confirm at the dependency**, with the exact commands: `docker exec <container.id>
-   psql …` for PostgreSQL, `docker exec … redis-cli SLOWLOG GET 10` and
-   `CLIENT LIST` for Redis on its plain port (the skill probes 6379 then 6380 with a PING, since Aspire serves TLS on one of them), using `container.id` from `aspire describe`.
+1. **Locate** with a bounded filter: `aspire otel traces -n 15 --search "duration:>500"` (or
+   `--search "status:error"`), table output.
+2. **Explain one trace** as JSON by id, with a short table of what span patterns mean (one slow child; many similar
+   children; uncovered time; error under a 200).
+3. **Confirm at the dependency**, with the exact commands run inside the resource's container, using `container.id`
+   from `aspire describe`: `psql …` for PostgreSQL; `redis-cli SLOWLOG GET 10` and `CLIENT LIST` for Redis on its
+   plain port (the skill probes 6379 then 6380 with a PING, since Aspire serves TLS on one of them).
 4. **Fix** the smallest thing that removes the cause; do not restart or flush by default.
 5. **Verify** with the same filter as step 1.
 
-Trigger description states symptoms, not verbs: "a running local app is slow, failing
-or unhealthy; find the root cause".
+Trigger description states symptoms, not verbs: "a running local app is slow, failing or unhealthy; find the root
+cause".
 
 ## Measured effect
 
-Three faults (slow SQL, read-only database, a blocked Redis cache), three models,
-6 to 12 trials per cell:
+Same pin and harness, the "lean" set (this skill, the router removed, `aspire-monitoring`'s description narrowed, no
+MCP), pooled over the pin's rounds; p from an exact Mann-Whitney test, intervals from a 90 % bootstrap of the ratio.
 
-- Selected 162 of 162 times; every slow-SQL trial then ran the duration filter
-  (0 of 30 shipped-skills trials did).
-- Against shipped skills + MCP: 10% to 60% faster, 22% to 75% fewer input tokens, in
-  all nine scenario × model cells (p ≤ 0.004 in the seven cells with n ≥ 6).
-- Against the raw app: parity (−3% to +16% time, none significant) when the app's own
-  log carries the evidence; decisive when it does not. On the cache fault the skill
-  fixed 5 of 6 on the cheapest model against 0 of 6 for the shipped skills + MCP and
-  1 of 8 for the raw app, 41% faster (p = 0.005); 45% to 68% faster on the other two.
+- **Selected every time.** `aspire-diagnose` was loaded in 135 of 135 lean trials on the three faults across
+  `gpt-6-luna`, `gpt-6.1-terra`, `gpt-6.2-sol` and `claude-opus-5.5`. Next to the router (`aspire-plus`, first pin)
+  it was selected in only 4 of 6 luna trials.
+- **Against the shipped set with MCP:** luna 0.47× the time on slow SQL (18 vs 18, p < 0.001) and 0.47× on read-only
+  (p = 0.002); terra 0.61× (p < 0.001) and 0.67× (p = 0.002); sol 0.84× on read-only (p = 0.065) and 0.65× on the
+  cache fault (p = 0.041); Opus 0.42× on the cache fault (p = 0.015). Input tokens 39 % to 71 % lower in every one of
+  those cells.
+- **Against the raw app:** parity on the two faults whose evidence is in the app's log. Luna 0.80× on slow SQL
+  [0.71–1.05] and 0.85× on read-only [0.56–1.23], terra 1.00× [0.95–1.05] and 0.94× [0.90–0.99], none significant on
+  time; tokens −21 % (luna slow SQL, p = 0.041) to +9 %. The strong models pay for waiting on fresh telemetry before
+  confirming a fix: Opus 1.45× on slow SQL (p = 0.026) and 1.35× on read-only (p = 0.065), sol 1.21× on read-only
+  (p = 0.093); every trial passed.
+- **Decisive where the log is silent** (the blocked cache): luna passed 29 of 36 against 8 of 54 raw and 0 of 24 for
+  the shipped set with MCP, at 0.51× raw's time [0.41–0.64]; terra 0.40× [0.26–0.63], sol 0.57× [0.36–0.81]
+  (p = 0.004), Opus 0.42× [0.25–0.82]; all three stronger models 6 of 6 on every arm.
+- **Pass rates otherwise unchanged:** lean 24 of 24 (luna) and 12 of 12 (terra) on slow SQL, 6 of 6 and 6 of 6 on
+  read-only.
 
 ## Caveats
 
-- Step 3 names PostgreSQL and Redis only; other integrations need their own line.
-- It works best with the router removed (see the companion issue); with the router
-  present the cheapest model picked the wrong skill in 2 of 6 trials.
+- Step 3 names PostgreSQL and Redis only; other integrations need their own line, or a generic `connect` entry in
+  `aspire describe` (proposed separately on microsoft/aspire).
+- It works best with the router removed (companion issue): with the router present the cheapest model picked the
+  wrong skill in 2 of 6 trials on the first pin.
+- Step 5's "confirm on fresh traffic" adds 15–45 s per confirmation on `claude-opus-5.5`, which waits for new
+  telemetry; a revision that accepts the first clean trace is under test.
+- One application, one harness (Copilot CLI); six trials per cell per round.

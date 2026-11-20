@@ -42,12 +42,12 @@ finding's **Limits / status** line. Keep the file; it is the record of what was 
 | File | Repo | Finding | Ask |
 |---|---|---|---|
 | [aspire-redis-default-ports.md](aspire-redis-default-ports.md) | microsoft/aspire | F22 | **Superseded** by [PR 22350](https://github.com/microsoft/aspire/pull/22350) (merged 2026-11-20): plain Redis on 6379, TLS on 6380. Not filed |
-| [aspire-mcp-compact-telemetry.md](aspire-mcp-compact-telemetry.md) | microsoft/aspire | F18 | Compact `list_traces` / `list_structured_logs` (patch 0001); same for `list_resources` and `list_console_logs` |
+| [aspire-mcp-compact-telemetry.md](aspire-mcp-compact-telemetry.md) | microsoft/aspire | F18, F31 | Default MCP telemetry responses under the common harness limit; `limit`/`traceId`/`severity`, per-trace summary (patch 0001); same for `list_resources` and `list_console_logs`. Shape ask, no speed claim (T1.4 `drop`) |
 | [aspire-cli-plain-output.md](aspire-cli-plain-output.md) | microsoft/aspire | F19 | No borders or dashboard links when redirected (patch 0002); SQL text in the trace table |
 | [aspire-start-blocking.md](aspire-start-blocking.md) | microsoft/aspire | F21 | A start that waits for health and prints endpoints |
 | [aspire-agents-md.md](aspire-agents-md.md) | microsoft/aspire | F36 | `aspire new` / `aspire agent init` write `AGENTS.md` with the start flow (start, describe, wait `<resource-name>`) |
-| [skills-add-aspire-diagnose.md](skills-add-aspire-diagnose.md) | microsoft/aspire-skills | F17 | New `aspire-diagnose` skill |
-| [skills-remove-router-add-aspire-start.md](skills-remove-router-add-aspire-start.md) | microsoft/aspire-skills | F17, F21 | Remove the router; add `aspire-start` |
+| [skills-add-aspire-diagnose.md](skills-add-aspire-diagnose.md) | microsoft/aspire-skills | F17, F23 | New `aspire-diagnose` skill (numbers at pin 2026-11-17) |
+| [skills-remove-router.md](skills-remove-router.md) | microsoft/aspire-skills | F17, F21 | Remove the router; each skill selected by its own description; guardrails stay in the skills that edit (`aspire-start` dropped by T1.6, the orchestration skill or an AGENTS.md owns the start job) |
 | [skills-narrow-aspire-monitoring.md](skills-narrow-aspire-monitoring.md) | microsoft/aspire-skills | F17 | Narrow the trigger description |
 | [skills-aspireify-redis-client-tracing.md](skills-aspireify-redis-client-tracing.md) | microsoft/aspire-skills | F23, F47 | Propose the Aspire Redis client integration so cache calls are traced |
 | [aspire-describe-connect.md](aspire-describe-connect.md) | microsoft/aspire | F38, F50 | A `connect` entry per resource in `aspire describe --format Json` with the command that reaches it with its own client |

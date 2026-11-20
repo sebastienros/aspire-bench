@@ -939,7 +939,7 @@ larger than the log line.
 | Decision rule | Confirms the router's cost if luna time drops ≥ 20% on the diagnosis scenarios. Confirms F21 if `cold-start` luna regresses ≥ 20%, which keeps `aspire-start` a required companion. Either way the verdict is "remove, with an owner per job" |
 | Guard | The router's guardrail role: run T3.8's guardrail scenario in the same round (T3.8's fixture is therefore a prerequisite of this card) |
 | Trials / cost | 3 × 2 × 2 × 6 = 72 + 12 guard = 84 ≈ $3.10 |
-| Issue draft | [skills-remove-router-add-aspire-start.md](../upstream-issues/skills-remove-router-add-aspire-start.md) |
+| Issue draft | [skills-remove-router.md](../upstream-issues/skills-remove-router.md) |
 | Results | Done 2026-11-18: [T1.3 results](#t13-results), round `t13`. **Verdict `ship`**: guards `slow-redis` and `stuck-db` unchanged without the router. Router cost confirmed by the rule (same round: luna 0.50× `slow-sql`, 0.67× `read-only`); across the pin's rounds it holds on `read-only` (0.61×, p = 0.032) but not on `slow-sql` (0.74×, p = 0.37), where the shipped set's own luna median moves 147–271 s between rounds. `cold-start` 1.07× same round (F21 not confirmed), 1.31× against T1.6's round: not settled |
 
 #### T1.3 decision rule, as computed (written 2026-11-18, before any `t13` trial)
@@ -1264,7 +1264,7 @@ level with or faster than raw (0.91×–1.00×, none significant). This is the f
 ($0.15 per trial; raw $0.16, `aspire-cli` $0.10). The 18 `raw` trials the rule added cost $1.11.
 
 **Open items.**
-1. The `aspire-start` issue draft ([skills-remove-router-add-aspire-start.md](../upstream-issues/skills-remove-router-add-aspire-start.md))
+1. The `aspire-start` issue draft ([skills-remove-router.md](../upstream-issues/skills-remove-router.md))
    should drop `aspire-start` and keep only the router's removal, with this result as the reason. The drafts are
    not edited in this lane.
 2. Whether `aspire-orchestration`'s references could be skipped on a plain "start the app" prompt is the

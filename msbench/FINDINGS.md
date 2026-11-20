@@ -893,7 +893,7 @@ router is the first skill on luna, the trial is slower
 router; give each skill a symptom-based trigger that excludes its neighbours.
 
 **Limits / status:** Measured, not upstreamed. The router's guardrail role was exercised once (T3.8), at
-ceiling on every arm, so it shows the router was not needed there, not that it never helps. The dependency step of the skill names PostgreSQL and Redis only. Draft issues: [skills-add-aspire-diagnose.md](upstream-issues/skills-add-aspire-diagnose.md), [skills-remove-router-add-aspire-start.md](upstream-issues/skills-remove-router-add-aspire-start.md), [skills-narrow-aspire-monitoring.md](upstream-issues/skills-narrow-aspire-monitoring.md).
+ceiling on every arm, so it shows the router was not needed there, not that it never helps. The dependency step of the skill names PostgreSQL and Redis only. Draft issues: [skills-add-aspire-diagnose.md](upstream-issues/skills-add-aspire-diagnose.md), [skills-remove-router.md](upstream-issues/skills-remove-router.md), [skills-narrow-aspire-monitoring.md](upstream-issues/skills-narrow-aspire-monitoring.md).
 
 ## F18: MCP telemetry tools fill an 8k-token budget on every call
 
@@ -1040,7 +1040,7 @@ cold-start gain has to come from there.
 **Limits / status:** the 11-09 cells had 3 trials (smallest attainable p = 0.10), T1.6 and T2.2 six; one
 application; the 15–20 s launch is not broken down further. Two pointers, not measurements of this card, that much
 of it is first-start cost: `t01b-warm` (T0.1, n = 3, another round) reached verified-up in 34.5 s against 49.0 s cold,
-and locally a second patched start with the AppHost already built launched in about 4.5 s against 15–20 s. Measured, not upstreamed. Draft issues: [aspire-start-blocking.md](upstream-issues/aspire-start-blocking.md) (updated with T2.2: the blocking start is not the lever), [skills-remove-router-add-aspire-start.md](upstream-issues/skills-remove-router-add-aspire-start.md).
+and locally a second patched start with the AppHost already built launched in about 4.5 s against 15–20 s. Measured, not upstreamed. Draft issues: [aspire-start-blocking.md](upstream-issues/aspire-start-blocking.md) (updated with T2.2: the blocking start is not the lever), [skills-remove-router.md](upstream-issues/skills-remove-router.md).
 
 ## F22: Aspire main's Redis container serves TLS on 6379, so the generic `redis-cli` recipe fails inside it
 

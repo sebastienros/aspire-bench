@@ -659,7 +659,7 @@ the tracking record until they are.
 | Change | What | Measured gain | Confidence | Issue draft |
 |---|---|---|---|---|
 | **Add `aspire-diagnose`** | 5 KB skill: locate with a bounded filter (`otel traces --search duration:>500` / `--has-error`, `otel logs --severity Error`), explain one trace as JSON, confirm at the dependency (`describe <resource> --format Json` → `container.id` → `psql` / `redis-cli -p 6380`, `SLOWLOG`, `CLIENT LIST`), fix the cause, verify with the same filter | vs shipped: −11% to −67% time, −35% to −83% tokens in 9/9 cells; `slow-redis` luna 0/6 → 5/6; `read-only` luna 2/6 → 12/12 | High: p ≤ 0.004 in 7 of 9 cells; 162/162 selection | [skills-add-aspire-diagnose.md](../upstream-issues/skills-add-aspire-diagnose.md) |
-| **Remove the `aspire` router** | Delete the 20.7 KB router; each skill is selected by its own description | With the router present (`aspire-plus`) luna picked the new skill 4/6 and took 167 s on `read-only`; without it 12/12 and 89 s | High on luna; the router's guardrail role was not exercised | [skills-remove-router-add-aspire-start.md](../upstream-issues/skills-remove-router-add-aspire-start.md) |
+| **Remove the `aspire` router** | Delete the 20.7 KB router; each skill is selected by its own description | With the router present (`aspire-plus`) luna picked the new skill 4/6 and took 167 s on `read-only`; without it 12/12 and 89 s | High on luna; the router's guardrail role was not exercised | [skills-remove-router.md](../upstream-issues/skills-remove-router.md) |
 | **Add `aspire-start`** | 2 KB: `aspire start --non-interactive`, `describe`, `wait <resource>`, `describe`; recovery steps; "confirm with one real URL" | Repairs the cold-start regression the router's removal causes on luna: 82 s → 51 s (−38%), 249k → 116k tokens; selected 9/9; level with shipped skills and bare CLI | Medium: 3 trials per cell (p = 0.10 floor); it is a required companion, not a speed-up | same draft |
 | **Narrow `aspire-monitoring`** | Trigger limited to export, standalone dashboard, browser telemetry, deployed routing; adds "DO NOT USE FOR: finding why a running local app is slow, failing or unhealthy"; body unchanged | Part of the lean set; with it, terra and sol stopped loading monitoring on every diagnosis prompt (21/21 and 23/27 before) | High as part of the set; not isolated | [skills-narrow-aspire-monitoring.md](../upstream-issues/skills-narrow-aspire-monitoring.md) |
 | **`aspireify`: use the Aspire Redis client integration** | So `IDistributedCache` calls appear as spans | Not measured (see 7.3) | Hypothesis | [skills-aspireify-redis-client-tracing.md](../upstream-issues/skills-aspireify-redis-client-tracing.md) |
@@ -1471,7 +1471,7 @@ the CLI plain-output patch stand as Phase 2 product work (T1.4 for terra, T1.5 s
 **Open after Phase 1:** T1.1 at n = 3 (an n = 6 top-up ≈ $4.50); T1.3's `slow-sql` and cold-start effects
 across rounds (a same-round n = 12 re-run would settle both); T3.8's ceiling fixture; why the selection
 proxy over-picks the router on luna (a run with the app built and started would tell); the Opus
-`aspire-cli` control for T1.8; two stale issue drafts (`skills-remove-router-add-aspire-start.md`,
+`aspire-cli` control for T1.8; two stale issue drafts (`skills-remove-router.md`,
 `skills-narrow-aspire-monitoring.md`) and the unfiled `aspire-agents-md.md`; the `aspire-diagnose`
 description still naming `aspire-orchestration` (2 of 6 T2.11 trials tried to load it).
 
