@@ -1791,3 +1791,66 @@ rows and 42 Claude Code rows; 1 row has none and falls back) and records which c
 - **Quoted figures:** the verified-up and Redis-reply figures this report quotes come from rounds where those fields did
   not move. T2.2's start-command split and T2.11's phase table came from uncommitted scripts and were not re-run. The per-card list and the row-by-row table are in PLAN §9; the finding is F61.
 [PLAN.md, Reader redaction audit](PLAN.md#reader-redaction-audit-2026-11-19).
+
+**Phase 4 scorecard (closed 2026-11-19).** Eight cards run in the phase (T4.2–T4.9): six with a verdict word, one
+`not runnable`, one delivered artefact; T4.1 closed in Phase 2 and is repeated here for the whole. **$19.46 against
+$18.90 at the estimates restated in the Phase 4 rulings** (≈ 1.03×; the §9 row had ≈ $5 before T4.7, T4.8 and T4.9
+joined the phase). 311 graded trials in the data rounds (`t42` 48, `t43` 48, `t47` 72, `t48` with its two top-ups 143
+graded of 154 submitted, 11 lost to infrastructure: six setup timeouts, one model-service 504, four hung model calls),
+14 pilot trials, the 24-trial `t45-smoke`, one T4.4 probe and T4.7's probes excluded; oracle gates model-free, two
+T4.6 gate pairs on CES. Three cards ran over their restated estimate (T4.3 1.7×, T4.8 1.3×, T4.7 1.1×), four under
+(T4.2, T4.4, T4.5, T4.9). Verdict words follow the pre-registered rules. Two readings were given after data and are
+recorded beside the words: T4.6's clause on the per-arm build (the word as written stands) and T4.8's
+re-classification of three limit hits as model-service stalls, ruled after both verdicts had been computed and
+recorded before the re-run, with the same word either way. During the phase the reader redaction audit (above, F61)
+re-derived the decisive measures of the earlier cards whose metrics join on tool-call ids (its table in PLAN §9) and
+moved no word; two reported-only figures from uncommitted lane scripts were not re-run. Nothing is filed upstream.
+Cost from `trials.jsonl` (`cost_usd`; pilots, probes and the smoke included).
+
+| Card | Subject | Verdict | One line | Trials | Cost (card) |
+|---|---|---|---|---:|---:|
+| T4.1 | integration discoverability audit | **done** (Phase 2) | one AppHost per hosting integration, 15 integrations; the generic client recipe works inside 6 of 15 containers (F38–F46), which chose the `connect` block in `describe` (T2.6) | 0 model | $0 ($0) |
+| T4.2 | span-table row: client-span error, request returned 200 | **`row not confirmed`** | luna `aspire-lean` 6/6 but read the row's pattern 0/6; every arm found the misconfigured path in the source, the cosmetic symptom never sent it to the trace; the three failures (terra lean 2, luna CLI 1) are verifier strictness; the frontend needed a Node SDK before Aspire's OTLP settings produced a span (F58, draft `aspire-js-otlp-without-sdk.md`) | 48 + 4 pilots | $1.90 ($2.10) |
+| T4.3 | span-table row: many near-identical child spans | **`row not confirmed`** (as computed) | luna `aspire-lean` 6/6, `aspire-diagnose` loaded 6/6, the strict marker (≥ 10 rows in one result) met in 2; two more read the pattern as a grouped count over the spilled 2,000-span trace and two ran the same grouping with the result masked by the runner; the descriptive hint is 6/6 against `aspire-cli` 0/6; **under an aggregate marker, not pre-registered, the word would be `row confirmed`** (`pattern_read_aggregate` now in the reader for the next card); MCP `list_traces` returned no trace in 13 of 24 calls (F60) | 48 + 4 pilots | $3.52 ($2.10) |
+| T4.4 | multi-turn session | **`not runnable`** | the pinned runner refuses its own `.runner-lock` on the resumed step and exits 0 before any model call (F05); the instruction was never delivered; no trial submitted | 1 probe | $0.0014 ($0.70) |
+| T4.5 | tracking schedule | **delivered** | `tools/track.sh`: additive re-pin under `track/` that moves no existing task, gates, the 120-trial core matrix, wait, collect, `series.py` with §11's rule completed in PLAN, drafts under `upstream-issues/tracking/` never filed; dry run on `26569.1` touched nothing; 24-trial smoke through the whole chain in 22 min, no draft raised; the first full run waits for the user | 24 smoke | $0.94 ($1.20) |
+| T4.6 | cheaper rounds | **`adopt`** by the rule as written; `keep baked` under the coordinating session's post-data reading | over 3,138 trials setup is 71 % of a trial's summed time and the agent 26 % (median trial 517 s: 46 s queue, 130 s image build, 107 s fault setup, 115 s agent); mounted skills gave the same oracle reward and byte-identical files (88 digests) as the baked twin, and one local image served two sets; CES still builds every trial's image, so the per-arm build does not disappear there without a registry pull (proposed, not done) | 2 gate pairs | $0 ($0) |
+| T4.7 | Claude Code adapter | **`ship`** (harness-neutral in direction, not in mechanism) | `-cc` arms mount the same skills and MCP server, every existing image byte-identical; `claude-haiku-5.5` under both harnesses, 72 trials: `slow-redis` `aspire-lean` 0.48× `raw` under Claude Code (p 0.026) and 0.70× under Copilot CLI, 6/6 against 5/6 and 4/6; `slow-sql` level to 1.2× under both; Copilot CLI haiku made no skill call in 24 Aspire trials while Claude Code loaded `aspire-diagnose` in 8/12 lean trials and used MCP 10/12 against 3/12 (F59); CLI version drift 2.1.328/2.1.329 within the round, recorded per trial, no same-version re-run | 72 + 6 pilots + probes | $5.69 ($5) |
+| T4.8 | VS Code parity at equal working time | **`harness-dependent`** (4 of 4 cells outside ±0.15) | `agentSeconds` 720 → 1,087 gives VS Code Copilot CLI's 900 s net; no trial did sustained work to the limit; the shipped set with MCP adds a similar number of seconds under both harnesses on `slow-sql` terra (+34 against +42 s) but VS Code's `raw` is about twice as slow (92 against 48 s); terra reached the MCP tools 3/12 under VS Code against 12/12 under Copilot CLI; **(b) no public setting lists MCP tools eagerly, so deferred MCP is the product condition under VS Code**; luna cells are mostly failures on both arms and unattributed beyond that; three one-call model stalls re-classified after the verdicts were computed and re-run once (recorded before the re-run), one stalled again, the word identical both ways | 96 of 154 submitted | $6.31 ($4.80) |
+| T4.9 | which part of `aspire-lean` makes luna investigate | **`no verdict`** | precondition fails on `slow-redis` (`aspire-lean` 2/6 = `raw` 2/6; `slow-sql` 6/6 against 3/6), so T1.9's pass gain did not hold in this round; on `slow-redis` the lean arms mostly reach a partial fix (status under 1 s, each call still about 600 ms) while `raw` and the CLI alone mostly fix nothing; luna's shell use still follows the guidance (`raw` 5.5–8.5 commands, lean arms 11–17) | 60 (12 `raw` shared) | $1.10 ($3.00) |
+
+**What Phase 4 says, read from the rows.** With haiku, the lean skill's direction on the silent fault held under
+both harnesses T4.7 measured (0.48× `raw` under Claude Code, 0.70× under Copilot CLI on `slow-redis`); with luna
+under VS Code it did not hold in this round (T4.9: lean 2/6 = `raw` 2/6 on `slow-redis`, against T1.9's 4/6 and
+0/6). The path by which the skill's text reaches the model differs in each harness: Copilot CLI's haiku never called
+the skill tool while Claude Code loaded the skill file 8/12 and used MCP 10/12 against 3/12 (F59); VS Code defers
+every MCP tool behind a search call, and terra reached the Aspire tools in 3/12 trials there against 12/12 under
+Copilot CLI, so for terra the shipped set with MCP under VS Code behaves like the skills alone (T4.8; T1.9 saw the
+same), while luna searched for and called them in 5/6 trials per cell and its cells are set by failures on both arms.
+So a result on an MCP arm carries its harness and its model with it, and the terra MCP results of Phases 1–3 are
+Copilot CLI results. T1.9's "harness-dependent" stands with its mechanism on luna unexplained. The two span-table
+rows did not confirm, under the pre-registered marker, that `aspire-diagnose` sends luna to the row's pattern: on a
+cosmetic symptom luna went to the source and found the cause there (T4.2, pattern read 0/6), and on an N+1 it loaded
+the skill 6/6 and read the trace as a grouped count over a spilled file, which the strict marker did not count and
+the descriptive hint did, 6/6 against 0/6 for the CLI alone (T4.3). Two product
+observations came out of the fixtures: a JavaScript resource gets OTLP settings and sends nothing without an SDK
+(F58, draft), and MCP `list_traces` returns no trace once a trace is large while the CLI's preview hides its rows (F60,
+F31; no draft). On infrastructure, a tracking run is one local command (T4.5); a CES trial's time is per-trial image
+build and fault setup, which a mounted skill set does not remove and only a per-kind image pulled from a registry
+would (T4.6); and no multi-turn card can run until the runner resumes its own session (T4.4).
+
+**The proposal after Phase 4** (with Phases 1–3): unchanged for the skills and the product; the audit added no word
+that asks for a change to the set. Added: the `-cc` arms stay available for any card that should be read on a
+second harness (T4.7); terra results on MCP arms under VS Code are read as skills-only until a tool set without deferral
+exists (T4.8 (b)); the next span-row card pre-registers `pattern_read_aggregate` beside the strict marker (T4.3); the
+tracking script is run at the next daily or skills release when the user asks (T4.5); a per-kind image in a registry
+is the only form of T4.6 worth building. Fifteen issue drafts, none filed.
+
+**Open after Phase 4:** for the user, whether to run the first full tracking round, whether to file any draft, and the
+two Phase 3 words left to revisit (T3.7's decision-table row, T3.1's "main path"); a custom VS Code agent whose tool
+list leaves out tool search, the only route found to eager MCP (T4.8 (b)); T4.7's same-version re-run (`raw` on
+2.1.328, Aspire arms on 2.1.329); a luna chat call that hangs until VS Code's limit (four times in `t48`, all
+`slow-sql`, cause unknown; the reader could tell it from sustained work by the longest chat span); T4.9's premise on
+`slow-redis`; the uncovered-time span row (needs a lock or CPU fault) and T4.2's row on a symptom whose cause is not
+one `rg` away; T4.4's runner; MCP traces too large to return (F60); and a registry push for T4.6, which nothing in
+this program does unasked.
