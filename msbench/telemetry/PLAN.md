@@ -4607,6 +4607,32 @@ in [README "Tracking a new daily or skills release"](README.md#tracking-a-new-da
   `submit.sh` writes a two-line `aspire_build` into the ledger (`collect.pin_of` still reads the pin correctly).
 - Cost: **$0.94** against the $1.20 estimate (3× stop $3.60).
 
+#### T4.5 first full run, as computed (written 2026-11-19, before any `trk20261119` trial)
+
+Asked by the user through the coordinating session (2026-11-19): the first real tracking run, not a smoke.
+
+- **Pin.** Aspire `17.1.0-preview.1.26569.1`, the newest daily on the dnceng `aspire.hosting` feed when the run
+  starts (the one the dry run saw), given to `repin` explicitly rather than as `latest`. Skills unchanged at `v0.0.6`
+  (`e529b608`), the newest `microsoft/aspire-skills` release (the only later-sorting tag, `v1.0.0-pre-migration`,
+  points at a May 2026 commit and is not a release), so the skills-tag re-pin path stays unexercised.
+- **Rounds** (run `trk20261119`, build 26569 = 2026-11-19): `trk20261119-gate` (12 oracles on `track/` tasks),
+  `trk20261119` (the 120-trial core matrix on `track/dataset.jsonl`), `trk20261119-topup` (infrastructure re-runs),
+  `trk20261119-repeat` (rule 3's luna repeat, if any). The steps run one by one (`repin --push`, `gate`, `matrix`,
+  `finish`, each with `--dataset track/dataset.jsonl`), not as `track.sh run`, so that infrastructure losses are
+  re-run before `series.py` and the draft writer read the cells.
+- **Infrastructure losses** (recorded after `trk20261119` finishes, from `collect.py`'s infrastructure, exception and
+  5xx fields only, before any reward or time of the round is read): a trial `collect.py` marks
+  `infrastructure_failure` (an exception with no grade, or ended by a model-service 5xx) is re-run once in
+  `trk20261119-topup`, same cell; one that is lost again stays lost (no third attempt). A trial that runs to the
+  agent time limit is a failure of the agent, as T1.9, **unless** one model chat call in it was open for more than
+  300 s when the limit ended it (the hung call T4.8 found; T1.9's limit hits had chat spans under 35 s): then it is a
+  model-service stall and is re-run once like the rest. Only limit hits are checked for that span. Anything outside
+  these cases goes to the coordinating session before any reward is read.
+- **Gates.** An oracle with no grade is re-submitted once; an oracle graded below 1 stops the run with no model
+  trial, and `track/` is not edited.
+- **Everything else** as the rule above (window, flags, drafts, luna repeat). Estimate ≈ $5 (24 smoke trials cost
+  $0.94), stop at $15.
+
 ### T4.2 and T4.3 Span-table rows
 
 #### T4.2 and T4.3 rule, as computed (written 2026-11-19, before any T4.2 or T4.3 trial or pilot)

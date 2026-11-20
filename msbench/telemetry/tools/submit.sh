@@ -87,7 +87,8 @@ task_sha="$(jq -er --arg p "$task_dir" 'select(.task_path == $p) | .task_repo_co
 dockerfile="$(git -C "$repo" show "$task_sha:$task_dir/environment/Dockerfile")"
 suite_ref="$(git -C "$repo" show "$task_sha:$task_dir/environment/docker-compose.yaml" | grep -oE 'aspire-bench\.git#[0-9a-f]{40}:msbench/telemetry/(track/)?common' | head -1 | cut -d'#' -f2)"
 suite_sha="${suite_ref%%:*}"; common_dir="${suite_ref#*:}"
-aspire_build="$(sed -nE 's/^ARG ASPIRE_VERSION=(.*)/\1/p' <<<"$dockerfile")+$(sed -nE 's/^ARG ASPIRE_COMMIT=(.*)/\1/p' <<<"$dockerfile")"
+# The current template declares ASPIRE_VERSION in two stages (same value): take the first.
+aspire_build="$(sed -nE 's/^ARG ASPIRE_VERSION=(.*)/\1/p' <<<"$dockerfile" | head -1)+$(sed -nE 's/^ARG ASPIRE_COMMIT=(.*)/\1/p' <<<"$dockerfile" | head -1)"
 skills_sha="$(git -C "$repo" show "$suite_sha:$common_dir/skills/PROVENANCE.md" | grep -m1 -oE '^\| `current` \| `microsoft/aspire-skills` @ `[0-9a-f]{40}` \(v[0-9.]+' | sed -E 's/.*@ `([0-9a-f]{40})` \((v[0-9.]+)/\2 \1/')"
 # T2.10: the -agents arms copy common/agents-md/<AGENTS_MD>.md to /app/AGENTS.md; record its size.
 agents_md="$(git -C "$repo" show "$task_sha:$task_dir/environment/docker-compose.yaml" | sed -nE 's/^ +AGENTS_MD: ([a-z0-9-]+)$/\1/p')"
