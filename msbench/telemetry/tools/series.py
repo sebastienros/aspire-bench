@@ -27,9 +27,9 @@ the first run of the new window to WINDOW_STARTS. Flags follow REPORT.md §11.2:
   regress-tokens token ratio, same rule
   improve-*      the mirror images
   selection-low  an arm with skills loaded a skill in fewer than 4 of 5 trials (reported, no trailing)
-  leak           a trial read a harness file (fails the run); for runs dated before 2026-11-21 any mention of a
-                 harness path, the rule then in force (PLAN T4.5 ruling 8)
-  touch          a trial named a harness path without reading it (listed, no draft; runs from 2026-11-21)
+  leak           a trial read a harness file (fails the run); for runs up to the ruling's boundary any mention of a
+                 harness path, the rule then in force (PLAN T4.5 ruling 9; the boundary is the last run id of 2026-11-20)
+  touch          a trial named a harness path without reading it (listed, no draft; runs after that id)
   no-raw         the run has no `raw` cell to divide by
 
 Rows marked `excluded` in the ledger (model-service incident), oracle gates and infrastructure
@@ -49,13 +49,14 @@ FIRST_PIN = "2026-11-09"
 DEFAULT_AGENT = "github-copilot-cli"
 WINDOW = 5
 WINDOW_STARTS = set()  # run ids that open a new trailing window (suite changes, not re-pins)
-LEAK_READ_RULE_FROM = 20261121  # MSBench run ids dated from this day on: `leak` = a harness file read; earlier, any mention
+LEAK_READ_RULE_AFTER_RUN = "2026112013810856"  # the last MSBench run id in trials.jsonl when ruling 9 was written (2026-11-20);
+# runs with a greater id: `leak` = a harness file read; up to it, any mention (the rule then in force)
 
 
 def leak_count(trial):
     """Harness-path accesses that count as a leak for this trial, under the rule in force on its run date."""
-    dated = str(trial.get("run_id") or "")[:8]
-    if dated.isdigit() and int(dated) >= LEAK_READ_RULE_FROM:
+    run_id = str(trial.get("run_id") or "")
+    if len(run_id) >= len(LEAK_READ_RULE_AFTER_RUN) and run_id > LEAK_READ_RULE_AFTER_RUN:
         return trial.get("protected_path_read") or 0
     return trial.get("protected_path_access") or 0
 THRESHOLD = 0.25

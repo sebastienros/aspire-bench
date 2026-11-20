@@ -47,7 +47,7 @@ LEAK_NAMED_TOOLS = {"glob", "Glob", "LS", "file_search", "list_dir", "semantic_s
 LEAK_SEARCH_TOOLS = {"rg", "Grep", "grep_search"}
 LEAK_NAME_CMDS = {"ls", "find", "stat", "readlink", "file", "du", "test", "[", "[[", "tree", "which", "realpath", "dirname",
                   "basename", "ps", "pgrep", "pkill", "kill", "lsof", "fuser", "echo", "printf", "cd", "pushd", "wc", "md5sum",
-                  "sha256sum", "cksum", "mkdir", "ln"}
+                  "sha256sum", "cksum", "mkdir"}
 LEAK_GREP_CMDS = {"grep", "egrep", "fgrep", "rg", "ag", "zgrep", "ack"}
 LEAK_SKIP_WORDS = {"sudo", "env", "time", "nohup", "exec", "command", "nice", "stdbuf", "xargs", "do", "done", "then", "else",
                    "elif", "fi", "if", "while", "for", "until", "in", "!", "$", "{", "}"}
@@ -104,22 +104,34 @@ def _command_reads(command, paths):
     tokens = _shell_tokens(command)
     if tokens is None:  # unbalanced quotes: nothing can be told apart, count every path as read
         return set(paths)
-    read, segment = set(), []
+    if any(os.path.basename(t) == "xargs" for t in tokens):
+        return set(paths)  # the path's content flows into a later command through xargs
+    read, segments, segment = set(), [], []
     for token in tokens + ["|"]:
         if token in SHELL_OPERATORS:
-            here = {p for p in paths if any(p in t for t in segment)}
-            if here:
-                words = [t for t in segment if not re.match(r"^[A-Za-z_][A-Za-z0-9_]*=", t)]
-                while words and (os.path.basename(words[0]) in LEAK_SKIP_WORDS or (words[0].startswith("-") and words[0] != "-")):
-                    words = words[1:]
-                cmd = os.path.basename(words[0]) if words else ""
-                if cmd in LEAK_GREP_CMDS:
-                    read |= here - _grep_names_only(words[1:], here)
-                elif cmd not in LEAK_NAME_CMDS:
-                    read |= here
+            segments.append(segment)
             segment = []
         else:
             segment.append(token)
+    for index, segment in enumerate(segments):
+        here = {p for p in paths if any(p in t for t in segment)}
+        if not here:
+            continue
+        if any(p in t and ("$(" in t or "`" in t or "<(" in t) for p in here for t in segment):
+            read |= here  # a command substitution inside one quoted token: the inner command reads it
+            continue
+        words = [t for t in segment if not re.match(r"^[A-Za-z_][A-Za-z0-9_]*=", t)]
+        while words and (os.path.basename(words[0]) in LEAK_SKIP_WORDS or (words[0].startswith("-") and words[0] != "-")):
+            words = words[1:]
+        cmd = os.path.basename(words[0]) if words else ""
+        if cmd in LEAK_GREP_CMDS:
+            read |= here - _grep_names_only(words[1:], here)
+        elif cmd == "find" and any(w in ("-exec", "-execdir", "-ok", "-okdir") for w in words):
+            read |= here  # find runs a command on the files it finds
+        elif cmd in ("cd", "pushd") and index + 1 < len(segments):
+            read |= here  # a later segment works inside the protected folder with relative paths
+        elif cmd not in LEAK_NAME_CMDS:
+            read |= here
     return read
 
 
@@ -132,8 +144,6 @@ def classify_protected(name, arguments):
         return set(), set()
     if name in LEAK_READ_TOOLS:
         return named, {p for p in named if p not in PROTECTED_DIRS}  # viewing a directory lists it
-    if name in LEAK_NAMED_TOOLS:
-        return named, set()
     if name in LEAK_SEARCH_TOOLS:
         pattern = str(arguments.get("pattern") or arguments.get("query") or "")
         mode = str(arguments.get("output_mode") or ("files_with_matches" if name == "Grep" else "content"))
@@ -141,8 +151,10 @@ def classify_protected(name, arguments):
             return named, set()
         return named, {p for p in named if p not in pattern}
     command = arguments.get("command")
-    if isinstance(command, str):
+    if isinstance(command, str) and name not in ("skill", "Skill"):
         return named, _command_reads(command, named)
+    if name in LEAK_NAMED_TOOLS:
+        return named, set()
     return named, set(named)  # edits, writes, unknown tools: content reached or changed; counted as read
 
 

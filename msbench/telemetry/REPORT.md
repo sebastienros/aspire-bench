@@ -920,7 +920,7 @@ the same cell:
 | Ratio to `raw` on time | +25% or worse | Mann-Whitney of the run's trials against the pooled trailing trials, p < 0.05 |
 | Ratio to `raw` on tokens | +25% or worse | same |
 | Skill selection | below 4/5 | report |
-| Harness leaks: a trial read a harness file (content returned, run, copied or edited; PLAN T4.5 ruling 9, runs from 2026-11-21; before that, any mention) | above 0 | fail the run |
+| Harness leaks: a trial read a harness file (content returned, run, copied or edited; PLAN T4.5 ruling 9, runs after the last id of 2026-11-20; before that, any mention) | above 0 | fail the run |
 | Harness path named without a read (a search pattern, a process table, a listing, a search returning file names) | above 0 | list in the run summary |
 
 An **improvement** is the mirror image and is recorded the same way, so the series shows

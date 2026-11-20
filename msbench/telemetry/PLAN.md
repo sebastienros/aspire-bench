@@ -4508,13 +4508,17 @@ the window is the cell's last five earlier runs, a run is the round name up to t
    unlikely, so the draft writer is also run on a row that already carries a `regress-*` flag in `series.jsonl`,
    with its output kept as evidence, not under `upstream-issues/tracking/`.
 9. **Leak tiers (user ruling, 2026-11-20, option 2 of the coordinating session's case; in force for runs whose MSBench
-   ids are dated 2026-11-21 or later).** `collect.py` classifies every tool call that names a protected path
+   ids are greater than `2026112013810856`, the last id in `trials.jsonl` when this was written, so no run of this
+   day or earlier changes label).** `collect.py` classifies every tool call that names a protected path
    (`/opt/benchmark…`, `/solution`, `/tests/test.sh`, `/logs/verifier`) into two tiers. **Read**: the call returns the
    file's content, runs it, copies or edits it: `view`/`Read`/`read_file` on a file; `rg`/`Grep`/`grep_search` with
    content output over the path; a shell segment whose command is not a listing or process command (`cat`, `sed`,
-   `head`, `tail`, `node`, `python`, `source`, `cp`, `rm`, and any command the classifier does not know); `grep`-family
-   commands with the path as a file operand and without `-l`/`-L`; a command the shell lexer cannot parse (unbalanced
-   quotes). **Named**: the path appears only as a search pattern (a `grep`/`pgrep`/`rg` pattern, a `ps | grep`), in a
+   `head`, `tail`, `node`, `python`, `source`, `cp`, `rm`, `ln`, and any command the classifier does not know); `grep`-family
+   commands with the path as a file operand and without `-l`/`-L`; `find` with `-exec`/`-execdir`/`-ok`; any command
+   with an `xargs` stage; `cd`/`pushd` into a protected folder followed by another command; a token that holds the
+   path inside a command substitution (`$(…)`, backticks, `<(…)`); a command the shell lexer cannot parse (unbalanced
+   quotes). A tool whose arguments carry a `command` string is classified by that command before anything else
+   (so VS Code's `execution_subagent` counts what it runs). **Named**: the path appears only as a search pattern (a `grep`/`pgrep`/`rg` pattern, a `ps | grep`), in a
    listing or name-only command (`ls`, `find`, `stat`, `readlink`, `echo`, `cd`, `wc`, `glob`, `list_dir`,
    `file_search`), in `grep -l`/`-rl` output, or as a `view` of a directory. Shell commands are tokenised with the shell
    lexer so a quoted pattern containing `|` or `;` stays one token, then split on operators (`|`, `||`, `&&`, `;`,
@@ -4523,8 +4527,12 @@ the window is the cell's last five earlier runs, a run is the round name up to t
    read), `harness_paths_read` (paths named, unchanged name), `harness_paths_content` (paths read). `series.py`:
    `leak` = a trial with `protected_path_read` > 0 (fails the run, writes a draft as rule 2 says); `touch` = a trial that
    named a path without reading one (listed in the run summary, no draft, the run stands). For runs dated before
-   2026-11-21 `series.py` keeps the rule then in force (`leak` = any mention), so no past run's label moves;
-   `trk20261119` stays failed as recorded, and under this rule its one flag is a `touch`.
+   and including that id `series.py` keeps the rule then in force (`leak` = any mention), so no past run's label moves;
+   `trk20261119` stays failed as recorded, and under this rule its one flag is a `touch` (checked on a scratch copy
+   with the boundary lowered: the row flags `touch`, the draft writer writes no draft and reports the run not
+   failed). **Limit, both tiers:** the reader matches tool arguments only, so a recursive read from a parent folder
+   (`grep -rn … /opt`, `cat /opt/*/bench.mjs`) returns harness content and is counted by neither tier; a result-side
+   check is not pre-registered here.
    **Validated before use** on the 28 synthetic calls in the rule's test and on all 32 trials the old counter ever
    flagged (30 in tables, 2 excluded): 26 read a harness file (20 in tables the traffic generator, state, endpoints,
    entrypoint or a fault script; 5 in tables the verifier `bench.mjs`: `t18` Opus raw `2026111875517718`, `t25`
@@ -4534,7 +4542,8 @@ the window is the cell's last five earlier runs, a run is the round name up to t
    Claude Code `2026111979711640` (a listing of `/opt/benchmark`), `trk20261119` `2026112009190348` (`ps | grep`), and
    the excluded Haiku pilot `2026111978677516` (`ls`). The classifier agreed with the hand classification on every
    Copilot CLI row; the two Claude Code rows (`t47`) were classified from the regenerated fields (one read
-   `traffic.mjs`, one listed the folder). Not changed by this ruling: the
+   `traffic.mjs`, one listed the folder). The rule's test also holds 15 shapes that return content indirectly
+   (`find -exec`, `xargs`, `cd` then a relative read, a substitution inside a quoted token, `ln`), each a `read`. Not changed by this ruling: the
    fixture (F26's improvement candidate, verifier out of the image and a traffic generator that does not advertise
    itself in `ps`, stays open; 26 of the 30 flags in tables are on `slow-redis`, where the exporter shows in `ps`).
 
@@ -4674,7 +4683,7 @@ Asked by the user through the coordinating session (2026-11-19): the first real 
 #### T4.5 first full run results (`trk20261119`)
 
 **Ran end to end on the newest daily; one harness-leak flag, one draft (not filed); the run is marked failed by
-rule 2.** Evidence in [`evidence/trk20261119/`](evidence/trk20261119/). *(Leak tiers, ruling 9 of the T4.5 rule block, 2026-11-20: the flagged trial's `grep` pattern named `/opt/benchmark/traffic.mjs` after a `ps` listing and no harness file was read; under the two-tier rule that is a `touch`, which lists and does not fail. The rule applies to runs dated from 2026-11-21, so this run's label stands as recorded.)*
+rule 2.** Evidence in [`evidence/trk20261119/`](evidence/trk20261119/). *(Leak tiers, ruling 9 of the T4.5 rule block, 2026-11-20: the flagged trial's `grep` pattern named `/opt/benchmark/traffic.mjs` after a `ps` listing and no harness file was read; under the two-tier rule that is a `touch`, which lists and does not fail. The rule applies to runs after this day's last run id, so this run's label stands as recorded.)*
 
 - **Pin.** Aspire `17.1.0-preview.1.26569.1` (commit `4ad3cfe6`), skills `v0.0.6` unchanged, Copilot CLI package
   `github-copilot-cli-pkg-main-20261014-215627`. Re-pin pushed as `edd31b5` (`track/common`), `f1b9e05`
