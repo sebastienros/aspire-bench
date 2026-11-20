@@ -1765,7 +1765,7 @@ rows and 42 Claude Code rows; 1 row has none and falls back) and records which c
 - **Matching errors corrected:**
   - `commands_to_verified_up` in 47 rows (median +3).
   - `seconds_to_verified_up` in 5, among them three T3.1 raw trials at 2–3 s that were really 27–30 s.
-  - The first Redis reply in 16, among them T3.2's guard cell, 15.5 → 151.5 s.
+  - The first Redis reply in 16, among them the one T3.2 guard trial that got one, 15.5 → 151.5 s.
   - The MCP share of characters read in 609.
 - **Characters read** rise by a median 0.34 % in 3,105 rows, because a hex string is longer than its mask.
 - **Unchanged in every row:** time to root cause, first fix, skill loads, references read, call counts and the T4.2/T4.3
@@ -1773,5 +1773,5 @@ rows and 42 Claude Code rows; 1 row has none and falls back) and records which c
 - **Per card:** recomputed with same-round controls, no card's word changes. The largest move in a decisive or ruled
   number is T2.1's MCP-only reading on terra `slow-sql`, −35 → −34 %, still past the 30 % gate.
 - **Quoted figures:** the verified-up and Redis-reply figures this report quotes come from rounds where those fields did
-  not move. The per-card list and the row-by-row table are in PLAN §9; the finding is F61.
+  not move. T2.2's start-command split and T2.11's phase table came from uncommitted scripts and were not re-run. The per-card list and the row-by-row table are in PLAN §9; the finding is F61.
 [PLAN.md, Reader redaction audit](PLAN.md#reader-redaction-audit-2026-11-19).

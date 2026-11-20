@@ -2107,7 +2107,7 @@ which is still running.
   the output copy, rows changed as follows:
   - `commands_to_verified_up` 47 (median +3);
   - `seconds_to_verified_up` 5 (three T3.1 raw trials from 2–3 s to 27–30 s);
-  - `seconds_to_redis_reply` 16 (a T3.2 guard cell median 15.5 → 151.5 s);
+  - `seconds_to_redis_reply` 16 (the one T3.2 guard trial with a reply, 15.5 → 151.5 s);
   - `redis_cli_first_failed` 4;
   - `mcp_result_content_chars` 609;
   - `mcp_spills` 42;
@@ -2125,7 +2125,8 @@ without checking that it is unique within the trajectory.
 
 **Limits / status:** Fixed in the reader (d124b32); `results/` regenerated without `t48`. The one Copilot row without an
 output copy (t28 raw) reads the harness copy, whose ids are not redacted. Runs with more than one trial would make the
-output copy unattributable; none exist. The MSBench side is not filed.
+output copy unattributable; none exist. T2.2's start-command split and T2.11's phase table came from uncommitted lane
+scripts and were not re-run. The MSBench side is not filed.
 
 ## Recording future findings
 

@@ -5172,7 +5172,7 @@ was edited here.
 
 | Card | Decisive measure (rounds) | Rows of those rounds changed in it | Decisive numbers, old → new | Word as computed |
 |---|---|---:|---|---|
-| T1.4 | `agent_seconds` ratio on luna, guard pass count (t14, t14-guard) | 0 | identical. Mechanism only: the per-row `mcp_spills` field over t14's 48 src and 48 compact MCP trials 118 → 133 and 26 → 28. The results' "168 spills in the 54 src trials, 31 compact" came from `mcp_payloads.py`, which already read the output copy: unchanged | `drop`, unchanged |
+| T1.4 | `agent_seconds` ratio on luna, guard pass count (t14, t14-guard) | 0 | identical. Mechanism only: the per-row `mcp_spills` field over t14's 48 src and 48 compact MCP trials 118 → 133 and 26 → 28. The results' "168 spills in the 54 src trials, 31 compact" count spill notices of every tool over t14 and t14-guard, which joins on no id: 168 / 31 on both copies, unchanged | `drop`, unchanged |
 | T2.1 | `tool_result_content_chars` cell medians, 30 % gate in four cells; guard; time (t21) | 86 of 90 (content length) | Δ against the control +11 / −23 / −21 / −16 % → the same (slow-sql luna, terra; read-only luna, terra); medians up 0.4–1.3 %. MCP-only reading (ruling (b), not decisive) −4 / **−35 → −34** / −25 → −24 / −19 %: terra slow-sql still past 30 %. Guard 2/6 against 4/6, time p unchanged | `drop` unchanged; under (b) still `revise` on one cell |
 | T2.2 | `seconds_to_verified_up` (t22) | 0 | identical (commands to verified-up also unchanged) | `drop`, unchanged |
 | T2.3 | chars read, `seconds_to_root_cause_seen`, trace-detail JSON count, guard (t23) | 55 (chars), 0 (time, JSON) | chars read tracetable ÷ lean-src luna 1.054 → 1.052, terra 1.078 → 1.075 (+5 %, +8 % as published); root cause 1.17× / 1.15× unchanged | `revise`, unchanged |
@@ -5181,8 +5181,8 @@ was edited here.
 | T2.9 | `seconds_to_verified_up` (t22) | 0 | identical | `the start itself is the gap`, unchanged |
 | T2.10 | `agent_seconds`, tokens, pass (t210) | 0 | identical. Mechanism (reported): chars +0.1–1.2 %; cold-start commands to verified-up luna lean-agents 7 → 7.5, skills-agents 7.5 → 8, terra cli-agents 5.5 → 6; luna cli-agents verified-up median 44.3 → 40.1 s | `drop`, unchanged |
 | T2.11 | `seconds_to_verified_up` ratio, `agent_seconds`, guard (t211) | 0 (8 rows changed `commands_to_verified_up`, reported only) | identical (luna noorch 39.0 against lean 46.8 s). Commands to verified-up luna aspire-cli 4.5 → 5.5, lean 8 → 8.5, noorch 6.5 → 7, v2 8.5; terra unchanged | `ship`, unchanged |
-| T3.1 | `agent_seconds` ratios, pass, references (t31) | 0 in the decisive fields | `t31_decide.py` output identical. Reported cold-start only: raw verified-up luna 26.5 → 28.8 s, terra 24.1 → 25.4 s (3 raw trials were 2–3 s, a curl matched to the wrong command); commands luna raw 2 → 3.5, cli 5.5 → 6, skill 8.5 → 9, bundle 9 → 10, minus 6.5 → 7 | `shrink` (body), unchanged |
-| T3.2 | pass, `agent_seconds`, references (t32) | 0 in the decisive fields | `t32_t33_decide.py` output identical. Not in the rule: slow-redis guard luna `aspire-skills` median Redis reply 15.5 → 151.5 s (one trial's 15.5 s was a mis-joined result) | `shrink`, unchanged (T3.3 `no verdict` likewise) |
+| T3.1 | `agent_seconds` ratios, pass, references (t31) | 0 in the decisive fields | `t31_decide.py` output identical. Reported cold-start only: raw verified-up luna 26.5 → 28.8 s, terra 24.1 → 25.4 s (3 raw trials were 2–3 s: `verified_up` builds its id map before reading results, so an early result took the command of the last redacted start, a curl, and matched as evidence); commands luna raw 2 → 3.5, cli 5.5 → 6, skill 8.5 → 9, bundle 9 → 10, minus 6.5 → 7 | `shrink` (body), unchanged |
+| T3.2 | pass, `agent_seconds`, references (t32) | 0 in the decisive fields | `t32_t33_decide.py` output identical. Not in the rule: on the slow-redis guard, luna `aspire-skills` has 1 of 6 trials with a Redis reply, and that trial's time moved 15.5 → 151.5 s. On the harness copy a file-view result at 15.5 s was paired with a redacted redis-cli command; the output copy's first reply is at 151.5 s | `shrink`, unchanged (T3.3 `no verdict` likewise) |
 | T3.4, T3.5 | pass, `agent_seconds`, references (t34, t35) | 0 in the decisive fields (content length only) | identical | `no verdict`, unchanged |
 | T4.3 | the marker fields (t43) | 0 (already on the output copy since 8753bc5) | `t42_t43_decide.py` output identical; `mcp_spills` moved in 2 rows, MCP chars in 12; neither is read | `row not confirmed`, unchanged (T4.2 likewise) |
 | T2.7, T2.8, T4.7 | as in their rules | content length / MCP chars only | `p2mcp_decide.py t27`, `t28` and `p4h_decide.py t47` outputs identical | unchanged |
@@ -5191,4 +5191,11 @@ Other changed rows whose cards' rules do not read the field: T1.3 (t13 luna `asp
 T1.6 (t16 commands to verified-up sol raw 7.5 → 10, lean-start terra 5.5 → 6.5, sol 6.5 → 7.5), T1.8 (t18 sol
 `aspire-skills-mcp` Redis reply 25.7 → 34.8 s), T0.1 (t01b terra raw Redis reply 20.1 → 10.7 s). No REPORT or FINDINGS
 sentence quotes any of these. Every Redis-reply and verified-up figure quoted there comes from t22, t23, t25, t28 or t211,
-and none of those moved. FINDINGS F61.
+and none of those moved as `trials.jsonl` fields.
+
+**Limits.** Two lanes derived figures from scratch scripts that were never committed, so they were not re-run: T2.2's time from
+the start command to verified-up (raw about 22 s, Aspire 33–38 s) and T2.11's phase table (before, start, waits, after). Both
+end at `seconds_to_verified_up`, which did not move in t22 or t211, and start at a tool start's timestamp, which no join
+involves; whether the scripts paired anything by id is not known. Rounded published figures that now read one unit
+different were left as written: T2.1's MCP-only −35 % (PLAN, REPORT scorecard, FINDINGS) is −34 % on the new rows, and the
+chars columns in thousands (T2.1, T2.3) move by up to 1k. FINDINGS F61.
