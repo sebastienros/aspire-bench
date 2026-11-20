@@ -1693,6 +1693,8 @@ source build against its `-src` control.
 
 #### T2.1 results
 
+_Figures below are as computed at read time with the pre-audit reader; the reader redaction audit (2026-11-19) re-derived them and the word stands, with the MCP-only terra `slow-sql` cell −35 → −34 % and the chars columns moving by up to 1k; see [Reader redaction audit](#reader-redaction-audit-2026-11-19)._
+
 **Verdict: drop, by the rule as computed at read time. Under the coordinating session's metric ruling (MCP-tool content chars; sent before the results existed, received after they were read) the reading is revise on one cell (terra `slow-sql` −35 %); the guard fails under both, so the patch is not proposed either way.**
 
 No cell met the gate (characters read in total ≥ 30 % lower) and the guard failed. **Note:** the coordinating session ruled for (b) before the round finished; the message arrived after the results were read. Under (b) the verdict would be revise on one cell (terra `slow-sql` −35 %), and the guard (2/6 against 4/6) fails under both readings, so the action is the same: the patch is not proposed. The ruling (gate on MCP-tool content characters, ≥ 30 % in all four cells; the
@@ -1955,6 +1957,8 @@ estimated $4.80 (T2.2 $3.60 and T2.9 $1.20), the pre-round estimate was $8.70.
 - **`revise`** otherwise, naming the failed clause. p values are reported, not in the rule.
 
 #### T2.3 results
+
+_Figures below are as computed at read time with the pre-audit reader; the reader redaction audit (2026-11-19) re-derived them and the word stands, with the chars ratios 1.054 → 1.052 and 1.078 → 1.075; see [Reader redaction audit](#reader-redaction-audit-2026-11-19)._
 
 **Verdict: `revise`**, as the rule computes, but **no revision follows from the data, and the patch is not
 proposed.** It achieved its mechanism without the outcome: agents left JSON, yet nothing they were measured on
