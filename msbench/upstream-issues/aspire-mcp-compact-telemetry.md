@@ -1,5 +1,5 @@
 ---
-repo: dotnet/aspire
+repo: microsoft/aspire
 title: "MCP: list_traces / list_structured_logs / list_console_logs / list_resources each fill the 8k-token budget on every call"
 finding: F18
 labels: []
@@ -51,7 +51,7 @@ faults, two models: agent time fell in all eight cells (−6% to −36%); input 
 its main route (median 5 to 10 MCP calls and 1 CLI call per trial, against 2 to 3 MCP
 and 4 to 7 CLI calls before).
 
-**Decision n, 2026-11-18** (aspire-bench PLAN T1.4, daily `30326eb8`, Copilot CLI 1.0.99, 6 trials per
+**Re-measured at n = 6, 2026-11-18** (aspire-bench PLAN T1.4, daily `30326eb8`, Copilot CLI 1.0.99, 6 trials per
 cell): patched vs unpatched without skills, agent time −29 % and −30 % on the stronger model
 (`gpt-6.1-terra`, p = 0.009 and 0.002) and −10 % to −12 % on the cheapest (`gpt-6-luna`, not significant;
 one cell passed 4/6 against 6/6). With the lean skill set the patch moved agents from the CLI onto MCP and cost

@@ -1,5 +1,5 @@
 ---
-repo: dotnet/aspire
+repo: microsoft/aspire
 title: "CLI: cold start is the AppHost's launch time, not the start/wait/describe sequence (a blocking start measured)"
 finding: F21
 labels: []
@@ -13,7 +13,7 @@ Bringing an app up from nothing takes a coding agent longer with Aspire than wit
 start script. The first hypothesis was the command sequence (`aspire start`, then `aspire wait` per
 resource, then `aspire describe` for the URLs, where the raw path is one script). We built and measured
 the fix that hypothesis suggests, and it does not help: **the gap is the AppHost's own time to a healthy
-app.** This draft records the measurement, so the request upstream is the right one.
+app.** This issue records the measurement, so the request is the right one.
 
 ## What was measured
 

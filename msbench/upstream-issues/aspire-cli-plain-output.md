@@ -1,5 +1,5 @@
 ---
-repo: dotnet/aspire
+repo: microsoft/aspire
 title: "CLI: drop table borders and dashboard links when stdout is not a terminal"
 finding: F19
 labels: []

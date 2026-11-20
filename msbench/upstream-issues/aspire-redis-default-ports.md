@@ -1,5 +1,5 @@
 ---
-repo: dotnet/aspire
+repo: microsoft/aspire
 title: "AddRedis: plain port on 6380 breaks the generic `redis-cli` command inside the container"
 finding: F22
 labels: []

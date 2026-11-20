@@ -1,5 +1,5 @@
 ---
-repo: dotnet/aspire
+repo: microsoft/aspire
 title: "Run mode: a port already in use makes DCP skip the endpoint's proxy with an INFO line, and `aspire describe` still advertises it"
 finding: F55
 labels: []

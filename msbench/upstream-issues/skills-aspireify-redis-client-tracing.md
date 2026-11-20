@@ -42,4 +42,4 @@ rounds. Pass rates did not change: pooled over 12 trials per cell they were equa
 
 So the proposal stands for what it measurably buys, a faster route to the dependency, not for changing outcomes on its
 own. One caveat for the sample: the trace of such a request (44 KB as JSON) exceeds the preview limit of at least one
-agent harness, so the gain depends on trace output staying compact. Status: draft, not filed.
+agent harness, so the gain depends on trace output staying compact.
