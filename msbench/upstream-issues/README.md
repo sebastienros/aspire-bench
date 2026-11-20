@@ -17,7 +17,7 @@ repo: microsoft/aspire         # owner/name of the target repository
 title: Issue title as it should appear upstream
 finding: F22                   # finding ID in FINDINGS.md
 labels: []                     # optional; only labels the repo already has
-status: draft                  # draft | filed | superseded (fixed upstream before filing; issue: holds the PR)
+status: draft                  # draft | filed | superseded (fixed upstream before filing; issue: holds the PR) | folded (ask moved into another draft)
 issue:                         # URL once filed
 ---
 ```
@@ -48,7 +48,7 @@ finding's **Limits / status** line. Keep the file; it is the record of what was 
 | [aspire-agents-md.md](aspire-agents-md.md) | microsoft/aspire | F36 | `aspire new` / `aspire agent init` write `AGENTS.md` with the start flow (start, describe, wait `<resource-name>`) |
 | [skills-add-aspire-diagnose.md](skills-add-aspire-diagnose.md) | microsoft/aspire-skills | F17, F23 | New `aspire-diagnose` skill (numbers at pin 2026-11-17) |
 | [skills-remove-router.md](skills-remove-router.md) | microsoft/aspire-skills | F17, F21 | Remove the router; each skill selected by its own description; guardrails stay in the skills that edit (`aspire-start` dropped by T1.6, the orchestration skill or an AGENTS.md owns the start job) |
-| [skills-narrow-aspire-monitoring.md](skills-narrow-aspire-monitoring.md) | microsoft/aspire-skills | F17 | Narrow the trigger description |
+| [skills-narrow-aspire-monitoring.md](skills-narrow-aspire-monitoring.md) | microsoft/aspire-skills | F17 | **Folded** into the router and diagnose drafts (T1.2 `drop` alone). Not filed alone |
 | [skills-aspireify-redis-client-tracing.md](skills-aspireify-redis-client-tracing.md) | microsoft/aspire-skills | F23, F47 | Propose the Aspire Redis client integration so cache calls are traced |
 | [aspire-describe-connect.md](aspire-describe-connect.md) | microsoft/aspire | F38, F50 | A `connect` entry per resource in `aspire describe --format Json` with the command that reaches it with its own client |
 | [aspire-js-otlp-without-sdk.md](aspire-js-otlp-without-sdk.md) | microsoft/aspire | F58 | Mark a JavaScript resource that received OTLP settings but never sent telemetry; document the Node SDK step |

@@ -3,9 +3,14 @@ repo: microsoft/aspire-skills
 title: "Narrow aspire-monitoring's trigger to what its body covers; defer first-line diagnosis"
 finding: F17
 labels: []
-status: draft
+status: folded
 issue:
 ---
+
+> **Folded, not to be filed alone (2026-11-20).** T1.2 measured this change by itself with the router kept and found no
+> gain (same round luna slow-SQL 1.34×, p = 0.09; pooled over the pin +53 %, p = 0.031). The ask lives on as
+> proposal 2 of [skills-remove-router.md](skills-remove-router.md) and as the trigger wording in
+> [skills-add-aspire-diagnose.md](skills-add-aspire-diagnose.md).
 
 ## Summary
 

@@ -10,8 +10,9 @@ issue:
 ## Summary
 
 The 20.7 KB `aspire` router claims every Aspire verb in its description ("…describe/ps/logs/otel…"), so it competes
-with any focused skill for the same prompt and, when it wins, the agent reads the router and then the skill it should
-have loaded first. We measured v0.0.6 with the `aspire` folder deleted and nothing else changed
+with any focused skill for the same prompt. Its cost shows even when it is not loaded: in the lead cell below the
+router was loaded in none of the 12 cheapest-model trials, yet removing it changed which skill the agent loaded and
+how soon the fault reached the screen; the full mechanism is not determinable from those cells. We measured v0.0.6 with the `aspire` folder deleted and nothing else changed
 (`aspire-skills-norouter`) against v0.0.6 as shipped, in the same rounds, on an aspirified sample application
 with injected faults (aspire-bench telemetry suite; MSBench, Copilot CLI 1.0.99, Aspire daily
 `17.1.0-preview.1.26567.3+30326eb8`, six trials per cell unless stated).
@@ -25,7 +26,8 @@ own luna median moved between 147 and 271 s over four rounds. `gpt-6.1-terra` mo
 without it `aspire-monitoring` was loaded in 3 of 6 trials instead of 5 of 6, the slow statement reached the screen
 at 53 s instead of 84 s, with 38 tool calls instead of 63.
 
-**Not a cheapest-model effect.** With the shipped set and MCP, `claude-opus-5.5` loaded the router in 9 of 18
+**Not a cheapest-model effect.** With the shipped set and MCP against the raw app (that round had no router-free
+arm), `claude-opus-5.5` loaded the router in 9 of 18
 diagnosis trials, `aspire-monitoring` in 4 and no skill in 5; `gpt-6.2-sol` loaded `aspire-monitoring` 18 of 18
 (router 6 of 18). The shipped set cost both models time on the faults whose evidence is in the app's own log
 (+20 % to +91 %, p ≤ 0.065).
@@ -47,15 +49,17 @@ against 73 s, p = 0.49; terra 0.99×). We also measured a dedicated 2 KB `aspire
 luna (1.16×, p = 0.004), nothing on terra or sol, under the 1.20 bar we had set, so we do not propose it. An
 `AGENTS.md` beside the AppHost did the start job as well (proposed separately on microsoft/aspire). Diagnosis:
 `aspire-monitoring` today, or a focused diagnosis skill (companion issue). Narrowing only `aspire-monitoring`'s
-description with the router kept changed nothing (luna slow-SQL 1.34×, p = 0.09; read-only 0.95×), so description
-changes go with the removal, not instead of it.
+description with the router kept did not help (same round: luna slow-SQL 1.34×, p = 0.09, read-only 0.95×; pooled
+over the pin's rounds, slow-SQL +53 %, p = 0.031), so description changes go with the removal and with an owner for
+diagnosis, not instead of them.
 
 ## Proposal
 
 1. Remove the `aspire` router skill.
-2. Make each remaining skill's description state the symptoms or tasks it owns and exclude what a neighbour owns
-   (for `aspire-monitoring`: OTLP export and configuration, the standalone dashboard, browser telemetry, routing
-   telemetry from a deployed app; not "why is my running app slow").
+2. Make each remaining skill's description state the symptoms or tasks it owns and exclude what a neighbour owns.
+   For `aspire-monitoring` that means OTLP export and configuration, the standalone dashboard, browser telemetry and
+   routing telemetry from a deployed app, and not "why is my running app slow", once a diagnosis owner exists
+   (companion issue); this item was not in the measured arm, and alone it did not help (above).
 3. Keep the "check before you edit" guardrails in the skills that edit, where `aspire-orchestration` already has
    them.
 

@@ -1264,7 +1264,8 @@ level with or faster than raw (0.91×–1.00×, none significant). This is the f
 ($0.15 per trial; raw $0.16, `aspire-cli` $0.10). The 18 `raw` trials the rule added cost $1.11.
 
 **Open items.**
-1. The `aspire-start` issue draft ([skills-remove-router.md](../upstream-issues/skills-remove-router.md))
+1. The `aspire-start` issue draft ([skills-remove-router.md](../upstream-issues/skills-remove-router.md), renamed
+   from `skills-remove-router-add-aspire-start.md` and rewritten on 2026-11-20 as this item asks)
    should drop `aspire-start` and keep only the router's removal, with this result as the reason. The drafts are
    not edited in this lane.
 2. Whether `aspire-orchestration`'s references could be skipped on a plain "start the app" prompt is the

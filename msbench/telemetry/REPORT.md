@@ -1471,8 +1471,9 @@ the CLI plain-output patch stand as Phase 2 product work (T1.4 for terra, T1.5 s
 **Open after Phase 1:** T1.1 at n = 3 (an n = 6 top-up ≈ $4.50); T1.3's `slow-sql` and cold-start effects
 across rounds (a same-round n = 12 re-run would settle both); T3.8's ceiling fixture; why the selection
 proxy over-picks the router on luna (a run with the app built and started would tell); the Opus
-`aspire-cli` control for T1.8; two stale issue drafts (`skills-remove-router.md`,
-`skills-narrow-aspire-monitoring.md`) and the unfiled `aspire-agents-md.md`; the `aspire-diagnose`
+`aspire-cli` control for T1.8; two issue drafts then stale (`skills-remove-router.md`, rewritten on 2026-11-20 from
+`skills-remove-router-add-aspire-start.md` as the router's removal alone; `skills-narrow-aspire-monitoring.md`, folded
+into it the same day) and the unfiled `aspire-agents-md.md`; the `aspire-diagnose`
 description still naming `aspire-orchestration` (2 of 6 T2.11 trials tried to load it).
 
 **Phase 2 scorecard (closed 2026-11-19).** Twelve cards, all with a verdict (eleven measured, T4.1 an audit without a
