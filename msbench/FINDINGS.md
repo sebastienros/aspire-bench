@@ -892,7 +892,7 @@ router is the first skill on luna, the trial is slower
 **Improvement candidate:** Ship `aspire-diagnose`; remove or drastically shrink the
 router; give each skill a symptom-based trigger that excludes its neighbours.
 
-**Limits / status:** Measured, not upstreamed. The router's guardrail role was exercised once (T3.8), at
+**Limits / status:** Filed 2026-11-20 ([microsoft/aspire-skills#178](https://github.com/microsoft/aspire-skills/issues/178) diagnose, [microsoft/aspire-skills#179](https://github.com/microsoft/aspire-skills/issues/179) router). The router's guardrail role was exercised once (T3.8), at
 ceiling on every arm, so it shows the router was not needed there, not that it never helps. The dependency step of the skill names PostgreSQL and Redis only. Draft issues: [skills-add-aspire-diagnose.md](upstream-issues/skills-add-aspire-diagnose.md) (filed 2026-11-20 as [microsoft/aspire-skills#178](https://github.com/microsoft/aspire-skills/issues/178)), [skills-remove-router.md](upstream-issues/skills-remove-router.md) (filed 2026-11-20 as [microsoft/aspire-skills#179](https://github.com/microsoft/aspire-skills/issues/179)) (rewritten 2026-11-20 as the removal alone), [skills-narrow-aspire-monitoring.md](upstream-issues/skills-narrow-aspire-monitoring.md) (folded into the other two the same day; T1.2 `drop` alone).
 
 ## F18: MCP telemetry tools fill an 8k-token budget on every call
@@ -921,7 +921,7 @@ call per trial, against 2 to 3 MCP calls and 4 to 7 CLI calls before). That arm 
 or below the raw app on time in five of six model × scenario cells. Three trials per
 arm: a consistent direction, not a proven effect size.
 
-**Limits / status:** Not upstreamed. The default output shape of `list_traces` changes.
+**Limits / status:** Filed 2026-11-20 as [microsoft/aspire#22507](https://github.com/microsoft/aspire/issues/22507). The default output shape of `list_traces` changes.
 `list_resources` and `list_console_logs` are untouched and still large. Draft issue: [aspire-mcp-compact-telemetry.md](upstream-issues/aspire-mcp-compact-telemetry.md) (filed 2026-11-20 as [microsoft/aspire#22507](https://github.com/microsoft/aspire/issues/22507)).
 
 ## F19: Table borders and dashboard links dominate what an agent reads from the CLI
@@ -1040,7 +1040,7 @@ cold-start gain has to come from there.
 **Limits / status:** the 11-09 cells had 3 trials (smallest attainable p = 0.10), T1.6 and T2.2 six; one
 application; the 15–20 s launch is not broken down further. Two pointers, not measurements of this card, that much
 of it is first-start cost: `t01b-warm` (T0.1, n = 3, another round) reached verified-up in 34.5 s against 49.0 s cold,
-and locally a second patched start with the AppHost already built launched in about 4.5 s against 15–20 s. Measured, not upstreamed. Draft issues: [aspire-start-blocking.md](upstream-issues/aspire-start-blocking.md) (updated with T2.2: the blocking start is not the lever), [skills-remove-router.md](upstream-issues/skills-remove-router.md).
+and locally a second patched start with the AppHost already built launched in about 4.5 s against 15–20 s. Draft issues: [aspire-start-blocking.md](upstream-issues/aspire-start-blocking.md) (updated with T2.2: the blocking start is not the lever; held at the 2026-11-20 review, not filed; its numbers are cited from [microsoft/aspire#22506](https://github.com/microsoft/aspire/issues/22506)), [skills-remove-router.md](upstream-issues/skills-remove-router.md) (filed 2026-11-20 as [microsoft/aspire-skills#179](https://github.com/microsoft/aspire-skills/issues/179)).
 
 ## F22: Aspire main's Redis container serves TLS on 6379, so the generic `redis-cli` recipe fails inside it
 
@@ -1125,7 +1125,7 @@ rather than leaving it to elimination.
 look at dependencies over agents that read code. Terra and sol cells have 3 trials
 (smallest attainable p = 0.10); luna 6 to 8. MCP available to luna made it worse here
 (3 of 6): it read `list_traces` / `list_structured_logs` output and went to the code.
-Not upstreamed. Draft issue: [skills-aspireify-redis-client-tracing.md](upstream-issues/skills-aspireify-redis-client-tracing.md) (filed 2026-11-20 as [microsoft/aspire-skills#181](https://github.com/microsoft/aspire-skills/issues/181)).
+Filed 2026-11-20 ([microsoft/aspire-skills#178](https://github.com/microsoft/aspire-skills/issues/178) diagnose, [microsoft/aspire-skills#181](https://github.com/microsoft/aspire-skills/issues/181) Redis client tracing). Draft issue: [skills-aspireify-redis-client-tracing.md](upstream-issues/skills-aspireify-redis-client-tracing.md) (filed 2026-11-20 as [microsoft/aspire-skills#181](https://github.com/microsoft/aspire-skills/issues/181)).
 
 **Update 2026-11-18 (T0.2, held-out app): not reproduced.** On a second log-silent fault, a worker
 blocked on a SQL Server application lock held by a stalled host job, the raw app was not at a
@@ -1441,7 +1441,7 @@ the agent gets data rather than a pointer to a file.
 CLI's source or documentation. T2.1 (round `t21`, 2026-11-19): `list_resources` (10,321 characters) and
 `list_console_logs` (per-cell trial medians 0.1k to 3.8k) never crossed the threshold in either arm, so compacting them
 works only on content that already reached the model whole; the spills that remain are `list_structured_logs`. Whether the 11-09 rounds spilled the same way was not checked (same package, so
-probably). Not reported upstream.
+probably). Reported upstream 2026-11-20 in [microsoft/aspire#22507](https://github.com/microsoft/aspire/issues/22507).
 
 ## F32: Under VS Code, the cheapest model edits code instead of investigating unless a skill gives it commands
 
@@ -1638,8 +1638,7 @@ paused).
 **Limits / status:** One machine (arm64 Linux in Docker Desktop, SQL Server emulated), one pin, defaults only
 (no volume, no options). The generic recipes were fixed before any row ran; "works instead" lists the first
 listed alternative that worked (MongoDB's comes from a post-hoc probe). "Refusing writes" was not induced, so
-the health question is scored on hung vs down only. Elasticsearch has no hosting package at the pin. Not
-upstreamed.
+the health question is scored on hung vs down only. Elasticsearch has no hosting package at the pin. The `connect` proposal it motivates is filed 2026-11-20 as [microsoft/aspire#22505](https://github.com/microsoft/aspire/issues/22505).
 
 ## F39: SQL Server: `sqlcmd` inside Aspire's container fails on the certificate directory Aspire sets
 
@@ -1762,7 +1761,7 @@ The traced template also moves the app's OpenTelemetry core to 1.18.0 and adds a
 and 2/6 untraced (4/6 untraced trials also edited the source), so pooled 8/12 each: the MCP pass gap is not stable
 at n = 6, and luna on MCP patches the caller with or without cache spans. The CLI route's faster time to the cache
 replicated (22.3 vs 38.4 s). The span-table row was measured in the same round (PLAN "T2.5 follow-up results").
-Verdict `revise`; not upstreamed (issue draft
+Verdict `revise`; filed 2026-11-20 as [microsoft/aspire-skills#181](https://github.com/microsoft/aspire-skills/issues/181) (issue draft
 [`skills-aspireify-redis-client-tracing.md`](upstream-issues/skills-aspireify-redis-client-tracing.md) updated).
 
 ## F48: The Aspire MCP server's tool list costs about 4 % of a luna trial's input, and the seven unused tools about 2 %
@@ -1833,7 +1832,7 @@ each hosting integration rather than keyed on image names in the CLI, with a sho
 
 **Limits / status:** n = 6, luna only, two of the 13 images the block covers; the time ratios are within round
 drift (p ≥ 0.39), so the result is "no loss without the skill's integration lines", not a speed-up. Verdict `ship`.
-Not upstreamed (draft [`aspire-describe-connect.md`](upstream-issues/aspire-describe-connect.md)) (filed 2026-11-20 as [microsoft/aspire#22505](https://github.com/microsoft/aspire/issues/22505)).
+Draft [`aspire-describe-connect.md`](upstream-issues/aspire-describe-connect.md) (filed 2026-11-20 as [microsoft/aspire#22505](https://github.com/microsoft/aspire/issues/22505)).
 
 ## F51: The CLI alone exports an incident's telemetry as well as the monitoring skill
 
@@ -1955,7 +1954,7 @@ trial used the default limit for its export). Not upstreamed.
 
 **Limits / status:**
 - The float was seen on one day; the NU1008 break was measured locally and in trajectories.
-- Not upstreamed.
+- The CPM warning is item 3 of [microsoft/aspire-skills#180](https://github.com/microsoft/aspire-skills/issues/180) (filed 2026-11-20); the float itself is not upstreamed.
 
 ## F55: Under a plain `aspire start`, a port held by another process is silent and `describe` advertises it
 
@@ -1977,8 +1976,8 @@ process.
 naming the port and the holder), logged above INFO, and never advertise an endpoint the proxy did not bind
 (`describe`, dashboard, MCP `list_resources`).
 
-**Limits / status:** one application, Linux, one port; n = 6 per cell. Not upstreamed (draft
-[`aspire-proxy-port-conflict-describe.md`](upstream-issues/aspire-proxy-port-conflict-describe.md)).
+**Limits / status:** one application, Linux, one port; n = 6 per cell. Not filed as its own issue: microsoft/aspire#9717 (open since 2025-06) has the same root cause and a 2026-08-10 comment with the same repro; a comment with what that thread lacks is drafted in
+[`aspire-proxy-port-conflict-describe.md`](upstream-issues/aspire-proxy-port-conflict-describe.md) and not posted (2026-11-20); 9717 is listed as related in [microsoft/aspire#22511](https://github.com/microsoft/aspire/issues/22511).
 
 ## F56: A start right after `aspire stop` adopts containers the old instance is still removing
 
@@ -2004,8 +2003,7 @@ not start before the old instance's teardown has finished (its containers gone),
 
 **Limits / status:** seen with fixed container names only; whether unnamed containers (unique names per instance)
 avoid it was not tested. One application; the delay is timing-dependent (the local reproduction failed at 60 s, not
-at once). Not upstreamed
-(draft [`aspire-stop-teardown-race.md`](upstream-issues/aspire-stop-teardown-race.md)) (filed 2026-11-20 as [microsoft/aspire#22510](https://github.com/microsoft/aspire/issues/22510)).
+at once). Draft [`aspire-stop-teardown-race.md`](upstream-issues/aspire-stop-teardown-race.md)) (filed 2026-11-20 as [microsoft/aspire#22510](https://github.com/microsoft/aspire/issues/22510)).
 
 ## F57: `aspire-project-v2-migration` stops a mid-tier model at its approval step even when the request grants the approval
 
@@ -2026,7 +2024,7 @@ before editing. Otherwise a non-interactive caller cannot use the skill for the 
 **Limits / status:** One fixture, single turn. The skill's own claim, assessment plus approval in conversation, is
 not exercised: a two-turn harness would measure it, and the card is `no verdict`. The refusal is the skill working
 as written. Whether that is the intended behaviour for an explicit advance approval is the question for upstream.
-Not filed.
+Filed 2026-11-20 as [microsoft/aspire-skills#182](https://github.com/microsoft/aspire-skills/issues/182).
 
 ## F58: A JavaScript resource gets OTLP settings from the AppHost but sends nothing without an SDK in the app
 
@@ -2049,7 +2047,7 @@ app. Draft: [`aspire-js-otlp-without-sdk.md`](upstream-issues/aspire-js-otlp-wit
 
 **Limits / status:** One application (a Vite dev server), Copilot CLI trajectories only (the count covers the trials
 whose runs are in this machine's cache). The variant is the
-suite's change, not shipped Bingo. Independent of T4.2's verdict. Not filed.
+suite's change, not shipped Bingo. Independent of T4.2's verdict. Filed 2026-11-20 as [microsoft/aspire#22509](https://github.com/microsoft/aspire/issues/22509).
 
 ## F59: Haiku under Copilot CLI never calls the skill tool; under Claude Code it loads `aspire-diagnose` from the lean set
 
