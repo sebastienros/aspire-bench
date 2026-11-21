@@ -3,8 +3,8 @@ repo: microsoft/aspire-skills
 title: "`aspire-project-v2-migration`: accept an explicit approval given in the request"
 finding: F57
 labels: []
-status: draft
-issue:
+status: filed
+issue: https://github.com/microsoft/aspire-skills/issues/182
 ---
 
 ## Summary

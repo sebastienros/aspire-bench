@@ -3,8 +3,8 @@ repo: microsoft/aspire
 title: "`aspire new` and `aspire agent init`: write an AGENTS.md beside the AppHost with the start flow (start, describe, wait <resource-name>)"
 finding: F36
 labels: []
-status: draft
-issue:
+status: filed
+issue: https://github.com/microsoft/aspire/issues/22506
 ---
 
 ## Summary

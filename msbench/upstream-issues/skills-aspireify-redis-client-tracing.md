@@ -3,8 +3,8 @@ repo: microsoft/aspire-skills
 title: "aspireify: switch Microsoft.Extensions.Caching.StackExchangeRedis to the Aspire client integration so cache calls are traced"
 finding: F23, F47
 labels: []
-status: draft
-issue:
+status: filed
+issue: https://github.com/microsoft/aspire-skills/issues/181
 ---
 
 ## Summary

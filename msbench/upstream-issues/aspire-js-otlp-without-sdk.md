@@ -3,8 +3,8 @@ repo: microsoft/aspire
 title: "JavaScript resources get OTLP settings but export nothing until the app adds an SDK, and nothing says so"
 finding: F58
 labels: []
-status: draft
-issue:
+status: filed
+issue: https://github.com/microsoft/aspire/issues/22509
 ---
 
 ## Summary

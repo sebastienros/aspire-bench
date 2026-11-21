@@ -3,8 +3,8 @@ repo: microsoft/aspire
 title: "CLI: drop table borders and dashboard links when stdout is not a terminal"
 finding: F19
 labels: []
-status: draft
-issue:
+status: filed
+issue: https://github.com/microsoft/aspire/issues/22508
 ---
 
 ## Summary

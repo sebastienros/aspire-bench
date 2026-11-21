@@ -3,8 +3,8 @@ repo: microsoft/aspire
 title: "`aspire stop` returns before teardown; a start right after it adopts containers that are then removed"
 finding: F56
 labels: []
-status: draft
-issue:
+status: filed
+issue: https://github.com/microsoft/aspire/issues/22510
 ---
 
 ## Summary

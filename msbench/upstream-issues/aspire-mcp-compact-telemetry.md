@@ -3,8 +3,8 @@ repo: microsoft/aspire
 title: "MCP: list_traces and list_structured_logs fill the 8k-token budget on every call, and `search` does not shrink them"
 finding: F18, F31
 labels: []
-status: draft
-issue:
+status: filed
+issue: https://github.com/microsoft/aspire/issues/22507
 ---
 
 ## Summary

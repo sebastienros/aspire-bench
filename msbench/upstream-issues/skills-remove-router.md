@@ -3,8 +3,8 @@ repo: microsoft/aspire-skills
 title: "Remove the `aspire` router skill; let each remaining skill be selected by its own description"
 finding: F17, F21
 labels: []
-status: draft
-issue:
+status: filed
+issue: https://github.com/microsoft/aspire-skills/issues/179
 ---
 
 ## Summary

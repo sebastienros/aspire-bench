@@ -893,7 +893,7 @@ router is the first skill on luna, the trial is slower
 router; give each skill a symptom-based trigger that excludes its neighbours.
 
 **Limits / status:** Measured, not upstreamed. The router's guardrail role was exercised once (T3.8), at
-ceiling on every arm, so it shows the router was not needed there, not that it never helps. The dependency step of the skill names PostgreSQL and Redis only. Draft issues: [skills-add-aspire-diagnose.md](upstream-issues/skills-add-aspire-diagnose.md), [skills-remove-router.md](upstream-issues/skills-remove-router.md) (rewritten 2026-11-20 as the removal alone), [skills-narrow-aspire-monitoring.md](upstream-issues/skills-narrow-aspire-monitoring.md) (folded into the other two the same day; T1.2 `drop` alone).
+ceiling on every arm, so it shows the router was not needed there, not that it never helps. The dependency step of the skill names PostgreSQL and Redis only. Draft issues: [skills-add-aspire-diagnose.md](upstream-issues/skills-add-aspire-diagnose.md) (filed 2026-11-20 as [microsoft/aspire-skills#178](https://github.com/microsoft/aspire-skills/issues/178)), [skills-remove-router.md](upstream-issues/skills-remove-router.md) (filed 2026-11-20 as [microsoft/aspire-skills#179](https://github.com/microsoft/aspire-skills/issues/179)) (rewritten 2026-11-20 as the removal alone), [skills-narrow-aspire-monitoring.md](upstream-issues/skills-narrow-aspire-monitoring.md) (folded into the other two the same day; T1.2 `drop` alone).
 
 ## F18: MCP telemetry tools fill an 8k-token budget on every call
 
@@ -922,7 +922,7 @@ or below the raw app on time in five of six model × scenario cells. Three trial
 arm: a consistent direction, not a proven effect size.
 
 **Limits / status:** Not upstreamed. The default output shape of `list_traces` changes.
-`list_resources` and `list_console_logs` are untouched and still large. Draft issue: [aspire-mcp-compact-telemetry.md](upstream-issues/aspire-mcp-compact-telemetry.md).
+`list_resources` and `list_console_logs` are untouched and still large. Draft issue: [aspire-mcp-compact-telemetry.md](upstream-issues/aspire-mcp-compact-telemetry.md) (filed 2026-11-20 as [microsoft/aspire#22507](https://github.com/microsoft/aspire/issues/22507)).
 
 ## F19: Table borders and dashboard links dominate what an agent reads from the CLI
 
@@ -945,7 +945,7 @@ most of which is the conversation prefix re-sent on each model call.
 **Limits / status:** A context saving, not a measurable speed-up on its own; worth
 upstreaming for the bytes. The trace detail table still omits the SQL text, so the
 skill has to send agents to JSON for one trace. See
-[RESULTS.md](telemetry/RESULTS.md#cli-plain-output-when-redirected). Draft issue: [aspire-cli-plain-output.md](upstream-issues/aspire-cli-plain-output.md).
+[RESULTS.md](telemetry/RESULTS.md#cli-plain-output-when-redirected). Draft issue: [aspire-cli-plain-output.md](upstream-issues/aspire-cli-plain-output.md) (filed 2026-11-20 as [microsoft/aspire#22508](https://github.com/microsoft/aspire/issues/22508)).
 
 **2026-11-17 pin:** on `17.1.0-preview.1.26567.3+30326eb8` the redirected `aspire describe`
 table for the same app is 5,282 bytes, up from 4,244 (+24 %). #22054 writes the exit code
@@ -1125,7 +1125,7 @@ rather than leaving it to elimination.
 look at dependencies over agents that read code. Terra and sol cells have 3 trials
 (smallest attainable p = 0.10); luna 6 to 8. MCP available to luna made it worse here
 (3 of 6): it read `list_traces` / `list_structured_logs` output and went to the code.
-Not upstreamed. Draft issue: [skills-aspireify-redis-client-tracing.md](upstream-issues/skills-aspireify-redis-client-tracing.md).
+Not upstreamed. Draft issue: [skills-aspireify-redis-client-tracing.md](upstream-issues/skills-aspireify-redis-client-tracing.md) (filed 2026-11-20 as [microsoft/aspire-skills#181](https://github.com/microsoft/aspire-skills/issues/181)).
 
 **Update 2026-11-18 (T0.2, held-out app): not reproduced.** On a second log-silent fault, a worker
 blocked on a SQL Server application lock held by a stalled host job, the raw app was not at a
@@ -1575,7 +1575,7 @@ tokens. When both are present the model follows the skill. The time left against
 (39 vs 28 s) was read as `aspire start` returning before health, plus the waits; T2.2 refuted that (a blocking
 start closed none of it): it is the AppHost's launch and resource start-up ([F21](#f21-cold-start-is-slower-with-aspire-whatever-the-skills-removing-the-router-needs-an-owner-for-each-former-job)).
 
-**Improvement candidate:** [upstream-issues/aspire-agents-md.md](upstream-issues/aspire-agents-md.md) (`aspire new`
+**Improvement candidate:** [upstream-issues/aspire-agents-md.md](upstream-issues/aspire-agents-md.md) (filed 2026-11-20 as [microsoft/aspire#22506](https://github.com/microsoft/aspire/issues/22506)) (`aspire new`
 / `aspire agent init` write the file); remove `aspire-orchestration` from the lean proposal for the start job,
 and repoint the skills that name it; a blocking `aspire start` ([aspire-start-blocking.md](upstream-issues/aspire-start-blocking.md),
 T2.2) for the rest.
@@ -1833,7 +1833,7 @@ each hosting integration rather than keyed on image names in the CLI, with a sho
 
 **Limits / status:** n = 6, luna only, two of the 13 images the block covers; the time ratios are within round
 drift (p ≥ 0.39), so the result is "no loss without the skill's integration lines", not a speed-up. Verdict `ship`.
-Not upstreamed (draft [`aspire-describe-connect.md`](upstream-issues/aspire-describe-connect.md)).
+Not upstreamed (draft [`aspire-describe-connect.md`](upstream-issues/aspire-describe-connect.md)) (filed 2026-11-20 as [microsoft/aspire#22505](https://github.com/microsoft/aspire/issues/22505)).
 
 ## F51: The CLI alone exports an incident's telemetry as well as the monitoring skill
 
@@ -1883,7 +1883,7 @@ trial used the default limit for its export). Not upstreamed.
 - **Shrink the skill (T3.2's verdict).** For a one-off integration in a repo that has an AppHost, put the four-step
   main path in the body: `aspire add <package id>`, `WithReference` / `WaitFor`, client registration, restart and
   wait on the changed resources. Load references only when a step fails.
-- **Draft:** `upstream-issues/skills-shrink-aspireify.md`.
+- **Draft:** `upstream-issues/skills-shrink-aspireify.md` (filed 2026-11-20 as [microsoft/aspire-skills#180](https://github.com/microsoft/aspire-skills/issues/180)).
 - **The bundle's time on these jobs** comes as much from the router and the other skills' lookups; that is not
   fixed by this change.
 
@@ -2005,7 +2005,7 @@ not start before the old instance's teardown has finished (its containers gone),
 **Limits / status:** seen with fixed container names only; whether unnamed containers (unique names per instance)
 avoid it was not tested. One application; the delay is timing-dependent (the local reproduction failed at 60 s, not
 at once). Not upstreamed
-(draft [`aspire-stop-teardown-race.md`](upstream-issues/aspire-stop-teardown-race.md)).
+(draft [`aspire-stop-teardown-race.md`](upstream-issues/aspire-stop-teardown-race.md)) (filed 2026-11-20 as [microsoft/aspire#22510](https://github.com/microsoft/aspire/issues/22510)).
 
 ## F57: `aspire-project-v2-migration` stops a mid-tier model at its approval step even when the request grants the approval
 
@@ -2021,7 +2021,7 @@ Luna mostly went ahead (5/6) and took 1.10× the CLI's time.
 **Improvement candidate:** Let the skill treat an explicit approval in the request as approval, at least when the
 request scopes it to the migration's own edits (the AppHost and its package references), and still show the plan
 before editing. Otherwise a non-interactive caller cannot use the skill for the job it is named after. Draft:
-[`skills-v2-migration-advance-approval.md`](upstream-issues/skills-v2-migration-advance-approval.md).
+[`skills-v2-migration-advance-approval.md`](upstream-issues/skills-v2-migration-advance-approval.md) (filed 2026-11-20 as [microsoft/aspire-skills#182](https://github.com/microsoft/aspire-skills/issues/182)).
 
 **Limits / status:** One fixture, single turn. The skill's own claim, assessment plus approval in conversation, is
 not exercised: a two-turn harness would measure it, and the card is `no verdict`. The refusal is the skill working
@@ -2045,7 +2045,7 @@ then appear in one trace in `aspire otel traces`, `aspire otel spans` and MCP `l
 although OTLP was configured for it (`describe`, MCP; the dashboard's resource overview card already says "This resource
 hasn't sent telemetry" since microsoft/aspire#21412, an ancestor of the pin, without distinguishing an idle resource; noted 2026-11-20); add the Node SDK step to the aspireify guidance when it
 wires a JavaScript resource; state in the JavaScript hosting docs that the variables are only read by an SDK in the
-app. Draft: [`aspire-js-otlp-without-sdk.md`](upstream-issues/aspire-js-otlp-without-sdk.md).
+app. Draft: [`aspire-js-otlp-without-sdk.md`](upstream-issues/aspire-js-otlp-without-sdk.md) (filed 2026-11-20 as [microsoft/aspire#22509](https://github.com/microsoft/aspire/issues/22509)).
 
 **Limits / status:** One application (a Vite dev server), Copilot CLI trajectories only (the count covers the trials
 whose runs are in this machine's cache). The variant is the

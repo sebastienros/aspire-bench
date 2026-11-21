@@ -3,8 +3,8 @@ repo: microsoft/aspire
 title: "aspire describe: a `connect` entry per resource with the command that reaches it with its own client"
 finding: F38, F50
 labels: []
-status: draft
-issue:
+status: filed
+issue: https://github.com/microsoft/aspire/issues/22505
 ---
 
 ## Summary

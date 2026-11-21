@@ -3,8 +3,8 @@ repo: microsoft/aspire-skills
 title: "Add an aspire-diagnose skill: a bounded recipe for 'a running app is slow, failing or unhealthy'"
 finding: F17, F23
 labels: []
-status: draft
-issue:
+status: filed
+issue: https://github.com/microsoft/aspire-skills/issues/178
 ---
 
 ## Summary

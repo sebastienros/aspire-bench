@@ -3,8 +3,8 @@ repo: microsoft/aspire-skills
 title: "`aspireify`: put the one-off integration path in the body and load references only on failure"
 finding: F52, F54
 labels: []
-status: draft
-issue:
+status: filed
+issue: https://github.com/microsoft/aspire-skills/issues/180
 ---
 
 ## Summary
