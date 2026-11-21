@@ -1891,7 +1891,7 @@ trial used the default limit for its export). Not upstreamed.
 - **Attribution:** read from trajectories, not an ablation of the body.
 - **Rows not run:** TypeScript toolchain repair, Go and other integrations.
 - **Selection:** luna loads the router first in the bundle (5/6), so the luna selection column fails.
-- Not upstreamed.
+- Filed 2026-11-20 as [microsoft/aspire-skills#180](https://github.com/microsoft/aspire-skills/issues/180).
 
 ## F53: Without `aspire-init`, agents start a new AppHost with `dotnet run` in a session-bound shell
 
