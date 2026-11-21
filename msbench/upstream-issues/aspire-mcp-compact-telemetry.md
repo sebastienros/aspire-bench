@@ -51,14 +51,13 @@ that let an agent ask for less:
 - `list_resources`: move the command descriptions out of the default listing (its `offset`/`limit` paging already
   exists; the size is in the per-resource text, not the count).
 
-A patch for the first two is attached as a starting point (`mcp-compact-telemetry.patch` in the aspire-bench
-repository: 3 files, 25 unit tests passing, 5 new). With it, `list_traces {}` drops from 31,797 to 8,988 characters,
+A patch for the first two exists as a starting point (3 files, 25 unit tests passing, 5 new; we can open it as a PR). With it, `list_traces {}` drops from 31,797 to 8,988 characters,
 a filtered call to 2,854 and the summary already names the slow SQL; `list_structured_logs {severity: "Error"}`
 returns 734 characters.
 
 ## Measured
 
-aspire-bench telemetry suite, PLAN T1.4 (round `t14`, 2026-11-18): the patched server against the unpatched source
+MSBench run of 2026-11-18: the patched server against the unpatched source
 build of the same commit, same round, Copilot CLI 1.0.99, two faults (slow SQL, read-only database), six trials per
 cell, MSBench models `gpt-6-luna` and `gpt-6.1-terra`.
 
@@ -71,7 +70,7 @@ cell, MSBench models `gpt-6-luna` and `gpt-6.1-terra`.
   4 → 8 and 7.5 → 11 on luna) and cost 8 % to 24 % more input tokens, with time between 0.85× and 1.30× of the
   unpatched lean arm and no consistent direction.
 - `list_resources` (10 KB) and `list_console_logs` (0.1k to 3.8k per trial in these short runs, far from the table's
-  figure) never crossed Copilot CLI's threshold in either arm (PLAN T2.1), so compacting them changes nothing this
+  figure) never crossed Copilot CLI's threshold in either arm, so compacting them changes nothing this
   harness shows the model; the remaining spills are `list_structured_logs`.
 
 The benchmark's pre-registered rule required a significant gain on the cheapest model, so the patch was not adopted

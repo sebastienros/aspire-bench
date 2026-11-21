@@ -49,6 +49,4 @@ surviving shutdown on Windows).
 
 ## Evidence
 
-Agent benchmark (aspire-bench `msbench/telemetry`, PLAN §7 T3.1 `port-conflict`): agents told by the
-`aspire-orchestration` skill to "stop, then restart" on a port conflict hit this in 3 of 6 trials on the cheapest
-model; see the finding.
+Seen in an agent benchmark (MSBench, Copilot CLI 1.0.99): agents told by the `aspire-orchestration` skill to "stop, then restart" on a port conflict hit this in 3 of 6 trials on the cheapest model.

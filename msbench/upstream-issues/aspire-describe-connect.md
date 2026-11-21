@@ -42,9 +42,7 @@ CLI matching image names. The container shell execution that #22168 (open) propo
 
 ## Evidence
 
-aspire-bench telemetry suite, PLAN T4.1 (audit matrix, FINDINGS F38–F46) and T2.6 (FINDINGS F50): a CLI-side
-prototype of this block, with the diagnosis skill's dependency step reduced to "run `connect.command` with the
+MSBench, Copilot CLI 1.0.99, Aspire daily `30326eb8`: a CLI-side prototype of this block (a CLI patch, available on request), with the diagnosis skill's dependency step reduced to "run `connect.command` with the
 tool's arguments", matched the hand-written per-integration step on the cheapest model (6/6 and 6/6 passes, 0.90×
 and 0.89× the time on a slow-SQL and a blocked-cache fault). Use the container name or a 12-character ID: one agent
-mis-copied the 64-character ID. A Redis-only version of the same field (`connect` as a string hint) was measured
-separately (T2.4).
+mis-copied the 64-character ID. A Redis-only version of the same field (`connect` as a string hint) was measured separately and did not reach the model's screen when `describe --format Json` was large.

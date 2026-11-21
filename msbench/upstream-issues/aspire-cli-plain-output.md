@@ -16,7 +16,7 @@ and the trace list, most of it borders and links.
 
 ## Proposal
 
-A 13-line patch (`cli-plain-output.patch` in the aspire-bench repository): when
+A 13-line patch (we can open it as a PR): when
 output is redirected, render tables without borders and without the per-row dashboard
 link. Endpoint URLs are kept.
 

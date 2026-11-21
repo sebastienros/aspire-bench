@@ -15,7 +15,7 @@ itself was loaded in 2 of 6 shipped-set trials on the read-only fault and 0 of 6
 changed which skill the agent loaded and how soon the fault reached the screen; the full mechanism is not
 determinable from those cells. We measured v0.0.6 with the `aspire` folder deleted and nothing else changed
 (`aspire-skills-norouter`) against v0.0.6 as shipped, in the same rounds, on an aspirified sample application
-with injected faults (aspire-bench telemetry suite; MSBench, Copilot CLI 1.0.99, Aspire daily
+with injected faults (MSBench, Copilot CLI 1.0.99, Aspire daily
 `17.1.0-preview.1.26567.3+30326eb8`, six trials per cell unless stated).
 
 **Diagnosis prompts ("the app is slow, find out why and fix it").** On `gpt-6-luna`, removing the router took 0.50×
@@ -75,5 +75,4 @@ diagnosis, not instead of them.
 
 ## Evidence
 
-aspire-bench telemetry suite, PLAN cards T1.3 (round `t13`), T1.8 (`t18`), T3.4 (`t34`), T3.8 (`t38`), T1.6 (`t16`),
-T1.2 (`t12`); FINDINGS F17 and F21. The measured arm is v0.0.6 at `e529b608` minus `skills/aspire`.
+Six MSBench rounds at the same pin (Copilot CLI 1.0.99). The measured arm is v0.0.6 at `e529b608` minus `skills/aspire`.

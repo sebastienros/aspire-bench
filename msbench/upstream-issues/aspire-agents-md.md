@@ -58,7 +58,7 @@ the list to take the name from.
 
 ## Measured effect
 
-aspire-bench PLAN T2.11, Copilot CLI 1.0.99, Aspire daily `30326eb8`, cold start of an 8-resource app, 6 trials
+MSBench, Copilot CLI 1.0.99, Aspire daily `30326eb8`, cold start of an 8-resource app, 6 trials
 per cell, same round:
 
 | | `gpt-6-luna` seconds to a verified-up app | tokens | `gpt-6.1-terra` |
@@ -76,8 +76,7 @@ without the skill (counts re-derived after the trajectory audit). Diagnosis on a
 
 - Measured on one app and one harness; the workspace README also named the start command.
 - The remaining gap to a hand-written start script (39 s against 28 s) is Aspire's own time to a healthy app
-  (AppHost launch 15–20 s, then resource start-up), not the start returning before health: a blocking start
-  closed none of it (see [aspire-start-blocking.md](aspire-start-blocking.md)).
+  (AppHost launch 15–20 s, then resource start-up), not the start returning before health: a blocking `aspire start` that waits for every resource's health was measured and closed none of it (41.2 s against 40.2 s unpatched on `gpt-6-luna`).
 - If the orchestration skill is removed from a set, other skills' descriptions that name it (for example
   `aspire-diagnose`'s "DO NOT USE FOR … (aspire-orchestration)") should point to the file instead: 2 of 6
   trials tried to load the missing skill.

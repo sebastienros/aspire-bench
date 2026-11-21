@@ -29,13 +29,13 @@ proposal text. The same applies to the workshop sample that this app came from. 
 
 ## Evidence
 
-`slow-redis` scenario in the aspire-bench telemetry suite (finding F23). With a skill
+Seen in the blocked-cache scenario of our MSBench runs. With a skill
 that tells the agent where to look it still fixed 5 of 6 on the cheapest model; a trace
 that names the cache span would remove the need for that hint.
 
 ## Measured (T2.5, 2026-11-19)
 
-The proposal was measured in the aspire-bench telemetry suite (PLAN T2.5, FINDINGS F47): the aspirified Bingo
+The proposal was measured (MSBench, Copilot CLI 1.0.99): the aspirified Bingo
 app with `AddRedisDistributedCache("cache")` against the same app without it, on a fault where another client blocks
 the cache, n = 6 per cell in each of two rounds. With the cache traced, a slow request carries about 45 `HMGET` client
 spans, and on the cheapest model the diagnosis skill on the CLI reached the cache in about 22 s instead of 38 s in both

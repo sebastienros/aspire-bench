@@ -11,8 +11,7 @@ issue: https://github.com/microsoft/aspire-skills/issues/178
 
 The shipped skills have no owner for first-line diagnosis of a running local app. On a "the app is slow, find out
 why and fix it" prompt the agent lands on `aspire-monitoring` (with or without the router first), whose body is about telemetry
-export, and ends up reading unbounded `aspire otel` output or source code. Measured on an aspirified sample application with injected faults (aspire-bench
-telemetry suite; MSBench, Copilot CLI 1.0.99, Aspire daily `17.1.0-preview.1.26567.3+30326eb8`, aspire-skills
+export, and ends up reading unbounded `aspire otel` output or source code. Measured on an aspirified sample application with injected faults (MSBench, Copilot CLI 1.0.99, Aspire daily `17.1.0-preview.1.26567.3+30326eb8`, aspire-skills
 v0.0.6, pooled over the rounds of that pin), the shipped set with MCP against the same app without Aspire:
 
 | Fault | Model | Shipped set + MCP ÷ raw, agent time [90 % interval] | Input tokens |
@@ -25,15 +24,13 @@ v0.0.6, pooled over the rounds of that pin), the shipped set with MCP against th
 On a third fault, a cache blocked by another client, whose evidence is not in the app's own log, the shipped set
 with MCP passed 0 of 24 luna trials (raw 8 of 54): the agents patched the application instead of the cache.
 
-`aspire-diagnose` was revised once during this pin (the wording of step 1, PLAN T1.1). The lean numbers below use the
+`aspire-diagnose` was revised once during this pin (the wording of step 1). The lean numbers below use the
 revised text on the slow-SQL and cache faults and, for `gpt-6-luna` and `gpt-6.1-terra`, the original text on the
 read-only fault, the only text run there; `gpt-6.2-sol` and `claude-opus-5.5` ran the revised text everywhere.
 
 ## Proposal
 
-Add `aspire-diagnose` (about 6 KB, no reference files on the main path). The measured version is in the
-aspire-bench repository at `msbench/telemetry/common/skills/new/aspire-diagnose/SKILL.md`, commit `c85f32e` (the Redis
-line of step 3 was made port-agnostic afterwards, commit `1474b83`; that text has not run in a trial). Its shape:
+Add `aspire-diagnose` (about 6 KB, no reference files on the main path). We can open the measured version as a PR (the Redis line of step 3 was made port-agnostic after the measurement; that text has not run in a trial). Its shape:
 
 1. **Locate** with a bounded filter: `aspire otel traces -n 15 --search "duration:>500"` (or
    `--search "status:error"`), table output.
@@ -86,7 +83,7 @@ MCP), pooled over the pin's rounds; p from an exact Mann-Whitney test, intervals
 - It works best with the router removed (companion issue): with the router present the cheapest model picked the
   wrong skill in 2 of 6 trials on the first pin.
 - Step 4's "confirm on fresh traffic" adds 15–45 s per confirmation on `claude-opus-5.5`, which waits for new
-  telemetry; a revision that accepts the first clean trace was proposed (PLAN T1.8) and has not been measured.
+  telemetry; a revision that accepts the first clean trace was proposed and has not been measured.
 - One application, one harness (Copilot CLI); six trials per cell per round. The pooled ratios mix rounds, and the
   same shipped-set cell moved from 147 to 271 s between rounds, so ratios near 1 are unresolved; the ratios far from
   1 (shipped set with MCP against raw, lean against shipped set with MCP, the cache pass rates) are not.

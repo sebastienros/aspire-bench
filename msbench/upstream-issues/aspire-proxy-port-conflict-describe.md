@@ -44,8 +44,7 @@ the conflict.
 
 ## Evidence
 
-Agent benchmark (aspire-bench `msbench/telemetry`, PLAN §7 T3.1 `port-conflict`): see the finding for the
-measured behaviour and what agents did when they met it.
+Seen in an agent benchmark (MSBench, Copilot CLI 1.0.99) while agents restarted an app on a port conflict.
 
 ## Comment drafted for microsoft/aspire#9717 (not posted)
 
@@ -62,4 +61,4 @@ Repro:
 3. `aspire start --apphost apphost.cs --non-interactive` → "AppHost started successfully".
 4. `aspire describe --format Json` → the resource's URL is `http://localhost:5039`; `curl` it → `other`.
 
-Context: met while running coding agents against an aspirified sample app in the [aspire-bench](https://github.com/sebastienros/aspire-bench) telemetry suite (finding [F55](https://github.com/sebastienros/aspire-bench/blob/main/msbench/FINDINGS.md#f55-under-a-plain-aspire-start-a-port-held-by-another-process-is-silent-and-describe-advertises-it) records what the agents did when they met it); tracked from https://github.com/microsoft/aspire/issues/22511.
+Context: met while running coding agents (MSBench) against an aspirified sample app; listed as related in https://github.com/microsoft/aspire/issues/22511.

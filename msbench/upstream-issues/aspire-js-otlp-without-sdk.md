@@ -41,8 +41,7 @@ One or more of:
 
 - Aspire daily 17.1.0-preview.1.26567.3 (30326eb8): `src/Aspire.Hosting.JavaScript/JavaScriptHostingExtensions.cs`
   calls `WithOtlpExporter()` for the Vite and Node app resources.
-- Telemetry suite trajectories (Copilot CLI, gpt-6-luna and gpt-6.1-terra, two Aspire dailies): 2,338 trials ran
+- Agent trajectories (MSBench, Copilot CLI, gpt-6-luna and gpt-6.1-terra, two Aspire dailies): 2,338 trials ran
   `aspire otel traces`; 0 listed a frontend (`bingoboard:`) trace.
-- With the auto-instrumentation registered in the Vite process (app variant `aspire-frontend-traced` in the suite),
-  the frontend's `GET /api/version-info` server span and its outgoing client span to the admin appear in
-  `aspire otel traces` (PLAN T4.2).
+- With the auto-instrumentation registered in the Vite process (a variant of the sample app),
+  the frontend's `GET /api/version-info` server span and its outgoing client span to the admin appear in `aspire otel traces`.

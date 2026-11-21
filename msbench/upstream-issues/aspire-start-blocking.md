@@ -22,7 +22,7 @@ AppHost starts, wait for every resource to be healthy (or to finish with exit co
 using the same backchannel wait as `aspire wait`, then print one line per resource and its endpoint URLs.
 `--wait <names>` waits for named resources only; it is the default under `--non-interactive`, and
 `--no-wait` keeps today's behaviour. Compared with the unpatched source build in the same round, on
-the aspire-bench `cold-start` scenario, Copilot CLI, 6 trials per cell, every trial passed:
+a cold-start scenario (MSBench, Copilot CLI), 6 trials per cell, every trial passed:
 
 | Model | raw start script | `aspire start` (unpatched) | `aspire start` blocking |
 |---|---:|---:|---:|
@@ -56,5 +56,4 @@ AppHost build cost) are the same phase from other angles.
 
 ## Evidence
 
-aspire-bench telemetry suite, PLAN cards T2.2 and T2.9 (round `t22`, 162 trials), FINDINGS F21. The patch
-is `msbench/telemetry/common/aspire-patches/cli-start-wait.patch`.
+MSBench, 162 trials in one round. The patch is available on request.

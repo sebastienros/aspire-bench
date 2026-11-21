@@ -36,6 +36,6 @@ together.
 
 ## Evidence
 
-aspire-bench telemetry suite, PLAN T3.7, round `t37`, Aspire daily 17.1.0-preview.1.26567.3, aspire-skills v0.0.6,
+MSBench, Aspire daily 17.1.0-preview.1.26567.3, aspire-skills v0.0.6,
 Copilot CLI 1.0.99, n = 6 per cell. The cheapest model proceeded anyway in 5 of 6 trials; the mid-tier model
 followed the boundary.

@@ -51,7 +51,7 @@ reading and checks, not a better route.
 
 ## Measured
 
-Task T3.2 of the aspire-bench telemetry suite (`msbench/telemetry/PLAN.md`, T3.2 results). Setup:
+Setup (MSBench):
 
 - Aspire daily `17.1.0-preview.1.26567.3+30326eb8`, aspire-skills v0.0.6, Copilot CLI 1.0.99.
 - Models `gpt-6-luna` and `gpt-6.1-terra`, six trials per cell.
