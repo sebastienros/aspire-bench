@@ -3,8 +3,8 @@ repo: microsoft/aspire
 title: "CLI: cold start is the AppHost's launch time, not the start/wait/describe sequence (a blocking start measured)"
 finding: F21
 labels: []
-status: draft
-issue:
+status: draft                  # held at the 2026-11-20 review, not filed
+issue:                         # the one-call-wait convenience went as a comment on microsoft/aspire#16827 (2026-11-24, text below)
 ---
 
 ## Summary
@@ -57,3 +57,23 @@ AppHost build cost) are the same phase from other angles.
 ## Evidence
 
 MSBench, 162 trials in one round. The patch is available on request.
+
+## Comment posted on microsoft/aspire#16827 (2026-11-24)
+
+Posted as https://github.com/microsoft/aspire/issues/16827#issuecomment-7139414148 after the user asked for it; 16827 (`aspire wait` on several resources, open since 2026-05-06, Backlog) was added to epic 22511 as a sub-issue the same day. The text, verbatim:
+
+Adding the coding-agent angle to this ask, from MSBench runs where agents (Copilot CLI 1.0.99; models `gpt-6-luna`, `gpt-6.1-terra`, `gpt-6.2-sol`) start, fix and extend an aspirified sample app with seven resources.
+
+**What an agent does today.** `aspire wait` takes one resource name, so an agent that wants a healthy app has to learn the names first and then wait once per name. Each command is a model turn: its output goes back to the model, which decides the next call. The flow our workspace instructions described, because the CLI allows nothing shorter, was `aspire start`, `aspire describe` to read the resource list, then one `aspire wait <name>` per resource; `gpt-6.1-terra` followed it in 6 of 6 cold-start trials. The skill shipped for adding an integration ends with "validate: `aspire wait` for each resource", and on the task that adds Redis and restarts the app that step is where the time goes: on `gpt-6-luna`, from the restart to the last call took 110 s with the skill against 58 s without it, with 71 `aspire wait` / `describe` / `ps` calls over six trials against 44.
+
+**What a single call saves, and what it does not.** We measured a patched `aspire start` that waited for every resource (healthy, or exited 0 for one-shot resources) and printed the endpoints, which is the shape `aspire start && aspire wait --all` would give. On terra, median commands to a verified-up app fell from 5 to 3 and median tokens from 72k to 49k per trial; luna was flat (75k to 72k) and sol rose (83k to 91k, its start coming back unfinished at the harness's 30 s shell wait in 6 of 6 trials). A workspace file that named one wait instead of the describe-then-wait sequence had the same effect on luna: 58k tokens against 89k and 3.5 commands against 7. Wall-clock to a healthy app did not improve in any cell, because the per-resource waits overlap the app's own start-up; the blocking start was 0.6 to 3.8 s slower in every same-build pair (terra 43.1 s against 38.6 s, p = 0.002), and one candidate cause on record is that it waited on all seven resources where the agents waited on the two they needed. That argues for the multi-name form in this request as much as for `--all`: the saving is in model turns and context, and in the `describe` round trip that exists only to discover names, not in the app's start time. We also saw agents keep issuing per-resource waits after a blocking start had reported everything healthy, because their instructions named the waits; a first-class batch wait is what instructions would name instead.
+
+**Suggested shape.**
+- `aspire wait <res1> <res2> ...` as asked above, and `aspire wait --all` for every resource the AppHost would start.
+- `ResourceWaitService` in the CLI already waits on a list and reports a per-resource outcome; the MCP server's `wait_for_resources` tool uses it and, when `resourceNames` is omitted, waits on every non-hidden, non-excluded resource. The CLI command could call the same service for the batch mechanics.
+- What that service does not define is "done" per resource kind, which `--all` needs: healthy for services, exited 0 for one-shot resources such as migrations (today the `healthy` wait treats a completed resource as a failure, as `WaitFor` does), skipped for explicit-start resources, fail fast when one resource exits non-zero.
+- Print one line per resource with its final state (and, with `--all`, the endpoint URLs), so the output is also the list a CI script or an agent needs and no `describe` follows. That is the per-resource list this request asks for.
+
+The `AGENTS.md` start flow proposed in #22506 is written around the one-name limitation (start, describe, wait per name). With this in place it becomes `aspire start`, `aspire wait --all`, and `aspire describe` only when URLs are needed. Tracked from #22511.
+
+Model names are MSBench model ids.
