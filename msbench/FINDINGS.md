@@ -1575,7 +1575,7 @@ tokens. When both are present the model follows the skill. The time left against
 (39 vs 28 s) was read as `aspire start` returning before health, plus the waits; T2.2 refuted that (a blocking
 start closed none of it): it is the AppHost's launch and resource start-up ([F21](#f21-cold-start-is-slower-with-aspire-whatever-the-skills-removing-the-router-needs-an-owner-for-each-former-job)).
 
-**Improvement candidate:** [upstream-issues/aspire-agents-md.md](upstream-issues/aspire-agents-md.md) (filed 2026-11-20 as [microsoft/aspire#22506](https://github.com/microsoft/aspire/issues/22506)) (`aspire new`
+**Improvement candidate:** [upstream-issues/aspire-agents-md.md](upstream-issues/aspire-agents-md.md) (filed 2026-11-20 as [microsoft/aspire#22506](https://github.com/microsoft/aspire/issues/22506); follow-up [microsoft/aspire#22605](https://github.com/microsoft/aspire/issues/22605) of 2026-11-24 switches the flow to `aspire wait --all` once 16827 ships) (`aspire new`
 / `aspire agent init` write the file); remove `aspire-orchestration` from the lean proposal for the start job,
 and repoint the skills that name it; a blocking `aspire start` ([aspire-start-blocking.md](upstream-issues/aspire-start-blocking.md),
 T2.2) for the rest.
